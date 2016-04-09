@@ -219,14 +219,15 @@ var isChanged = attrSpec.assign( value, options, model, key );
 
 
 
-function assign( value, options, model, key ){
+function assign( value, options, model, key ){ //<- todo: too many params. Introduce transaction context? model + options + attrs...
 ///================
     const compatibleType = value == null || value instanceof this.type,
           existing       = model.attributes[ key ];
 
     if( existing && !compatibleType ){
         return existing.setState( value, options );
-    }
+    } // <- is not the part of regular pipeline. It's not cast which can be exected after hook.
+    // todo: move this out of the pipeline.
 
     return this.pipeline( compatibleType ? value : this.create( value, options ), existing, model, key );
 }
