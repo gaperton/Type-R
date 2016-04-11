@@ -61,6 +61,7 @@ export class Model {
         }
 
         // Trigger all relevant attribute changes.
+        // Nested .set will trigger transaction with immediate change:attr
         if( !options.silent ){
             if( changes.length ) this._pending = true;
 
@@ -93,6 +94,21 @@ export class Model {
                 this._pending = true;
                 this.trigger( 'change:' + attr, this, val, options );
             }
+        }
+    }
+
+    // Plain assignment
+    simpleAttrSync( attr, val, options ){
+        // update current
+        var current = this.attributes;
+
+
+        current[ attr ] = val;
+
+
+        if( !_.isEqual( current[ attr ], val ) ){
+            this._pending = true;
+            this.trigger( 'change:' + attr, this, val, options );
         }
     }
 
