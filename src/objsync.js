@@ -6,7 +6,7 @@
  * 2) Send change events
  *
  * Not clear what to do with owner change event. We already know that node is changed here.
- * (!) We could delay that until children will tell us about the change, so we can make `touch`.
+ * (!) We could delay that until children will tell us about the change during its commit, so we can make `touch`.
  * (!) Which will work just fine.
  */
 
