@@ -1,3 +1,19 @@
+class Attribute {
+    constructor(){
+        this.deepUpdate = false;
+    }
+
+    isCompatible( value ){ return true; }
+
+    // cast and set hook...
+    convert( next, prev, options ) { return next; }
+
+    isChanged( next, prev ){ return !_.isEqual( next, prev ); }
+
+    // event management, ownership, hooks, if any...
+    handleChange( next, prev ) {}
+}
+
 class Model {
     set( a, b, c ){
         if( a && Object.getPrototypeOf( a ) === Object.prototype ){
