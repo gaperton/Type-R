@@ -76,11 +76,22 @@ class Model {
 
         if( !options.silent ){
             this._pending = options;
-            this.trigger( 'change:' + model._ownerAttr, model, this, options );
+            this._onChangeAttr( model._ownerAttr, options );
         }
 
         isRoot && commit( this, options );
     }
+
+    _onChange( options ){
+        this._changeToken = {};
+        this.trigger( 'change', this, options );
+    }
+
+    _onChangeAttr( name, options ){
+        this.trigger( 'change:' + name, this.attributes[ name ], this, options );
+    }
+
+    get collection(){ return ( this._ownerKey && this._owner ) || null; }
 }
 
 class Transaction {
@@ -109,19 +120,12 @@ class Transaction {
                 model._pending = options;
             }
 
-            notifyChangeAttrs( model, changed, options );
+            for( let i = 0; i < changed.length; i++ ){
+                model._onChangeAttr( changed[ i ], options )
+            }
         }
 
         this.isRoot && commit( model, options );
-    }
-}
-
-function notifyChangeAttrs( model, changed, options ){
-    const { attributes } = model;
-
-    for( let i = 0; i < changed.length; i++ ){
-        const attr = changed[ i ];
-        model.trigger( 'change:' + attr, attributes[ attr ], model, options );
     }
 }
 
@@ -140,8 +144,7 @@ function commit( model, options ){
     if( !options.silent ){
         while( model._pending ){
             model._pending = false;
-            model._changeToken = {};
-            model.trigger( 'change', model, options );
+            model._onChange( options );
         }
     }
 
