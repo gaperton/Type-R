@@ -1,14 +1,29 @@
+
+
+
 class Attribute {
     constructor(){
         this.deepUpdate = false;
     }
 
-    isCompatible( value ){ return true; }
+    isCompatible( value ){ return value == null || value instanceof this.type; }
 
     // cast and set hook...
-    convert( next, prev, options ){ return next; }
+    convert( next, prev, options ){ return this.isCompatible( next ) ? next : new this.type( next, options ); }
 
     isChanged( next, prev ){ return !_.isEqual( next, prev ); }
+
+    // event management, ownership, hooks, if any...
+    handleChange( next, prev ){}
+}
+
+class PrimitiveType extends Attribute {
+    isCompatible( value ){ return value == null || typeof value === 'number'; } //todo
+
+    // cast and set hook...
+    convert( next ){ return next == null ? next : this.type( next ); }
+
+    isChanged( next, prev ){ return next !== prev; }
 
     // event management, ownership, hooks, if any...
     handleChange( next, prev ){}
@@ -28,6 +43,12 @@ class Model {
                 spec.handleChange( next );
             }
         } );
+    }
+
+    transaction( fun, options ){
+        const isRoot = begin( this );
+        fun( this );
+        isRoot && commit( this, options );
     }
 
     set( a, b, c ){
@@ -142,6 +163,39 @@ class Transaction {
 
         this.isRoot && commit( model, options );
     }
+}
+
+function setAttribute( model, key, value ){
+    const isRoot = begin( model ),
+          options = {};
+
+    const spec = __attributes[ name ],
+          prev = attributes[ name ];
+
+    // handle deep update...
+    if( spec.deepUpdate ){
+        if( prev && !spec.isCompatible( value ) ){
+            nested.push( prev._set( value, options ) );
+            return;
+        }
+    }
+
+    // cast and hook...
+    const next = spec.convert( value, prev, options );
+
+    if( spec.isChanged( next, prev ) ){
+        attributes[ name ] = next;
+
+        // Do the rest of the job after assignment
+        if( spec.handleChange ){
+            spec.handleChange( next, prev );
+        }
+
+        model._pending = options;
+        model._onChangeAttr( name, options );
+    }
+
+    isRoot && commit( model, {} );
 }
 
 function begin( model ){
