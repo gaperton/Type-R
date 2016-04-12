@@ -6,15 +6,30 @@ class Attribute {
     isCompatible( value ){ return true; }
 
     // cast and set hook...
-    convert( next, prev, options ) { return next; }
+    convert( next, prev, options ){ return next; }
 
     isChanged( next, prev ){ return !_.isEqual( next, prev ); }
 
     // event management, ownership, hooks, if any...
-    handleChange( next, prev ) {}
+    handleChange( next, prev ){}
 }
 
 class Model {
+    constructor( attrs, options ){
+        let attributes = this.attributes = this.defaults( attrs );
+
+        this.forEachAttr( attributes, function( value, name ){
+            const spec = __attributes[ name ], //todo: embed attribute-level parse?
+                  next = spec.convert( value, void 0, options );
+
+            attributes[ name ] = next;
+
+            if( spec.handleChange ){
+                spec.handleChange( next );
+            }
+        } );
+    }
+
     set( a, b, c ){
         if( a && Object.getPrototypeOf( a ) === Object.prototype ){
             this._set( a, b ).commit( b );
