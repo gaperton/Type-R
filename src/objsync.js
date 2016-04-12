@@ -76,7 +76,7 @@ function createTransaction( model, attrs, options ){
 
             // Do the rest of the job after assignment
             if( spec.handleChange ){
-                spec.handleChange( next, prev );
+                spec.handleChange( nex t, prev );
             }
         }
     } );
