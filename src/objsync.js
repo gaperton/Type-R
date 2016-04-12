@@ -7,6 +7,7 @@
  *
  * Not clear what to do with owner change event. We already know that node is changed here.
  * (!) We could delay that until children will tell us about the change, so we can make `touch`.
+ * (!) Which will work just fine.
  */
 
 class Transaction {
@@ -22,9 +23,10 @@ class Transaction {
     add( attr, transaction ){
         this.nested.push( transaction );
 
+        /* Don't need it - children will `touch` an attribute when transaction will be commited.
         if( transaction.changed.length ){
             this.changed.push( attr );
-        }
+        }*/
     }
 
     // commit transaction
