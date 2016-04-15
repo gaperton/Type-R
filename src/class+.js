@@ -171,27 +171,44 @@ export function transform( dest, source, fun ){
     return dest;
 }
 
-export function assign( dest ){
-    for( let i = 1; i < arguments.length; i++ ){
-        let source = arguments[ i ];
+function forAllArgs( fun ){
+    return function( dest ){
+        for( var i = 1; i < arguments.length; i++ ){
+            const source = arguments[ i ];
+            source && fun( dest, source );
+        }
+
+        return dest;
+    }
+}
+
+export function fastAssign( dest, source ){
+    for( var name in source ){
+        dest[ name ] = source[ name ];
+    }
+}
+
+export function fastDefaults( dest, source ){
+    for( var name in source ){
+        dest[ name ] === void 0 || ( dest[ name ] = source[ name ] );
+    }
+}
+
+export const assign = forAllArgs( ( dest, source ) =>{
+    for( var name in source ){
         if( source.hasOwnProperty( name ) ){
             dest[ name ] = source[ name ];
         }
     }
+});
 
-    return dest;
-}
-
-export function defaults( dest ){
-    for( let i = 1; i < arguments.length; i++ ){
-        let source = arguments[ i ];
-        if( source.hasOwnProperty( name ) && !( name in dest ) ){
-            dest[ name ] = source[ name ];
+export const defaults = forAllArgs( ( dest, source ) =>{
+    for( var name in source ){
+        if( source.hasOwnProperty( name ) ){
+            dest[ name ] === void 0 || ( dest[ name ] = source[ name ] );
         }
     }
-
-    return dest;
-}
+});
 
 export function createForEach( attrSpecs ){
     var statements = [ 'var v;' ];

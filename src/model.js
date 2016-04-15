@@ -1,41 +1,45 @@
-
-
-
-class Attribute {
-    constructor(){
-        this.deepUpdate = false;
-    }
-
-    isCompatible( value ){ return value == null || value instanceof this.type; }
-
-    // cast and set hook...
-    convert( next, prev, options ){ return this.isCompatible( next ) ? next : new this.type( next, options ); }
-
-    isChanged( next, prev ){ return !_.isEqual( next, prev ); }
-
-    // event management, ownership, hooks, if any...
-    handleChange( next, prev ){}
-}
-
-class PrimitiveType extends Attribute {
-    isCompatible( value ){ return value == null || typeof value === 'number'; } //todo
-
-    // cast and set hook...
-    convert( next ){ return next == null ? next : this.type( next ); }
-
-    isChanged( next, prev ){ return next !== prev; }
-
-    // event management, ownership, hooks, if any...
-    handleChange( next, prev ){}
-}
+import { Attribute } from './attributes'
 
 class Model {
-    constructor( attrs, options ){
-        let attributes = this.attributes = this.defaults( attrs );
+    static define( spec ){
+        // Create collection
+        if( this.Collection === BaseModel.Collection ){
+            this.Collection = class extends BaseModel.Collection {};
+            this.Collection.prototype.model = this;
+        }
 
-        this.forEachAttr( attributes, function( value, name ){
-            const spec = __attributes[ name ], //todo: embed attribute-level parse?
-                  next = spec.convert( value, void 0, options );
+        if( spec ){
+            // define stuff
+            super.define( compile( spec ) );
+
+            const { collection } = spec;
+            if( collection ){
+                if( typeof collection === 'function' ){
+                    // Link model to collection
+                    this.Collection = collection;
+                    this.Collection.prototype.model = this;
+                }
+                else{
+                    // Configure our local Collection
+                    this.Collection.define( collection );
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * @param attrs
+     * @param options - { parse : true, deepCopy : true }
+     */
+    constructor( attrs, options ){
+        const parsedAttrs = options.parse ? this.parse( attrs ) : attrs,
+              attributes = this.defaults( parsedAttrs ),
+              { _attributes } = this;
+
+        this.forEachAttr( attributes, ( value, name ) => {
+            const spec = _attributes[ name ],
+                  next = spec.transform( value, void 0, options );
 
             attributes[ name ] = next;
 
@@ -43,6 +47,14 @@ class Model {
                 spec.handleChange( next );
             }
         } );
+
+        //todo: init the rest of the stuff
+        this.attributes = attributes;
+        this._previousAttributes = {};
+    }
+
+    clone( options = { deep : true } ){
+        return new this.constructor( this.attributes, options );
     }
 
     transaction( fun, options ){
@@ -127,8 +139,35 @@ class Model {
         this.trigger( 'change:' + name, this.attributes[ name ], this, options );
     }
 
-    get collection(){ return ( this._ownerKey && this._owner ) || null; }
+    get collection(){ return ( !this._ownerKey && this._owner ) || null; }
+
+/** --------------------------------
+ * TODO: Core Changes API
+ */
+
+    hasChanged( attr ){
+        // todo: must be evaluated taken nested changes into account (?).
+        // => need to build `changed` hash strictly
+        // Consider structure: null || { attr : Boolean }
+    }
+
+    changedAttributes( diff ){}
+
+    previous( attr ){
+        const attributes = this._previousAttributes;
+        return attributes && attributes[ attr ]; // todo: execute `get` hook.
+    }
+
+    previousAttributes(){
+        return new this.Attributes( this._previousAttributes || {} );
+    }
+
+    get changed(){
+        // todo: create and cache changed hash.
+    }
 }
+
+Model.mixinRules = { collection : 'merge' };
 
 class Transaction {
     // open transaction

@@ -5,8 +5,23 @@ Minimalistic transactional model core. ES6
 Will be the basis for next NestedTypes version.
 
 
-Requirements
+Features
 ------------
+Model
+    - new Model( attrs, options )
+    - model.set( attrs, options )
+    - model.toJSON()
+    - model.parse( data )
+    - model.name = value; 
+    - model.transaction( fun );
+    - model.attributes spec
+        - Primitive Types
+        - Type inference
+        - Date
+        - Model
+        - Type.value( x ) support.
+    - NO backbone events depencency
+
 
 1. Transactional API:
 - model.transaction( fun )
