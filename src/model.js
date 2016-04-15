@@ -204,39 +204,44 @@ class Transaction {
     }
 }
 
-function setAttribute( model, key, value ){
+// fast-path set attribute transactional function
+function setAttribute( model, name, value ){
     const isRoot = begin( model ),
           options = {};
 
-    const spec = __attributes[ name ],
-          prev = attributes[ name ];
+    const { attributes } = model,
+            spec = model._attributes[ name ],
+            prev = attributes[ name ];
 
     // handle deep update...
-    if( spec.deepUpdate ){
-        if( prev && !spec.isCompatible( value ) ){
-            nested.push( prev._set( value, options ) );
-            return;
+    if( spec.deepUpdate && prev && !spec.isCompatible( value ) ){
+        prev._set( value, options ).commit( options );
+    }
+    else{
+        // cast and hook...
+        const next = spec.convert( value, prev, options );
+
+        if( spec.isChanged( next, prev ) ){
+            attributes[ name ] = next;
+
+            // Do the rest of the job after assignment
+            if( spec.handleChange ){
+                spec.handleChange( next, prev );
+            }
+
+            model._pending = options;
+            model._onChangeAttr( name, options );
         }
     }
 
-    // cast and hook...
-    const next = spec.convert( value, prev, options );
-
-    if( spec.isChanged( next, prev ) ){
-        attributes[ name ] = next;
-
-        // Do the rest of the job after assignment
-        if( spec.handleChange ){
-            spec.handleChange( next, prev );
-        }
-
-        model._pending = options;
-        model._onChangeAttr( name, options );
-    }
-
-    isRoot && commit( model, {} );
+    isRoot && commit( model, options );
 }
 
+/**
+ * Transactional brackets
+ *  begin( model ) => true | false;
+ *  commit( model, options ) => void 0
+ */
 function begin( model ){
     const isRoot = !model._changing;
 
@@ -259,6 +264,9 @@ function commit( model, options ){
     model._pending  = false;
     model._changing = false;
 
+    // TODO: should it be in the transaction scope?
+    // So, upper-level change:attr handlers will work in the scope of current
+    // transaction. Short answer: no. Leave it like this.
     const { _owner } = model;
     if( _owner ){
         _owner._onChildrenChange( model, options );
