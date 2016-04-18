@@ -214,6 +214,7 @@ function setAttribute( model, name, value ){
             prev = attributes[ name ];
 
     // handle deep update...
+    // TODO: deepUpdate( value )
     if( spec.deepUpdate && prev && !spec.isCompatible( value ) ){
         prev._set( value, options ).commit( options );
     }
