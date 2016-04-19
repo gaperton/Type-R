@@ -273,3 +273,30 @@ function commit( model, options ){
         _owner._onChildrenChange( model, options );
     }
 }
+
+// Version 2
+function update( value, key ){
+    const spec = _attributes[ key ],
+        prev = attributes[ key ];
+
+    // handle deep update...
+    if( spec.shouldUpdate ){
+        if( prev && spec.shouldUpdate( value ) ){
+            nested.push( prev._set( value, options ) );
+            return;
+        }
+    }
+
+    // cast and hook...
+    const next = spec.transform( value, prev, options );
+
+    if( spec.isChanged( next, prev ) ){
+        attributes[ key ] = next;
+        changes.push( key );
+
+        // Do the rest of the job after assignment
+        if( spec.handleChange ){
+            spec.handleChange( next, prev );
+        }
+    }
+}

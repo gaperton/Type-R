@@ -5,16 +5,19 @@ class Attribute {
         this.deepUpdate = false;
     }
 
-    isCompatible( value ){ return value == null || value instanceof this.type; }
+    // Pipeline functions (dynamically constructed)
+    transform( next, prev, options ){}
+    handleChange( next, prev ){}
 
-    // cast and set hook...
-    convert( next, prev, options ){ return this.isCompatible( next ) ? next : new this.type( next, options ); }
+    // Convert value type
+    convert( next, prev, options ){
+        return next == null ? next : new this.type( next, options );
+    }
 
     isChanged( next, prev ){ return !_.isEqual( next, prev ); }
 
-    // event management, ownership, hooks, if any...
-    handleChange( next, prev ){}
-
+    //canBeUpdated( value ) <- overriden for nested things
+    
     createPropertySpec(){
         const { get, name } = this,
               getter = get ? // attach get pipeline
@@ -36,8 +39,6 @@ class Attribute {
 }
 
 class PrimitiveType extends Attribute {
-    isCompatible( value ){ return value == null || typeof value === 'number'; } //todo
-
     // cast and set hook...
     convert( next ){ return next == null ? next : this.type( next ); }
 
