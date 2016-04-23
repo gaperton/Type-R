@@ -138,9 +138,6 @@ export class Record {
         return this;
     }
 
-    // TODO: this thing will do 'replace' for all attributes,
-    reset( values, options ) {}
-
     /**
      * Transactional API stubs (provided by separate mixin)
      */
@@ -148,7 +145,20 @@ export class Record {
 
     transaction( fun, options ) {}
 
-    _onChildrenChange( model, options ) {}
+    _onChildrenChange( child, options = {} ) {
+        this.forceChange( child._ownerAttr, options );
+    }
+
+    forceChange( key, options = {} ){
+        const isRoot = begin( this );
+
+        if( !options.silent ){
+            this._pending = options;
+            key && this._notifyChangeAttr( key, options );
+        }
+
+        isRoot && commit( this, options );
+    }
 
     /**
      * Events system stubs
