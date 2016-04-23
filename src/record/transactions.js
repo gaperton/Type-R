@@ -21,7 +21,7 @@ export const RecordMixin = {
             }
 
             // cast and hook...
-            const next = attr.transform( value, prev, options );
+            const next = attr.transform( value, options, prev, this );
 
             if( attr.isChanged( next, prev ) ) {
                 attributes[ key ] = next;
@@ -67,13 +67,12 @@ export function setAttribute( model, name, value ) {
           prev = attributes[ name ];
 
     // handle deep update...
-    // TODO: deepUpdate( value )
-    if( spec.deepUpdate && prev && !spec.isCompatible( value ) ) {
-        prev._set( value, options ).commit( options );
+    if( spec.canBeUpdated && prev && spec.canBeUpdated( value ) ) {
+        prev.createTransaction( value, options ).commit( options );
     }
     else {
         // cast and hook...
-        const next = spec.convert( value, prev, options );
+        const next = spec.transform( value, options, prev, model );
 
         if( spec.isChanged( next, prev ) ) {
             attributes[ name ] = next;
