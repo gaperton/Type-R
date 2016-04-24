@@ -104,6 +104,8 @@ export class Class {
     }
 }
 
+Class._mixinRules = { properties : 'merge' };
+
 /**
  * Merge mixin rules class decorator
  * @param rules
@@ -138,10 +140,12 @@ export function mixins( ...list ) {
 export function classExtensions( ...args ) {
     for( let i = 0; i < args.length; i++ ) {
         let Ctor               = args[ i ];
+        assign( Ctor, )
         Ctor.create            = Class.create;
         Ctor.define            = Class.define;
         Ctor.mixins            = Class.mixins;
         Ctor.mixinRules        = Class.mixinRules;
+        Ctor._mixinRules        = Class._mixinRules;
         Ctor.prototype.bindAll = Class.prototype.bindAll;
     }
 }
