@@ -78,6 +78,9 @@ export class Class {
      * @param spec
      */
     static define( spec = {} ) {
+        // Attach class extensions, if it's not done...
+        this.define || classExtensions( this );
+
         const proto = this.prototype,
               Base  = Object.getPrototypeOf( proto ).constructor;
 
