@@ -36,10 +36,10 @@ export class Class {
 
         for( var i = mixins.length - 1; i >= 0; i-- ) {
             const mixin = mixins[ i ];
-            if( mixin instanceof Array ){
+            if( mixin instanceof Array ) {
                 Class.mixins.apply( this, mixin );
             }
-            else{
+            else {
                 mergeProps( proto, mixin, mergeRules );
             }
         }
@@ -47,11 +47,21 @@ export class Class {
         return this;
     }
 
+    static mixinRules( mixinRules ) {
+        const Base = Object.getPrototypeOf( Class.prototype ).constructor;
+
+        if( Base.mixinRules ) {
+            mergeProps( mixinRules, Base.mixinRules );
+        }
+
+        this._mixinRules = mixinRules;
+    }
+
     /**
      * Autobinding helper to be used from constructors
      */
-    bindAll(){
-        for( var i = 0; i < arguments.length; i++ ){
+    bindAll() {
+        for( var i = 0; i < arguments.length; i++ ) {
             const name = arguments[ i ];
 
             this[ name ] = this[ name ].bind( this );
@@ -76,53 +86,59 @@ export class Class {
             this.create = Class.create;
         }
 
-        const { properties = {}, mixins, propsMixinRules, ...specProps } = spec;
+        // Process spec...
+        const { properties = {}, mixins, mixinRules, ...specProps } = spec;
 
+        // assign spec members to prototype
         Object.assign( proto, specProps );
+
+        // define properties
         Object.defineProperties( proto, properties );
 
-        // Take local mixin rules either from the spec or from static member...
-        if( propsMixinRules ){
-            this.mixinRules = propsMixinRules;
-        }
-
-        let mixinRules = propsMixinRules || this.mixinRules;
-
-        if( Base.mixinRules && Base.mixinRules !== mixinRules ) {
-            mergeProps( mixinRules, Base.mixinRules );
-        }
-
-        this.mixins( mixins );
+        // apply mixins and mixin rules
+        mixinRules && this.mixinRules( mixinRules );
+        mixins && this.mixins( mixins );
     }
+}
+
+/**
+ * Merge mixin rules class decorator
+ * @param rules
+ * @returns {Function}
+ */
+
+function createDecorator( name, spec ) {
+    return function( Ctor ) {
+        if( Ctor[ name ] ) {
+            Ctor[ name ]( spec );
+        }
+        else {
+            Class[ name ].call( Ctor, spec );
+        }
+    }
+}
+
+export function mixinRules( rules ) {
+    return createDecorator( 'mixinRules', rules );
 }
 
 export function define( spec ) {
     return typeof spec === 'function' ?
-           spec.define() :
-           function( Class ) {
-               Class.define( spec );
-           }
+                   spec.define() :
+                   createDecorator( 'define', spec );
 }
 
-export function mixins() {
-    const arr = Array.prototype.slice.call( arguments );
-
-    return function( Ctor ) {
-        if( Ctor.mixins ) {
-            Ctor.mixins( arr );
-        }
-        else {
-            Class.mixins.call( Ctor, arr );
-        }
-    }
+export function mixins( ...list ) {
+    return createDecorator( 'mixins', list );
 }
 
 export function classExtensions( ...args ) {
-    for( let i = 0; i < args.length; i++ ){
-        let Ctor = args[ i ];
-        Ctor.create = Class.create;
-        Ctor.define = Class.define;
-        Ctor.mixins = Class.mixins;
+    for( let i = 0; i < args.length; i++ ) {
+        let Ctor               = args[ i ];
+        Ctor.create            = Class.create;
+        Ctor.define            = Class.define;
+        Ctor.mixins            = Class.mixins;
+        Ctor.mixinRules        = Class.mixinRules;
         Ctor.prototype.bindAll = Class.prototype.bindAll;
     }
 }
@@ -152,12 +168,11 @@ export let log = {
     }
 };
 
-
 /**
  * Object manipulation helpers...
  */
 
-export function transform( dest, source, fun ) {
+export function mapObject( dest, source, fun ) {
     for( var name in source ) {
         if( source.hasOwnProperty( name ) ) {
             var value = fun( source[ name ], name );
@@ -260,8 +275,8 @@ export function notEqual( a, b ) {
         if( protoA !== Object.getPrototypeOf( b ) ) return true;
 
         return protoA === ArrayProto ?
-                   arraysNotEqual( a, b ) :
-                   objectsNotEqual( a, b );
+               arraysNotEqual( a, b ) :
+               objectsNotEqual( a, b );
     }
 
     return true;
