@@ -76,3 +76,37 @@ Regarding the text ref stuff.
 - in this case attribute should be constant.
 - there's an unsolvable issue that master link can be changed. So, its dangerous.
 - Therefore, we could use separate .take() thingy for that.
+
+# Decorators
+
+For attributes, it's possible to make it way better.
+
+@define
+class M extends Record {
+    @type( String ) s
+    @type( Number ) x = 6
+    @type( Model ) m
+    @type( Model ) @has({ toJSON : false }) m5
+    @attr x = 5
+    @attr y = ''
+    @attr z = false
+    @attr({ type : Number }) g
+
+    static attributes = {
+        s : String,
+        x : Number.value( 6 ),
+        m : Model,
+        m5 : Model.has.toJSON( false ),
+        x : 5,
+        y : '',
+        z : false,
+        g : Number
+    }
+}
+
+- so, we can really do crazy shit here.
+- for typescript, it's possible to get design-time type (!) in decorator.
+
+- decorator returns native property immediately.
+- it can update _attributes in the prototype immediately.
+- @define can just grab the results.

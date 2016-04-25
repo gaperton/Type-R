@@ -1,7 +1,12 @@
 import { RecordMixin, setAttribute } from './transactions'
-import { compile } from './attributes' 
+import compile from './compile'
+import { assign, Class } from '../../tools'
 
-export class Record {
+let _cidCount = 0;
+
+export class Record extends Class {
+    static Collection(){}
+
     static define( spec ) {
         const BaseModel = Object.getPrototypeOf( this.prototype ).constructor;
         
@@ -34,6 +39,7 @@ export class Record {
      * Construction and cloning
      */
     constructor( attributes, opts ) {
+        super();
         var attrs   = this.__attributes,
             values  = attributes || {},
             options = opts || {};
@@ -78,6 +84,8 @@ export class Record {
         this._previousAttributes = this.attributes = values;
         this.initialize.apply( this, arguments );
     }
+
+    initialize(){}
 
     defaults( attrs, options ) {
         return new this.Attributes( attrs );

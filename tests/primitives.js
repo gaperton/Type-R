@@ -1,8 +1,10 @@
-describe( 'Base Record', () =>{
-    it( "can't be instantiated", ()=>{
-        expect( () =>{
-            new Record();
-        } ).to.throw( Error, /no attributes/ );
+import { define } from '../tools'
+import { Record } from '../src/record/'
+import { expect } from 'chai'
+
+describe( 'Record', () =>{
+    it( "can be instantiated", ()=>{
+        new Record();
     } );
 
     describe( 'Subclass', ()=>{

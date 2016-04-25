@@ -11,19 +11,18 @@ describe( 'Mixins', () => {
     
     });
     
-    
-    
     describe( 'mixin rules', () => {
         it( 'merges object properties' );
         it( 'merges rules on inheritance' );
+        it( 'works on the plain class' );
         
         describe( 'methods composition', () => {
-            it( 'joins methods sequentionally' );
-            it( 'joins methods in reverse order' );
-            it( 'joins methods in the pipe' );
+            it( 'execute methods sequentially' );
+            it( 'execute methods in reverse order' );
+            it( 'pipeline methods passing the first argument through' );
         });
         
-        describe( 'boolean checks composition', () => {
+        describe( 'boolean methods composition', () => {
             it( 'joins checks by "and"' );
             it( 'joins checks by "or"');
         });
@@ -31,20 +30,11 @@ describe( 'Mixins', () => {
 });
 
 describe( 'Class#define', () => {
-    it( 'adds members to the prototype', () => {
-    
-    });
+    it( 'adds members to the prototype' );
 
-    it( 'defines properties passed in "properties" spec', () => {
-
-    });
+    it( 'defines properties passed in "properties" spec' );
     
-    it( 'clear up "create" factory method on inheritance', () =>{
-        
-    });
+    it( 'clear up "create" factory method on inheritance' );
     
-    it( 'merges mixin rules on inheritance', () => {
-    
-    });
-
+    it( 'merges mixin rules on inheritance' );
 });

@@ -6,7 +6,6 @@
 
 
 // Attribute's base class
-export const Attribute;
 
 export function createAttribute( value, name ){
     const typeSpec = createSpec( value, name ),

@@ -127,11 +127,13 @@ export function mixinRules( rules ) {
     return createDecorator( 'mixinRules', rules );
 }
 
-export function define( spec ) {
+function defineDecorator( spec ) {
     return typeof spec === 'function' ?
                    spec.define() :
                    createDecorator( 'define', spec );
 }
+
+export { defineDecorator as define };
 
 export function mixins( ...list ) {
     return createDecorator( 'mixins', list );
