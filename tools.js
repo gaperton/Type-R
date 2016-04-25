@@ -48,10 +48,10 @@ export class Class {
     }
 
     static mixinRules( mixinRules ) {
-        const Base = Object.getPrototypeOf( Class.prototype ).constructor;
+        const Base = Object.getPrototypeOf( this.prototype ).constructor;
 
-        if( Base.mixinRules ) {
-            mergeProps( mixinRules, Base.mixinRules );
+        if( Base._mixinRules ) {
+            mergeProps( mixinRules, Base._mixinRules );
         }
 
         this._mixinRules = mixinRules;

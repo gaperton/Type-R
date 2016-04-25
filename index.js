@@ -50,9 +50,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	return __webpack_require__(0);
 /******/ })
 /************************************************************************/
-/******/ ({
-
-/***/ 0:
+/******/ ([
+/* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -63,7 +62,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _tools = __webpack_require__(1);
 	
-	var _record = __webpack_require__(3);
+	var _record = __webpack_require__(2);
 	
 	_record.Record.Collection = function () {};
 	
@@ -72,8 +71,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.define = _tools.define;
 
 /***/ },
-
-/***/ 1:
+/* 1 */
 /***/ function(module, exports) {
 
 	/**
@@ -188,10 +186,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'mixinRules',
 	        value: function mixinRules(_mixinRules) {
-	            var Base = Object.getPrototypeOf(Class.prototype).constructor;
+	            var Base = Object.getPrototypeOf(this.prototype).constructor;
 	
-	            if (Base.mixinRules) {
-	                mergeProps(_mixinRules, Base.mixinRules);
+	            if (Base._mixinRules) {
+	                mergeProps(_mixinRules, Base._mixinRules);
 	            }
 	
 	            this._mixinRules = _mixinRules;
@@ -531,8 +529,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-
-/***/ 3:
+/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -551,9 +548,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var _transactions = __webpack_require__(4);
+	var _transactions = __webpack_require__(3);
 	
-	var _compile = __webpack_require__(21);
+	var _compile = __webpack_require__(4);
 	
 	var _compile2 = _interopRequireDefault(_compile);
 	
@@ -933,8 +930,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-
-/***/ 4:
+/* 3 */
 /***/ function(module, exports) {
 
 	/**
@@ -1131,8 +1127,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	})();
 
 /***/ },
-
-/***/ 21:
+/* 4 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1147,8 +1142,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ }
-
-/******/ })
+/******/ ])
 });
 ;
 //# sourceMappingURL=index.js.map

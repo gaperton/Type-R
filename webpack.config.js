@@ -1,7 +1,7 @@
 module.exports = {
     entry : {
         index : "./src/index",
-        tests : "mocha!./tests/index"
+        tests : "./tests/index"
     },
 
     output : {
