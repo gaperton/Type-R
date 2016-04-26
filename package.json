@@ -30,14 +30,13 @@
   },
   "homepage": "https://github.com/gaperton/TransactionalJS#readme",
   "devDependencies": {
-    "babel": "<6.0.0",
-    "babel-core": "<6.0.0",
-    "babel-loader": "<6.0.0",
     "chai": "^3.5.0",
     "mocha": "^2.4.5",
     "mocha-loader": "^0.7.1",
     "sinon": "^1.17.3",
     "sinon-chai": "^2.8.0",
+    "ts-loader": "^0.8.2",
+    "typescript": "^1.8.10",
     "webpack": "^1.13.0"
   }
 }

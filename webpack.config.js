@@ -1,7 +1,7 @@
 module.exports = {
     entry : {
-        index : "./src/index",
-        tests : "./tests/index"
+        //index : "./src/index.ts",
+        tests : "./tests/index.ts"
     },
 
     output : {
@@ -17,12 +17,9 @@ module.exports = {
     module: {
         loaders: [
             {
-                test: /\.jsx?$/,
+                test: /\.tsx?$/,
                 exclude: /(node_modules|bower_components)/,
-                loader: 'babel', // 'babel-loader' is also a legal name to reference
-                query: {
-                    stage : 1
-                }
+                loader: 'ts'
             }
         ]
     }

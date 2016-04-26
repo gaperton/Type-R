@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module":"umd",
+    "sourceMap": true,
+    "removeComments":true
+  },
+  "exclude": [
+    "node_modules",
+    "typings"
+  ],
+  "files": [
+      "./tests/index.ts",
+      "./src/index.ts"
+  ]
+}
