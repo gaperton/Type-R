@@ -2,7 +2,27 @@
  * Everything related to record's transactional updates
  */
 
-export const RecordMixin = {
+interface ITransactional {
+    _changing : boolean
+    Attributes : new ( values : {} ) => {}
+    _previousAttributes : {}
+    attributes : {}
+    _attributes : {}
+    forEachAttr : ( values : {}, iterator : ( value, key : string ) => void ) => void
+    _pending : boolean
+    _owner : any
+}
+
+export class TransactionalMixin {
+    _changing : boolean
+    Attributes : new ( values : {} ) => {}
+    _previousAttributes : {}
+    attributes : {}
+    _attributes : {}
+    forEachAttr : ( values : {}, iterator : ( value, key : string ) => void ) => void
+    _pending : boolean
+    _owner : any
+    
     createTransaction( values, options = {} ) {
         const transaction = new Transaction( this ),
               { changes, nested } = transaction,
@@ -95,7 +115,7 @@ export function setAttribute( model, name, value ) {
  *  begin( model ) => true | false;
  *  commit( model, options ) => void 0
  */
-function begin( model ){
+function begin( model : ITransactional ) : boolean {
     const isRoot = !model._changing;
 
     if( isRoot ){
@@ -106,7 +126,7 @@ function begin( model ){
     return isRoot;
 }
 
-function commit( model, options ){
+function commit( model : ITransactional, options ){
     if( !options.silent ){
         while( model._pending ){
             model._pending = false;
@@ -126,34 +146,63 @@ function commit( model, options ){
     }
 }
 
-class Transaction {
+export class Transaction {
+    isRoot : boolean
+    changes : string[]
+    nested : Transaction[]
+    
     // open transaction
-    constructor( model ){
+    constructor( public model : ITransactional, values : {}, public options = {} ){
         this.isRoot  = begin( model );
-        this.model   = model;
-        this.changed = [];
-        this.nested  = [];
+        
+        const { attributes, _attributes } = model;
+        const changes = this.changes = [],
+              nested = this.nested  = [];
+
+        model.forEachAttr( values, ( value, key ) => {
+            const attr = _attributes[ key ],
+                  prev = attributes[ key ];
+
+            // handle deep update...
+            if( attr.canBeUpdated ) {
+                if( prev && attr.canBeUpdated( value ) ) {
+                    nested.push( prev.createTransaction( value, options ) );
+                    return;
+                }
+            }
+
+            // cast and hook...
+            const next = attr.transform( value, options, prev, this );
+
+            if( attr.isChanged( next, prev ) ) {
+                attributes[ key ] = next;
+                changes.push( key );
+
+                // Do the rest of the job after assignment
+                attr.handleChange( next, prev );
+            }
+        } );
     }
 
     // commit transaction
-    commit( options = {} ){
-        const { nested, model } = this;
+    commit(){
+        const { nested, model, options } = this;
 
         // Commit all nested transactions...
         for( let i = 0; i < nested.length; i++ ){
-            nested[ i ].commit( options );
+            nested[ i ].commit();
         }
 
         // Notify listeners on attribute changes...
         if( !options.silent ){
-            const { changed } = this;
+            const { changes } = this;
 
-            if( changed.length ){
-                model._pending = options;
+            if( changes.length ){
+                model._pending = true;
             }
 
-            for( let i = 0; i < changed.length; i++ ){
-                model._notifyChangeAttr( changed[ i ], options )
+            for( let i = 0; i < changes.length; i++ ){
+                model._notifyChangeAttr( changes[ i ], options )
             }
         }
 

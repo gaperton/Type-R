@@ -4,11 +4,13 @@ import { assign, Class } from '../../tools'
 
 let _cidCount = 0;
 
-export class Record extends Class {
-    static Collection(){}
 
+
+export class Record extends Class {
+    static Collection : Function
+    
     static define( spec ) {
-        const BaseModel = Object.getPrototypeOf( this.prototype ).constructor;
+        const BaseModel = <typeof Record> Object.getPrototypeOf( this.prototype ).constructor;
         
         // Create collection
         if( this.Collection === BaseModel.Collection ) {
