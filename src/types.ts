@@ -1,3 +1,28 @@
+interface RecordCtor {
+    new ( values? : {}, options? : CtorOptions );
+    Collection : CollectionCtor
+}
+
+
+type RecordOptions = {
+    parse? : Boolean
+    deep? : Boolean 
+}
+
+interface AttributesCtor {
+    new ( values : {} ) 
+}
+
+interface IRecord {
+    constructor : RecordCtor;
+    
+    Attributes : AttributesCtor
+    initialize( values? : Object, options? : RecordOptions )
+    clone( options? : { deep? : Boolean } ) : this;
+    defaults
+    
+}
+
 type CollectionArg = {} | {}[] | IRecord | IRecord[] 
 
 interface CtorOptions {
@@ -10,14 +35,6 @@ interface CollectionCtor {
 }
 
 
-interface RecordCtor {
-    new ( values? : {}, options? : CtorOptions );
-    Collection : CollectionCtor
-}
-
-interface IRecord {
-    constructor : RecordCtor;
-}
 
 interface ICollection {
     constructor : CollectionCtor;

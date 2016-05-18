@@ -5,10 +5,10 @@ import { assign, Class } from '../../tools'
 let _cidCount = 0;
 
 export class Record extends Class {
-    static Collection(){}
+    static Collection : new( records : any[], options : {} ) =>  {}
 
     static define( spec ) {
-        const BaseModel = Object.getPrototypeOf( this.prototype ).constructor;
+        const BaseModel : Record = Object.getPrototypeOf( this.prototype ).constructor;
         
         // Create collection
         if( this.Collection === BaseModel.Collection ) {
@@ -113,10 +113,6 @@ export class Record extends Class {
     set id( value ) {
         const { idAttribute } = this;
         idAttribute && setAttribute( this, idAttribute, value );
-    }
-
-    get( name ) {
-        return this[ name ];
     }
 
     get collection() {

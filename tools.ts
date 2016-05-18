@@ -177,7 +177,7 @@ export let log = {
     },
 
     info(){
-        if( this.level > 1 ) console.warning.apply( this, arguments );
+        if( this.level > 1 ) console.info.apply( this, arguments );
     },
 
     debug(){
