@@ -1,6 +1,7 @@
-interface RecordCtor {
-    new ( values? : {}, options? : CtorOptions );
+interface RecordCtor extends IExtendable {
+    new ( values? : {}, options? : CtorOptions )
     Collection : CollectionCtor
+    attributes( spec ) : RecordCtor
 }
 
 
@@ -13,14 +14,17 @@ interface AttributesCtor {
     new ( values : {} ) 
 }
 
+interface IExtendable {
+    define( spec, statics )
+    extend( spec, statics )
+}
+
 interface IRecord {
     constructor : RecordCtor;
     
     Attributes : AttributesCtor
     initialize( values? : Object, options? : RecordOptions )
     clone( options? : { deep? : Boolean } ) : this;
-    defaults
-    
 }
 
 type CollectionArg = {} | {}[] | IRecord | IRecord[] 

@@ -5,14 +5,15 @@
  */
 
 
-type MixinRules = { [ propertyName : string ] : string }; 
+type MixinRules = { [ propertyName : string ] : string }
 
 interface Specification {
-    properties? : PropertyDescriptorMap;
-    mixins? : Array< Object >;
-    mixinRules? : MixinRules;
-    [ name : string ] : any;
+    properties? : PropertyDescriptorMap
+    mixins? : Array< Object >
+    mixinRules? : MixinRules
+    [ name : string ] : any
 }
+
 /**
  * Base class, holding class extensions
  */
@@ -28,9 +29,9 @@ export class Class {
      * @returns {Class}
      */
     static create : ( a : any, b : any ) => Class;
-    
+
     static _mixinRules : Object;
-    
+
     /**
      * Attach mixins to class prototype.
      * Members merging policy is controlled by MyClass.mixinRules property.
@@ -69,6 +70,7 @@ export class Class {
     /**
      * Autobinding helper to be used from constructors
      */
+    bindAll( ...names : string [] )
     bindAll() {
         for( var i = 0; i < arguments.length; i++ ) {
             const name = arguments[ i ];
@@ -99,7 +101,8 @@ export class Class {
         }
 
         // Process spec...
-        const { properties = <PropertyDescriptorMap> {}, mixins, mixinRules, ...specProps } = spec;
+        const specProps = omit( spec, 'properties', 'mixins', 'mixinRules' ),
+            { properties = <PropertyDescriptorMap> {}, mixins, mixinRules } = spec;
 
         // assign spec members to prototype
         assign( proto, specProps );
@@ -149,8 +152,7 @@ export function mixins( ...list ) {
 }
 
 export function classExtensions( ...args ) {
-    for( let i = 0; i < args.length; i++ ) {
-        let Ctor               = args[ i ];
+    for( let Ctor of args ) {
         Ctor.create            = Class.create;
         Ctor.define            = Class.define;
         Ctor.mixins            = Class.mixins;
@@ -172,7 +174,7 @@ export let log = {
         console.error.apply( this, arguments );
     },
 
-    warning(){
+    warn(){
         if( this.level > 0 ) console.warn.apply( this, arguments );
     },
 
@@ -188,6 +190,23 @@ export let log = {
 /**
  * Object manipulation helpers...
  */
+
+export function omit( source : {}, ...rest : string[] ) : {}
+export function omit( source ) : {} {
+    const dest = {}, discard = {};
+
+    for( let i = 1; i < arguments.length; i ++ ){
+        discard[ arguments[ i ] ] = true;
+    }
+
+    for( var name in source ) {
+        if( !discard[ name ] && source.hasOwnProperty( name ) ) {
+            dest[ name ] = source[ name ];
+        }
+    }
+
+    return dest;
+}
 
 export function mapObject( dest, source, fun ) {
     for( var name in source ) {
