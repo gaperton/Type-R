@@ -1,9 +1,9 @@
-/**
- * Dependency-free tools, used across 'nested' libs.
- *
- * @module
- */
 "use strict";
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 /**
  * Base class, holding class extensions
  */
@@ -54,10 +54,8 @@ var Class = (function () {
      * Prevents inheritance of create factory method.
      * Assign mixinRules static property, and merge it with parent.
      * Add mixins
-     *
-     * @param spec
      */
-    Class.define = function (spec) {
+    Class.define = function (spec, statics) {
         if (spec === void 0) { spec = {}; }
         // Attach class extensions, if it's not done...
         this.define || classExtensions(this);
@@ -70,11 +68,22 @@ var Class = (function () {
         var specProps = omit(spec, 'properties', 'mixins', 'mixinRules'), _a = spec.properties, properties = _a === void 0 ? {} : _a, mixins = spec.mixins, mixinRules = spec.mixinRules;
         // assign spec members to prototype
         exports.assign(proto, specProps);
+        exports.assign(this, statics);
         // define properties
         Object.defineProperties(proto, properties);
         // apply mixins and mixin rules
         mixinRules && this.mixinRules(mixinRules);
         mixins && this.mixins(mixins);
+    };
+    Class.extend = function (spec, statics) {
+        var subclass = spec.constructor ? __extends(spec.constructor, this) : (function (_super) {
+            __extends(class_1, _super);
+            function class_1() {
+                _super.apply(this, arguments);
+            }
+            return class_1;
+        }(this));
+        subclass.define(spec, statics);
     };
     return Class;
 }());

@@ -3,8 +3,6 @@
  *
  * @module
  */
-
-
 type MixinRules = { [ propertyName : string ] : string }
 
 interface Specification {
@@ -13,6 +11,8 @@ interface Specification {
     mixinRules? : MixinRules
     [ name : string ] : any
 }
+
+declare function __extends( a, b )
 
 /**
  * Base class, holding class extensions
@@ -85,10 +85,8 @@ export class Class {
      * Prevents inheritance of create factory method.
      * Assign mixinRules static property, and merge it with parent.
      * Add mixins
-     *
-     * @param spec
      */
-    static define( spec : Specification = {} ) {
+    static define( spec : Specification = {}, statics? : {} ) {
         // Attach class extensions, if it's not done...
         this.define || classExtensions( this );
 
@@ -106,6 +104,7 @@ export class Class {
 
         // assign spec members to prototype
         assign( proto, specProps );
+        assign( this, statics );
 
         // define properties
         Object.defineProperties( proto, properties );
@@ -113,6 +112,11 @@ export class Class {
         // apply mixins and mixin rules
         mixinRules && this.mixinRules( mixinRules );
         mixins && this.mixins( mixins );
+    }
+
+    static extend( spec, statics ){
+        const subclass = spec.constructor ? __extends( spec.constructor, this ) : class extends this {};
+        subclass.define( spec, statics );
     }
 }
 
