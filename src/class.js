@@ -69,10 +69,10 @@ var Class = (function () {
         }
         subclass.define(spec, statics);
     };
+    Class._mixinRules = { properties: 'merge' };
     return Class;
 }());
 exports.Class = Class;
-Class._mixinRules = { properties: 'merge' };
 function createDecorator(name, spec) {
     return function (Ctor) {
         if (Ctor[name]) {
@@ -150,18 +150,11 @@ var mergeRules = {
         };
     }
 };
-function getPropertyDescriptor(obj, prop) {
-    for (var desc; !desc && obj; obj = Object.getPrototypeOf(obj)) {
-        desc = Object.getOwnPropertyDescriptor(obj, prop);
-    }
-    return desc;
-}
-exports.getPropertyDescriptor = getPropertyDescriptor;
 function mergeProps(target, source, rules) {
     if (rules === void 0) { rules = {}; }
     var sourceProps = Object.getOwnPropertyNames(source);
     for (var i = 0; i < sourceProps.length; i++) {
-        var name_2 = sourceProps[i], sourceProp = Object.getOwnPropertyDescriptor(source, name_2), destProp = getPropertyDescriptor(target, name_2);
+        var name_2 = sourceProps[i], sourceProp = Object.getOwnPropertyDescriptor(source, name_2), destProp = tools_1.getPropertyDescriptor(target, name_2);
         if (destProp) {
             var rule = rules[name_2], value = destProp.value;
             if (rule && value) {

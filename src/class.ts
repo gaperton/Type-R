@@ -2,7 +2,7 @@
  * Dependency-free tools, used across 'nested' libs.
  * Vlad Balin, (c) 2016
  */
-import { assign, omit } from './tools'
+import { assign, omit, getPropertyDescriptor } from './tools'
 
 type MixinRules = { [ propertyName : string ] : string }
 
@@ -24,14 +24,10 @@ export class Class {
      * Passes two arguments to class constructor.
      *
      * Cleared up on inheritance when defined for some abstract class.
-     *
-     * @param attrs
-     * @param options
-     * @returns {Class}
      */
     static create : ( a : any, b : any ) => Class;
 
-    static _mixinRules : Object;
+    protected static _mixinRules : MixinRules = { properties : 'merge' };
 
     /**
      * Attach mixins to class prototype.
@@ -130,8 +126,6 @@ export class Class {
     }
 }
 
-Class._mixinRules = { properties : 'merge' };
-
 /**
  * Merge mixin rules class decorator
  * @param rules
@@ -220,13 +214,7 @@ const mergeRules = {
     }
 };
 
-export function getPropertyDescriptor( obj, prop ) {
-    for( var desc; !desc && obj; obj = Object.getPrototypeOf( obj ) ) {
-        desc = Object.getOwnPropertyDescriptor( obj, prop );
-    }
 
-    return desc;
-}
 
 function mergeProps( target, source, rules = {} ) {
     const sourceProps = Object.getOwnPropertyNames( source );

@@ -17,6 +17,13 @@ exports.log = {
             console.log.apply(this, arguments);
     }
 };
+function getPropertyDescriptor(obj, prop) {
+    for (var desc; !desc && obj; obj = Object.getPrototypeOf(obj)) {
+        desc = Object.getOwnPropertyDescriptor(obj, prop);
+    }
+    return desc;
+}
+exports.getPropertyDescriptor = getPropertyDescriptor;
 function omit(source) {
     var dest = {}, discard = {};
     for (var i = 1; i < arguments.length; i++) {

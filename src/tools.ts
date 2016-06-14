@@ -27,6 +27,14 @@ export let log = {
  * Object manipulation helpers...
  */
 
+export function getPropertyDescriptor( obj, prop ) {
+    for( var desc; !desc && obj; obj = Object.getPrototypeOf( obj ) ) {
+        desc = Object.getOwnPropertyDescriptor( obj, prop );
+    }
+
+    return desc;
+}
+
 export function omit( source : {}, ...rest : string[] ) : {}
 export function omit( source ) : {} {
     const dest = {}, discard = {};
