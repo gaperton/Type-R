@@ -115,7 +115,16 @@ export class Class {
     }
 
     static extend( spec, statics ){
-        const subclass = spec.constructor ? __extends( spec.constructor, this ) : class extends this {};
+        let subclass;
+
+        if( spec.constructor ){
+            subclass = spec.constructor;
+            __extends( subclass, this );
+        }
+        else{
+            subclass = class extends this {};
+        }
+
         subclass.define( spec, statics );
     }
 }

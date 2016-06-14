@@ -76,13 +76,20 @@ var Class = (function () {
         mixins && this.mixins(mixins);
     };
     Class.extend = function (spec, statics) {
-        var subclass = spec.constructor ? __extends(spec.constructor, this) : (function (_super) {
-            __extends(class_1, _super);
-            function class_1() {
-                _super.apply(this, arguments);
-            }
-            return class_1;
-        }(this));
+        var subclass;
+        if (spec.constructor) {
+            subclass = spec.constructor;
+            __extends(subclass, this);
+        }
+        else {
+            subclass = (function (_super) {
+                __extends(class_1, _super);
+                function class_1() {
+                    _super.apply(this, arguments);
+                }
+                return class_1;
+            }(this));
+        }
         subclass.define(spec, statics);
     };
     return Class;
