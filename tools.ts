@@ -1,8 +1,8 @@
 /**
  * Dependency-free tools, used across 'nested' libs.
- *
- * @module
+ * Vlad Balin, (c) 2016
  */
+
 type MixinRules = { [ propertyName : string ] : string }
 
 interface Specification {
@@ -114,7 +114,7 @@ export class Class {
         mixins && this.mixins( mixins );
     }
 
-    static extend( spec, statics ){
+    static extend( spec? : {}, statics? : {} ){
         let subclass;
 
         if( spec.constructor ){
@@ -221,7 +221,7 @@ export function omit( source ) : {} {
     return dest;
 }
 
-export function mapObject( dest, source, fun ) {
+export function mapObject( dest : {}, source : {}, fun : ( value : {}, key : string ) => {} ) {
     for( var name in source ) {
         if( source.hasOwnProperty( name ) ) {
             var value = fun( source[ name ], name );
@@ -232,13 +232,13 @@ export function mapObject( dest, source, fun ) {
     return dest;
 }
 
-export function fastAssign( dest, source ) {
+export function fastAssign( dest : {}, source : {} ) {
     for( var name in source ) {
         dest[ name ] = source[ name ];
     }
 }
 
-export function fastDefaults( dest, source ) {
+export function fastDefaults( dest : {}, source : {} ) {
     for( var name in source ) {
         dest[ name ] === void 0 || ( dest[ name ] = source[ name ] );
     }
@@ -312,7 +312,7 @@ export function createTransformCtor( attrSpecs ) {
 
 const ArrayProto = Array.prototype;
 
-export function notEqual( a, b ) {
+export function notEqual( a, b ) : boolean {
     if( a === b ) return false;
 
     if( a && b && typeof a == 'object' && typeof b == 'object' ) {

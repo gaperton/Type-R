@@ -1,4 +1,4 @@
-import { RecordMixin, setAttribute } from './transactions'
+import { RecordMixin, setAttribute } from './transactions.ts'
 import compile from './compile'
 import { assign, Class } from '../../tools'
 
