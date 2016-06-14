@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "module":"umd",
+    "module":"commonjs",
     "sourceMap": true,
     "removeComments":true
   },
@@ -11,6 +11,6 @@
   ],
   "files": [
       "./tests/index.ts",
-      "./src/index.ts"
+    "./index.ts"
   ]
 }

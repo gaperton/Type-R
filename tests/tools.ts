@@ -1,4 +1,4 @@
-import { Class, define } from '../tools'
+import { Class, define } from '../src/class'
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
 

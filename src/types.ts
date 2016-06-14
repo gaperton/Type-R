@@ -1,57 +1,38 @@
-interface RecordCtor extends IExtendable {
-    new ( values? : {}, options? : CtorOptions )
+import { Class } from './class.ts'
+
+export interface ClassItf {
+    define( spec? : {}, statics? : {} )
+    extend( spec? : {}, statics? : {} )
+}
+
+export interface CollectionCtor extends ClassItf {
+    new ( records? : Object[], options? : {} ) : CollectionItf;
+}
+
+export interface RecordCtor extends ClassItf {
+    new ( attrs? : {}, options? : {} ) : RecordItf;
     Collection : CollectionCtor
-    attributes( spec ) : RecordCtor
 }
 
-
-type RecordOptions = {
-    parse? : Boolean
-    deep? : Boolean 
-}
-
-interface AttributesCtor {
-    new ( values : {} ) 
-}
-
-interface IExtendable {
-    define( spec, statics )
-    extend( spec, statics )
-}
-
-interface IRecord {
-    constructor : RecordCtor;
-    
+export interface RecordItf {
     Attributes : AttributesCtor
-    initialize( values? : Object, options? : RecordOptions )
+    attributes : {}
+    initialize( values? : Object, options? : {} )
     clone( options? : { deep? : Boolean } ) : this;
 }
 
-type CollectionArg = {} | {}[] | IRecord | IRecord[] 
+export interface CollectionItf {
+    Record : RecordCtor
 
-interface CtorOptions {
-    parse? : Boolean;
-    deep? : Boolean;
+    initialize( models? : CollectionArg, options? : {} )
+
+    add( models : CollectionArg, options? : {} )
+    remove( models : CollectionArg, options? : {} )
+    set( models : CollectionArg, options? : {} )
 }
 
-interface CollectionCtor {
-    new ( models? : CollectionArg, options? : CtorOptions );
+interface AttributesCtor {
+    new ( values : {} ) : {};
 }
 
-
-
-interface ICollection {
-    constructor : CollectionCtor;
-    Record : IRecord;
-    initialize( models? : CollectionArg, options? : CtorOptions ); 
-}
-
-class Collection implements ICollection {
-    constructor( records? : CollectionArg, options? : CtorOptions ){
-        
-    }
-    
-    initialize( records? : CollectionArg, options? : CtorOptions ){
-        
-    }
-}
+type CollectionArg = Object[] | RecordItf[]

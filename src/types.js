@@ -1,8 +1,2 @@
-var Collection = (function () {
-    function Collection(records, options) {
-    }
-    Collection.prototype.initialize = function (records, options) {
-    };
-    return Collection;
-}());
+"use strict";
 //# sourceMappingURL=types.js.map

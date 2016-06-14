@@ -64,7 +64,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	})(function (require, exports) {
 	    "use strict";
-	    require('./tools');
+	    require('./src/class');
 	    require('./primitives');
 	});
 	//# sourceMappingURL=index.js.map
@@ -212,7 +212,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        });
 	    });
 	});
-	//# sourceMappingURL=tools.js.map
+	//# sourceMappingURL=class.js.map
 
 /***/ },
 /* 6 */
@@ -8657,7 +8657,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 49 */
 /***/ function(module, exports) {
 
-	import './tools'
+	import './src/class'
 	import './primitives'
 
 

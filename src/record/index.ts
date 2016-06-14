@@ -1,14 +1,19 @@
 import { RecordMixin, setAttribute } from './transactions.ts'
 import compile from './compile'
-import { assign, Class } from '../../tools'
+import { assign, Class } from '../class'
+
+import {CollectionCtor, RecordItf, RecordCtor} from '../types.ts'
 
 let _cidCount = 0;
 
-export class Record extends Class {
-    static Collection : new( records : any[], options : {} ) =>  {}
+class Attributes {}
+
+
+export class Record extends Class implements RecordItf {
+    static Collection : CollectionCtor
 
     static define( spec ) {
-        const BaseModel : Record = Object.getPrototypeOf( this.prototype ).constructor;
+        const BaseModel : RecordCtor = Object.getPrototypeOf( this.prototype ).constructor;
         
         // Create collection
         if( this.Collection === BaseModel.Collection ) {
@@ -35,6 +40,8 @@ export class Record extends Class {
         }
     }
 
+
+    attributes : {}
     /**
      * Construction and cloning
      */
@@ -86,20 +93,19 @@ export class Record extends Class {
     }
 
     initialize(){}
-
+    
     defaults( attrs, options ) {
         return new this.Attributes( attrs );
     }
 
     clone( options = { deep : true } ) {
-        return new this.constructor( this.attributes, options );
+        return new (<typeof Record> this.constructor)( this.attributes, options );
     }
 
     /**
      * Attributes handling and ownership
      */
-    Attributes( attrs ) {
-    }
+    Attributes : new ( attrs : {} ) => {};
 
     forEachAttr( obj, fun ) {
     }

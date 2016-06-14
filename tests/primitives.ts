@@ -1,4 +1,4 @@
-import { define } from '../tools'
+import { define } from '../src/class'
 import { Record } from '../src/record/'
 import { expect } from 'chai'
 

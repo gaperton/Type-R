@@ -6,13 +6,15 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var transactions_ts_1 = require('./transactions.ts');
 var compile_1 = require('./compile');
-var tools_1 = require('../../tools');
+var class_1 = require('../class');
 var _cidCount = 0;
+var Attributes = (function () {
+    function Attributes() {
+    }
+    return Attributes;
+}());
 var Record = (function (_super) {
     __extends(Record, _super);
-    /**
-     * Construction and cloning
-     */
     function Record(attributes, opts) {
         var _this = this;
         _super.call(this);
@@ -22,10 +24,7 @@ var Record = (function (_super) {
         this._changeToken = {};
         this.attributes = {};
         this.cid = this.cidPrefix + _cidCount++;
-        //  Make owner accessible in initialize
         if (this._owner = options.owner) {
-            // do not pass it to nested objects.
-            // No side effect here, options copied at the upper level in this case
             options.owner = null;
         }
         if (options.parse) {
@@ -36,7 +35,6 @@ var Record = (function (_super) {
             values = {};
         }
         values = options.deep ? deepCloneAttrs(this, values) : this.defaults(values);
-        // Execute attributes transform function instead of this.set
         this.forEachAttr(values, function (key, value) {
             var attr = attrs[key];
             if (attr) {
@@ -52,29 +50,25 @@ var Record = (function (_super) {
     }
     Record.define = function (spec) {
         var BaseModel = Object.getPrototypeOf(this.prototype).constructor;
-        // Create collection
         if (this.Collection === BaseModel.Collection) {
             this.Collection = (function (_super) {
-                __extends(class_1, _super);
-                function class_1() {
+                __extends(class_2, _super);
+                function class_2() {
                     _super.apply(this, arguments);
                 }
-                return class_1;
+                return class_2;
             }(BaseModel.Collection));
             this.Collection.prototype.Record = this;
         }
         if (spec) {
-            // define stuff
-            _super.define.call(this, compile_1["default"](spec, BaseModel.prototype));
+            _super.define.call(this, compile_1.default(spec, BaseModel.prototype));
             var collection = spec.collection;
             if (collection) {
                 if (typeof collection === 'function') {
-                    // Link model to collection
                     this.Collection = collection;
                     this.Collection.prototype.Record = this;
                 }
                 else {
-                    // Configure our local Collection
                     this.Collection.define(collection);
                 }
             }
@@ -88,16 +82,10 @@ var Record = (function (_super) {
         if (options === void 0) { options = { deep: true }; }
         return new this.constructor(this.attributes, options);
     };
-    /**
-     * Attributes handling and ownership
-     */
-    Record.prototype.Attributes = function (attrs) {
-    };
     Record.prototype.forEachAttr = function (obj, fun) {
     };
     Object.defineProperty(Record.prototype, "id", {
         get: function () {
-            // (!) No get hooks on id attribute.
             var idAttribute = this.idAttribute;
             return idAttribute && this.attributes[idAttribute];
         },
@@ -119,10 +107,6 @@ var Record = (function (_super) {
         var _owner = this._owner;
         return this._ownerKey ? _owner : (_owner && _owner._owner);
     };
-    /**
-     * Object sync API
-     * set( { attrs }, options )
-     */
     Record.prototype.set = function (values, options) {
         if (values) {
             if (Object.getPrototypeOf(values) === Object.prototype) {
@@ -133,9 +117,6 @@ var Record = (function (_super) {
         }
         return this;
     };
-    /**
-     * Transactional API stubs (provided by separate mixin)
-     */
     Record.prototype.createTransaction = function (values, options) { };
     Record.prototype.transaction = function (fun, options) { };
     Record.prototype._onChildrenChange = function (child, options) {
@@ -151,9 +132,6 @@ var Record = (function (_super) {
         }
         isRoot && commit(this, options);
     };
-    /**
-     * Events system stubs
-     */
     Record.prototype._notifyChange = function (options) {
         this._changeToken = {};
         this.trigger('change', this, options);
@@ -161,10 +139,6 @@ var Record = (function (_super) {
     Record.prototype._notifyChangeAttr = function (name, options) {
         this.trigger('change:' + name, this.attributes[name], this, options);
     };
-    /**
-     * Serialization API
-     * toJSON(), parse( data )
-     */
     Record.prototype.toJSON = function () {
         var self = this, res = {}, attrSpecs = this.__attributes;
         this.forEachAttr(this.attributes, function (value, key) {
@@ -182,10 +156,6 @@ var Record = (function (_super) {
         return resp;
     };
     Object.defineProperty(Record.prototype, "changed", {
-        /**
-         * Changes tracking API
-         * hasChanges( attr ), changedAttributes( diff ), previousAttributes()
-         */
         get: function () {
             var changed = this._changed;
             if (!changed) {
@@ -205,7 +175,7 @@ var Record = (function (_super) {
     });
     Record.prototype.hasChanged = function (attr) {
         if (attr == null) {
-            return !_.isEmpty(this.changed); //TODO: remove underscore.
+            return !_.isEmpty(this.changed);
         }
         return this._attributes[attr].isChanged(this.attributes[attr], this._previousAttributes[attr]);
     };
@@ -226,11 +196,10 @@ var Record = (function (_super) {
         return new this.Attributes(this._previousAttributes);
     };
     return Record;
-}(tools_1.Class));
+}(class_1.Class));
 exports.Record = Record;
-tools_1.assign(Record.prototype, transactions_ts_1.RecordMixin);
+class_1.assign(Record.prototype, transactions_ts_1.RecordMixin);
 var s = {
-    // extend Model and its Collection
     extend: function (protoProps, staticProps) {
         var Child;
         if (typeof protoProps === 'function') {
@@ -250,12 +219,10 @@ var s = {
         This.Collection = this.Collection.extend();
         return protoProps ? This.define(protoProps, staticProps) : This;
     },
-    // define Model and its Collection. All the magic starts here.
     define: function (protoProps, staticProps) {
         var Base = Object.getPrototypeOf(this.prototype).constructor, spec = createDefinition(protoProps, Base), This = this;
         Object.extend.Class.define.call(This, spec, staticProps);
         attachMixins(This);
-        // define Collection
         var collectionSpec = { model: This };
         spec.urlRoot && (collectionSpec.url = spec.urlRoot);
         This.Collection.define(_.defaults(protoProps.collection || {}, collectionSpec));

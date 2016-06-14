@@ -1,5 +1,5 @@
 import { setAttribute } from './transactions'
-import { notEqual, assign } from '../../tools'
+import { notEqual, assign } from '../class'
 
 export class Attribute {
     /**
