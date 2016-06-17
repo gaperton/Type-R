@@ -2,18 +2,18 @@ import { RecordMixin, setAttribute } from './transactions.ts'
 import compile from './compile'
 import { assign, Class } from '../class'
 
-import {CollectionCtor, RecordItf, RecordCtor} from '../types.ts'
+import {CCollection, IRecord, CRecord} from '../types.ts'
 
 let _cidCount = 0;
 
 class Attributes {}
 
 
-export class Record extends Class implements RecordItf {
-    static Collection : CollectionCtor
+export class Record extends Class implements IRecord {
+    static Collection : CCollection
 
     static define( spec ) {
-        const BaseModel : RecordCtor = Object.getPrototypeOf( this.prototype ).constructor;
+        const BaseModel : CRecord = Object.getPrototypeOf( this.prototype ).constructor;
         
         // Create collection
         if( this.Collection === BaseModel.Collection ) {

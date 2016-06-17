@@ -4,20 +4,31 @@
  */
 import { assign, omit, getPropertyDescriptor } from './tools'
 
-type MixinRules = { [ propertyName : string ] : string }
+type MergeRule = 'merge' | 'pipe' | 'sequence' | 'reverse' | 'every' | 'some'
 
-interface Specification {
+interface IMixinRules {
+    [ propertyName : string ] : MergeRule | IMixinRules
+}
+
+interface IClassSpec {
     properties? : PropertyDescriptorMap
     mixins? : Array< Object >
-    mixinRules? : MixinRules
+    mixinRules? : IMixinRules
     [ name : string ] : any
 }
 
 declare function __extends( a, b )
 
-/**
- * Base class, holding class extensions
- */
+export interface IExtendable extends Function {
+    define(spec? : IClassSpec, statics? : {} ) : IExtendable
+    extend(spec? : IClassSpec, statics? : {} ) : IExtendable
+    create( a : any, b : any ) : {}
+
+    mixins( ...mixins : {}[] ) : IExtendable
+    mixinRules( mixinRules : IMixinRules ) : IExtendable
+}
+
+// Base class, holding class extensions
 export class Class {
     /**
      * Abstract class factory. Should be overridden for abstract classes.
@@ -27,19 +38,16 @@ export class Class {
      */
     static create : ( a : any, b : any ) => Class;
 
-    protected static _mixinRules : MixinRules = { properties : 'merge' };
+    protected static _mixinRules : IMixinRules = { properties : 'merge' };
 
     /**
      * Attach mixins to class prototype.
      * Members merging policy is controlled by MyClass.mixinRules property.
      * mixinRules is merged on inheritance.
-     *
-     * @param mixins - array of mixin objects.
-     * @returns {Class}
      */
-    static mixins( ...mixins ) {
+    static mixins( ...mixins : {}[] ) : IExtendable {
         const proto      = this.prototype,
-              mergeRules = this.mixinRules || {};
+              mergeRules : IMixinRules = this._mixinRules || {};
 
         for( var i = mixins.length - 1; i >= 0; i-- ) {
             const mixin = mixins[ i ];
@@ -54,7 +62,7 @@ export class Class {
         return this;
     }
 
-    static mixinRules( mixinRules ) {
+    static mixinRules( mixinRules : IMixinRules ) : IExtendable {
         const Base = Object.getPrototypeOf( this.prototype ).constructor;
 
         if( Base._mixinRules ) {
@@ -62,6 +70,7 @@ export class Class {
         }
 
         this._mixinRules = mixinRules;
+        return this;
     }
 
     /**
@@ -76,6 +85,17 @@ export class Class {
         }
     }
 
+    static attach( ...args ) {
+        for (let Ctor of args) {
+            Ctor.create            = this.create;
+            Ctor.define            = this.define;
+            Ctor.mixins            = this.mixins;
+            Ctor.mixinRules        = this.mixinRules;
+            Ctor._mixinRules       = this._mixinRules;
+            Ctor.prototype.bindAll = this.prototype.bindAll;
+        }
+    }
+
     /**
      * Merge spec properties to the prototype.
      * Add native properties with descriptors from spec.properties to the prototype.
@@ -83,9 +103,9 @@ export class Class {
      * Assign mixinRules static property, and merge it with parent.
      * Add mixins
      */
-    static define( spec : Specification = {}, statics? : {} ) {
+    static define(spec : IClassSpec = {}, statics? : {} ) : IExtendable {
         // Attach class extensions, if it's not done...
-        this.define || classExtensions( this );
+        this.define || Class.attach( this );
 
         const proto = this.prototype,
               Base  = Object.getPrototypeOf( proto ).constructor;
@@ -109,9 +129,11 @@ export class Class {
         // apply mixins and mixin rules
         mixinRules && this.mixinRules( mixinRules );
         mixins && this.mixins( mixins );
+
+        return this;
     }
 
-    static extend( spec? : {}, statics? : {} ){
+    static extend(spec? : IClassSpec, statics? : {} ) : IExtendable {
         let subclass;
 
         if( spec.constructor ){
@@ -122,105 +144,90 @@ export class Class {
             subclass = class extends this {};
         }
 
-        subclass.define( spec, statics );
+        return subclass.define( spec, statics );
     }
 }
 
-/**
- * Merge mixin rules class decorator
- * @param rules
- * @returns {Function}
- */
+// export decorator functions...
+export function mixinRules( rules : IMixinRules ) {
+    return createDecorator( 'mixinRules', rules );
+}
 
-function createDecorator( name, spec ) {
-    return function( Ctor ) {
+export function mixins( ...list : {}[] ) {
+    return createDecorator( 'mixins', list );
+}
+
+function defineDecorator( spec : {} | IExtendable ) {
+    return typeof spec === 'function' ?
+                   (<IExtendable>spec).define() :
+                   createDecorator( 'define', spec );
+}
+
+export { defineDecorator as define };
+
+// create ES7 decorator function for the static class members
+function createDecorator( name : string, spec : {} ) : ( Ctor : IExtendable ) => IExtendable {
+    return function( Ctor : IExtendable ) : IExtendable {
         if( Ctor[ name ] ) {
             Ctor[ name ]( spec );
         }
         else {
             Class[ name ].call( Ctor, spec );
         }
+
+        return Ctor;
     }
 }
-
-export function mixinRules( rules ) {
-    return createDecorator( 'mixinRules', rules );
-}
-
-function defineDecorator( spec ) {
-    return typeof spec === 'function' ?
-                   spec.define() :
-                   createDecorator( 'define', spec );
-}
-
-export { defineDecorator as define };
-
-export function mixins( ...list ) {
-    return createDecorator( 'mixins', list );
-}
-
-export function classExtensions( ...args ) {
-    for( let Ctor of args ) {
-        Ctor.create            = Class.create;
-        Ctor.define            = Class.define;
-        Ctor.mixins            = Class.mixins;
-        Ctor.mixinRules        = Class.mixinRules;
-        Ctor._mixinRules        = Class._mixinRules;
-        Ctor.prototype.bindAll = Class.prototype.bindAll;
-    }
-}
-
-
 
 /***********************
  * Mixins helpers
  */
-const mergeRules = {
-    merge( a, b, rules ){
-        const x = assign( {}, a );
-        return mergeProps( x , b, rules );
-    },
+function mergeObjects( a : {}, b : {}, rules? : IMixinRules ) : {} {
+    const x = assign( {}, a );
+    return mergeProps( x , b, rules );
+}
 
-    pipe( a, b ){
-        return function( x ) {
+interface IMergeFunctions {
+    [ name : string ] : ( a : Function, b : Function ) => Function
+}
+
+const mergeFunctions : IMergeFunctions = {
+    pipe< A, B, C >( a: ( x : B ) => C, b : ( x : A ) => B ) : ( x : A ) => C {
+        return function( x : A ) : C {
             return a.call( this, b.call( this, x ) );
         }
     },
 
-    sequence( a, b ){
-        return function() {
+    sequence( a : Function, b : Function ){
+        return function() : void {
             a.apply( this, arguments );
             b.apply( this, arguments );
         }
     },
 
-    reverse( a, b ){
-        return function() {
+    reverse( a : Function, b : Function ){
+        return function() : void {
             b.apply( this, arguments );
             a.apply( this, arguments );
         }
     },
 
-    every( a, b ){
+    every( a : Function, b : Function ){
         return function() {
             return a.apply( this, arguments ) && b.apply( this, arguments );
         }
     },
 
-    some( a, b ){
+    some( a : Function, b : Function ){
         return function() {
             return a.apply( this, arguments ) || b.apply( this, arguments );
         }
     }
 };
 
-
-
-function mergeProps( target, source, rules = {} ) {
-    const sourceProps = Object.getOwnPropertyNames( source );
-    for( var i = 0; i < sourceProps.length; i++ ) {
-        const name       = sourceProps[ i ],
-              sourceProp = Object.getOwnPropertyDescriptor( source, name ),
+function mergeProps< T extends {} >( target : T, source : {}, rules : IMixinRules = {}) : T {
+    for( let name of Object.getOwnPropertyNames( source ) ) {
+        const sourceProp = Object.getOwnPropertyDescriptor( source, name ),
               destProp   = getPropertyDescriptor( target, name ); // Shouldn't be own
 
         if( destProp ) {
@@ -229,8 +236,11 @@ function mergeProps( target, source, rules = {} ) {
 
             if( rule && value ) {
                 target[ name ] = typeof rule === 'object' ?
-                                 mergeRules.merge( value, sourceProp.value, rule ) :
-                                 mergeRules[ rule ]( value, sourceProp.value );
+                    mergeObjects( value, sourceProp.value, rule ) :(
+                        rule === 'merge' ?
+                            mergeObjects( value, sourceProp.value ) :
+                            mergeFunctions[ rule ]( value, sourceProp.value )
+                    );
             }
         }
         else {

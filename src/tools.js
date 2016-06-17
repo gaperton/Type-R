@@ -18,7 +18,8 @@ exports.log = {
     }
 };
 function getPropertyDescriptor(obj, prop) {
-    for (var desc; !desc && obj; obj = Object.getPrototypeOf(obj)) {
+    var desc;
+    for (var proto = obj; !desc && proto; proto = Object.getPrototypeOf(proto)) {
         desc = Object.getOwnPropertyDescriptor(obj, prop);
     }
     return desc;

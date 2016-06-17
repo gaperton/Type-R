@@ -27,8 +27,10 @@ export let log = {
  * Object manipulation helpers...
  */
 
-export function getPropertyDescriptor( obj, prop ) {
-    for( var desc; !desc && obj; obj = Object.getPrototypeOf( obj ) ) {
+export function getPropertyDescriptor( obj : {}, prop : string ) : PropertyDescriptor {
+    let desc : PropertyDescriptor;
+
+    for( let proto = obj; !desc && proto; proto = Object.getPrototypeOf( proto ) ) {
         desc = Object.getOwnPropertyDescriptor( obj, prop );
     }
 
@@ -52,7 +54,7 @@ export function omit( source ) : {} {
     return dest;
 }
 
-export function mapObject( dest : {}, source : {}, fun : ( value : {}, key : string ) => {} ) {
+export function mapObject< T >( dest : T, source : {}, fun : ( value : {}, key : string ) => {} ) : T {
     for( var name in source ) {
         if( source.hasOwnProperty( name ) ) {
             var value = fun( source[ name ], name );
@@ -63,13 +65,13 @@ export function mapObject( dest : {}, source : {}, fun : ( value : {}, key : str
     return dest;
 }
 
-export function fastAssign( dest : {}, source : {} ) {
+export function fastAssign( dest : {}, source : {} ) : void {
     for( var name in source ) {
         dest[ name ] = source[ name ];
     }
 }
 
-export function fastDefaults( dest : {}, source : {} ) {
+export function fastDefaults( dest : {}, source : {} ) : void {
     for( var name in source ) {
         dest[ name ] === void 0 || ( dest[ name ] = source[ name ] );
     }

@@ -1,28 +1,35 @@
-import { Class } from './class.ts'
+import { IExtendable } from './class.ts'
 
-export interface ClassItf {
-    define( spec? : {}, statics? : {} )
-    extend( spec? : {}, statics? : {} )
+export type CollectionRef = string | ( () => ICollection ) | ICollection
+
+export interface CCollection extends IExtendable {
+    new ( records? : (Object|IRecord)[], options? : {} ) : void;
+    subsetOf( ref : CollectionRef ) : IAttribute
 }
 
-export interface CollectionCtor extends ClassItf {
-    new ( records? : Object[], options? : {} ) : CollectionItf;
+export interface CRecord extends IExtendable {
+    new ( attrs? : {}, options? : {} ) : void;
+    Collection : CCollection
+    from( ref : CollectionRef ) : IAttribute
 }
 
-export interface RecordCtor extends ClassItf {
-    new ( attrs? : {}, options? : {} ) : RecordItf;
-    Collection : CollectionCtor
+export interface IAttribute {
+
 }
 
-export interface RecordItf {
+export interface IRecordSpec {
+    attributes : { [ name : string ] : IAttribute | Function | any }
+}
+
+export interface IRecord {
     Attributes : AttributesCtor
     attributes : {}
     initialize( values? : Object, options? : {} )
     clone( options? : { deep? : Boolean } ) : this;
 }
 
-export interface CollectionItf {
-    Record : RecordCtor
+export interface ICollection {
+    Record : CRecord
 
     initialize( models? : CollectionArg, options? : {} )
 
@@ -35,4 +42,4 @@ interface AttributesCtor {
     new ( values : {} ) : {};
 }
 
-type CollectionArg = Object[] | RecordItf[]
+type CollectionArg = Object[] | IRecord[]
