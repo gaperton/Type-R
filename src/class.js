@@ -58,8 +58,8 @@ var Class = (function () {
         if (spec === void 0) { spec = {}; }
         this.define || Class.attach(this);
         var proto = this.prototype, Base = Object.getPrototypeOf(proto).constructor;
-        if (Base.create !== Class.create && Base.create === this.create) {
-            this.create = Class.create;
+        if (Base.create === this.create) {
+            this.create = void 0;
         }
         var specProps = tools_1.omit(spec, 'properties', 'mixins', 'mixinRules'), _a = spec.properties, properties = _a === void 0 ? {} : _a, mixins = spec.mixins, mixinRules = spec.mixinRules;
         tools_1.assign(proto, specProps);
@@ -86,6 +86,7 @@ var Class = (function () {
         }
         return subclass.define(spec, statics);
     };
+    Class.create = void 0;
     Class._mixinRules = { properties: 'merge' };
     return Class;
 }());

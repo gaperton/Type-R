@@ -19,9 +19,11 @@ interface IClassSpec {
 
 declare function __extends( a, b )
 
-export interface IExtendable extends Function {
+export interface IExtendable {
+    new ( ...args : any[] ) : {}
     define(spec? : IClassSpec, statics? : {} ) : IExtendable
     extend(spec? : IClassSpec, statics? : {} ) : IExtendable
+    create?( ...args : any[] ) : {}
 
     mixins( ...mixins : {}[] ) : IExtendable
     mixinRules( mixinRules : IMixinRules ) : IExtendable
@@ -35,6 +37,7 @@ export class Class {
      *
      * Cleared up on inheritance when defined for some abstract class.
      */
+    static create : ( ( ...args : any[] ) => {} ) = void 0;
 
     protected static _mixinRules : IMixinRules = { properties : 'merge' };
 
