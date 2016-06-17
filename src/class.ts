@@ -22,7 +22,6 @@ declare function __extends( a, b )
 export interface IExtendable extends Function {
     define(spec? : IClassSpec, statics? : {} ) : IExtendable
     extend(spec? : IClassSpec, statics? : {} ) : IExtendable
-    create( a : any, b : any ) : {}
 
     mixins( ...mixins : {}[] ) : IExtendable
     mixinRules( mixinRules : IMixinRules ) : IExtendable
@@ -36,7 +35,6 @@ export class Class {
      *
      * Cleared up on inheritance when defined for some abstract class.
      */
-    static create : ( a : any, b : any ) => Class;
 
     protected static _mixinRules : IMixinRules = { properties : 'merge' };
 
@@ -108,11 +106,11 @@ export class Class {
         this.define || Class.attach( this );
 
         const proto = this.prototype,
-              Base  = Object.getPrototypeOf( proto ).constructor;
+              Base : IExtendable = Object.getPrototypeOf( proto ).constructor;
 
         // Remove abstract class factory on inheritance
-        if( Base.create !== Class.create && Base.create === this.create ) {
-            this.create = Class.create;
+        if( Base.create === this.create ) {
+            this.create = void 0;
         }
 
         // Process spec...

@@ -1,9 +1,9 @@
-import { IExtendable } from './class.ts'
+import { Class, IExtendable } from './class.ts'
 
 export type CollectionRef = string | ( () => ICollection ) | ICollection
 
 export interface CCollection extends IExtendable {
-    new ( records? : (Object|IRecord)[], options? : {} ) : void;
+    new ( records? : Object[] | IRecord[], options? : {} ) : void;
     subsetOf( ref : CollectionRef ) : IAttribute
 }
 
@@ -21,14 +21,14 @@ export interface IRecordSpec {
     attributes : { [ name : string ] : IAttribute | Function | any }
 }
 
-export interface IRecord {
+export interface IRecord extends Class {
     Attributes : AttributesCtor
     attributes : {}
     initialize( values? : Object, options? : {} )
     clone( options? : { deep? : Boolean } ) : this;
 }
 
-export interface ICollection {
+export interface ICollection extends Class {
     Record : CRecord
 
     initialize( models? : CollectionArg, options? : {} )
