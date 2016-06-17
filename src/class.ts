@@ -10,7 +10,7 @@ interface IMixinRules {
     [ propertyName : string ] : MergeRule | IMixinRules
 }
 
-interface IClassSpec {
+export interface IClassSpec {
     properties? : PropertyDescriptorMap
     mixins? : Array< Object >
     mixinRules? : IMixinRules

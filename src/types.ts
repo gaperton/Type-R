@@ -1,4 +1,4 @@
-import { Class, IExtendable } from './class.ts'
+import { Class, IClassSpec, IExtendable } from './class.ts'
 
 export type CollectionRef = string | ( () => ICollection ) | ICollection
 
@@ -8,17 +8,18 @@ export interface CCollection extends IExtendable {
 }
 
 export interface CRecord extends IExtendable {
-    new ( attrs? : {}, options? : {} ) : void;
+    new ( attrs? : {}, options? : {} ) : IRecord;
     Collection : CCollection
     from( ref : CollectionRef ) : IAttribute
+    define( spec? : IRecordSpec, statics? : {} )
 }
 
 export interface IAttribute {
 
 }
 
-export interface IRecordSpec {
-    attributes : { [ name : string ] : IAttribute | Function | any }
+export interface IRecordSpec extends IClassSpec {
+    attributes? : { [ name : string ] : IAttribute | Function | any }
 }
 
 export interface IRecord extends Class {
