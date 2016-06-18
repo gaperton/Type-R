@@ -1,34 +1,38 @@
 "use strict";
 var transactions_1 = require('./transactions');
-var class_1 = require('../class');
+var tools_1 = require('../tools');
 var Attribute = (function () {
     function Attribute(name, options) {
         var _this = this;
-        var _a = this.options = options, value = _a.value, type = _a.type, parse = _a.parse, toJSON = _a.toJSON, _b = _a.getHooks, getHooks = _b === void 0 ? [] : _b, _c = _a.transforms, transforms = _c === void 0 ? [] : _c, _d = _a.changeHandlers, changeHandlers = _d === void 0 ? [] : _d;
         this.name = name;
+        this.options = options;
+        var value = options.value, type = options.type, parse = options.parse, toJSON = options.toJSON, _a = options.getHooks, getHooks = _a === void 0 ? [] : _a, _b = options.transforms, transforms = _b === void 0 ? [] : _b, _c = options.changeHandlers, changeHandlers = _c === void 0 ? [] : _c;
         this.value = value;
         this.type = type;
         this.parse = parse;
         this.toJSON = toJSON === void 0 ? this.toJSON : toJSON;
-        this.addTransform(this.convert);
-        this.changeHandler = null;
+        this.transform = this.convert;
+        this.handleChange = null;
         this.getHook = this.get || null;
         this.initialize.apply(this, arguments);
         getHooks.forEach(function (gh) { return _this.addGetHook(gh); });
         transforms.forEach(function (t) { return _this.addTransform(t); });
         changeHandlers.forEach(function (ch) { return _this.addChangeHandler(ch); });
     }
-    Attribute.prototype.transform = function (value) { return value; };
-    Attribute.prototype.convert = function (value, options) { return value; };
+    Attribute.prototype.canBeUpdated = function (value) {
+        return false;
+    };
+    Attribute.prototype.transform = function (value, options, prev, model) { return value; };
+    Attribute.prototype.convert = function (value, options, model) { return value; };
     Attribute.prototype.convertAndSet = function (value, options, prev, model) {
         var next = this.convert(value, options, model);
         if (this.isChanged(next, prev)) {
             var value_1 = this.set.call(model, next, this.name);
-            return value_1 === void 0 ? prev : this.convert(value_1, options);
+            return value_1 === void 0 ? prev : this.convert(value_1, options, model);
         }
     };
     Attribute.prototype.isChanged = function (a, b) {
-        return class_1.notEqual(a, b);
+        return tools_1.notEqual(a, b);
     };
     Attribute.prototype.handleChange = function (next, prev, model) { };
     Attribute.prototype.delegateEvents = function (next, prev, model) {
@@ -75,8 +79,9 @@ var Attribute = (function () {
                 }
         };
     };
+    Attribute.prototype.initialize = function (name, options) { };
     Attribute.prototype.addGetHook = function (next) {
-        var prev = this.prev;
+        var prev = this.getHook;
         this.getHook = prev ?
             function (value, name) {
                 var next = prev.call(value, name);
@@ -84,15 +89,14 @@ var Attribute = (function () {
             } : next;
     };
     Attribute.prototype.addTransform = function (next) {
-        var prev = this.prev;
-        this.transform = prev ?
-            function (value, options, prev, model) {
-                var next = prev.call(this, value, options, prev, model);
-                return next.call(this, next, options, prev, model);
-            } : next;
+        var prev = this.transform;
+        this.transform = function (value, options, prev, model) {
+            var next = prev.call(this, value, options, prev, model);
+            return next.call(this, next, options, prev, model);
+        };
     };
     Attribute.prototype.addChangeHandler = function (next) {
-        var prev = this.prev;
+        var prev = this.handleChange;
         this.handleChange = prev ?
             function (next, prev, model) {
                 prev.call(this, next, prev, model);

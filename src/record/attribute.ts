@@ -1,5 +1,5 @@
 import { setAttribute } from './transactions'
-import { notEqual, assign } from '../class'
+import { notEqual, assign } from '../tools'
 
 export class Attribute {
     /**
@@ -8,13 +8,18 @@ export class Attribute {
      *
      * Stage 0. canBeUpdated( value )
      * - presence of this function implies attribute's ability to update in place.
-     *
+     */
+     canBeUpdated( value ) : boolean {
+         return false;
+     }
+
+     /**
      * Stage 1. Transform stage
      */
-    transform( value ) { return value; }
+    transform( value, options, prev, model ) { return value; }
 
     // convert attribute type to `this.type`
-    convert( value, options ) { return value; }
+    convert( value, options, model ) { return value; }
 
     // when set hook is present, call it
     convertAndSet( value, options, prev, model ) {
@@ -22,14 +27,13 @@ export class Attribute {
 
         if( this.isChanged( next, prev ) ) {
             const value = this.set.call( model, next, this.name );
-            return value === void 0 ? prev : this.convert( value, options );
+            return value === void 0 ? prev : this.convert( value, options, model );
         }
     }
 
     /**
      * Stage 2. Check if attr value is changed
      */
-    // todo: remove underscore dependency
     isChanged( a, b ) {
         return notEqual( a, b );
     }
@@ -90,7 +94,7 @@ export class Attribute {
         return value && value.toJSON ? value.toJSON() : value;
     }
 
-    createPropertyDescriptor() {
+    createPropertyDescriptor() : PropertyDescriptor {
         const { name, getHook } = this;
 
         return {
@@ -110,15 +114,20 @@ export class Attribute {
         }
     }
 
-    constructor( name, options ) {
+    value : any
+    type : new ( value?, options? ) => any
+    parse : ( value, key : string ) => any
+
+    initialize( name : string, options ){}
+
+    constructor( public name : string, public options ) {
         const {
                   value, type, parse, toJSON,
                   getHooks = [],
                   transforms = [],
                   changeHandlers = []
-              } = this.options = options;
+              } = options;
 
-        this.name  = name;
         this.value = value;
         this.type  = type;
 
@@ -130,10 +139,10 @@ export class Attribute {
          */
 
         // `convert` is default transform, which is always present...
-        this.addTransform( this.convert );
+        this.transform = this.convert;
 
         // No change handler by default
-        this.changeHandler = null;
+        this.handleChange = null;
 
         // Get hook from the attribute will be used first...
         this.getHook = this.get || null;
@@ -147,8 +156,11 @@ export class Attribute {
         changeHandlers.forEach( ch => this.addChangeHandler( ch ) );
     }
 
+    getHook : ( value, key : string ) => any
+    get : ( value, key : string ) => any
+
     addGetHook( next ) {
-        const { prev } = this;
+        const prev = this.getHook;
 
         this.getHook = prev ?
                        function( value, name ) {
@@ -158,17 +170,16 @@ export class Attribute {
     }
 
     addTransform( next ) {
-        const { prev } = this;
+        const prev = this.transform;
 
-        this.transform = prev ?
-                         function( value, options, prev, model ) {
+        this.transform = function( value, options, prev, model ) {
                              const next = prev.call( this, value, options, prev, model );
                              return next.call( this, next, options, prev, model );
-                         } : next;
+                         }
     }
 
     addChangeHandler( next ) {
-        const { prev } = this;
+        const prev = this.handleChange;
 
         this.handleChange = prev ?
                             function( next, prev, model ) {

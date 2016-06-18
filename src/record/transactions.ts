@@ -1,24 +1,48 @@
 /**
  * Everything related to record's transactional updates
  */
+import { Attribute } from './attribute.ts'
 
-export const RecordMixin = {
-    createTransaction( values, options = {} ) {
+interface Options {
+    silent? : boolean
+}
+
+interface IAttributes {
+    [ key : string ] : any
+}
+
+interface IAttrSpecs {
+    [ key : string ] : Attribute
+}
+
+export class TransactionalRecord implements IParent {
+    _changing : boolean
+    _pending : boolean
+    _owner : IParent
+    _previousAttributes : {}
+    Attributes : new ( attrs : {} ) => IAttributes
+    attributes : IAttributes
+    _attributes : IAttrSpecs
+
+    _notifyChange( options : Options ) : void {}
+    _notifyChangeAttr( key : string, options : Options ) : void {}
+
+    forEachAttr( attrs : {}, iteratee : ( value : any, key : string ) => void ){}
+
+    createTransaction( values : {}, options : Options = {} ) : Transaction {
         const transaction = new Transaction( this ),
               { changes, nested } = transaction,
               { attributes, _attributes } = this;
 
-        this.forEachAttr( values, ( value, key ) => {
+        this.forEachAttr( values, ( value, key : string ) => {
             const attr = _attributes[ key ],
                   prev = attributes[ key ];
 
             // handle deep update...
-            if( attr.canBeUpdated ) {
                 if( prev && attr.canBeUpdated( value ) ) {
                     nested.push( prev.createTransaction( value, options ) );
                     return;
                 }
-            }
 
             // cast and hook...
             const next = attr.transform( value, options, prev, this );
@@ -28,28 +52,28 @@ export const RecordMixin = {
                 changes.push( key );
 
                 // Do the rest of the job after assignment
-                attr.handleChange( next, prev );
+                attr.handleChange( next, prev, this );
             }
         } );
 
         return transaction;
-    },
+    }
 
-    transaction( fun, options ) {
+    transaction( fun : ( self : this ) => void, options : Options = {} ) {
         const isRoot = begin( this );
         fun( this );
         isRoot && commit( this, options );
-    },
+    }
 
     /**
      * Change event handlers and triggers
      */
-    _onChildrenChange( child, options ) {
+    _onChildrenChange( child, options : Options ) : void {
         // Touch attribute in bounds of transaction
         const isRoot = begin( this );
 
         if( !options.silent ) {
-            this._pending = options;
+            this._pending = true;
             this._notifyChangeAttr( child._ownerAttr, options );
         }
 
@@ -58,7 +82,7 @@ export const RecordMixin = {
 };
 
  // fast-path set attribute transactional function
-export function setAttribute( model, name, value ) {
+export function setAttribute( model : TransactionalRecord, name : string, value ) {
     const isRoot  = begin( model ),
           options = {};
 
@@ -79,10 +103,10 @@ export function setAttribute( model, name, value ) {
 
             // Do the rest of the job after assignment
             if( spec.handleChange ) {
-                spec.handleChange( next, prev );
+                spec.handleChange( next, prev, this );
             }
 
-            model._pending = options;
+            model._pending = true;
             model._notifyChangeAttr( name, options );
         }
     }
@@ -95,7 +119,11 @@ export function setAttribute( model, name, value ) {
  *  begin( model ) => true | false;
  *  commit( model, options ) => void 0
  */
-function begin( model ){
+interface IParent {
+    _onChildrenChange( child, options : Options ) : void
+}
+
+function begin( model : TransactionalRecord ){
     const isRoot = !model._changing;
 
     if( isRoot ){
@@ -106,7 +134,7 @@ function begin( model ){
     return isRoot;
 }
 
-function commit( model, options ){
+function commit( model : TransactionalRecord, options : Options ){
     if( !options.silent ){
         while( model._pending ){
             model._pending = false;
@@ -127,16 +155,20 @@ function commit( model, options ){
 }
 
 class Transaction {
+    isRoot : boolean
+    changes : string[]
+    nested : Transaction[]
+
     // open transaction
-    constructor( model ){
+    constructor( public model : TransactionalRecord ){
         this.isRoot  = begin( model );
         this.model   = model;
-        this.changed = [];
+        this.changes = [];
         this.nested  = [];
     }
 
     // commit transaction
-    commit( options = {} ){
+    commit( options : Options = {} ){
         const { nested, model } = this;
 
         // Commit all nested transactions...
@@ -146,14 +178,14 @@ class Transaction {
 
         // Notify listeners on attribute changes...
         if( !options.silent ){
-            const { changed } = this;
+            const { changes } = this;
 
-            if( changed.length ){
-                model._pending = options;
+            if( changes.length ){
+                model._pending = true;
             }
 
-            for( let i = 0; i < changed.length; i++ ){
-                model._notifyChangeAttr( changed[ i ], options )
+            for( let i = 0; i < changes.length; i++ ){
+                model._notifyChangeAttr( changes[ i ], options )
             }
         }
 

@@ -15,7 +15,7 @@ export class Record extends Class implements IRecord {
 
     static define( spec ) {
         const BaseModel : CRecord = Object.getPrototypeOf( this.prototype ).constructor;
-        
+
         // Create collection
         if( this.Collection === BaseModel.Collection ) {
             this.Collection                 = class extends BaseModel.Collection {};
@@ -94,11 +94,11 @@ export class Record extends Class implements IRecord {
     }
 
     initialize(){}
-    
+
     defaults( attrs, options ) {
         return new this.Attributes( attrs );
     }
-    
+
     clone( options = { deep : true } ) : this {
         return new (this.constructor)( this.attributes, options );
     }

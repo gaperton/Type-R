@@ -1,40 +1,47 @@
 "use strict";
-exports.RecordMixin = {
-    createTransaction: function (values, options) {
+var TransactionalRecord = (function () {
+    function TransactionalRecord() {
+    }
+    TransactionalRecord.prototype._notifyChange = function (options) { };
+    TransactionalRecord.prototype._notifyChangeAttr = function (key, options) { };
+    TransactionalRecord.prototype.forEachAttr = function (attrs, iteratee) { };
+    TransactionalRecord.prototype.createTransaction = function (values, options) {
         var _this = this;
         if (options === void 0) { options = {}; }
         var transaction = new Transaction(this), changes = transaction.changes, nested = transaction.nested, _a = this, attributes = _a.attributes, _attributes = _a._attributes;
         this.forEachAttr(values, function (value, key) {
             var attr = _attributes[key], prev = attributes[key];
-            if (attr.canBeUpdated) {
-                if (prev && attr.canBeUpdated(value)) {
-                    nested.push(prev.createTransaction(value, options));
-                    return;
-                }
+            if (prev && attr.canBeUpdated(value)) {
+                nested.push(prev.createTransaction(value, options));
+                return;
             }
             var next = attr.transform(value, options, prev, _this);
             if (attr.isChanged(next, prev)) {
                 attributes[key] = next;
                 changes.push(key);
-                attr.handleChange(next, prev);
+                attr.handleChange(next, prev, _this);
             }
         });
         return transaction;
-    },
-    transaction: function (fun, options) {
+    };
+    TransactionalRecord.prototype.transaction = function (fun, options) {
+        if (options === void 0) { options = {}; }
         var isRoot = begin(this);
         fun(this);
         isRoot && commit(this, options);
-    },
-    _onChildrenChange: function (child, options) {
+    };
+    TransactionalRecord.prototype._onChildrenChange = function (child, options) {
         var isRoot = begin(this);
         if (!options.silent) {
-            this._pending = options;
+            this._pending = true;
             this._notifyChangeAttr(child._ownerAttr, options);
         }
         isRoot && commit(this, options);
-    }
-};
+    };
+    return TransactionalRecord;
+}());
+exports.TransactionalRecord = TransactionalRecord;
+;
 function setAttribute(model, name, value) {
     var isRoot = begin(model), options = {};
     var attributes = model.attributes, spec = model._attributes[name], prev = attributes[name];
@@ -46,9 +53,9 @@ function setAttribute(model, name, value) {
         if (spec.isChanged(next, prev)) {
             attributes[name] = next;
             if (spec.handleChange) {
-                spec.handleChange(next, prev);
+                spec.handleChange(next, prev, this);
             }
-            model._pending = options;
+            model._pending = true;
             model._notifyChangeAttr(name, options);
         }
     }
@@ -79,9 +86,10 @@ function commit(model, options) {
 }
 var Transaction = (function () {
     function Transaction(model) {
+        this.model = model;
         this.isRoot = begin(model);
         this.model = model;
-        this.changed = [];
+        this.changes = [];
         this.nested = [];
     }
     Transaction.prototype.commit = function (options) {
@@ -91,12 +99,12 @@ var Transaction = (function () {
             nested[i].commit(options);
         }
         if (!options.silent) {
-            var changed = this.changed;
-            if (changed.length) {
-                model._pending = options;
+            var changes = this.changes;
+            if (changes.length) {
+                model._pending = true;
             }
-            for (var i = 0; i < changed.length; i++) {
-                model._notifyChangeAttr(changed[i], options);
+            for (var i = 0; i < changes.length; i++) {
+                model._notifyChangeAttr(changes[i], options);
             }
         }
         this.isRoot && commit(model, options);
