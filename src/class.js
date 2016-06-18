@@ -13,7 +13,7 @@ var Class = (function () {
         for (var _i = 0; _i < arguments.length; _i++) {
             mixins[_i - 0] = arguments[_i];
         }
-        var proto = this.prototype, mergeRules = this.mixinRules || {};
+        var proto = this.prototype, mergeRules = this._mixinRules || {};
         for (var i = mixins.length - 1; i >= 0; i--) {
             var mixin = mixins[i];
             if (mixin instanceof Array) {
@@ -31,6 +31,7 @@ var Class = (function () {
             mergeProps(mixinRules, Base._mixinRules);
         }
         this._mixinRules = mixinRules;
+        return this;
     };
     Class.prototype.bindAll = function () {
         for (var i = 0; i < arguments.length; i++) {
@@ -38,12 +39,27 @@ var Class = (function () {
             this[name_1] = this[name_1].bind(this);
         }
     };
+    Class.attach = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
+        for (var _a = 0, args_1 = args; _a < args_1.length; _a++) {
+            var Ctor = args_1[_a];
+            Ctor.create = this.create;
+            Ctor.define = this.define;
+            Ctor.mixins = this.mixins;
+            Ctor.mixinRules = this.mixinRules;
+            Ctor._mixinRules = this._mixinRules;
+            Ctor.prototype.bindAll = this.prototype.bindAll;
+        }
+    };
     Class.define = function (spec, statics) {
         if (spec === void 0) { spec = {}; }
-        this.define || classExtensions(this);
+        this.define || Class.attach(this);
         var proto = this.prototype, Base = Object.getPrototypeOf(proto).constructor;
-        if (Base.create !== Class.create && Base.create === this.create) {
-            this.create = Class.create;
+        if (Base.create === this.create) {
+            this.create = void 0;
         }
         var specProps = tools_1.omit(spec, 'properties', 'mixins', 'mixinRules'), _a = spec.properties, properties = _a === void 0 ? {} : _a, mixins = spec.mixins, mixinRules = spec.mixinRules;
         tools_1.assign(proto, specProps);
@@ -51,6 +67,7 @@ var Class = (function () {
         Object.defineProperties(proto, properties);
         mixinRules && this.mixinRules(mixinRules);
         mixins && this.mixins(mixins);
+        return this;
     };
     Class.extend = function (spec, statics) {
         var subclass;
@@ -67,32 +84,17 @@ var Class = (function () {
                 return class_1;
             }(this));
         }
-        subclass.define(spec, statics);
+        return subclass.define(spec, statics);
     };
+    Class.create = void 0;
     Class._mixinRules = { properties: 'merge' };
     return Class;
 }());
 exports.Class = Class;
-function createDecorator(name, spec) {
-    return function (Ctor) {
-        if (Ctor[name]) {
-            Ctor[name](spec);
-        }
-        else {
-            Class[name].call(Ctor, spec);
-        }
-    };
-}
 function mixinRules(rules) {
     return createDecorator('mixinRules', rules);
 }
 exports.mixinRules = mixinRules;
-function defineDecorator(spec) {
-    return typeof spec === 'function' ?
-        spec.define() :
-        createDecorator('define', spec);
-}
-exports.define = defineDecorator;
 function mixins() {
     var list = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -101,27 +103,28 @@ function mixins() {
     return createDecorator('mixins', list);
 }
 exports.mixins = mixins;
-function classExtensions() {
-    var args = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        args[_i - 0] = arguments[_i];
-    }
-    for (var _a = 0, args_1 = args; _a < args_1.length; _a++) {
-        var Ctor = args_1[_a];
-        Ctor.create = Class.create;
-        Ctor.define = Class.define;
-        Ctor.mixins = Class.mixins;
-        Ctor.mixinRules = Class.mixinRules;
-        Ctor._mixinRules = Class._mixinRules;
-        Ctor.prototype.bindAll = Class.prototype.bindAll;
-    }
+function defineDecorator(spec) {
+    return typeof spec === 'function' ?
+        spec.define() :
+        createDecorator('define', spec);
 }
-exports.classExtensions = classExtensions;
-var mergeRules = {
-    merge: function (a, b, rules) {
-        var x = tools_1.assign({}, a);
-        return mergeProps(x, b, rules);
-    },
+exports.define = defineDecorator;
+function createDecorator(name, spec) {
+    return function (Ctor) {
+        if (Ctor[name]) {
+            Ctor[name](spec);
+        }
+        else {
+            Class[name].call(Ctor, spec);
+        }
+        return Ctor;
+    };
+}
+function mergeObjects(a, b, rules) {
+    var x = tools_1.assign({}, a);
+    return mergeProps(x, b, rules);
+}
+var mergeFunctions = {
     pipe: function (a, b) {
         return function (x) {
             return a.call(this, b.call(this, x));
@@ -152,15 +155,16 @@ var mergeRules = {
 };
 function mergeProps(target, source, rules) {
     if (rules === void 0) { rules = {}; }
-    var sourceProps = Object.getOwnPropertyNames(source);
-    for (var i = 0; i < sourceProps.length; i++) {
-        var name_2 = sourceProps[i], sourceProp = Object.getOwnPropertyDescriptor(source, name_2), destProp = tools_1.getPropertyDescriptor(target, name_2);
+    for (var _i = 0, _a = Object.getOwnPropertyNames(source); _i < _a.length; _i++) {
+        var name_2 = _a[_i];
+        var sourceProp = Object.getOwnPropertyDescriptor(source, name_2), destProp = tools_1.getPropertyDescriptor(target, name_2);
         if (destProp) {
             var rule = rules[name_2], value = destProp.value;
             if (rule && value) {
                 target[name_2] = typeof rule === 'object' ?
-                    mergeRules.merge(value, sourceProp.value, rule) :
-                    mergeRules[rule](value, sourceProp.value);
+                    mergeObjects(value, sourceProp.value, rule) : (rule === 'merge' ?
+                    mergeObjects(value, sourceProp.value) :
+                    mergeFunctions[rule](value, sourceProp.value));
             }
         }
         else {
