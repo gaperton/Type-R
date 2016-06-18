@@ -1,6 +1,7 @@
 import { RecordMixin, setAttribute } from './transactions.ts'
-import compile from './compile'
-import { assign, Class } from '../class'
+import compile from './compile.ts'
+import { Class } from '../class.ts'
+import { assign } from '../tools.ts'
 
 import {CollectionCtor, RecordItf, RecordCtor} from '../types.ts'
 
@@ -97,9 +98,9 @@ export class Record extends Class implements RecordItf {
     defaults( attrs, options ) {
         return new this.Attributes( attrs );
     }
-
-    clone( options = { deep : true } ) {
-        return new (<typeof Record> this.constructor)( this.attributes, options );
+    
+    clone( options = { deep : true } ) : this {
+        return new (this.constructor)( this.attributes, options );
     }
 
     /**

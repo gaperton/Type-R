@@ -8,9 +8,5 @@
   "exclude": [
     "node_modules",
     "typings"
-  ],
-  "files": [
-      "./tests/index.ts",
-    "./index.ts"
   ]
 }

@@ -5,8 +5,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var transactions_ts_1 = require('./transactions.ts');
-var compile_1 = require('./compile');
-var class_1 = require('../class');
+var compile_ts_1 = require('./compile.ts');
+var class_ts_1 = require('../class.ts');
+var tools_ts_1 = require('../tools.ts');
 var _cidCount = 0;
 var Attributes = (function () {
     function Attributes() {
@@ -52,16 +53,16 @@ var Record = (function (_super) {
         var BaseModel = Object.getPrototypeOf(this.prototype).constructor;
         if (this.Collection === BaseModel.Collection) {
             this.Collection = (function (_super) {
-                __extends(class_2, _super);
-                function class_2() {
+                __extends(class_1, _super);
+                function class_1() {
                     _super.apply(this, arguments);
                 }
-                return class_2;
+                return class_1;
             }(BaseModel.Collection));
             this.Collection.prototype.Record = this;
         }
         if (spec) {
-            _super.define.call(this, compile_1.default(spec, BaseModel.prototype));
+            _super.define.call(this, compile_ts_1.default(spec, BaseModel.prototype));
             var collection = spec.collection;
             if (collection) {
                 if (typeof collection === 'function') {
@@ -80,7 +81,7 @@ var Record = (function (_super) {
     };
     Record.prototype.clone = function (options) {
         if (options === void 0) { options = { deep: true }; }
-        return new this.constructor(this.attributes, options);
+        return new (this.constructor)(this.attributes, options);
     };
     Record.prototype.forEachAttr = function (obj, fun) {
     };
@@ -196,9 +197,9 @@ var Record = (function (_super) {
         return new this.Attributes(this._previousAttributes);
     };
     return Record;
-}(class_1.Class));
+}(class_ts_1.Class));
 exports.Record = Record;
-class_1.assign(Record.prototype, transactions_ts_1.RecordMixin);
+tools_ts_1.assign(Record.prototype, transactions_ts_1.RecordMixin);
 var s = {
     extend: function (protoProps, staticProps) {
         var Child;

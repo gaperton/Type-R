@@ -27,7 +27,7 @@ export class Class {
      */
     static create : ( a : any, b : any ) => Class;
 
-    protected static _mixinRules : MixinRules = { properties : 'merge' };
+    static _mixinRules : MixinRules = { properties : 'merge' };
 
     /**
      * Attach mixins to class prototype.
