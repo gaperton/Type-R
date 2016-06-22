@@ -43,7 +43,7 @@ export class TransactionalRecord implements IParent {
             const attr = _attributes[ key ],
                   prev = attributes[ key ];
 
-            // handle deep update...
+                // handle deep update...
                 if( prev && attr.canBeUpdated( value ) ) {
                     nested.push( prev.createTransaction( value, options ) );
                     return;
