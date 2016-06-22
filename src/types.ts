@@ -3,7 +3,7 @@ import { Class, IClassSpec, IExtendable } from './class.ts'
 export type CollectionRef = string | ( () => ICollection ) | ICollection
 
 export interface CCollection extends IExtendable {
-    new ( records? : Object[] | IRecord[], options? : {} ) : void;
+    new ( records? : Object[] | IRecord[], options? : {} ) : ICollection;
     subsetOf( ref : CollectionRef ) : IAttribute
 }
 
@@ -57,8 +57,6 @@ export interface IRecord extends Class, IEvents {
     idAttribute: string;
     id : string | number
     cid: string;
-
-    constructor(attributes?: any, options?: any);
 
     Attributes : AttributesCtor
     attributes : Attributes

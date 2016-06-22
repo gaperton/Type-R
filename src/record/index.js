@@ -50,19 +50,21 @@ var Record = (function (_super) {
         this.initialize.apply(this, arguments);
     }
     Record.define = function (spec) {
-        var BaseModel = Object.getPrototypeOf(this.prototype).constructor;
-        if (this.Collection === BaseModel.Collection) {
+        var baseProto = Object.getPrototypeOf(this.prototype), BaseCtor = baseProto.constructor;
+        if (this.Collection === BaseCtor.Collection) {
             this.Collection = (function (_super) {
-                __extends(class_1, _super);
-                function class_1() {
+                __extends(Collection, _super);
+                function Collection() {
                     _super.apply(this, arguments);
                 }
-                return class_1;
-            }(BaseModel.Collection));
+                return Collection;
+            }(BaseCtor.Collection));
             this.Collection.prototype.Record = this;
         }
         if (spec) {
-            _super.define.call(this, compile_ts_1.default(spec, BaseModel.prototype));
+            var attributes = spec.attributes, compiled = defaults(compile_ts_1.default(attributes, baseProto._attributes), spec);
+            tools_ts_1.assign(compiled.properties, spec.properties);
+            _super.define.call(this, compiled);
             var collection = spec.collection;
             if (collection) {
                 if (typeof collection === 'function') {

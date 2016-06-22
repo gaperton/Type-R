@@ -1,6 +1,8 @@
 import { Attribute } from './attribute'
 
 class ConstructorType extends Attribute {
+    type : new ( value : any ) => {}
+
     convert( value ) {
         return value == null || value instanceof this.type ? value : new this.type( value );
     }

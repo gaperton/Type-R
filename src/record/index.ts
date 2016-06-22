@@ -14,17 +14,23 @@ export class Record extends Class implements IRecord {
     static Collection : CCollection
 
     static define( spec ) {
-        const BaseModel : CRecord = Object.getPrototypeOf( this.prototype ).constructor;
+        const baseProto = Object.getPrototypeOf( this.prototype ),
+              BaseCtor : CRecord = baseProto.constructor;
 
         // Create collection
-        if( this.Collection === BaseModel.Collection ) {
-            this.Collection                 = class extends BaseModel.Collection {};
+        if( this.Collection === BaseCtor.Collection ) {
+            this.Collection = class Collection extends BaseCtor.Collection {};
             this.Collection.prototype.Record = this;
         }
 
         if( spec ) {
             // define stuff
-            super.define( compile( spec, BaseModel.prototype ) );
+            const { attributes } = spec,
+                compiled = defaults( compile( attributes, baseProto._attributes ), spec );
+
+            assign( compiled.properties, spec.properties );
+
+            super.define( compiled );
 
             const { collection } = spec;
             if( collection ) {

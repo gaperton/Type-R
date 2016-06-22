@@ -20,7 +20,6 @@ export interface IClassSpec {
 declare function __extends( a, b )
 
 export interface IExtendable {
-    new ( ...args : any[] ) : {}
     define(spec? : IClassSpec, statics? : {} ) : IExtendable
     extend(spec? : IClassSpec, statics? : {} ) : IExtendable
     create?( ...args : any[] ) : {}

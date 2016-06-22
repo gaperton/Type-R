@@ -60,7 +60,7 @@ Object.defineProperty(Function.prototype, 'has', {
     },
     set: function (value) { this._has = value; }
 });
-function createAttribute(name, spec) {
+function createAttribute(spec, name) {
     var typeSpec;
     if (spec && spec instanceof TypeSpec) {
         typeSpec = spec;

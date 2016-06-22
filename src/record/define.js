@@ -1,7 +1,8 @@
 "use strict";
+var typespec_ts_1 = require('./typespec.ts');
 var tools_ts_1 = require('../tools.ts');
-function compile(myAttributes, baseAttributes) {
-    var allAttributes = tools_ts_1.defaults({}, myAttributes, baseAttributes), Attributes = createCloneCtor(allAttributes);
+function compile(rawSpecs, baseAttributes) {
+    var myAttributes = tools_ts_1.transform({}, rawSpecs, typespec_ts_1.createAttribute), allAttributes = tools_ts_1.defaults({}, myAttributes, baseAttributes), Attributes = createCloneCtor(allAttributes);
     return {
         Attributes: Attributes,
         _attributes: new Attributes(allAttributes),

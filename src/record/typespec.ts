@@ -10,7 +10,7 @@ import { IRecord, EventsHash } from '../types.ts'
 
 class TypeSpec {
     options : IAttributeOptions;
-    
+
     constructor( options = {} ) {
         this.options = { getHooks : [], transforms : [], changeHandlers : []};
         assign( this.options, options );
@@ -68,9 +68,10 @@ class TypeSpec {
 }
 
 interface Function{
-    _attribute? : typeof Attribute
-    value? : ( x : any ) => TypeSpec
-    isRequired? : TypeSpec
+    _attribute? : typeof Attribute;
+    value? : ( x : any ) => TypeSpec;
+    isRequired? : TypeSpec;
+    has? : TypeSpec;
 }
 
 Function.prototype[ 'value' ] = function( x ) {
@@ -89,7 +90,7 @@ Object.defineProperty( Function.prototype, 'has', {
     set : function( value ) { this._has = value; }
 } );
 
-export function createAttribute( name, spec ) {
+export function createAttribute( spec : any, name : string ) : Attribute {
     let typeSpec;
 
     if( spec && spec instanceof TypeSpec ) {

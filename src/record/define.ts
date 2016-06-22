@@ -1,4 +1,5 @@
 import { Attribute } from './attribute.ts';
+import { createAttribute } from './typespec.ts';
 import { defaults, isValidJSON, transform } from '../tools.ts'
 
 interface ICompiled {
@@ -22,8 +23,9 @@ type Parse = ( data : any ) => any;
 type ToJSON = () => any;
 
 // Compile attributes spec
-export function compile( myAttributes : AttrSpecs, baseAttributes : AttrSpecs ) : ICompiled {
-    const allAttributes : AttrSpecs = defaults( {}, myAttributes, baseAttributes ),
+export function compile( rawSpecs : {}, baseAttributes : AttrSpecs ) : ICompiled {
+    const myAttributes : AttrSpecs = transform( {}, rawSpecs, createAttribute ),
+          allAttributes : AttrSpecs = defaults( {}, myAttributes, baseAttributes ),
           Attributes = createCloneCtor( allAttributes );
 
     return {
