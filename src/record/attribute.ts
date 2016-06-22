@@ -1,6 +1,8 @@
 import { setAttribute } from './transactions'
 import { notEqual, assign } from '../tools'
 
+import { IRecord } from '../types.ts'
+
 export interface IAttributeOptions {
     getHooks : GetHook[]
     transforms : Transform[]
@@ -9,8 +11,17 @@ export interface IAttributeOptions {
     value? : any
     onChange? : ChangeAttrHandler
     type? : Function
+
+    parse? : ( data : any, key : string ) => any
+    toJSON? : ( key : string ) => any
 }
 
+type GetHook = ( value : any, key : string ) => any;
+type Transform = ( next : any, options : {}, prev : any, model : IRecord ) => any;
+type ChangeHandler = ( next : any, prev : any, model : IRecord ) => void;
+type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | string;
+
+// TODO: interface differs from options, do something obout it
 export class Attribute implements IAttributeOptions {
     /**
      * Update pipeline functions
@@ -19,7 +30,7 @@ export class Attribute implements IAttributeOptions {
      * Stage 0. canBeUpdated( value )
      * - presence of this function implies attribute's ability to update in place.
      */
-     canBeUpdated( value ) : boolean {
+     canBeUpdated( value  ) : boolean {
          return false;
      }
 
@@ -30,16 +41,6 @@ export class Attribute implements IAttributeOptions {
 
     // convert attribute type to `this.type`
     convert( value, options, model ) { return value; }
-
-    // when set hook is present, call it
-    convertAndSet( value, options, prev, model ) {
-        const next = this.convert( value, options, model );
-
-        if( this.isChanged( next, prev ) ) {
-            const value = this.set.call( model, next, this.name );
-            return value === void 0 ? prev : this.convert( value, options, model );
-        }
-    }
 
     /**
      * Stage 2. Check if attr value is changed
@@ -53,32 +54,17 @@ export class Attribute implements IAttributeOptions {
      */
     handleChange( next, prev, model ) {}
 
-    // delegate user and system events on attribute transform
-    // todo: remove backbone events dependency from the core
-    delegateEvents( next, prev, model ) {
-        // console.assert( this.events );
-        prev && prev.trigger && model.stopListening( prev );
-
-        if( next && next.trigger ) {
-            model.listenTo( next, this.events );
-        }
-    }
-
-    // attribute-level change event.
-    onAttrChange( next, prev, model ) {
-        this.onChange.call( model, next, this.name );
-    }
 
     /**
      * End update pipeline definitions.
      */
 
     // create empty object passing backbone options to constructor...
-    create( options ) { return new this.type(); }
+    create( options ) { return new ( <any>this.type )(); }
 
     // generic clone function for typeless attributes
     // Must be overriden in sublass
-    clone( value, options = {} ) {
+    clone( value, options : { deep? : boolean } = {} ) {
         if( value && typeof value === 'object' ) {
             // delegate to object's clone(), if it exist...
             if( value.clone ) {
@@ -125,7 +111,8 @@ export class Attribute implements IAttributeOptions {
     }
 
     value : any
-    type : new ( value?, options? ) => any
+    type : Function
+    
     parse : ( value, key : string ) => any
 
     initialize( name : string, options ){}
@@ -169,7 +156,7 @@ export class Attribute implements IAttributeOptions {
     getHook : ( value, key : string ) => any
     get : ( value, key : string ) => any
 
-    addGetHook( next ) {
+    addGetHook( next : GetHook ) : void {
         const prev = this.getHook;
 
         this.getHook = prev ?
@@ -179,7 +166,7 @@ export class Attribute implements IAttributeOptions {
                        } : next;
     }
 
-    addTransform( next ) {
+    addTransform( next : Transform ) : void {
         const prev = this.transform;
 
         this.transform = function( value, options, prev, model ) {
@@ -188,7 +175,7 @@ export class Attribute implements IAttributeOptions {
                          }
     }
 
-    addChangeHandler( next ) {
+    addChangeHandler( next : ChangeHandler ) : void {
         const prev = this.handleChange;
 
         this.handleChange = prev ?

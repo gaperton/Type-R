@@ -7,11 +7,6 @@ import { Attribute, IAttributeOptions } from './attribute.ts'
 import { assign } from '../tools.ts'
 import { IRecord, EventsHash } from '../types.ts'
 
-type GetHook = ( value : any, key : string ) => any;
-type Transform = ( next : any, options : {}, prev : any, model : IRecord ) => any;
-type ChangeHandler = ( next : any, prev : any, model : IRecord ) => void;
-
-type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | string;
 
 class TypeSpec {
     options : IAttributeOptions;
