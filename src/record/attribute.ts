@@ -13,7 +13,7 @@ export class Attribute {
          return false;
      }
 
-     /**
+    /**
      * Stage 1. Transform stage
      */
     transform( value, options, prev, model ) { return value; }
@@ -100,7 +100,7 @@ export class Attribute {
         return {
             // call to optimized set function for single argument.
             set( value ){
-                setAttribute( this, name, value );
+                setAttribute( <any>this, name, value );
             },
 
             // attach get hook to the getter function, if present

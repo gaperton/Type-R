@@ -1,7 +1,12 @@
 /**
  * Everything related to record's transactional updates
  */
-import { Attribute } from './attribute.ts'
+interface IUpdatePipeline{
+    canBeUpdated( value : any ) : boolean
+    transform( value : any, options : Options, prev : any, model : TransactionalRecord ) : any
+    isChanged( a : any, b : any ) : boolean
+    handleChange( next : any, prev : any, model : TransactionalRecord ) : void
+}
 
 interface Options {
     silent? : boolean
@@ -12,7 +17,7 @@ interface IAttributes {
 }
 
 interface IAttrSpecs {
-    [ key : string ] : Attribute
+    [ key : string ] : IUpdatePipeline
 }
 
 export class TransactionalRecord implements IParent {
