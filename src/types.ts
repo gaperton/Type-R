@@ -49,7 +49,11 @@ interface ITransaction {
     commit( options? : Options ) : void
 }
 
-export interface IRecord extends Class {
+
+
+
+
+export interface IRecord extends Class, IEvents {
     idAttribute: string;
     id : string | number
     cid: string;
@@ -83,3 +87,23 @@ interface AttributesCtor {
 interface Attributes {}
 
 type CollectionArg = Object[] | IRecord[]
+
+
+export interface EventsHash {
+    [events : string]: string | Function;
+}
+
+export interface IEvents{
+    trigger(eventName: string, ...args: any[]): any;
+
+    on(eventName: string, callback: Function, context?: any): any;
+    on(eventMap: EventsHash): any;
+    listenTo(object: any, events: EventsHash ): any;
+    listenTo(object: any, events: string, callback: Function): any;
+
+    once(events: string, callback: Function, context?: any): any;
+    listenToOnce(object: any, events: string, callback: Function): any;
+
+    off(eventName?: string, callback?: Function, context?: any): any;
+    stopListening(object?: any, events?: string, callback?: Function): any;
+}

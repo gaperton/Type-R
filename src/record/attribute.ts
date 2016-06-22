@@ -1,7 +1,17 @@
 import { setAttribute } from './transactions'
 import { notEqual, assign } from '../tools'
 
-export class Attribute {
+export interface IAttributeOptions {
+    getHooks : GetHook[]
+    transforms : Transform[]
+    changeHandlers : ChangeHandler[]
+    isRequired? : boolean
+    value? : any
+    onChange? : ChangeAttrHandler
+    type? : Function
+}
+
+export class Attribute implements IAttributeOptions {
     /**
      * Update pipeline functions
      * =========================
@@ -120,7 +130,7 @@ export class Attribute {
 
     initialize( name : string, options ){}
 
-    constructor( public name : string, public options ) {
+    constructor( public name : string, public options : IAttributeOptions ) {
         const {
                   value, type, parse, toJSON,
                   getHooks = [],
