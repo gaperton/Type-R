@@ -24,26 +24,10 @@ var Attribute = (function () {
     };
     Attribute.prototype.transform = function (value, options, prev, model) { return value; };
     Attribute.prototype.convert = function (value, options, model) { return value; };
-    Attribute.prototype.convertAndSet = function (value, options, prev, model) {
-        var next = this.convert(value, options, model);
-        if (this.isChanged(next, prev)) {
-            var value_1 = this.set.call(model, next, this.name);
-            return value_1 === void 0 ? prev : this.convert(value_1, options, model);
-        }
-    };
     Attribute.prototype.isChanged = function (a, b) {
         return tools_1.notEqual(a, b);
     };
     Attribute.prototype.handleChange = function (next, prev, model) { };
-    Attribute.prototype.delegateEvents = function (next, prev, model) {
-        prev && prev.trigger && model.stopListening(prev);
-        if (next && next.trigger) {
-            model.listenTo(next, this.events);
-        }
-    };
-    Attribute.prototype.onAttrChange = function (next, prev, model) {
-        this.onChange.call(model, next, this.name);
-    };
     Attribute.prototype.create = function (options) { return new this.type(); };
     Attribute.prototype.clone = function (value, options) {
         if (options === void 0) { options = {}; }
@@ -66,18 +50,20 @@ var Attribute = (function () {
     };
     Attribute.prototype.createPropertyDescriptor = function () {
         var _a = this, name = _a.name, getHook = _a.getHook;
-        return {
-            set: function (value) {
-                transactions_1.setAttribute(this, name, value);
-            },
-            get: getHook ?
-                function () {
-                    return getHook.call(this, this.attributes[name], name);
-                } :
-                function () {
-                    return this.attributes[name];
-                }
-        };
+        if (name !== 'id') {
+            return {
+                set: function (value) {
+                    transactions_1.setAttribute(this, name, value);
+                },
+                get: getHook ?
+                    function () {
+                        return getHook.call(this, this.attributes[name], name);
+                    } :
+                    function () {
+                        return this.attributes[name];
+                    }
+            };
+        }
     };
     Attribute.prototype.initialize = function (name, options) { };
     Attribute.prototype.addGetHook = function (next) {

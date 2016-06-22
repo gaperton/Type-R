@@ -91,7 +91,7 @@ export function defaults( attrSpecs ){
 }
 
 function createParse( allAttrSpecs, attrSpecs ){
-    var statements = [],
+    var statements = [ 'var a=this._attributes;' ],
         create     = false;
 
     for( let name of allAttrSpecs ){
@@ -102,14 +102,14 @@ function createParse( allAttrSpecs, attrSpecs ){
 
         // Add statement for each attribute with 'parse' option.
         if( allAttrSpecs[ name ].parse ){
-            const s = `r.${name} === void 0 ||( r.${name} = a.${name}.parse.call( model, r.${name}, "${name}") );`;
+            const s = `r.${name} === void 0 ||( r.${name} = a.${name}.parse.call( this, r.${name}, "${name}") );`;
             statements.push( s );
         }
     }
 
     if( create ){
         statements.push( 'return r;' );
-        const parse = new Function( 'model', 'r', 'a', statements.join( '' ) );
+        const parse = new Function( 'r', statements.join( '' ) );
 
         return function( data ){
             return parse( this, data, allAttrSpecs );
@@ -118,17 +118,17 @@ function createParse( allAttrSpecs, attrSpecs ){
  }
 
 function toJSON( attrSpecs ){
-    let statements = [ `var json = {};` ];
+    let statements = [ `var json = {},v=this.attributes,a=this._attributes;` ];
 
     for( let key of attrSpecs ){
         const toJSON = attrSpecs[ key ].toJSON;
 
         if( toJSON ){
-            statements.push( `json.${key} = a.${key}.toJSON.call( model, v.${ key }, '${key}' );` );
+            statements.push( `json.${key} = a.${key}.toJSON.call( this, v.${ key }, '${key}' );` );
         }
     }
 
     statements.push( `return json;` );
 
-    return new Function( 'model', 'v', 'a', statements.join( '' ) );
+    return new Function( statements.join( '' ) );
 }

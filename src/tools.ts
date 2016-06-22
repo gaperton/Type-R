@@ -5,7 +5,7 @@
 
 export let log = {
     level : 2,
-    
+
     error(){
         console.error.apply( this, arguments );
     },
@@ -23,9 +23,67 @@ export let log = {
     }
 };
 
+// Check if value is valid JSON.
+export function isValidJSON( value : any ) : boolean {
+    if( value === null ){
+        return true;
+    }
+
+    switch( typeof value ){
+    case 'number' :
+    case 'string' :
+    case 'boolean' :
+        return true;
+
+    case 'object':
+        var proto = Object.getPrototypeOf( value );
+
+        if( proto === Object.prototype || proto === Array.prototype ){
+            return every( value, isValidJSON );
+        }
+    }
+
+    return false;
+}
+
 /**
  * Object manipulation helpers...
  */
+
+function someArray( arr : any[], fun ) : any {
+    let result;
+
+    for( let i = 0; i < arr.length; i++ ){
+        if( result = fun( arr[ i ], i ) ){
+            return result;
+        }
+    }
+}
+
+function someObject( obj : {}, fun ) : any {
+    let result;
+
+    for( let key in obj ){
+        if( obj.hasOwnProperty( key ) ){
+            if( result = fun( obj[ key ], key ) ){
+                return result;
+            }
+        }
+    }
+}
+
+export function some( obj, fun ) : any {
+    if( Object.getPrototypeOf( obj ) === ArrayProto ){
+        return someArray( obj, fun );
+    }
+    else{
+        return someObject( obj, fun );
+    }
+}
+
+export function every( obj : { }, predicate : ( x : any ) => boolean ) : boolean {
+    return !some( obj, x => !predicate( x ) );
+}
 
 export function getPropertyDescriptor( obj : {}, prop : string ) : PropertyDescriptor {
     let desc : PropertyDescriptor;
@@ -54,7 +112,7 @@ export function omit( source ) : {} {
     return dest;
 }
 
-export function mapObject< T >( dest : T, source : {}, fun : ( value : {}, key : string ) => {} ) : T {
+export function transform( dest : {}, source : {}, fun : ( value : any, key : string ) => any ) : {} {
     for( var name in source ) {
         if( source.hasOwnProperty( name ) ) {
             var value = fun( source[ name ], name );

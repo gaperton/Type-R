@@ -17,6 +17,55 @@ exports.log = {
             console.log.apply(this, arguments);
     }
 };
+function isValidJSON(value) {
+    if (value === null) {
+        return true;
+    }
+    switch (typeof value) {
+        case 'number':
+        case 'string':
+        case 'boolean':
+            return true;
+        case 'object':
+            var proto = Object.getPrototypeOf(value);
+            if (proto === Object.prototype || proto === Array.prototype) {
+                return every(value, isValidJSON);
+            }
+    }
+    return false;
+}
+exports.isValidJSON = isValidJSON;
+function someArray(arr, fun) {
+    var result;
+    for (var i = 0; i < arr.length; i++) {
+        if (result = fun(arr[i], i)) {
+            return result;
+        }
+    }
+}
+function someObject(obj, fun) {
+    var result;
+    for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            if (result = fun(obj[key], key)) {
+                return result;
+            }
+        }
+    }
+}
+function some(obj, fun) {
+    if (Object.getPrototypeOf(obj) === ArrayProto) {
+        return someArray(obj, fun);
+    }
+    else {
+        return someObject(obj, fun);
+    }
+}
+exports.some = some;
+function every(obj, predicate) {
+    return !some(obj, function (x) { return !predicate(x); });
+}
+exports.every = every;
 function getPropertyDescriptor(obj, prop) {
     var desc;
     for (var proto = obj; !desc && proto; proto = Object.getPrototypeOf(proto)) {
@@ -38,7 +87,7 @@ function omit(source) {
     return dest;
 }
 exports.omit = omit;
-function mapObject(dest, source, fun) {
+function transform(dest, source, fun) {
     for (var name in source) {
         if (source.hasOwnProperty(name)) {
             var value = fun(source[name], name);
@@ -47,7 +96,7 @@ function mapObject(dest, source, fun) {
     }
     return dest;
 }
-exports.mapObject = mapObject;
+exports.transform = transform;
 function fastAssign(dest, source) {
     for (var name in source) {
         dest[name] = source[name];

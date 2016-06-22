@@ -90,29 +90,31 @@ export class Attribute implements IAttributeOptions {
         return value && value.toJSON ? value.toJSON() : value;
     }
 
-    createPropertyDescriptor() : PropertyDescriptor {
+    createPropertyDescriptor() : PropertyDescriptor | void {
         const { name, getHook } = this;
 
-        return {
-            // call to optimized set function for single argument.
-            set( value ){
-                setAttribute( <any>this, name, value );
-            },
+        if( name !== 'id' ){
+            return {
+                // call to optimized set function for single argument.
+                set( value ){
+                    setAttribute( <any>this, name, value );
+                },
 
-            // attach get hook to the getter function, if present
-            get : getHook ?
-                  function() {
-                      return getHook.call( this, this.attributes[ name ], name );
-                  } :
-                  function() {
-                      return this.attributes[ name ];
-                  }
+                // attach get hook to the getter function, if present
+                get : getHook ?
+                      function() {
+                          return getHook.call( this, this.attributes[ name ], name );
+                      } :
+                      function() {
+                          return this.attributes[ name ];
+                      }
+            }
         }
     }
 
     value : any
     type : Function
-    
+
     parse : ( value, key : string ) => any
 
     initialize( name : string, options ){}
