@@ -50,7 +50,9 @@ export function isValidJSON( value : any ) : boolean {
  * Object manipulation helpers...
  */
 
-function someArray( arr : any[], fun ) : any {
+type Iteratee = ( value : any, key? : string | number ) => any;
+
+function someArray( arr : any[], fun : Iteratee ) : any {
     let result;
 
     for( let i = 0; i < arr.length; i++ ){
@@ -60,7 +62,7 @@ function someArray( arr : any[], fun ) : any {
     }
 }
 
-function someObject( obj : {}, fun ) : any {
+function someObject( obj : {}, fun : Iteratee ) : any {
     let result;
 
     for( let key in obj ){
@@ -72,7 +74,7 @@ function someObject( obj : {}, fun ) : any {
     }
 }
 
-export function some( obj, fun ) : any {
+export function some( obj, fun : Iteratee ) : any {
     if( Object.getPrototypeOf( obj ) === ArrayProto ){
         return someArray( obj, fun );
     }
@@ -81,7 +83,7 @@ export function some( obj, fun ) : any {
     }
 }
 
-export function every( obj : { }, predicate : ( x : any ) => boolean ) : boolean {
+export function every( obj : { }, predicate : Iteratee ) : boolean {
     return !some( obj, x => !predicate( x ) );
 }
 
@@ -112,11 +114,11 @@ export function omit( source ) : {} {
     return dest;
 }
 
-export function transform( dest : {}, source : {}, fun : ( value : any, key : string ) => any ) : {} {
+export function transform< A, B >( dest : { [ key : string ] : A }, source : { [ key : string ] : B }, fun : ( value : B, key : string ) => A | void ) : { [ key : string ] : A } {
     for( var name in source ) {
         if( source.hasOwnProperty( name ) ) {
             var value = fun( source[ name ], name );
-            value === void 0 || ( dest[ name ] = value );
+            value === void 0 || ( dest[ name ] = < A >value );
         }
     }
 
@@ -136,7 +138,7 @@ export function fastDefaults( dest : {}, source : {} ) : void {
 }
 
 function forAllArgs( fun ) {
-    return function( dest, ...sources ) {
+    return function< T >( dest : T, ...sources ) : T {
         for( var i = 0; i < sources.length; i++ ) {
             const source = sources[ i ];
             source && fun( dest, source );
@@ -162,40 +164,6 @@ export const defaults = forAllArgs( ( dest, source ) => {
     }
 } );
 
-export function createForEach( attrSpecs ) {
-    var statements = [ 'var v;' ];
-
-    for( let name in attrSpecs ) {
-        statements.push( '(v=a.' + name + ')' + '===void 0||f(v,"' + name + '");' );
-    }
-
-    return new Function( 'a', 'f', statements.join( '' ) );
-}
-
-export function createCloneCtor( attrSpecs ) {
-    var statements = [];
-
-    for( let name in attrSpecs ) {
-        statements.push( "this." + name + "=x." + name + ";" );
-    }
-
-    var CloneCtor       = new Function( "x", statements.join( '' ) );
-    CloneCtor.prototype = Object.prototype;
-    return CloneCtor;
-}
-
-export function createTransformCtor( attrSpecs ) {
-    var statements = [ 'var v;' ];
-
-    for( let name in attrSpecs ) {
-        statements.push( 'this.' + name + '=(v=a.' + name + ')' + '===void 0?void 0 :f(v,"' + name + '");' );
-    }
-
-    var TransformCtor       = new Function( "a", 'f', statements.join( '' ) );
-    TransformCtor.prototype = Object.prototype;
-    return TransformCtor;
-}
-
 /**
  * notEqual( a, b ) function, for deep JSON comparison
  * Optimized for primitive types
@@ -205,7 +173,7 @@ const ArrayProto = Array.prototype,
       DateProto = Date.prototype,
       ObjectProto = Object.prototype;
 
-export function notEqual( a, b ) : boolean {
+export function notEqual( a : any, b : any) : boolean {
     if( a === b ) return false;
 
     if( a && b && typeof a == 'object' && typeof b == 'object' ) {

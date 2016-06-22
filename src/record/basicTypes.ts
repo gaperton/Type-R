@@ -13,7 +13,11 @@ class ConstructorType extends Attribute {
     }
 }
 
-Function.prototype._attribute = ConstructorType;
+interface Function{
+    _attribute? : FunctionConstructor
+}
+
+Function.prototype[ '_attribute' ] = ConstructorType;
 
 // Date Attribute
 // ----------------------
@@ -34,12 +38,13 @@ class DateType extends Attribute {
     clone( value ) { return value && new Date( +value ); }
 }
 
-Date._attribute = DateType;
+Date[ '_attribute' ] = DateType;
 
 // Primitive Types
 // ----------------
 // Global Mock for missing Integer data type...
 // -------------------------------------
+declare var Integer : any;
 Integer = function( x ) { return x ? Math.round( x ) : 0; };
 
 class PrimitiveType extends Attribute {
@@ -54,7 +59,7 @@ class PrimitiveType extends Attribute {
     clone( value ) { return value; }
 }
 
-Boolean._attribute = String._attribute = PrimitiveType;
+Boolean[ '_attribute' ] = String[ '_attribute' ] = PrimitiveType;
 
 class NumericType extends PrimitiveType {
     validate( model, value, name ) {
@@ -64,7 +69,7 @@ class NumericType extends PrimitiveType {
     }
 }
 
-Integer._attribute = Number._attribute = NumericType;
+Integer[ '_attribute' ] = Number[ '_attribute' ] = NumericType;
 
 // Array Type
 // ---------------
@@ -80,7 +85,7 @@ class ArrayType extends Attribute {
     }
 }
 
-Array._attribute = ArrayType;
+Array[ '_attribute' ] = ArrayType;
 
 var numericKeys    = [ 1, 4, 5, 6, 7, 10, 11 ],
     msDatePattern  = /\/Date\(([0-9]+)\)\//,

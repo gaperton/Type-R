@@ -3,6 +3,8 @@ import { notEqual, assign } from '../tools'
 
 import { IRecord } from '../types.ts'
 
+import { IUpdatePipeline } from './transactions.ts'
+
 export interface IAttributeOptions {
     getHooks : GetHook[]
     transforms : Transform[]
@@ -19,10 +21,10 @@ export interface IAttributeOptions {
 type GetHook = ( value : any, key : string ) => any;
 type Transform = ( next : any, options : {}, prev : any, model : IRecord ) => any;
 type ChangeHandler = ( next : any, prev : any, model : IRecord ) => void;
-type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | string;
+export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | string;
 
 // TODO: interface differs from options, do something obout it
-export class Attribute implements IAttributeOptions {
+export class Attribute implements IUpdatePipeline {
     /**
      * Update pipeline functions
      * =========================
@@ -30,7 +32,7 @@ export class Attribute implements IAttributeOptions {
      * Stage 0. canBeUpdated( value )
      * - presence of this function implies attribute's ability to update in place.
      */
-     canBeUpdated( value  ) : boolean {
+     canBeUpdated( prev, next ) : boolean {
          return false;
      }
 

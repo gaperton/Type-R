@@ -16,22 +16,26 @@ interface AttrSpecs {
     [ key : string ] : Attribute
 }
 
-type CloneCtor = new ( x : {} ) => {}
-type ForEach = ( obj : {}, iteratee : ( val : any, key? : string ) => void ) => void;
-type Defaults = ( attrs? : {} ) => {}
-type Parse = ( data : any ) => any;
-type ToJSON = () => any;
+interface AttrValues {
+    [ key : string ] : any
+}
+
+type CloneCtor = new ( x : AttrValues ) => AttrValues
+type ForEach   = ( obj : {}, iteratee : ( val : any, key? : string ) => void ) => void;
+type Defaults  = ( attrs? : {} ) => {}
+type Parse     = ( data : any ) => any;
+type ToJSON    = () => any;
 
 // Compile attributes spec
 export function compile( rawSpecs : {}, baseAttributes : AttrSpecs ) : ICompiled {
-    const myAttributes : AttrSpecs = transform( {}, rawSpecs, createAttribute ),
-          allAttributes : AttrSpecs = defaults( {}, myAttributes, baseAttributes ),
+    const myAttributes = transform( <AttrSpecs>{}, rawSpecs, createAttribute ),
+          allAttributes = defaults( <AttrSpecs>{}, myAttributes, baseAttributes ),
           Attributes = createCloneCtor( allAttributes );
 
     return {
         Attributes : Attributes,
         _attributes : new Attributes( allAttributes ),
-        properties : transform( {}, myAttributes, x => x.createPropertyDescriptor() ),
+        properties : transform( <PropertyDescriptorMap>{}, myAttributes, x => x.createPropertyDescriptor() ),
         forEach : createForEach( allAttributes ),
         defaults : createDefaults( allAttributes ),
         _toJSON : createToJSON( allAttributes ),
@@ -77,7 +81,7 @@ function createDefaults( attrSpecs : AttrSpecs ) : Defaults {
 
         if( value === void 0 && type ){
             // if type with no value is given, create an empty object
-            appendExpr( name, `i.${name}.create()` );
+            appendExpr( name, `i.${name}.create()` );//TODO: consider adding owner reference
         }
         else{
             // If value is given, type casting logic will do the job later, converting value to the proper type.

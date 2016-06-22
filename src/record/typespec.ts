@@ -3,7 +3,7 @@
  * and returns object with spec.
  */
 
-import { Attribute, IAttributeOptions } from './attribute.ts'
+import { Attribute, IAttributeOptions, ChangeAttrHandler } from './attribute.ts'
 import { assign } from '../tools.ts'
 import { IRecord, EventsHash } from '../types.ts'
 
@@ -59,8 +59,8 @@ class TypeSpec {
 
     value( x ) { this.options.value = x; }
 
-    createAttribute( name ) {
-        const { type } = this.options,
+    createAttribute( name : string ) : Attribute {
+        const type : any = this.options.type,
               AttributeCtor = type ? type._attribute : Attribute;
 
         return new AttributeCtor( name, this.options );
@@ -68,7 +68,6 @@ class TypeSpec {
 }
 
 interface Function{
-    _attribute? : typeof Attribute;
     value? : ( x : any ) => TypeSpec;
     isRequired? : TypeSpec;
     has? : TypeSpec;
