@@ -110,7 +110,8 @@ export class TransactionalRecord implements IOwner {
     // Attributes object copy constructor
     Attributes : new ( attrs : {} ) => IAttributes
 
-    // Optimized forEach function for traversing through attributes
+    // Optimized forEach function for traversing through attributes, with pretective default implementation
+    // TODO: Refactor the code to use spec
     forEachAttr( attrs : {}, iteratee : ( value : any, key? : string, spec? : IUpdatePipeline ) => void ){
         const { _attributes } = this;
 
