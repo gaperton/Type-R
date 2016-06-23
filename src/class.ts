@@ -2,7 +2,7 @@
  * Dependency-free tools, used across 'nested' libs.
  * Vlad Balin, (c) 2016
  */
-import { assign, omit, getPropertyDescriptor } from './tools'
+import { log, assign, omit, getPropertyDescriptor } from './tools'
 
 type MergeRule = 'merge' | 'pipe' | 'sequence' | 'reverse' | 'every' | 'some'
 
@@ -10,7 +10,7 @@ interface IMixinRules {
     [ propertyName : string ] : MergeRule | IMixinRules
 }
 
-export interface IClassSpec {
+export interface IClassDefinition {
     properties? : PropertyDescriptorMap
     mixins? : Array< Object >
     mixinRules? : IMixinRules
@@ -20,8 +20,8 @@ export interface IClassSpec {
 declare function __extends( a, b )
 
 export interface IExtendable {
-    define(spec? : IClassSpec, statics? : {} ) : IExtendable
-    extend(spec? : IClassSpec, statics? : {} ) : IExtendable
+    define(spec? : IClassDefinition, statics? : {} ) : IExtendable
+    extend(spec? : IClassDefinition, statics? : {} ) : IExtendable
     create?( ...args : any[] ) : {}
 
     mixins( ...mixins : {}[] ) : IExtendable
@@ -30,13 +30,10 @@ export interface IExtendable {
 
 // Base class, holding class extensions
 export class Class {
-    /**
-     * Abstract class factory. Should be overridden for abstract classes.
-     * Passes two arguments to class constructor.
-     *
-     * Cleared up on inheritance when defined for some abstract class.
-     */
-    static create : ( ( ...args : any[] ) => {} ) = void 0;
+    // Generic class factory. May be overridden for abstract classes. Not inherited.
+    static create( a : any, b? : any, c? : any ) : Class {
+        return new (<any>this)( a, b, c );
+    }
 
     protected static _mixinRules : IMixinRules = { properties : 'merge' };
 
@@ -97,54 +94,64 @@ export class Class {
     }
 
     /**
-     * Merge spec properties to the prototype.
-     * Add native properties with descriptors from spec.properties to the prototype.
-     * Prevents inheritance of create factory method.
-     * Assign mixinRules static property, and merge it with parent.
-     * Add mixins
+     * Main metaprogramming method. May be overriden in subclasses to customize the behavior.   
+     * - Merge definition to the prototype.
+     * - Add native properties with descriptors from spec.properties to the prototype.
+     * - Prevents inheritance of 'create' factory method.
+     * - Assign mixinRules static property, and merge it with parent.
+     * - Adds mixins.
      */
-    static define(spec : IClassSpec = {}, statics? : {} ) : IExtendable {
-        // Attach class extensions, if it's not done...
-        this.define || Class.attach( this );
-
-        const proto = this.prototype,
-              Base : IExtendable = Object.getPrototypeOf( proto ).constructor;
-
-        // Remove abstract class factory on inheritance
-        if( Base.create === this.create ) {
-            this.create = void 0;
+    static define( definition : IClassDefinition = {}, staticProps? : {} ) : IExtendable {
+        // That actually might happen when we're using @define decorator... 
+        if( !this.define ){
+            log.error( "[Class.define] Class must have class extensions to use @define decorator. Use '@extendable' before @define, or extend the base class with class extensions.", definition );
+            return this;
         }
 
-        // Process spec...
-        const specProps = omit( spec, 'properties', 'mixins', 'mixinRules' ),
-            { properties = <PropertyDescriptorMap> {}, mixins, mixinRules } = spec;
+        // Obtain references to prototype and base class.
+        const proto = this.prototype,
+              BaseClass : IExtendable = Object.getPrototypeOf( proto ).constructor;
 
-        // assign spec members to prototype
-        assign( proto, specProps );
-        assign( this, statics );
+        // Make sure we don't inherit class factories.
+        if( BaseClass.create === this.create ) {
+            this.create = Class.create;
+        }
 
-        // define properties
-        Object.defineProperties( proto, properties );
+        // Extract prototype properties from the definition.
+        const protoProps = omit( definition, 'properties', 'mixins', 'mixinRules' ),
+            { properties = <PropertyDescriptorMap> {}, mixins, mixinRules } = definition;
 
-        // apply mixins and mixin rules
+        // Update prototype and statics.
+        assign( proto, protoProps );
+        assign( this, staticProps );
+
+        // Define native properties.
+        properties && Object.defineProperties( proto, properties );
+
+        // Apply mixins and mixin rules.
         mixinRules && this.mixinRules( mixinRules );
         mixins && this.mixins( mixins );
 
         return this;
     }
 
-    static extend(spec? : IClassSpec, statics? : {} ) : IExtendable {
-        let subclass;
+    // Backbone-compatible extend method to be used in ES5 and for backward compatibility
+    static extend(spec? : IClassDefinition, statics? : {} ) : IExtendable {
+        let Subclass : IExtendable;
 
+        // If constructor function is given...
         if( spec.constructor ){
-            subclass = spec.constructor;
-            __extends( subclass, this );
+            // ...we need to manually call internal TypeScript __extend function. Hack! Hack!
+            Subclass = <any>spec.constructor; 
+            __extends( Subclass, this );
         }
+        // Otherwise, create the subclall in usual way.
         else{
-            subclass = class extends this {};
+            Subclass = class Subclass extends this {};
         }
 
-        return subclass.define( spec, statics );
+        // And apply definitions
+        return Subclass.define( spec, statics );
     }
 }
 
@@ -155,6 +162,11 @@ export function mixinRules( rules : IMixinRules ) {
 
 export function mixins( ...list : {}[] ) {
     return createDecorator( 'mixins', list );
+}
+
+export function extendable( Type : Function ) : Function{
+    Class.attach( Type );
+    return Type;
 }
 
 function defineDecorator( spec : {} | IExtendable ) {

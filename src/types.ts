@@ -1,4 +1,4 @@
-import { Class, IClassSpec, IExtendable } from './class.ts'
+import { Class, IClassDefinition, IExtendable } from './class.ts'
 
 export type CollectionRef = string | ( () => ICollection ) | ICollection
 
@@ -11,15 +11,16 @@ export interface CRecord extends IExtendable {
     new ( attrs? : {}, options? : {} ) : IRecord;
     Collection : CCollection
     from( ref : CollectionRef ) : IAttribute
-    define( spec? : IRecordSpec, statics? : {} )
+    define( spec? : IRecordDefinition, statics? : {} )
 }
 
 export interface IAttribute {
 
 }
 
-export interface IRecordSpec extends IClassSpec {
+export interface IRecordDefinition extends IClassDefinition {
     attributes? : { [ name : string ] : IAttribute | Function | any }
+    collection? : ICollectionDefinition
 }
 
 interface IRecordChanges {
@@ -49,10 +50,6 @@ interface ITransaction {
     commit( options? : Options ) : void
 }
 
-
-
-
-
 export interface IRecord extends Class, IEvents {
     idAttribute: string;
     id : string | number
@@ -66,6 +63,10 @@ export interface IRecord extends Class, IEvents {
 
     collection : ICollection
     getOwner() : IRecord
+}
+
+export interface ICollectionDefinition extends IClassDefinition {
+    Record? : CRecord
 }
 
 export interface ICollection extends Class {

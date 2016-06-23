@@ -1,5 +1,7 @@
-import { log } from '../tools.ts'
-
+import { log, assign, defaults, omit } from '../tools.ts'
+import { Class } from '../class.ts'
+import { CCollection, ICollectionDefinition, IRecordDefinition } from '../types.ts'
+import { compile } from './define.ts' 
 /**
  * Everything related to record's transactional updates
  */
@@ -39,7 +41,54 @@ interface IOwner extends IOwned {
 // Client unique id counter
 let _cidCounter : number = 0;
 
-export class TransactionalRecord implements IOwner {
+export class TransactionalRecord extends Class implements IOwner {
+    static Collection : CCollection 
+
+    static define( protoProps : IRecordDefinition, staticProps ){
+        const baseProto : TransactionalRecord = Object.getPrototypeOf( this.prototype ),
+              BaseConstructor = < typeof TransactionalRecord >baseProto.constructor;
+
+        if( protoProps ) {
+            // Compile attributes spec, creating definition mixin.
+            const definition = compile( protoProps.attributes, baseProto._attributes );
+
+            // Explicit 'properties' declaration overrides auto-generated attribute properties.
+            assign( definition.properties, protoProps.properties || {} );
+
+            // Merge in definition.
+            defaults( definition, omit( protoProps, 'attributes', 'collection' ) );            
+            super.define( definition );
+        }
+
+        this.Collection = this._defineCollection( protoProps && protoProps.collection, BaseConstructor.Collection );
+
+        return this;
+    }
+
+    // Obtain properly defined Collection constructor
+    protected static _defineCollection( collection : CCollection | ICollectionDefinition | void, BaseCollection : CCollection ) : CCollection {
+        let CollectionConstructor : CCollection;
+
+        // If collection constructor is specified, just take it. 
+        if( typeof collection === 'function' ) {
+            CollectionConstructor = <CCollection> collection;
+        } 
+        // Same when Collection is specified as static class member.  
+        else if( this.Collection !== BaseCollection ){
+            CollectionConstructor = this.Collection;
+        } 
+        // Otherwise we need to create new Collection type...
+        else{
+            // ...which must extend COllection of our base Record.
+            CollectionConstructor = class Collection extends BaseCollection {};
+            CollectionConstructor.define( <ICollectionDefinition> collection );
+        }
+
+        // Link collection with the record
+        CollectionConstructor.prototype.Record = this;
+        return CollectionConstructor;
+    }
+
     /***********************************
      * Core Members
      */
@@ -141,6 +190,8 @@ export class TransactionalRecord implements IOwner {
      */
     // Create record, optionally setting owner
     constructor( a_values? : {}, a_options? : Options, owner? : IOwner ){
+        super();
+        
         const options = a_options || {},
               values = ( options.parse ? this.parse( a_values ) :  a_values ) || {};
 
