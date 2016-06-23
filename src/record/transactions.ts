@@ -111,7 +111,20 @@ export class TransactionalRecord implements IOwner {
     Attributes : new ( attrs : {} ) => IAttributes
 
     // Optimized forEach function for traversing through attributes
-    forEachAttr( attrs : {}, iteratee : ( value : any, key : string ) => void ){}
+    forEachAttr( attrs : {}, iteratee : ( value : any, key? : string, spec? : IUpdatePipeline ) => void ){
+        const { _attributes } = this;
+
+        for( let name in attrs ){
+            const spec = _attributes[ name ];
+
+            if( spec ){
+                iteratee( attrs[ name ], name, spec );
+            }
+            else{
+                log.warn( '[Unknown Attribute]', this, 'Unknown record attribute "' + name + '" is ignored:', attrs );
+            }
+        }
+    }
 
     // Attributes-level serialization
     _toJSON(){ return {}; }
@@ -134,6 +147,8 @@ export class TransactionalRecord implements IOwner {
         this._changing = this._pending = false;
         this._owner = owner;
         this.cid = this.cidPrefix + _cidCounter++;
+
+        // TODO: type error for wrong object.
 
         const attributes = options.clone ? cloneAttributes( this, values ) : this.defaults( values ),
              { _attributes } = this; 
@@ -226,13 +241,17 @@ export class TransactionalRecord implements IOwner {
     }
 
     // Handle nested changes
-    _onChildrenChange( child : IOwned, options : Options ) : void {
-        // Touch attribute in bounds of transaction
+    _onChildrenChange( child : IOwned, options : Options ) : void {        
+        this.forceAttributeChange( child._ownerKey, options );
+    }
+
+    forceAttributeChange( key, options : Options = {} ){
+        // Touch an attribute in bounds of transaction
         const isRoot = begin( this );
 
-        if( !options.silent ) {
+        if( !options.silent ){
             this._pending = true;
-            this._notifyChangeAttr( child._ownerKey, options );
+            key && this._notifyChangeAttr( key, options );
         }
 
         isRoot && commit( this, options );

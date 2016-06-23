@@ -10,8 +10,8 @@ export let log = {
         console.error.apply( this, args );
     },
 
-    warn(){
-        if( this.level > 0 ) console.warn.apply( this, arguments );
+    warn( ...args : any[] ) : void {
+        if( this.level > 0 ) console.warn.apply( this, args );
     },
 
     info(){
