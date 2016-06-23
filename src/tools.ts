@@ -6,8 +6,8 @@
 export let log = {
     level : 2,
 
-    error(){
-        console.error.apply( this, arguments );
+    error( ...args : any[] ) : void {
+        console.error.apply( this, args );
     },
 
     warn(){

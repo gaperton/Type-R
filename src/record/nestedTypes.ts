@@ -18,9 +18,14 @@ class RecordType extends Attribute {
 
     handleChange( next, prev, record ){
         // Remove reference to self
-        if( prev && prev._owner === record ) prev._owner = null;
+        if( prev && prev._owner === record ){
+            prev._onwerKey = prev._owner = null;
+        } 
 
         // Take ownership if possible
-        if( next && !next._owner ) next._owner = record;
+        if( next && !next._owner ){
+            next._owner = record;
+            next._ownerKey = this.name;
+        }
     }
 }

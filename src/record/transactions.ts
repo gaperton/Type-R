@@ -1,3 +1,5 @@
+import { log } from '../tools.ts'
+
 /**
  * Everything related to record's transactional updates
  */
@@ -23,15 +25,23 @@ interface IAttrSpecs {
     [ key : string ] : IUpdatePipeline
 }
 
+interface IOwned {
+    _owner : IOwner
+    _ownerKey? : string
+    getOwner() : IOwner
+}
+
+interface IOwner extends IOwned {
+    _onChildrenChange( child : IOwned, options : Options ) : void
+}
+
+// Client unique id counter
 let _cidCounter : number = 0;
 
-export class TransactionalRecord implements IParent {
+export class TransactionalRecord implements IOwner {
     /***********************************
      * Core Members
      */
-    // Reference to owner
-    _owner : IParent
-
     // Previous attributes
     _previousAttributes : {}
 
@@ -41,6 +51,28 @@ export class TransactionalRecord implements IParent {
     // Transactional control
     _changing : boolean
     _pending : boolean
+
+
+    /**
+     * Ownerhsip API
+     */
+
+    // Reference to owner
+    _owner : IOwner
+
+    // Owner's attribute name, if it's Record 
+    _ownerKey : string;
+
+    // Returns owner without the key (usually it's collection)
+    get collection() : IOwner {
+        return this._ownerKey ? null : this._owner;
+    }
+
+    // Returns Record owner skipping collections.
+    getOwner() : IOwner {
+        const { _owner } = this;
+        return this._ownerKey ? _owner : ( _owner && _owner._owner );
+    }
 
     /***********************************
      * Notification API
@@ -95,7 +127,7 @@ export class TransactionalRecord implements IParent {
      */
 
     // Create record, optionally setting owner
-    constructor( a_values? : {}, a_options? : Options, owner? : IParent ){
+    constructor( a_values? : {}, a_options? : Options, owner? : IOwner ){
         const options = a_options || {},
               values = ( options.parse ? this.parse( a_values ) :  a_values ) || {};
 
@@ -139,6 +171,15 @@ export class TransactionalRecord implements IParent {
     /**
      * Transactional control
      */
+
+     // Object sync API
+     set( values : {}, options? : Options ) : this {
+        if( values ){
+            this.createTransaction( values, options ).commit( options );
+        } 
+
+        return this;
+    }
     
     // Create transaction
     createTransaction( a_values : {}, options : Options = {} ) : Transaction {
@@ -147,32 +188,37 @@ export class TransactionalRecord implements IParent {
               { attributes, _attributes } = this,
               values = options.parse ? this.parse( a_values ) : a_values;  
 
-        this.forEachAttr( values, ( value, key : string ) => {
-            const attr = _attributes[ key ],
-                  prev = attributes[ key ];
+        if( Object.getPrototypeOf( values ) === Object.prototype ){
+            this.forEachAttr( values, ( value, key : string ) => {
+                const attr = _attributes[ key ],
+                    prev = attributes[ key ];
 
-            // handle deep update...
-            if( attr.canBeUpdated( prev, value ) ) {
-                nested.push( prev.createTransaction( value, options ) );
-                return;
-            }
+                // handle deep update...
+                if( attr.canBeUpdated( prev, value ) ) {
+                    nested.push( prev.createTransaction( value, options ) );
+                    return;
+                }
 
-            // cast and hook...
-            const next = attr.transform( value, options, prev, this );
+                // cast and hook...
+                const next = attr.transform( value, options, prev, this );
 
-            if( attr.isChanged( next, prev ) ) {
-                attributes[ key ] = next;
-                changes.push( key );
+                if( attr.isChanged( next, prev ) ) {
+                    attributes[ key ] = next;
+                    changes.push( key );
 
-                // Do the rest of the job after assignment
-                attr.handleChange( next, prev, this );
-            }
-        } );
+                    // Do the rest of the job after assignment
+                    attr.handleChange( next, prev, this );
+                }
+            } );
+        }
+        else{
+            log.error( '[Type Error]', this, 'Record update rejected (', values, '). Incompatible type.' );
+        }
 
         return transaction;
     }
 
-    // Execute given function in the scope of transaction
+    // Execute given function in the scope of ad-hoc transaction
     transaction( fun : ( self : this ) => void, options : Options = {} ) {
         const isRoot = begin( this );
         fun( this );
@@ -180,20 +226,37 @@ export class TransactionalRecord implements IParent {
     }
 
     // Handle nested changes
-    _onChildrenChange( child, options : Options ) : void {
+    _onChildrenChange( child : IOwned, options : Options ) : void {
         // Touch attribute in bounds of transaction
         const isRoot = begin( this );
 
         if( !options.silent ) {
             this._pending = true;
-            this._notifyChangeAttr( child._ownerAttr, options );
+            this._notifyChangeAttr( child._ownerKey, options );
         }
 
         isRoot && commit( this, options );
     }
 };
 
-function cloneAttributes( model : TransactionalRecord, a_attributes : IAttributes ){
+/**************************************************
+ * Initialize Record prototype elements
+ */
+
+const recordProto = TransactionalRecord.prototype;
+
+// Default client id prefix 
+recordProto.cid = 'c';
+
+// Default id attribute name
+recordProto.idAttribute = 'id';
+
+/***********************************************
+ * Helper functions
+ */
+
+// Deeply clone record attributes
+function cloneAttributes( model : TransactionalRecord, a_attributes : IAttributes ) : IAttributes {
     const attributes = new model.Attributes( a_attributes ),
           attrSpecs  = model._attributes;
 
@@ -204,8 +267,8 @@ function cloneAttributes( model : TransactionalRecord, a_attributes : IAttribute
     return attributes;
 }
 
- // fast-path set attribute transactional function
-export function setAttribute( model : TransactionalRecord, name : string, value ) {
+ // Optimized single attribute transactional update. To be called from attributes setters
+export function setAttribute( model : TransactionalRecord, name : string, value : any ) : void {
     const isRoot  = begin( model ),
           options = {};
 
@@ -242,14 +305,13 @@ export function setAttribute( model : TransactionalRecord, name : string, value 
  *  begin( model ) => true | false;
  *  commit( model, options ) => void 0
  */
-interface IParent {
-    _onChildrenChange( child, options : Options ) : void
-}
 
-function begin( model : TransactionalRecord ){
+// Start transaction on the record. Return true if it's opening transaction.
+function begin( model : TransactionalRecord ) : boolean {
     const isRoot = !model._changing;
 
     if( isRoot ){
+        // If it's opening transaction, copy attributes
         model._changing           = true;
         model._previousAttributes = new model.Attributes( model.attributes );
     }
@@ -257,6 +319,7 @@ function begin( model : TransactionalRecord ){
     return isRoot;
 }
 
+// Commit transaction. Send out change event and notify owner.
 function commit( model : TransactionalRecord, options : Options ){
     if( !options.silent ){
         while( model._pending ){
@@ -277,6 +340,7 @@ function commit( model : TransactionalRecord, options : Options ){
     }
 }
 
+// Transaction class. Implements two-phase transactions on object's tree. 
 class Transaction {
     isRoot : boolean
     changes : string[]
