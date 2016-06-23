@@ -1,6 +1,7 @@
 /**
- * Dependency-free tools, used across 'nested' libs.
- * Vlad Balin, (c) 2016
+ * Mixins and @define metaprogramming class extensions
+ * 
+ * Vlad Balin & Volicon, (c) 2016
  */
 import { log, assign, omit, getPropertyDescriptor } from './tools'
 
@@ -28,8 +29,10 @@ export interface IExtendable {
     mixinRules( mixinRules : IMixinRules ) : IExtendable
 }
 
-// Base class, holding class extensions
+// Base class, holding metaprogramming class extensions
+// Supports mixins, and Class.define metaprogramming method.
 export class Class {
+
     // Generic class factory. May be overridden for abstract classes. Not inherited.
     static create( a : any, b? : any, c? : any ) : Class {
         return new (<any>this)( a, b, c );
@@ -39,8 +42,6 @@ export class Class {
 
     /**
      * Attach mixins to class prototype.
-     * Members merging policy is controlled by MyClass.mixinRules property.
-     * mixinRules is merged on inheritance.
      */
     static mixins( ...mixins : {}[] ) : IExtendable {
         const proto      = this.prototype,
@@ -59,6 +60,8 @@ export class Class {
         return this;
     }
 
+    // Members merging policy is controlled by MyClass.mixinRules property.
+    // mixinRules are properly inherited and merged.
     static mixinRules( mixinRules : IMixinRules ) : IExtendable {
         const Base = Object.getPrototypeOf( this.prototype ).constructor;
 
@@ -70,9 +73,7 @@ export class Class {
         return this;
     }
 
-    /**
-     * Autobinding helper to be used from constructors
-     */
+    // Autobinding helper to be used from constructors
     bindAll( ...names : string [] )
     bindAll() {
         for( var i = 0; i < arguments.length; i++ ) {
@@ -82,7 +83,8 @@ export class Class {
         }
     }
 
-    static attach( ...args ) {
+    // Attach Class methods to existing constructors
+    static attach( ...args : any[] ) : void {
         for (let Ctor of args) {
             Ctor.create            = this.create;
             Ctor.define            = this.define;

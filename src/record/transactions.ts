@@ -185,13 +185,13 @@ export class TransactionalRecord extends Class implements IOwner {
     // Create record default values, optionally augmenting given values 
     defaults( values? : {} ){ return {}; }
 
-    /**
+    /***************************************************
      * Record construction
      */
     // Create record, optionally setting owner
     constructor( a_values? : {}, a_options? : Options, owner? : IOwner ){
         super();
-        
+
         const options = a_options || {},
               values = ( options.parse ? this.parse( a_values ) :  a_values ) || {};
 
