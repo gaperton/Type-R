@@ -1,12 +1,13 @@
 import { Attribute } from './attribute.ts';
 import { createAttribute } from './typespec.ts';
 import { defaults, isValidJSON, transform } from '../tools.ts'
+import { log } from '../tools.ts'
 
 interface ICompiled {
     _attributes : AttrSpecs
     Attributes : CloneCtor
     properties : PropertyDescriptorMap
-    forEach : ForEach
+    forEach? : ForEach
     defaults : Defaults
     _toJSON : ToJSON
     _parse : Parse
@@ -21,7 +22,7 @@ interface AttrValues {
 }
 
 type CloneCtor = new ( x : AttrValues ) => AttrValues
-type ForEach   = ( obj : {}, iteratee : ( val : any, key? : string ) => void ) => void;
+type ForEach   = ( obj : {}, iteratee : ( val : any, key? : string, spec? : Attribute ) => void ) => void;
 type Defaults  = ( attrs? : {} ) => {}
 type Parse     = ( data : any ) => any;
 type ToJSON    = () => any;
@@ -30,24 +31,29 @@ type ToJSON    = () => any;
 export function compile( rawSpecs : {}, baseAttributes : AttrSpecs ) : ICompiled {
     const myAttributes = transform( <AttrSpecs>{}, rawSpecs, createAttribute ),
           allAttributes = defaults( <AttrSpecs>{}, myAttributes, baseAttributes ),
-          Attributes = createCloneCtor( allAttributes );
+          Attributes = createCloneCtor( allAttributes ),
+          mixin : ICompiled = {
+            Attributes : Attributes,
+            _attributes : new Attributes( allAttributes ),
+            properties : transform( <PropertyDescriptorMap>{}, myAttributes, x => x.createPropertyDescriptor() ),
+            defaults : createDefaults( allAttributes ),
+            _toJSON : createToJSON( allAttributes ), // <- TODO: profile and check if there is any real benefit. I doubt it. 
+            _parse : createParse( myAttributes, allAttributes )
+         }; 
 
-    return {
-        Attributes : Attributes,
-        _attributes : new Attributes( allAttributes ),
-        properties : transform( <PropertyDescriptorMap>{}, myAttributes, x => x.createPropertyDescriptor() ),
-        forEach : createForEach( allAttributes ),
-        defaults : createDefaults( allAttributes ),
-        _toJSON : createToJSON( allAttributes ),
-        _parse : createParse( myAttributes, allAttributes )
+    // Enable optimized forEach if warnings are disabled.
+    if( log.level > 0 ){
+        mixin.forEach = createForEach( allAttributes );
     }
+
+    return mixin;
 }
 
 export function createForEach( attrSpecs : AttrSpecs ) : ForEach {
-    let statements = [ 'var v;' ];
+    let statements = [ 'var v, _a=this._attributes;' ];
 
     for( let name in attrSpecs ){
-        statements.push( `( v = a.${name} ) === void 0 || f( v, "${name}" );` );
+        statements.push( `( v = a.${name} ) === void 0 || f( v, "${name}", _a.${name} );` );
     }
 
     return <ForEach> new Function( 'a', 'f', statements.join( '' ) );
@@ -107,7 +113,7 @@ function createDefaults( attrSpecs : AttrSpecs ) : Defaults {
 
     // Create model.defaults( attrs, options ) function
     // 'attrs' will override default values, options will be passed to nested backbone types
-    return function( attrs ){
+    return function( attrs? : {} ){ //TODO: Consider removing of the CreateDefaults. Currently is not used. May be used in Record costructor, though.
         return attrs ? new AssignDefaults( attrs, this._attributes ) : new CreateDefaults( this._attributes );
     }
 }

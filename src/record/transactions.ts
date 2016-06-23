@@ -9,6 +9,7 @@ export interface IUpdatePipeline{
     isChanged( a : any, b : any ) : boolean
     handleChange( next : any, prev : any, model : TransactionalRecord ) : void
     clone( value : any ) : any
+    toJSON? : ( value : any, key : string ) => any
 }
 
 interface Options {
@@ -111,7 +112,6 @@ export class TransactionalRecord implements IOwner {
     Attributes : new ( attrs : {} ) => IAttributes
 
     // Optimized forEach function for traversing through attributes, with pretective default implementation
-    // TODO: Refactor the code to use spec
     forEachAttr( attrs : {}, iteratee : ( value : any, key? : string, spec? : IUpdatePipeline ) => void ){
         const { _attributes } = this;
 
@@ -139,7 +139,6 @@ export class TransactionalRecord implements IOwner {
     /**
      * Record construction
      */
-
     // Create record, optionally setting owner
     constructor( a_values? : {}, a_options? : Options, owner? : IOwner ){
         const options = a_options || {},
@@ -151,12 +150,10 @@ export class TransactionalRecord implements IOwner {
 
         // TODO: type error for wrong object.
 
-        const attributes = options.clone ? cloneAttributes( this, values ) : this.defaults( values ),
-             { _attributes } = this; 
+        const attributes = options.clone ? cloneAttributes( this, values ) : this.defaults( values ); 
 
-        this.forEachAttr( attributes, ( value, key : string ) => {
-            const attr = _attributes[ key ],
-                  next = values[ key ] = attr.transform( value, options, void 0, this );
+        this.forEachAttr( attributes, ( value, key : string, attr ) => {
+            const next = attributes[ key ] = attr.transform( value, options, void 0, this );
                   attr.handleChange( next, void 0, this );
         });
 
@@ -178,9 +175,17 @@ export class TransactionalRecord implements IOwner {
      */
 
     // Default record-level serializer, to be overriden by subclasses 
-    toJSON(){ return this._toJSON(); }
+    toJSON(){
+        const json = {};
+
+        this.forEachAttr( this.attributes, ( value, key, { toJSON } ) =>{
+            if( toJSON ){
+                json[ key ] = toJSON.call( this, value, key );
+            }
+        });
+    }
     
-    // Default record-level parser, to be overriden by subclasses
+    // Default record-level parser, to be overriden by the subclasses
     parse( data ){ return this._parse( data ); }
     
 
@@ -201,13 +206,12 @@ export class TransactionalRecord implements IOwner {
     createTransaction( a_values : {}, options : Options = {} ) : Transaction {
         const transaction = new Transaction( this ),
               { changes, nested } = transaction,
-              { attributes, _attributes } = this,
+              { attributes } = this,
               values = options.parse ? this.parse( a_values ) : a_values;  
 
         if( Object.getPrototypeOf( values ) === Object.prototype ){
-            this.forEachAttr( values, ( value, key : string ) => {
-                const attr = _attributes[ key ],
-                    prev = attributes[ key ];
+            this.forEachAttr( values, ( value, key : string, attr ) => {
+                const prev = attributes[ key ];
 
                 // handle deep update...
                 if( attr.canBeUpdated( prev, value ) ) {
@@ -277,11 +281,10 @@ recordProto.idAttribute = 'id';
 
 // Deeply clone record attributes
 function cloneAttributes( model : TransactionalRecord, a_attributes : IAttributes ) : IAttributes {
-    const attributes = new model.Attributes( a_attributes ),
-          attrSpecs  = model._attributes;
+    const attributes = new model.Attributes( a_attributes );
 
-    model.forEachAttr( attributes, function( value, name ){
-        attributes[ name ] = attrSpecs[ name ].clone( value ); //TODO: Add owner?
+    model.forEachAttr( attributes, function( value, name, attr ){
+        attributes[ name ] = attr.clone( value ); //TODO: Add owner?
     } );
 
     return attributes;
