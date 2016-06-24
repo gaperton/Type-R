@@ -1,15 +1,15 @@
 import { setAttribute } from './transactions'
 import { notEqual, assign } from '../tools'
 
-import { IRecord } from '../types.ts'
+import { Owner, Transactional, TransactionOptions } from './types.ts'
 
 export interface IUpdatePipeline{
     canBeUpdated( prev : any, next : any ) : boolean
-    transform( value : any, options : Options, prev : any, model : TransactionalRecord ) : any
+    transform : Transform
     isChanged( a : any, b : any ) : boolean
-    handleChange( next : any, prev : any, model : TransactionalRecord ) : void
+    handleChange : ChangeHandler
     clone( value : any ) : any
-    toJSON? : ( value : any, key : string ) => any
+    toJSON : ( value : any, key : string ) => any
 }
 
 export interface IAttributeOptions {
@@ -26,8 +26,8 @@ export interface IAttributeOptions {
 }
 
 type GetHook = ( value : any, key : string ) => any;
-type Transform = ( next : any, options : {}, prev : any, model : IRecord ) => any;
-type ChangeHandler = ( next : any, prev : any, model : IRecord ) => void;
+type Transform = ( next : any, options : {}, prev : any, model : Owner & Transactional ) => any;
+type ChangeHandler = ( next : any, prev : any, model : Owner & Transactional ) => void;
 export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | string;
 
 // TODO: interface differs from options, do something obout it

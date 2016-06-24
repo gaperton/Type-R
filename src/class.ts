@@ -20,11 +20,13 @@ export interface ClassDefinition {
 
 declare function __extends( a, b )
 
-export interface Extendable {
+export interface Factory {
+    create( ...args : any[] ) : {}
+}
+
+export interface Extendable extends Factory {
     define(spec? : ClassDefinition, statics? : {} ) : Extendable
     extend(spec? : ClassDefinition, statics? : {} ) : Extendable
-    create?( ...args : any[] ) : {}
-
     mixins( ...mixins : {}[] ) : Extendable
     mixinRules( mixinRules : IMixinRules ) : Extendable
 }
