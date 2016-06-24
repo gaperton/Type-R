@@ -13,7 +13,7 @@ export interface RecordConstructor extends Extendable {
 
 export interface RecordDefinition extends ClassDefinition {
     attributes? : { [ name : string ] : TypeSpec | ( new ( x : any ) => any ) | any }
-    collection? : ICollectionDefinition
+    collection? : CollectionDefinition | CollectionConstructor
 }
 
 export interface TypeSpec {
@@ -75,7 +75,7 @@ export interface IRecord extends Class, Events {
     getOwner() : IRecord
 }
 
-export interface ICollectionDefinition extends ClassDefinition {
+export interface CollectionDefinition extends ClassDefinition {
     Record? : RecordConstructor
 }
 

@@ -157,15 +157,17 @@ export class Class {
     }
 }
 
-// export decorator functions...
+// @mixinRules({ ... }) decorator
 export function mixinRules( rules : IMixinRules ) {
     return createDecorator( 'mixinRules', rules );
 }
 
+// @mixins( A, B, C ) decorator
 export function mixins( ...list : {}[] ) {
     return createDecorator( 'mixins', list );
 }
 
+// @extendable decorator
 export function extendable( Type : Function ) : Function{
     Class.attach( Type );
     return Type;

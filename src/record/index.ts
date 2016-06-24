@@ -1,322 +1,421 @@
-import { RecordMixin, setAttribute } from './transactions.ts'
-import compile from './compile.ts'
+import { log, assign, defaults, omit } from '../tools.ts'
 import { Class } from '../class.ts'
-import { assign } from '../tools.ts'
+import { RecordDefinition } from '../types.ts'
+import { compile } from './define.ts' 
+/**
+ * Everything related to record's transactional updates
+ */
+export interface IUpdatePipeline{
+    canBeUpdated( prev : any, next : any ) : boolean
+    transform( value : any, options : Options, prev : any, model : Record ) : any
+    isChanged( a : any, b : any ) : boolean
+    handleChange( next : any, prev : any, model : Record ) : void
+    clone( value : any ) : any
+    toJSON? : ( value : any, key : string ) => any
+}
 
-import {CollectionConstructor, IRecord, RecordConstructor} from '../types.ts'
+interface Options {
+    silent? : boolean
+    parse? : boolean
+    clone? : boolean
+}
 
-let _cidCount = 0;
+interface IAttributes {
+    [ key : string ] : any
+}
 
-class Attributes {}
+interface IAttrSpecs {
+    [ key : string ] : IUpdatePipeline
+}
 
+interface IOwned {
+    _owner : IOwner
+    _ownerKey? : string
+    getOwner() : IOwner
+}
 
-export class Record extends Class implements IRecord {
-    static Collection : CollectionConstructor
+interface IOwner extends IOwned {
+    _onChildrenChange( child : IOwned, options : Options ) : void
+}
 
-    static define( spec ) {
-        const baseProto = Object.getPrototypeOf( this.prototype ),
-              BaseCtor : RecordConstructor = baseProto.constructor;
+// Client unique id counter
+let _cidCounter : number = 0;
 
-        // Create collection
-        if( this.Collection === BaseCtor.Collection ) {
-            this.Collection = class Collection extends BaseCtor.Collection {};
-            this.Collection.prototype.Record = this;
-        }
+export class Record extends Class implements IOwner { 
+    static define( protoProps : RecordDefinition, staticProps ){
+        const baseProto : Record = Object.getPrototypeOf( this.prototype ),
+              BaseConstructor = < typeof Record >baseProto.constructor;
 
-        if( spec ) {
-            // define stuff
-            const { attributes } = spec,
-                compiled = defaults( compile( attributes, baseProto._attributes ), spec );
+        if( protoProps ) {
+            // Compile attributes spec, creating definition mixin.
+            const definition = compile( protoProps.attributes, baseProto._attributes );
 
-            assign( compiled.properties, spec.properties );
+            // Explicit 'properties' declaration overrides auto-generated attribute properties.
+            assign( definition.properties, protoProps.properties || {} );
 
-            super.define( compiled );
-
-            const { collection } = spec;
-            if( collection ) {
-                if( typeof collection === 'function' ) {
-                    // Link model to collection
-                    this.Collection                  = collection;
-                    this.Collection.prototype.Record = this;
-                }
-                else {
-                    // Configure our local Collection
-                    this.Collection.define( collection );
-                }
-            }
-        }
-    }
-
-
-    attributes : {}
-    /**
-     * Construction and cloning
-     */
-    constructor( attributes, opts ) {
-        super();
-        var attrs   = this.__attributes,
-            values  = attributes || {},
-            options = opts || {};
-
-        this.__duringSet = 0;
-        this._changing   = this._pending = false;
-        this._changeToken = {};
-        this.attributes   = {};
-        this.cid          = this.cidPrefix + _cidCount++;
-
-        //  Make owner accessible in initialize
-        if( this._owner = options.owner ) {
-            // do not pass it to nested objects.
-            // No side effect here, options copied at the upper level in this case
-            options.owner = null;
-        }
-
-        if( options.parse ) {
-            values = this.parse( values, options ) || {};
-        }
-
-        if( values && Object.getPrototypeOf( values ) !== Object.prototype ) {
-            error.argumentIsNotAnObject( this, values );
-            values = {};
-        }
-
-        values = options.deep ? deepCloneAttrs( this, values ) : this.defaults( values );
-
-        // Execute attributes transform function instead of this.set
-        this.forEachAttr( values, ( key, value ) => {
-            const attr = attrs[ key ];
-
-            if( attr ) {
-                const next = values[ key ] = attr.transform( value, options, this, key );
-                attr.handleChange( next );
-            }
-            else {
-                error.unknownAttribute( model, key, value );
-            }
-        } );
-
-        this._previousAttributes = this.attributes = values;
-        this.initialize.apply( this, arguments );
-    }
-
-    initialize(){}
-
-    defaults( attrs, options ) {
-        return new this.Attributes( attrs );
-    }
-
-    clone( options = { deep : true } ) : this {
-        return new (this.constructor)( this.attributes, options );
-    }
-
-    /**
-     * Attributes handling and ownership
-     */
-    Attributes : new ( attrs : {} ) => {};
-
-    forEachAttr( obj, fun ) {
-    }
-
-    get id() {
-        // (!) No get hooks on id attribute.
-        const { idAttribute } = this;
-        return idAttribute && this.attributes[ idAttribute ];
-    }
-
-    set id( value ) {
-        const { idAttribute } = this;
-        idAttribute && setAttribute( this, idAttribute, value );
-    }
-
-    get collection() {
-        return ( !this._ownerKey && this._owner ) || null;
-    }
-
-    getOwner() {
-        const { _owner } = this;
-        return this._ownerKey ? _owner : ( _owner && _owner._owner );
-    }
-
-    /**
-     * Object sync API
-     * set( { attrs }, options )
-     */
-
-    set( values, options ) {
-        if( values ) {
-            if( Object.getPrototypeOf( values ) === Object.prototype ) {
-                this.createTransaction( values, options ).commit( options );
-            }
-            else {
-                // TODO: log.error('Model.set argument must be string or object');
-            }
+            // Merge in definition.
+            defaults( definition, omit( protoProps, 'attributes', 'collection' ) );            
+            super.define( definition );
         }
 
         return this;
     }
 
-    /**
-     * Transactional API stubs (provided by separate mixin)
+    /***********************************
+     * Core Members
      */
-    createTransaction( values, options ) {}
+    // Previous attributes
+    _previousAttributes : {}
 
-    transaction( fun, options ) {}
+    // Current attributes    
+    attributes : IAttributes
 
-    _onChildrenChange( child, options = {} ) {
-        this.forceChange( child._ownerAttr, options );
+    // Transactional control
+    _changing : boolean
+    _pending : boolean
+
+
+    /**
+     * Ownerhsip API
+     */
+    // Reference to owner
+    _owner : IOwner
+
+    // Owner's attribute name, if it's Record 
+    _ownerKey : string;
+
+    // Returns Record owner skipping collections.
+    getOwner() : IOwner {
+        const { _owner } = this;
+        return this._ownerKey ? _owner : ( _owner && _owner._owner );
     }
 
-    forceChange( key, options = {} ){
+    /***********************************
+     * Notification API
+     */ 
+    // Record is changed
+    _notifyChange( options : Options ) : void {}
+
+    // Record's attribute is changed
+    _notifyChangeAttr( key : string, options : Options ) : void {}
+
+    /***********************************
+     * Identity managements
+     */
+
+    // Client unique id 
+    cid : string;
+
+    // Client id prefix
+    cidPrefix : string;
+
+    // Id attribute name ('id' by default)
+    idAttribute : string;
+
+    // Fixed 'id' property pointing to id attribute
+    get id() : string | number { return this.attributes[ this.idAttribute ]; }
+    set id( x : string | number ){ setAttribute( this, this.idAttribute, x ); }
+
+    /***********************************
+     * Dynamically compiled stuff
+     */
+
+    // Attributes specifications 
+    _attributes : IAttrSpecs
+    
+    // Attributes object copy constructor
+    Attributes : new ( attrs : {} ) => IAttributes
+
+    // Optimized forEach function for traversing through attributes, with pretective default implementation
+    forEachAttr( attrs : {}, iteratee : ( value : any, key? : string, spec? : IUpdatePipeline ) => void ){
+        const { _attributes } = this;
+
+        for( let name in attrs ){
+            const spec = _attributes[ name ];
+
+            if( spec ){
+                iteratee( attrs[ name ], name, spec );
+            }
+            else{
+                log.warn( '[Unknown Attribute]', this, 'Unknown record attribute "' + name + '" is ignored:', attrs );
+            }
+        }
+    }
+
+    // Attributes-level serialization
+    _toJSON(){ return {}; }
+
+    // Attributes-level parse
+    _parse( data ){ return data; }
+
+    // Create record default values, optionally augmenting given values 
+    defaults( values? : {} ){ return {}; }
+
+    /***************************************************
+     * Record construction
+     */
+    // Create record, optionally setting owner
+    constructor( a_values? : {}, a_options? : Options, owner? : IOwner ){
+        super();
+
+        const options = a_options || {},
+              values = ( options.parse ? this.parse( a_values ) :  a_values ) || {};
+
+        this._changing = this._pending = false;
+        this._owner = owner;
+        this.cid = this.cidPrefix + _cidCounter++;
+
+        // TODO: type error for wrong object.
+
+        const attributes = options.clone ? cloneAttributes( this, values ) : this.defaults( values ); 
+
+        this.forEachAttr( attributes, ( value : any, key : string, attr : IUpdatePipeline ) => {
+            const next = attributes[ key ] = attr.transform( value, options, void 0, this );
+                  attr.handleChange( next, void 0, this );
+        });
+
+        this.attributes = this._previousAttributes = attributes;
+
+        this.initialize( a_values, a_options );
+    }
+
+    // Initialization callback, to be overriden by the subclasses 
+    initialize( values?, options? ){}
+
+    // Deeply clone record, optionally setting new owner.
+    clone( owner? : any ) : Record {
+        return new (<any>this.constructor)( this.attributes, { clone : true }, owner );
+    }
+
+    /**
+     * Serialization control
+     */
+
+    // Default record-level serializer, to be overriden by subclasses 
+    toJSON(){
+        const json = {};
+
+        this.forEachAttr( this.attributes, ( value, key, { toJSON } ) =>{
+            if( toJSON ){
+                json[ key ] = toJSON.call( this, value, key );
+            }
+        });
+    }
+    
+    // Default record-level parser, to be overriden by the subclasses
+    parse( data ){ return this._parse( data ); }
+    
+
+    /**
+     * Transactional control
+     */
+
+     // Object sync API
+     set( values : {}, options? : Options ) : this {
+        if( values ){
+            this.createTransaction( values, options ).commit( options );
+        } 
+
+        return this;
+    }
+    
+    // Create transaction
+    createTransaction( a_values : {}, options : Options = {} ) : Transaction {
+        const transaction = new Transaction( this ),
+              { changes, nested } = transaction,
+              { attributes } = this,
+              values = options.parse ? this.parse( a_values ) : a_values;  
+
+        if( Object.getPrototypeOf( values ) === Object.prototype ){
+            this.forEachAttr( values, ( value, key : string, attr : IUpdatePipeline ) => {
+                const prev = attributes[ key ];
+
+                // handle deep update...
+                if( attr.canBeUpdated( prev, value ) ) {
+                    nested.push( prev.createTransaction( value, options ) );
+                    return;
+                }
+
+                // cast and hook...
+                const next = attr.transform( value, options, prev, this );
+
+                if( attr.isChanged( next, prev ) ) {
+                    attributes[ key ] = next;
+                    changes.push( key );
+
+                    // Do the rest of the job after assignment
+                    attr.handleChange( next, prev, this );
+                }
+            } );
+        }
+        else{
+            log.error( '[Type Error]', this, 'Record update rejected (', values, '). Incompatible type.' );
+        }
+
+        return transaction;
+    }
+
+    // Execute given function in the scope of ad-hoc transaction
+    transaction( fun : ( self : this ) => void, options : Options = {} ) {
+        const isRoot = begin( this );
+        fun( this );
+        isRoot && commit( this, options );
+    }
+
+    // Handle nested changes
+    _onChildrenChange( child : IOwned, options : Options ) : void {        
+        this.forceAttributeChange( child._ownerKey, options );
+    }
+
+    forceAttributeChange( key, options : Options = {} ){
+        // Touch an attribute in bounds of transaction
         const isRoot = begin( this );
 
         if( !options.silent ){
-            this._pending = options;
+            this._pending = true;
             key && this._notifyChangeAttr( key, options );
         }
 
         isRoot && commit( this, options );
     }
+};
 
-    /**
-     * Events system stubs
-     */
-    _notifyChange( options ) {
-        this._changeToken = {};
-        this.trigger( 'change', this, options );
+/**************************************************
+ * Initialize Record prototype elements
+ */
+
+const recordProto = Record.prototype;
+
+// Default client id prefix 
+recordProto.cid = 'c';
+
+// Default id attribute name
+recordProto.idAttribute = 'id';
+
+/***********************************************
+ * Helper functions
+ */
+
+// Deeply clone record attributes
+function cloneAttributes( model : Record, a_attributes : IAttributes ) : IAttributes {
+    const attributes = new model.Attributes( a_attributes );
+
+    model.forEachAttr( attributes, function( value, name, attr ){
+        attributes[ name ] = attr.clone( value ); //TODO: Add owner?
+    } );
+
+    return attributes;
+}
+
+ // Optimized single attribute transactional update. To be called from attributes setters
+export function setAttribute( model : Record, name : string, value : any ) : void {
+    const isRoot  = begin( model ),
+          options = {};
+
+    const { attributes } = model,
+          spec = model._attributes[ name ],
+          prev = attributes[ name ];
+
+    // handle deep update...
+    if( spec.canBeUpdated( prev, value ) ) {
+        prev.createTransaction( value, options ).commit( options );
     }
+    else {
+        // cast and hook...
+        const next = spec.transform( value, options, prev, model );
 
-    _notifyChangeAttr( name, options ) {
-        this.trigger( 'change:' + name, this.attributes[ name ], this, options );
-    }
+        if( spec.isChanged( next, prev ) ) {
+            attributes[ name ] = next;
 
-    /**
-     * Serialization API
-     * toJSON(), parse( data )
-     */
-
-    toJSON() {
-        var self      = this,
-            res       = {},
-            attrSpecs = this.__attributes;
-
-        this.forEachAttr( this.attributes, function( value, key ) {
-            var attrSpec = attrSpecs[ key ],
-                toJSON   = attrSpec && attrSpec.toJSON;
-
-            if( toJSON ) {
-                res[ key ] = toJSON.call( self, value, key );
+            // Do the rest of the job after assignment
+            if( spec.handleChange ) {
+                spec.handleChange( next, prev, this );
             }
-        } );
 
-        return res;
-    }
-
-    parse( resp ) {
-        return this._parse( resp );
-    }
-
-    _parse( resp ) {
-        return resp;
-    }
-
-    /**
-     * Changes tracking API
-     * hasChanges( attr ), changedAttributes( diff ), previousAttributes()
-     */
-    get changed() {
-        let changed = this._changed;
-
-        if( !changed ) {
-            changed = this._changed = {};
-
-            const { attributes, _previousAttributes } = this;
-
-            this.forEachAttr( this._attributes, ( attr, key ) => {
-                const curr = attributes[ key ],
-                      prev = _previousAttributes[ key ];
-
-                if( attr.isChanged( curr, prev ) ) {
-                    changed[ key ] = curr;
-                }
-            } );
+            model._pending = true;
+            model._notifyChangeAttr( name, options );
         }
-
-        return changed;
     }
 
-    hasChanged( attr ) {
-        if( attr == null ) {
-            return !_.isEmpty( this.changed ); //TODO: remove underscore.
-        }
+    isRoot && commit( model, options );
+}
 
-        return this._attributes[ attr ].isChanged( this.attributes[ attr ], this._previousAttributes[ attr ] );
+/**
+ * Transactional brackets
+ *  begin( model ) => true | false;
+ *  commit( model, options ) => void 0
+ */
+
+// Start transaction on the record. Return true if it's opening transaction.
+function begin( model : Record ) : boolean {
+    const isRoot = !model._changing;
+
+    if( isRoot ){
+        // If it's opening transaction, copy attributes
+        model._changing           = true;
+        model._previousAttributes = new model.Attributes( model.attributes );
     }
 
-    changedAttributes( diff ) {
-        if( !diff ) {
-            return this.hasChanged() ? _.clone( this.changed ) : false;
+    return isRoot;
+}
+
+// Commit transaction. Send out change event and notify owner.
+function commit( model : Record, options : Options ){
+    if( !options.silent ){
+        while( model._pending ){
+            model._pending = false;
+            model._notifyChange( options );
         }
-
-        var val, changed = false,
-            old          = this._changing ? this._previousAttributes : this.attributes,
-            attrSpecs    = this._attributes;
-
-        for( var attr in diff ) {
-            if( !attrSpecs[ attr ].isChanged( old[ attr ], ( val = diff[ attr ] ) ) ) {
-                continue;
-            }
-            (changed || (changed = {}))[ attr ] = val;
-        }
-
-        return changed;
     }
 
-    previousAttributes() {
-        return new this.Attributes( this._previousAttributes );
+    model._pending  = false;
+    model._changing = false;
+
+    // TODO: should it be in the transaction scope?
+    // So, upper-level change:attr handlers will work in the scope of current
+    // transaction. Short answer: no. Leave it like this.
+    const { _owner } = model;
+    if( _owner ){
+        _owner._onChildrenChange( model, options );
     }
 }
 
-assign( Record.prototype, RecordMixin );
+// Transaction class. Implements two-phase transactions on object's tree. 
+class Transaction {
+    isRoot : boolean
+    changes : string[]
+    nested : Transaction[]
 
-const s = {
-    // extend Model and its Collection
-    extend : function( protoProps, staticProps ) {
-        var Child;
-
-        if( typeof protoProps === 'function' ) {
-            Child      = protoProps;
-            protoProps = null;
-        }
-        else if( protoProps && protoProps.hasOwnProperty( 'constructor' ) ) {
-            Child = protoProps.constructor;
-        }
-        else {
-            var Parent = this;
-            Child      = function Model( attrs, options ) {
-                return Parent.call( this, attrs, options );
-            };
-        }
-
-        var This        = Object.extend.call( this, Child );
-        This.Collection = this.Collection.extend();
-        return protoProps ? This.define( protoProps, staticProps ) : This;
+    // open transaction
+    constructor( public model : Record ){
+        this.isRoot  = begin( model );
+        this.model   = model;
+        this.changes = [];
+        this.nested  = [];
     }
-    ,
 
-    // define Model and its Collection. All the magic starts here.
-    define : function( protoProps, staticProps ) {
-        var Base = Object.getPrototypeOf( this.prototype ).constructor,
-            spec = createDefinition( protoProps, Base ),
-            This = this;
+    // commit transaction
+    commit( options : Options = {} ){
+        const { nested, model } = this;
 
-        Object.extend.Class.define.call( This, spec, staticProps );
-        attachMixins( This );
+        // Commit all nested transactions...
+        for( let i = 0; i < nested.length; i++ ){
+            nested[ i ].commit( options );
+        }
 
-        // define Collection
-        var collectionSpec = { model : This };
-        spec.urlRoot && ( collectionSpec.url = spec.urlRoot );
-        This.Collection.define( _.defaults( protoProps.collection || {}, collectionSpec ) );
+        // Notify listeners on attribute changes...
+        if( !options.silent ){
+            const { changes } = this;
 
-        return This;
+            if( changes.length ){
+                model._pending = true;
+            }
+
+            for( let i = 0; i < changes.length; i++ ){
+                model._notifyChangeAttr( changes[ i ], options )
+            }
+        }
+
+        this.isRoot && commit( model, options );
     }
-};
+}
