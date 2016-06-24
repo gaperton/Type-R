@@ -1,5 +1,10 @@
 # Records todo list
 
+It must be generic thing, which is unaware about collections.
+But it must support abstract managed attribute which could be the collection, model, whatever.
+
+Thus, we need special interface for that abstraction.
+
 ## Minimal flat record
 [ ] Primitive types attributes
 [ ] Type inference
