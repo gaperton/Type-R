@@ -14,11 +14,7 @@ class ConstructorType extends Attribute {
     }
 }
 
-interface Function{
-    _attribute? : FunctionConstructor
-}
-
-Function.prototype[ '_attribute' ] = ConstructorType;
+Function.prototype._attribute = ConstructorType;
 
 // Date Attribute
 // ----------------------
@@ -39,7 +35,7 @@ class DateType extends Attribute {
     clone( value ) { return value && new Date( +value ); }
 }
 
-Date[ '_attribute' ] = DateType;
+Date._attribute = DateType;
 
 // Primitive Types
 // ----------------
@@ -49,6 +45,8 @@ declare var Integer : any;
 Integer = function( x ) { return x ? Math.round( x ) : 0; };
 
 class PrimitiveType extends Attribute {
+    type : NumberConstructor | StringConstructor | BooleanConstructor
+
     create() { return this.type(); }
 
     toJSON( value ) { return value; }
@@ -60,9 +58,11 @@ class PrimitiveType extends Attribute {
     clone( value ) { return value; }
 }
 
-Boolean[ '_attribute' ] = String[ '_attribute' ] = PrimitiveType;
+Boolean._attribute = String._attribute = PrimitiveType;
 
 class NumericType extends PrimitiveType {
+    type : NumberConstructor
+
     validate( model, value, name ) {
         if( !isFinite( value ) ) {
             return name + ' is invalid number';
@@ -70,7 +70,7 @@ class NumericType extends PrimitiveType {
     }
 }
 
-Integer[ '_attribute' ] = Number[ '_attribute' ] = NumericType;
+Integer._attribute = Number._attribute = NumericType;
 
 // Array Type
 // ---------------
@@ -86,5 +86,5 @@ class ArrayType extends Attribute {
     }
 }
 
-Array[ '_attribute' ] = ArrayType;
+Array._attribute = ArrayType;
 

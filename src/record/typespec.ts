@@ -67,26 +67,31 @@ export class AttributeSpecification {
     }
 }
 
-interface Function{
-    value? : ( x : any ) => AttributeSpecification;
-    isRequired? : AttributeSpecification;
-    has? : AttributeSpecification;
+declare global {
+    interface Function{
+        value : ( x : any ) => AttributeSpecification;
+        isRequired : AttributeSpecification;
+        has : AttributeSpecification;
+    }
 }
 
-Function.prototype[ 'value' ] = function( x ) {
+Function.prototype.value = function( x ) {
     return new AttributeSpecification( { type : this, value : x } );
 };
 
-Function.prototype[ 'isRequired' ] = function( x ) {
-    return new AttributeSpecification( { type : this, isRequired : true } );
-};
+Object.defineProperty( Function.prototype, 'isRequired', {
+    get() {
+        return new AttributeSpecification( { type : this, isRequired : true } );
+    } 
+});
 
 Object.defineProperty( Function.prototype, 'has', {
-    get : function() {
+    get() {
         // workaround for sinon.js and other libraries overriding 'has'
         return this._has || new AttributeSpecification( { type : this } );
     },
-    set : function( value ) { this._has = value; }
+
+    set( value ) { this._has = value; }
 } );
 
 

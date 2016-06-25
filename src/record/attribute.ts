@@ -19,6 +19,12 @@ export interface IAttributeOptions {
 type GetHook = ( value : any, key : string ) => any;
 export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | string;
 
+declare global {
+    interface Function {
+        _attribute : typeof Attribute
+    }
+}
+
 // TODO: interface differs from options, do something obout it
 export class Attribute implements AttributeUpdatePipeline {
     /**

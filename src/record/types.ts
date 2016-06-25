@@ -78,4 +78,26 @@ export interface TransactionOptions {
  */
 
 // Constructor type
-export type Constructor = new ( ...args : any[] ) => any
+export interface Constructor {
+    new ( ...args : any[] ) : any
+}
+
+export interface AttributeType extends Constructor {
+    _attribute : Constructor
+}
+
+export interface AttributeOptions {
+    getHooks : GetHook[]
+    transforms : Transform[]
+    changeHandlers : ChangeHandler[]
+    isRequired? : boolean
+    value? : any
+    onChange? : ChangeAttrHandler
+    type? : Constructor
+
+    parse? : ( data : any, key : string ) => any
+    toJSON? : ( key : string ) => any
+}
+
+type GetHook = ( value : any, key : string ) => any;
+export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | string;

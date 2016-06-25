@@ -2,7 +2,7 @@ import { log, assign, defaults, omit } from '../tools.ts'
 import { Class } from '../class.ts'
 import { compile } from './define.ts' 
 
-import { Transactional, Transaction, TransactionOptions, Owner } from './types'
+import { Constructor, Transactional, Transaction, TransactionOptions, Owner } from './types'
 
 /**
  * Everything related to record's transactional updates
@@ -43,7 +43,7 @@ interface IAttrSpecs {
 // Client unique id counter
 let _cidCounter : number = 0;
 
-export class Record extends Class implements Owner, Transactional { 
+export class Record extends Class implements Owner, Transactional {
     static define( protoProps, staticProps ) : typeof Record { return this; }
 
     /***********************************
