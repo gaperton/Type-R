@@ -1,5 +1,4 @@
 import { Attribute } from './attribute.ts';
-import { createAttribute, AttributeDefinition } from './typespec.ts';
 import { defaults, isValidJSON, transform } from '../tools.ts'
 import { log } from '../tools.ts'
 
@@ -33,7 +32,7 @@ export interface AttributeDefinitions{
 
 // Compile attributes spec
 export function compile( rawSpecs : AttributeDefinitions, baseAttributes : AttrSpecs ) : CompiledMixin {
-    const myAttributes = transform( <AttrSpecs>{}, rawSpecs, createAttribute ),
+    const myAttributes = transform( <AttrSpecs>{}, rawSpecs, Attribute.create ),
           allAttributes = defaults( <AttrSpecs>{}, myAttributes, baseAttributes ),
           Attributes = createCloneCtor( allAttributes ),
           mixin : CompiledMixin = {

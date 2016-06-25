@@ -1,9 +1,32 @@
 # Records todo list
 
-It must be generic thing, which is unaware about collections.
-But it must support abstract managed attribute which could be the collection, model, whatever.
+Okay. So.
 
-Thus, we need special interface for that abstraction.
+transaction.ts (needs to be renamed to record.ts) will me the base thingy.
+Keep all definitions with relates to Record there.
+This includes definition (but not implementation) of the Record.define method.
+
+attribute.ts - imports transaction.ts, implements Attribute base class and factory.
+
+basicTypes.ts, nestedTypes.ts -> rename to metatypes.ts? Or rename.
+nestedTypes will include Record as well, and register itself.
+
+define.ts will contain will compile stuff and create mixin.
+
+index.ts will wire up the things together, adding define method to Record.
+Need it to resolve circular dependency.
+
+Key points:
+- no reference to collection stuff from there. Remove getOwner().
+- no monadic type specs, no type inference. It takes raw attribute descriptors.
+- Attribute and TransactionalAttr must be exported.
+
+This core must perform transactions and serialization. Cover with unit tests.
+Consider moving class.ts and tools.ts inside.
+
+It would make the nice core project. Collection is way simpler, it doesn't require code generation.
+
+The rest of the stuff can be built on this foundation.
 
 ## Minimal flat record
 [ ] Primitive types attributes

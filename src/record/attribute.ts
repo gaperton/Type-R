@@ -27,6 +27,13 @@ declare global {
 
 // TODO: interface differs from options, do something obout it
 export class Attribute implements AttributeUpdatePipeline {
+    // Factory method to create attribute from options 
+    static create( options, name ) : Attribute {
+        const type = options.type,
+              AttributeCtor = type ? type._attribute : Attribute;
+
+        return new AttributeCtor( name, options );
+    }
     /**
      * Update pipeline functions
      * =========================

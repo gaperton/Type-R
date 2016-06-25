@@ -1,5 +1,5 @@
 import { log, assign, defaults, omit } from '../tools.ts'
-import { Class } from '../class.ts'
+import { Class, ClassDefinition } from '../class.ts'
 import { compile } from './define.ts' 
 
 import { Constructor, Transactional, Transaction, TransactionOptions, Owner } from './types'
@@ -25,6 +25,30 @@ export interface Attribute extends AttributeUpdatePipeline, AttributeSerializati
     create() : any
 }
 
+export interface RecordDefinition extends ClassDefinition {
+    attributes? : AttributeDescriptorMap
+}
+
+export interface AttributeDescriptorMap {
+    [ name : string ] : AttributeDescriptor
+}
+
+export interface AttributeDescriptor {
+    getHooks? : GetHook[]
+    transforms? : Transform[]
+    changeHandlers? : ChangeHandler[]
+    isRequired? : boolean
+    value? : any
+    onChange? : ChangeAttrHandler
+    type? : Function
+
+    parse? : ( data : any, key : string ) => any
+    toJSON? : ( key : string ) => any
+}
+
+
+type GetHook = ( value : any, key : string ) => any;
+export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | string;
 export type Transform = ( next : any, options : TransactionOptions, prev : any, record : Record ) => any;
 export type ChangeHandler = ( next : any, prev : any, record : Record ) => void;
 
