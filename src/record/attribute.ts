@@ -1,16 +1,7 @@
-import { setAttribute } from './transactions'
+import { setAttribute, Record, AttributeUpdatePipeline, Transform, ChangeHandler } from './transaction'
 import { notEqual, assign } from '../tools'
 
-import { Owner, Transactional, TransactionOptions } from './types.ts'
-
-export interface IUpdatePipeline{
-    canBeUpdated( prev : any, next : any ) : boolean
-    transform : Transform
-    isChanged( a : any, b : any ) : boolean
-    handleChange : ChangeHandler
-    clone( value : any ) : any
-    toJSON : ( value : any, key : string ) => any
-}
+import { Owner, Transactional, TransactionOptions, Constructor } from './types.ts'
 
 export interface IAttributeOptions {
     getHooks : GetHook[]
@@ -19,19 +10,17 @@ export interface IAttributeOptions {
     isRequired? : boolean
     value? : any
     onChange? : ChangeAttrHandler
-    type? : Function
+    type? : Constructor
 
     parse? : ( data : any, key : string ) => any
     toJSON? : ( key : string ) => any
 }
 
 type GetHook = ( value : any, key : string ) => any;
-type Transform = ( next : any, options : {}, prev : any, model : Owner & Transactional ) => any;
-type ChangeHandler = ( next : any, prev : any, model : Owner & Transactional ) => void;
 export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | string;
 
 // TODO: interface differs from options, do something obout it
-export class Attribute implements IUpdatePipeline {
+export class Attribute implements AttributeUpdatePipeline {
     /**
      * Update pipeline functions
      * =========================
@@ -122,7 +111,7 @@ export class Attribute implements IUpdatePipeline {
     }
 
     value : any
-    type : Function
+    type : Constructor
 
     parse : ( value, key : string ) => any
 

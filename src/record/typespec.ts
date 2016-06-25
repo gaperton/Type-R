@@ -5,10 +5,10 @@
 
 import { Attribute, IAttributeOptions, ChangeAttrHandler } from './attribute.ts'
 import { assign } from '../tools.ts'
-import { IRecord, EventsHash } from '../types.ts'
+import {  EventsHash } from '../types.ts'
 
 
-class AttributeDescriptor {
+export class AttributeSpecification {
     options : IAttributeOptions;
 
     constructor( options = {} ) {
@@ -68,38 +68,40 @@ class AttributeDescriptor {
 }
 
 interface Function{
-    value? : ( x : any ) => AttributeDescriptor;
-    isRequired? : AttributeDescriptor;
-    has? : AttributeDescriptor;
+    value? : ( x : any ) => AttributeSpecification;
+    isRequired? : AttributeSpecification;
+    has? : AttributeSpecification;
 }
 
 Function.prototype[ 'value' ] = function( x ) {
-    return new AttributeDescriptor( { type : this, value : x } );
+    return new AttributeSpecification( { type : this, value : x } );
 };
 
 Function.prototype[ 'isRequired' ] = function( x ) {
-    return new AttributeDescriptor( { type : this, isRequired : true } );
+    return new AttributeSpecification( { type : this, isRequired : true } );
 };
 
 Object.defineProperty( Function.prototype, 'has', {
     get : function() {
         // workaround for sinon.js and other libraries overriding 'has'
-        return this._has || new AttributeDescriptor( { type : this } );
+        return this._has || new AttributeSpecification( { type : this } );
     },
     set : function( value ) { this._has = value; }
 } );
 
-export function createAttribute( spec : any, name : string ) : Attribute {
+
+export type AttributeDefinition = AttributeSpecification | ( new ( ...args : any[] ) => any ) | {}
+export function createAttribute( spec : AttributeDefinition, name : string ) : Attribute {
     let typeSpec;
 
-    if( spec && spec instanceof AttributeDescriptor ) {
+    if( spec && spec instanceof AttributeSpecification ) {
         typeSpec = spec;
     }
     else if( typeof spec === 'function' ) {
-        typeSpec = new AttributeDescriptor({ type : spec });
+        typeSpec = new AttributeSpecification({ type : spec });
     }
     else {
-        typeSpec = new AttributeDescriptor({
+        typeSpec = new AttributeSpecification({
             type : inferType( spec ),
             value : spec
         });
@@ -108,7 +110,7 @@ export function createAttribute( spec : any, name : string ) : Attribute {
     return typeSpec.createAttribute( name );
 }
 
-function inferType( value : any ) : Function {
+function inferType( value : {} ) : Function {
     switch( typeof value ) {
         case 'number' :
             return Number;

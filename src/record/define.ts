@@ -1,9 +1,9 @@
 import { Attribute } from './attribute.ts';
-import { createAttribute } from './typespec.ts';
+import { createAttribute, AttributeDefinition } from './typespec.ts';
 import { defaults, isValidJSON, transform } from '../tools.ts'
 import { log } from '../tools.ts'
 
-interface ICompiled {
+export interface CompiledMixin {
     _attributes : AttrSpecs
     Attributes : CloneCtor
     properties : PropertyDescriptorMap
@@ -13,11 +13,11 @@ interface ICompiled {
     _parse : Parse
 }
 
-interface AttrSpecs {
+export interface AttrSpecs {
     [ key : string ] : Attribute
 }
 
-interface AttrValues {
+export interface AttrValues {
     [ key : string ] : any
 }
 
@@ -27,12 +27,16 @@ type Defaults  = ( attrs? : {} ) => {}
 type Parse     = ( data : any ) => any;
 type ToJSON    = () => any;
 
+export interface AttributeDefinitions{
+    [ key : string ] : AttributeDefinition 
+}
+
 // Compile attributes spec
-export function compile( rawSpecs : {}, baseAttributes : AttrSpecs ) : ICompiled {
+export function compile( rawSpecs : AttributeDefinitions, baseAttributes : AttrSpecs ) : CompiledMixin {
     const myAttributes = transform( <AttrSpecs>{}, rawSpecs, createAttribute ),
           allAttributes = defaults( <AttrSpecs>{}, myAttributes, baseAttributes ),
           Attributes = createCloneCtor( allAttributes ),
-          mixin : ICompiled = {
+          mixin : CompiledMixin = {
             Attributes : Attributes,
             _attributes : new Attributes( allAttributes ),
             properties : transform( <PropertyDescriptorMap>{}, myAttributes, x => x.createPropertyDescriptor() ),

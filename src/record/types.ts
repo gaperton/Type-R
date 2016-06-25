@@ -69,3 +69,13 @@ export interface TransactionOptions {
     // Suppress change notifications and update triggers
     silent? : boolean
 }
+
+
+/****************************************************
+ * 
+ * 
+ * 
+ */
+
+// Constructor type
+export type Constructor = new ( ...args : any[] ) => any

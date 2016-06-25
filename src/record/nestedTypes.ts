@@ -4,7 +4,8 @@ import { Owner, Transactional, TransactionalConstructor, TransactionOptions } fr
 export class TransactionalType extends Attribute {
     type : TransactionalConstructor;
 
-    canBeUpdated( prev, next ) : boolean {
+    canBeUpdated( prev : Transactional, next : any ) : boolean {
+        // If an object already exists, and new value is of incompatible type, let object handle the update.
         return prev && next && !( next instanceof this.type );
     }
 
@@ -17,10 +18,10 @@ export class TransactionalType extends Attribute {
         return new this.type();
     }
 
-    handleChange( next : any, prev : any, record : Owner & Transactional ){
+    handleChange( next : Transactional, prev : Transactional, record : Owner & Transactional ){
         // Remove reference to self
         if( prev && prev._owner === record ){
-            prev._onwerKey = prev._owner = null;
+            prev._ownerKey = prev._owner = null;
         } 
 
         // Take ownership if possible

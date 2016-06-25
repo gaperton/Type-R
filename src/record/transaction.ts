@@ -1,6 +1,5 @@
 import { log, assign, defaults, omit } from '../tools.ts'
 import { Class } from '../class.ts'
-import { RecordDefinition } from '../types.ts'
 import { compile } from './define.ts' 
 
 import { Transactional, Transaction, TransactionOptions, Owner } from './types'
@@ -8,14 +7,26 @@ import { Transactional, Transaction, TransactionOptions, Owner } from './types'
 /**
  * Everything related to record's transactional updates
  */
-export interface IUpdatePipeline{
+
+export interface AttributeUpdatePipeline{
     canBeUpdated( prev : any, next : any ) : boolean
-    transform( value : any, options : TransactionOptions, prev : any, model : Record ) : any
+    transform : Transform
     isChanged( a : any, b : any ) : boolean
-    handleChange( next : any, prev : any, model : Record ) : void
-    clone( value : any ) : any
-    toJSON? : ( value : any, key : string ) => any
+    handleChange : ChangeHandler
 }
+
+export interface AttributeSerialization {
+    toJSON( value : any, key : string ) : any
+    parse( value : any, key : string ) : any
+}
+
+export interface Attribute extends AttributeUpdatePipeline, AttributeSerialization {
+    clone( value : any ) : any
+    create() : any
+}
+
+export type Transform = ( next : any, options : TransactionOptions, prev : any, record : Record ) => any;
+export type ChangeHandler = ( next : any, prev : any, record : Record ) => void;
 
 interface ConstructorOptions extends TransactionOptions{
     clone? : boolean
@@ -26,31 +37,14 @@ interface IAttributes {
 }
 
 interface IAttrSpecs {
-    [ key : string ] : IUpdatePipeline
+    [ key : string ] : Attribute
 }
 
 // Client unique id counter
 let _cidCounter : number = 0;
 
 export class Record extends Class implements Owner, Transactional { 
-    static define( protoProps : RecordDefinition, staticProps ){
-        const baseProto : Record = Object.getPrototypeOf( this.prototype ),
-              BaseConstructor = < typeof Record >baseProto.constructor;
-
-        if( protoProps ) {
-            // Compile attributes spec, creating definition mixin.
-            const definition = compile( protoProps.attributes, baseProto._attributes );
-
-            // Explicit 'properties' declaration overrides auto-generated attribute properties.
-            assign( definition.properties, protoProps.properties || {} );
-
-            // Merge in definition.
-            defaults( definition, omit( protoProps, 'attributes', 'collection' ) );            
-            super.define( definition );
-        }
-
-        return this;
-    }
+    static define( protoProps, staticProps ) : typeof Record { return this; }
 
     /***********************************
      * Core Members
@@ -120,7 +114,7 @@ export class Record extends Class implements Owner, Transactional {
     Attributes : new ( attrs : {} ) => IAttributes
 
     // Optimized forEach function for traversing through attributes, with pretective default implementation
-    forEachAttr( attrs : {}, iteratee : ( value : any, key? : string, spec? : IUpdatePipeline ) => void ){
+    forEachAttr( attrs : {}, iteratee : ( value : any, key? : string, spec? : Attribute ) => void ){
         const { _attributes } = this;
 
         for( let name in attrs ){
@@ -162,7 +156,7 @@ export class Record extends Class implements Owner, Transactional {
 
         const attributes = options.clone ? cloneAttributes( this, values ) : this.defaults( values ); 
 
-        this.forEachAttr( attributes, ( value : any, key : string, attr : IUpdatePipeline ) => {
+        this.forEachAttr( attributes, ( value : any, key : string, attr : AttributeUpdatePipeline ) => {
             const next = attributes[ key ] = attr.transform( value, options, void 0, this );
                   attr.handleChange( next, void 0, this );
         });
@@ -188,7 +182,7 @@ export class Record extends Class implements Owner, Transactional {
     toJSON(){
         const json = {};
 
-        this.forEachAttr( this.attributes, ( value, key, { toJSON } ) =>{
+        this.forEachAttr( this.attributes, ( value, key : string, { toJSON } : AttributeSerialization ) =>{
             if( toJSON ){
                 json[ key ] = toJSON.call( this, value, key );
             }
@@ -220,7 +214,7 @@ export class Record extends Class implements Owner, Transactional {
               values = options.parse ? this.parse( a_values ) : a_values;  
 
         if( Object.getPrototypeOf( values ) === Object.prototype ){
-            this.forEachAttr( values, ( value, key : string, attr : IUpdatePipeline ) => {
+            this.forEachAttr( values, ( value, key : string, attr : AttributeUpdatePipeline ) => {
                 const prev = attributes[ key ];
 
                 // handle deep update...
@@ -293,7 +287,7 @@ recordProto.idAttribute = 'id';
 function cloneAttributes( record : Record, a_attributes : IAttributes ) : IAttributes {
     const attributes = new record.Attributes( a_attributes );
 
-    record.forEachAttr( attributes, function( value, name, attr ){
+    record.forEachAttr( attributes, function( value, name, attr : Attribute ){
         attributes[ name ] = attr.clone( value ); //TODO: Add owner?
     } );
 
