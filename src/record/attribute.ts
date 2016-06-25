@@ -1,20 +1,7 @@
-import { setAttribute, Record, AttributeUpdatePipeline, Transform, ChangeHandler } from './transaction'
+import { setAttribute, Record, AttributeUpdatePipeline, Transform, ChangeHandler, AttributeDescriptor } from './transaction'
 import { notEqual, assign } from '../tools'
 
 import { Owner, Transactional, TransactionOptions, Constructor } from './types.ts'
-
-export interface IAttributeOptions {
-    getHooks : GetHook[]
-    transforms : Transform[]
-    changeHandlers : ChangeHandler[]
-    isRequired? : boolean
-    value? : any
-    onChange? : ChangeAttrHandler
-    type? : Constructor
-
-    parse? : ( data : any, key : string ) => any
-    toJSON? : ( key : string ) => any
-}
 
 type GetHook = ( value : any, key : string ) => any;
 export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | string;
@@ -28,7 +15,7 @@ declare global {
 // TODO: interface differs from options, do something obout it
 export class Attribute implements AttributeUpdatePipeline {
     // Factory method to create attribute from options 
-    static create( options, name ) : Attribute {
+    static create( options : AttributeDescriptor, name : string ) : Attribute {
         const type = options.type,
               AttributeCtor = type ? type._attribute : Attribute;
 
@@ -130,7 +117,7 @@ export class Attribute implements AttributeUpdatePipeline {
 
     initialize( name : string, options ){}
 
-    constructor( public name : string, public options : IAttributeOptions ) {
+    constructor( public name : string, public options : AttributeDescriptor ) {
         const {
                   value, type, parse, toJSON,
                   getHooks = [],

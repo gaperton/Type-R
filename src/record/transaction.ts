@@ -1,7 +1,7 @@
-import { log, assign, defaults, omit } from '../tools.ts'
+import { log } from '../tools.ts'
 import { Class, ClassDefinition } from '../class.ts'
-import { compile } from './define.ts' 
 
+// TODO: Move these definitions here.
 import { Constructor, Transactional, Transaction, TransactionOptions, Owner } from './types'
 
 /**
@@ -16,9 +16,12 @@ export interface AttributeUpdatePipeline{
 }
 
 export interface AttributeSerialization {
-    toJSON( value : any, key : string ) : any
-    parse( value : any, key : string ) : any
+    toJSON : AttributeToJSON
+    parse : AttributeParse
 }
+
+type AttributeToJSON = ( value : any, key : string ) => any
+type AttributeParse = ( value : any, key : string ) => any
 
 export interface Attribute extends AttributeUpdatePipeline, AttributeSerialization {
     clone( value : any ) : any
@@ -34,20 +37,19 @@ export interface AttributeDescriptorMap {
 }
 
 export interface AttributeDescriptor {
+    type? : Constructor
+    value? : any
+
+    parse? : AttributeParse
+    toJSON? : AttributeToJSON
+   
     getHooks? : GetHook[]
     transforms? : Transform[]
     changeHandlers? : ChangeHandler[]
-    isRequired? : boolean
-    value? : any
-    onChange? : ChangeAttrHandler
-    type? : Function
-
-    parse? : ( data : any, key : string ) => any
-    toJSON? : ( key : string ) => any
 }
 
+export type GetHook = ( value : any, key : string ) => any;
 
-type GetHook = ( value : any, key : string ) => any;
 export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | string;
 export type Transform = ( next : any, options : TransactionOptions, prev : any, record : Record ) => any;
 export type ChangeHandler = ( next : any, prev : any, record : Record ) => void;
@@ -93,7 +95,7 @@ export class Record extends Class implements Owner, Transactional {
     // Owner's attribute name, if it's Record 
     _ownerKey : string;
 
-    // Returns Record owner skipping collections.
+    // Returns Record owner skipping collections. TODO: Move out
     getOwner() : Owner {
         const { _owner } = this;
         // If there are no key, owner must be transactional object, and it's the collection.
