@@ -1,7 +1,7 @@
-import { Attribute } from './attribute.ts'
+import { GenericAttribute } from './attribute.ts'
 import { Owner, Transactional, TransactionalConstructor, TransactionOptions } from './types.ts' 
 
-export class TransactionalType extends Attribute {
+export class TransactionalType extends GenericAttribute {
     type : TransactionalConstructor;
 
     canBeUpdated( prev : Transactional, next : any ) : boolean {

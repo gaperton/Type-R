@@ -36,6 +36,7 @@
     "sinon": "^1.17.3",
     "sinon-chai": "^2.8.0",
     "ts-loader": "^0.8.2",
+    "source-map-loader" : "*",
     "typescript": "^1.8.10",
     "webpack": "^1.13.0"
   }
