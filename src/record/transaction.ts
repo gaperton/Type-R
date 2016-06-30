@@ -254,7 +254,7 @@ export class Record extends Class implements Owner, Transactional {
         return this;
     }
     
-    // Create transaction
+    // Create transaction. TODO: Move to transaction constructor
     createTransaction( a_values : {}, options : TransactionOptions = {} ) : Transaction {
         const transaction = new RecordTransaction( this ),
               { changes, nested } = transaction,
@@ -416,6 +416,36 @@ function commit( record : Record, options : TransactionOptions ){
     }
 }
 
+class EmptyTransaction {
+    constructor( public object : Record, public options : TransactionOptions = {} ){
+        if( !object._transaction ){
+            object._transaction = this;
+            object._previousAttributes = new object.Attributes( object.attributes );
+        }
+    }
+
+    commit() : boolean {
+        const { object, options } = this;
+        let changed = object._isDirty;
+
+        if( this === object._transaction && !options.silent ){
+            // Wondering why here's the loop? Read below.
+            while( object._isDirty ){
+                object._isDirty = false;
+
+                // If this object will be modified inside of this event handler,
+                // we need another change event. But we're in the middle of the root transaction,
+                // so we won't be there. That's why we need _dirty flag and while loop.
+                object._notifyChange( options );
+            }
+
+            object._transaction  = null;
+        }
+        
+        return changed;
+    }
+}
+
 // Transaction class. Implements two-phase transactions on object's tree. 
 class RecordTransaction implements Transaction {
     isRoot : boolean
@@ -423,35 +453,99 @@ class RecordTransaction implements Transaction {
     nested : Transaction[]
 
     // open transaction
-    constructor( public model : Record ){
-        this.isRoot  = begin( model );
-        this.model   = model;
+    constructor( public object : Record ){
+        this.isRoot  = begin( object );
         this.changes = [];
         this.nested  = [];
     }
 
     // commit transaction
     commit( options : TransactionOptions = {} ){
-        const { nested, model } = this;
+        const { nested, object, changes } = this;
 
         // Commit all nested transactions...
-        for( let i = 0; i < nested.length; i++ ){
-            nested[ i ].commit( options );
+        //TODO
+        /***
+         * Consider returning changed flag from commit. In this way, we may avoid expensive bubbling.
+         * And keep right notifications semantic. Parent needs to be notified from the set or transaction method. Only root transaction notifies the parent.
+         * Problem arize when different subtree is modified from the trigger. Thus, these parazite updates must be handled as separate transaction.
+         */
+        for( let transaction of nested ){ 
+            if( transaction.commit( options ) ){
+                changes.push( transaction.object._ownerKey );
+            }
         }
 
         // Notify listeners on attribute changes...
-        if( !options.silent ){
-            const { changes } = this;
+        const { length } = changes;
 
-            if( changes.length ){
-                model._pending = true;
+        if( !options.silent ){
+            if( length ){
+                object._pending = true;
             }
 
-            for( let i = 0; i < changes.length; i++ ){
-                model._notifyChangeAttr( changes[ i ], options )
+            for( let i = 0; i < length; i++ ){
+                object._notifyChangeAttr( changes[ i ], options )
             }
         }
 
-        this.isRoot && commit( model, options );
+        this.isRoot && commit( object, options );
+
+        return length;
+    }
+}
+
+class AttributeTransaction extends EmptyTransaction {
+    changes : string
+    nested : Transaction
+
+    // open transaction
+    constructor( record : Record, key : string, value : any ){
+        const options = {};
+        super( record, options );
+        this.changes = null;
+
+        const { attributes } = record,
+            spec = record._attributes[ key ],
+            prev = attributes[ key ];
+
+        // handle deep update...
+        if( spec.canBeUpdated( prev, value ) ) {
+            this.nested = prev.createTransaction( value, options );
+        }
+        else {
+            // cast and hook...
+            const next = spec.transform( value, options, prev, record );
+
+            if( spec.isChanged( next, prev ) ) {
+                attributes[ key ] = next;
+
+                // Do the rest of the job after assignment
+                if( spec.handleChange ) {
+                    spec.handleChange( next, prev, record );
+                }
+
+                this.changes = key;
+            }
+        }
+    }
+
+    // commit transaction
+    commit(){
+        const { nested, object } = this;
+        let { changes } = this;
+
+        // Commit all nested transactions...
+        if( nested && nested.commit() ){
+            changes = nested.object._ownerKey;
+        }
+
+        // Notify listeners on attribute changes...
+        if( changes ){
+            object._isDirty = true;
+            object._notifyChangeAttr( changes, this.options );
+        }
+
+        return super.commit();
     }
 }

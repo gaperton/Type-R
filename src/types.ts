@@ -57,6 +57,9 @@ export interface Owner {
 
 // Transaction object used for two-phase commit protocol.
 export interface Transaction {
+    // Object transaction is being made on.
+    object : Transactional
+
     // Send out change events, process update triggers, and close transaction.  
     commit( options? : TransactionOptions )
 }
