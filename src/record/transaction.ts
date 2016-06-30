@@ -7,7 +7,7 @@ import { log } from '../tools.ts'
 import { Class, ClassDefinition } from '../class.ts'
 
 // TODO: Move these definitions here.
-import { Constructor, Transactional, Transaction, TransactionOptions, Owner } from './types.ts'
+import { Constructor, Transactional, Transaction, TransactionOptions, Owner } from '../types.ts'
 
 /***************************************************************
  * Record Definition as accepted by Record.define( definition )
@@ -221,7 +221,7 @@ export class Record extends Class implements Owner, Transactional {
      */
 
     // Default record-level serializer, to be overriden by subclasses 
-    toJSON(){
+    toJSON() : Object {
         const json = {};
 
         this.forEachAttr( this.attributes, ( value, key : string, { toJSON } : AttributeSerialization ) =>{
@@ -231,6 +231,8 @@ export class Record extends Class implements Owner, Transactional {
                 json[ key ] = toJSON.call( this, value, key );
             }
         });
+
+        return json;
     }
     
     // Default record-level parser, to be overriden by the subclasses.
@@ -258,7 +260,7 @@ export class Record extends Class implements Owner, Transactional {
               { changes, nested } = transaction,
               { attributes } = this,
               values = options.parse ? this.parse( a_values ) : a_values,
-              merge = options.merge === void 0 || options.merge;
+              merge = !options.reset;
 
         if( Object.getPrototypeOf( values ) === Object.prototype ){
             this.forEachAttr( values, ( value, key : string, attr : AttributeUpdatePipeline ) => {

@@ -1,118 +1,96 @@
-import { Class, ClassDefinition, Extendable } from './class.ts'
-
-/**********************
- * Record Definitions
+/*************************************************************
+ * Transactional object API
+ * 
+ Transactional object is an object which can be a part of distributed transaction
+ * when it resides in Record attributes. Transactions follows simple two-phase commit procedure.
+ * 
+ * Being 'transactional' means that object:
+ * - is serializable to JSON
+ * - is a member of ownership tree
+ * - can be updated in place
+ * - notifies owner about changes
  */
 
-export interface RecordConstructor extends Extendable {
-    new ( attrs? : {}, options? : {} ) : IRecord;
-    Collection : CollectionConstructor
-    from( ref : CollectionRef ) : IAttribute
-    define( spec? : RecordDefinition, statics? : {} )
+export interface TransactionalConstructor {
+    new ( values? : {}, options? : TransactionOptions, owner? : Owner) : Transactional
+    create( values? : {}, options? : TransactionOptions, owner? : Owner) : Transactional
+    prototype : Transactional
 }
 
-export interface RecordDefinition extends ClassDefinition {
-    attributes? : { [ name : string ] : TypeSpec | ( new ( x : any ) => any ) | any }
-    collection? : CollectionDefinition | CollectionConstructor
+// Transactional object interface
+export interface Transactional {
+    // Backreference set by owner (Record, Collection, or other object)
+    _owner : Owner
+
+    // Key supplied by owner. Used by record to distinguish change events from different children.
+    // Collections does not set the key. 
+    _ownerKey : string
+
+    // Returns nearest owner skipping collections.
+    //getOwner() : Owner
+
+    // Deeply clone ownership subtree, optionally setting the new owner
+    // (TODO: Do we really need it? Record must ignore events with empty keys) 
+    clone( owner? ) : this
+    
+    // Execute given function in the scope of ad-hoc transaction.
+    transaction( fun : ( self : this ) => void, options? : TransactionOptions ) : void
+
+    // Apply bulk in-place object update in scope of ad-hoc transaction 
+    set( values : {}, options? : TransactionOptions ) : this
+
+    // Apply bulk object update without any notifications, and return open transaction.
+    // Used internally to implement two-phase commit.   
+    createTransaction( values : {}, options? : TransactionOptions ) : Transaction
+    
+    // Parse function applied when 'parse' option is set for transaction.
+    parse( data : any ) : any
+
+    // Convert object to the serializable JSON structure
+    toJSON() : {}
 }
 
-export interface TypeSpec {
-
+// Owner must accept children update events. It's an only way children communicates with an owner.
+export interface Owner {
+    _onChildrenChange( child : Transactional, options : TransactionOptions );
 }
 
-export type CollectionRef = string | ( () => ICollection ) | ICollection
+// Transaction object used for two-phase commit protocol.
+export interface Transaction {
+    // Send out change events, process update triggers, and close transaction.  
+    commit( options? : TransactionOptions )
+}
 
-export interface CollectionConstructor extends Extendable {
-    new ( records? : Object[] | IRecord[], options? : {} ) : ICollection;
-    subsetOf( ref : CollectionRef ) : IAttribute
+// Options for distributed transaction  
+export interface TransactionOptions {
+    // Invoke parsing 
+    parse? : boolean
+
+    // Suppress change notifications and update triggers
+    silent? : boolean
+
+    // Update existing transactional members in place, or skip the update (ignored by models)
+    merge? : boolean // =true
+
+    // Should collections remove elements in set (ignored by models)  
+    remove? : boolean // =true
+
+    // Always replace enclosed objects with new instances
+    reset? : boolean // = false
 }
 
 
-export interface IAttribute {
+/****************************************************
+ * 
+ * 
+ * 
+ */
 
+// Constructor type
+export interface Constructor {
+    new ( ...args : any[] ) : any
 }
 
-
-interface RecordChanges {
-    changed : {}
-    hasChanged( key? : string ) : boolean
-    previousAttributes() : {}
-    changedAttributes( diff? : {} ) : {}
-    previous( attribute: string ): any;
-}
-
-interface Options {
-    silent?: boolean
-}
-
-interface Serializable {
-    parse( response: any, options?: {} ): any;
-    toJSON( options?: {} ): any;
-}
-
-interface ITransactional {
-    set( data : {}, options? : Options )
-    transaction( self : ( self : this ) => void, options? : Options ) : void
-    createTransaction( data : {}, options? : Options ) : ITransaction
-}
-
-interface ITransaction {
-    commit( options? : Options ) : void
-}
-
-export interface IRecord extends Class, Events {
-    idAttribute: string;
-    id : string | number
-    cid: string;
-
-    Attributes : AttributesCtor
-    attributes : Attributes
-    defaults( attrs? : {} )
-    initialize( values? : Object, options? : {} )
-    clone( options? : { deep? : Boolean } ) : this
-
-    collection : ICollection
-    getOwner() : IRecord
-}
-
-export interface CollectionDefinition extends ClassDefinition {
-    Record? : RecordConstructor
-}
-
-export interface ICollection extends Class {
-    Record : RecordConstructor
-
-    initialize( models? : CollectionArg, options? : {} )
-
-    add( models : CollectionArg, options? : {} )
-    remove( models : CollectionArg, options? : {} )
-    set( models : CollectionArg, options? : {} )
-}
-
-interface AttributesCtor {
-    new ( values : {} ) : Attributes;
-}
-
-interface Attributes {}
-
-type CollectionArg = Object[] | IRecord[]
-
-
-export interface EventsHash {
-    [events : string]: string | Function;
-}
-
-export interface Events{
-    trigger(eventName: string, ...args: any[]): any;
-
-    on(eventName: string, callback: Function, context?: any): any;
-    on(eventMap: EventsHash): any;
-    listenTo(object: any, events: EventsHash ): any;
-    listenTo(object: any, events: string, callback: Function): any;
-
-    once(events: string, callback: Function, context?: any): any;
-    listenToOnce(object: any, events: string, callback: Function): any;
-
-    off(eventName?: string, callback?: Function, context?: any): any;
-    stopListening(object?: any, events?: string, callback?: Function): any;
+export interface AttributeType extends Constructor {
+    _attribute : Constructor
 }

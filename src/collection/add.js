@@ -17,31 +17,33 @@ var Commons         = require( './commons' ),
     toModel         = Commons.toModel,
     silence         = Commons.silence;
 
-var MergeOptions = exports.MergeOptions = function( a_options, collection ){
-    var options = a_options || {};
+export class MergeOptions{
+    constructor( a_options, collection ){
+        var options = a_options || {};
 
-    this.silent = options.silent;
-    this.parse  = options.parse;
-    this.merge  = options.merge;
+        this.silent = options.silent;
+        this.parse  = options.parse;
+        this.merge  = options.merge;
 
-    // at option
-    var at = options.at;
-    if( at != null ){
-        this.sort = false;
+        // at option
+        var at = options.at;
+        if( at != null ){
+            this.sort = false;
 
-        // if at is given, it overrides sorting option...
-        at = +at;
-        if( at < 0 ) at += collection.length + 1;
-        if( at < 0 ) at = 0;
-        if( at > collection.length ) at = collection.length;
+            // if at is given, it overrides sorting option...
+            at = +at;
+            if( at < 0 ) at += collection.length + 1;
+            if( at < 0 ) at = 0;
+            if( at > collection.length ) at = collection.length;
 
-        this.at    = at;
-        this.index = null;
+            this.at    = at;
+            this.index = null;
+        }
+        else{
+            this.sort = collection.comparator && options.sort !== false;
+        }
     }
-    else{
-        this.sort = collection.comparator && options.sort !== false;
-    }
-};
+}
 
 MergeOptions.prototype = {
     notify : function( collection, added, sorted ){
