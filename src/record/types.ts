@@ -69,6 +69,7 @@ export interface TransactionOptions {
     // Suppress change notifications and update triggers
     silent? : boolean
 
+    // Update existing transactional members in place.
     merge? : boolean // =true
 }
 
