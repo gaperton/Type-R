@@ -1,4 +1,4 @@
-import { Record } from './record'
+import { Record } from './record/index.ts'
 import { CollectionConstructor, RecordDefinition, CollectionDefinition, ICollection } from './types'
 
 export class Model extends Record {

@@ -1,10 +1,11 @@
-import { Attribute } from './attribute.ts';
+import { GenericAttribute } from './attribute.ts';
+import { Attribute, AttributesValues, AttributeDescriptorMap, CloneAttributesCtor } from './transaction.ts'
 import { defaults, isValidJSON, transform } from '../tools.ts'
 import { log } from '../tools.ts'
 
-export interface CompiledMixin {
-    _attributes : AttrSpecs
-    Attributes : CloneCtor
+export interface DynamicMixin {
+    _attributes : AttributesSpec
+    Attributes : CloneAttributesCtor
     properties : PropertyDescriptorMap
     forEach? : ForEach
     defaults : Defaults
@@ -12,30 +13,22 @@ export interface CompiledMixin {
     _parse : Parse
 }
 
-export interface AttrSpecs {
-    [ key : string ] : Attribute
+// Refine AttributesSpec definition.
+export interface AttributesSpec {
+    [ key : string ] : GenericAttribute
 }
 
-export interface AttrValues {
-    [ key : string ] : any
-}
-
-type CloneCtor = new ( x : AttrValues ) => AttrValues
 type ForEach   = ( obj : {}, iteratee : ( val : any, key? : string, spec? : Attribute ) => void ) => void;
 type Defaults  = ( attrs? : {} ) => {}
 type Parse     = ( data : any ) => any;
 type ToJSON    = () => any;
 
-export interface AttributeDefinitions{
-    [ key : string ] : AttributeDefinition 
-}
-
 // Compile attributes spec
-export function compile( rawSpecs : AttributeDefinitions, baseAttributes : AttrSpecs ) : CompiledMixin {
-    const myAttributes = transform( <AttrSpecs>{}, rawSpecs, Attribute.create ),
-          allAttributes = defaults( <AttrSpecs>{}, myAttributes, baseAttributes ),
+export function compile( rawSpecs : AttributeDescriptorMap, baseAttributes : AttributesSpec ) : DynamicMixin {
+    const myAttributes = transform( <AttributesSpec>{}, rawSpecs, GenericAttribute.create ),
+          allAttributes = defaults( <AttributesSpec>{}, myAttributes, baseAttributes ),
           Attributes = createCloneCtor( allAttributes ),
-          mixin : CompiledMixin = {
+          mixin : DynamicMixin = {
             Attributes : Attributes,
             _attributes : new Attributes( allAttributes ),
             properties : transform( <PropertyDescriptorMap>{}, myAttributes, x => x.createPropertyDescriptor() ),
@@ -52,7 +45,7 @@ export function compile( rawSpecs : AttributeDefinitions, baseAttributes : AttrS
     return mixin;
 }
 
-export function createForEach( attrSpecs : AttrSpecs ) : ForEach {
+export function createForEach( attrSpecs : AttributesSpec ) : ForEach {
     let statements = [ 'var v, _a=this._attributes;' ];
 
     for( let name in attrSpecs ){
@@ -62,7 +55,7 @@ export function createForEach( attrSpecs : AttrSpecs ) : ForEach {
     return <ForEach> new Function( 'a', 'f', statements.join( '' ) );
 }
 
-export function createCloneCtor( attrSpecs : AttrSpecs ) : CloneCtor {
+export function createCloneCtor( attrSpecs : AttributesSpec ) : CloneAttributesCtor {
     var statements = [];
 
     for( let name in attrSpecs ){
@@ -71,11 +64,11 @@ export function createCloneCtor( attrSpecs : AttrSpecs ) : CloneCtor {
 
     var CloneCtor = new Function( "x", statements.join( '' ) );
     CloneCtor.prototype = Object.prototype;
-    return <CloneCtor> CloneCtor;
+    return <CloneAttributesCtor> CloneCtor;
 }
 
 // Create optimized model.defaults( attrs, options ) function
-function createDefaults( attrSpecs : AttrSpecs ) : Defaults {
+function createDefaults( attrSpecs : AttributesSpec ) : Defaults {
     let assign_f = ['var v;'], create_f = [];
 
     function appendExpr( name, expr ){
@@ -121,7 +114,7 @@ function createDefaults( attrSpecs : AttrSpecs ) : Defaults {
     }
 }
 
-function createParse( allAttrSpecs : AttrSpecs, attrSpecs : AttrSpecs ) : Parse {
+function createParse( allAttrSpecs : AttributesSpec, attrSpecs : AttributesSpec ) : Parse {
     var statements = [ 'var a=this._attributes;' ],
         create     = false;
 
@@ -144,7 +137,7 @@ function createParse( allAttrSpecs : AttrSpecs, attrSpecs : AttrSpecs ) : Parse 
     }
  }
 
-function createToJSON( attrSpecs : AttrSpecs ) : ToJSON {
+function createToJSON( attrSpecs : AttributesSpec ) : ToJSON {
     let statements = [ `var json = {},v=this.attributes,a=this._attributes;` ];
 
     for( let key in attrSpecs ){

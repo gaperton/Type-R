@@ -1,7 +1,8 @@
-import { Attribute } from './attribute'
-import { parseDate } from '../tools'
+import { GenericAttribute } from './attribute.ts'
+import { parseDate } from '../tools.ts'
 
-class ConstructorType extends Attribute {
+// Default attribute type for all constructor functions...
+class ConstructorType extends GenericAttribute {
     type : new ( value : any ) => {}
 
     convert( value ) {
@@ -17,8 +18,7 @@ class ConstructorType extends Attribute {
 Function.prototype._attribute = ConstructorType;
 
 // Date Attribute
-// ----------------------
-class DateType extends Attribute {
+class DateType extends GenericAttribute {
     convert( value ) {
         return value == null || value instanceof Date ? value :
                new Date( typeof value === 'string' ? parseDate( value ) : value );
@@ -37,14 +37,8 @@ class DateType extends Attribute {
 
 Date._attribute = DateType;
 
-// Primitive Types
-// ----------------
-// Global Mock for missing Integer data type...
-// -------------------------------------
-declare var Integer : any;
-Integer = function( x ) { return x ? Math.round( x ) : 0; };
-
-class PrimitiveType extends Attribute {
+// Primitive Types.
+export class PrimitiveType extends GenericAttribute {
     type : NumberConstructor | StringConstructor | BooleanConstructor
 
     create() { return this.type(); }
@@ -60,21 +54,22 @@ class PrimitiveType extends Attribute {
 
 Boolean._attribute = String._attribute = PrimitiveType;
 
-class NumericType extends PrimitiveType {
+// Number type with special validation algothim. 
+export class NumericType extends PrimitiveType {
     type : NumberConstructor
 
     validate( model, value, name ) {
+        // Whatever is not symmetrically serializable to JSON, is not valid by default.
         if( !isFinite( value ) ) {
-            return name + ' is invalid number';
+            return name + ' is not valid number';
         }
     }
 }
 
-Integer._attribute = Number._attribute = NumericType;
+Number._attribute = NumericType;
 
-// Array Type
-// ---------------
-class ArrayType extends Attribute {
+// Compatibility wrapper for Array type.
+export class ArrayType extends GenericAttribute {
     toJSON( value ) { return value; }
 
     convert( value ) {
@@ -87,4 +82,3 @@ class ArrayType extends Attribute {
 }
 
 Array._attribute = ArrayType;
-

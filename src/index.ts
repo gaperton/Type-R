@@ -1,11 +1,11 @@
-import { Class, mixins, define,  mixinRules, extendable } from './class'
-import { Model } from './model'
-import { Collection } from './collection'
-import * as tools from './tools'
+import { Class, mixins, define,  mixinRules, extendable } from './class.ts'
+import { Model } from './model.ts'
+//import { Collection } from './collection'
+import * as tools from './tools.ts'
 
 export {
     Class, define, mixins, mixinRules, extendable,
     Model,
-    Collection,
+    //Collection,
     tools
 }; 

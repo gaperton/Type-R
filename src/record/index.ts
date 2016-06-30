@@ -1,13 +1,9 @@
-import { Record } from './transaction'
-import { assign, defaults, omit } from '../tools'
-import { Class, ClassDefinition, Extendable } from '../class'
-import { compile, AttributeDefinitions, AttrSpecs } from './define'
+import { Record, RecordDefinition } from './transaction.ts'
+import { assign, defaults, omit } from '../tools.ts'
+import { Class, ClassDefinition, Extendable } from '../class.ts'
+import { compile, AttributesSpec } from './define.ts'
 
-import { TransactionalType } from './nestedTypes'
-
-export interface RecordDefinition extends ClassDefinition {
-    attributes? : AttributeDefinitions
-}
+import { TransactionalType } from './nestedTypes.ts'
 
 export interface RecordConstructor extends Extendable {
     new ( attrs? : {}, options? : {} ) : Record;
@@ -20,7 +16,7 @@ Record.define = function( protoProps : RecordDefinition, staticProps ){
 
     if( protoProps ) {
         // Compile attributes spec, creating definition mixin.
-        const definition = compile( protoProps.attributes, <AttrSpecs> baseProto._attributes );
+        const definition = compile( protoProps.attributes, <AttributesSpec> baseProto._attributes );
 
         // Explicit 'properties' declaration overrides auto-generated attribute properties.
         assign( definition.properties, protoProps.properties || {} );

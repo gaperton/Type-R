@@ -1,5 +1,5 @@
-import { setAttribute, Record, AttributeUpdatePipeline, Transform, ChangeHandler, AttributeDescriptor } from './transaction'
-import { notEqual, assign } from '../tools'
+import { setAttribute, Record, Attribute, Transform, ChangeHandler, AttributeDescriptor } from './transaction.ts'
+import { notEqual, assign } from '../tools.ts'
 
 import { Owner, Transactional, TransactionOptions, Constructor } from './types.ts'
 
@@ -8,16 +8,16 @@ export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | str
 
 declare global {
     interface Function {
-        _attribute : typeof Attribute
+        _attribute : typeof GenericAttribute
     }
 }
 
 // TODO: interface differs from options, do something obout it
-export class Attribute implements AttributeUpdatePipeline {
+export class GenericAttribute implements Attribute {
     // Factory method to create attribute from options 
-    static create( options : AttributeDescriptor, name : string ) : Attribute {
+    static create( options : AttributeDescriptor, name : string ) : GenericAttribute {
         const type = options.type,
-              AttributeCtor = type ? type._attribute : Attribute;
+              AttributeCtor = type ? type._attribute : GenericAttribute;
 
         return new AttributeCtor( name, options );
     }
@@ -58,7 +58,7 @@ export class Attribute implements AttributeUpdatePipeline {
      */
 
     // create empty object passing backbone options to constructor...
-    create( options ) { return new ( <any>this.type )(); }
+    create() { return new ( <any>this.type )(); }
 
     // generic clone function for typeless attributes
     // Must be overriden in sublass

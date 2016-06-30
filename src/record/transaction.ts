@@ -1,32 +1,17 @@
+/**
+ * Record core implementing transactional updates.
+ * The root of all definitions. 
+ */
+
 import { log } from '../tools.ts'
 import { Class, ClassDefinition } from '../class.ts'
 
 // TODO: Move these definitions here.
-import { Constructor, Transactional, Transaction, TransactionOptions, Owner } from './types'
+import { Constructor, Transactional, Transaction, TransactionOptions, Owner } from './types.ts'
 
-/**
- * Everything related to record's transactional updates
+/***************************************************************
+ * Record Definition as accepted by Record.define( definition )
  */
-
-export interface AttributeUpdatePipeline{
-    canBeUpdated( prev : any, next : any ) : boolean
-    transform : Transform
-    isChanged( a : any, b : any ) : boolean
-    handleChange : ChangeHandler
-}
-
-export interface AttributeSerialization {
-    toJSON : AttributeToJSON
-    parse : AttributeParse
-}
-
-type AttributeToJSON = ( value : any, key : string ) => any
-type AttributeParse = ( value : any, key : string ) => any
-
-export interface Attribute extends AttributeUpdatePipeline, AttributeSerialization {
-    clone( value : any ) : any
-    create() : any
-}
 
 export interface RecordDefinition extends ClassDefinition {
     attributes? : AttributeDescriptorMap
@@ -54,23 +39,53 @@ export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | str
 export type Transform = ( next : any, options : TransactionOptions, prev : any, record : Record ) => any;
 export type ChangeHandler = ( next : any, prev : any, record : Record ) => void;
 
-interface ConstructorOptions extends TransactionOptions{
-    clone? : boolean
-}
+export type AttributeToJSON = ( value : any, key : string ) => any
+export type AttributeParse = ( value : any, key : string ) => any
 
-interface IAttributes {
+/*************************************
+ * Attribute definitions
+ */
+export interface AttributesValues {
     [ key : string ] : any
 }
 
-interface IAttrSpecs {
+export type CloneAttributesCtor = new ( x : AttributesValues ) => AttributesValues
+
+export interface AttributesSpec {
     [ key : string ] : Attribute
+}
+
+export interface Attribute extends AttributeUpdatePipeline, AttributeSerialization {
+    clone( value : any ) : any
+    create() : any
+}
+
+export interface AttributeUpdatePipeline{
+    canBeUpdated( prev : any, next : any ) : boolean
+    transform : Transform
+    isChanged( a : any, b : any ) : boolean
+    handleChange : ChangeHandler
+}
+
+export interface AttributeSerialization {
+    toJSON : AttributeToJSON
+    parse : AttributeParse
+}
+
+/*******************************************************
+ * Record core implementation
+ */
+
+interface ConstructorOptions extends TransactionOptions{
+    clone? : boolean
 }
 
 // Client unique id counter
 let _cidCounter : number = 0;
 
 export class Record extends Class implements Owner, Transactional {
-    static define( protoProps, staticProps ) : typeof Record { return this; }
+    // Implemented at the index.ts to avoid circular dependency. Here we have just proper singature.
+    static define( protoProps : RecordDefinition, staticProps ) : typeof Record { return this; }
 
     /***********************************
      * Core Members
@@ -79,7 +94,7 @@ export class Record extends Class implements Owner, Transactional {
     _previousAttributes : {}
 
     // Current attributes    
-    attributes : IAttributes
+    attributes : AttributesValues
 
     // Transactional control
     _changing : boolean
@@ -134,13 +149,14 @@ export class Record extends Class implements Owner, Transactional {
      */
 
     // Attributes specifications 
-    _attributes : IAttrSpecs
+    _attributes : AttributesSpec
     
     // Attributes object copy constructor
-    Attributes : new ( attrs : {} ) => IAttributes
+    Attributes : CloneAttributesCtor
 
-    // Optimized forEach function for traversing through attributes, with pretective default implementation
-    forEachAttr( attrs : {}, iteratee : ( value : any, key? : string, spec? : Attribute ) => void ){
+    // forEach function for traversing through attributes, with protective default implementation
+    // Overriden by dynamically compiled loop unrolled function in define.ts
+    forEachAttr( attrs : {}, iteratee : ( value : any, key? : string, spec? : Attribute ) => void ) : void {
         const { _attributes } = this;
 
         for( let name in attrs ){
@@ -167,7 +183,7 @@ export class Record extends Class implements Owner, Transactional {
     /***************************************************
      * Record construction
      */
-    // Create record, optionally setting owner
+    // Create record, optionally setting an owner
     constructor( a_values? : {}, a_options? : ConstructorOptions, owner? : Owner ){
         super();
 
@@ -209,15 +225,19 @@ export class Record extends Class implements Owner, Transactional {
         const json = {};
 
         this.forEachAttr( this.attributes, ( value, key : string, { toJSON } : AttributeSerialization ) =>{
-            if( toJSON ){
+            // If attribute serialization is not disabled, and its value is not undefined...
+            if( toJSON && value !== void 0 ){
+                // ...serialize it according with its spec.
                 json[ key ] = toJSON.call( this, value, key );
             }
         });
     }
     
-    // Default record-level parser, to be overriden by the subclasses
-    parse( data ){ return this._parse( data ); }
-    
+    // Default record-level parser, to be overriden by the subclasses.
+    parse( data ){
+        // Call dynamically compiled loop-unrolled attribute-level parse function.
+        return this._parse( data );
+    }
 
     /**
      * Transactional control
@@ -237,14 +257,15 @@ export class Record extends Class implements Owner, Transactional {
         const transaction = new RecordTransaction( this ),
               { changes, nested } = transaction,
               { attributes } = this,
-              values = options.parse ? this.parse( a_values ) : a_values;  
+              values = options.parse ? this.parse( a_values ) : a_values,
+              merge = options.merge === void 0 || options.merge;
 
         if( Object.getPrototypeOf( values ) === Object.prototype ){
             this.forEachAttr( values, ( value, key : string, attr : AttributeUpdatePipeline ) => {
                 const prev = attributes[ key ];
 
                 // handle deep update...
-                if( attr.canBeUpdated( prev, value ) ) {
+                if( merge && attr.canBeUpdated( prev, value ) ) {
                     nested.push( prev.createTransaction( value, options ) );
                     return;
                 }
@@ -310,7 +331,7 @@ recordProto.idAttribute = 'id';
  */
 
 // Deeply clone record attributes
-function cloneAttributes( record : Record, a_attributes : IAttributes ) : IAttributes {
+function cloneAttributes( record : Record, a_attributes : AttributesValues ) : AttributesValues {
     const attributes = new record.Attributes( a_attributes );
 
     record.forEachAttr( attributes, function( value, name, attr : Attribute ){

@@ -3,7 +3,7 @@
  * 
  * Vlad Balin & Volicon, (c) 2016
  */
-import { log, assign, omit, getPropertyDescriptor } from './tools'
+import { log, assign, omit, getPropertyDescriptor } from './tools.ts'
 
 type MergeRule = 'merge' | 'pipe' | 'sequence' | 'reverse' | 'every' | 'some'
 

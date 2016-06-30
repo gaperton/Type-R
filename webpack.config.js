@@ -1,18 +1,31 @@
 module.exports = {
-    entry : {
-        //index : "./src/index.ts",
-        tests : "./tests/index.ts"
-    },
+    entry : "./src/index.ts",
 
     output : {
-        filename      : '[name].js',
-        library       : "Transactional",
+        filename      : './index.js',
+        library       : "Nested",
         libraryTarget : 'umd'
     },
 
     devtool : 'source-map',
 
-    externals : [],
+    externals : [
+       {
+         'jquery' : {
+           commonjs : 'jquery',
+           commonjs2 : 'jquery',
+           amd : 'jquery',
+           root : '$'
+         },
+
+         'underscore' : {
+           commonjs : 'underscore',
+           commonjs2 : 'underscore',
+           amd : 'underscore',
+           root : '_'
+         }
+       }
+    ],
 
     module: {
         loaders: [
@@ -21,6 +34,10 @@ module.exports = {
                 exclude: /(node_modules|bower_components)/,
                 loader: 'ts'
             }
+        ],
+
+        preLoaders : [
+            { test: /\.js$/, loader: "source-map-loader" }
         ]
     }
 };

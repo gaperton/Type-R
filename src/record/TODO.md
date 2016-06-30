@@ -1,5 +1,10 @@
 # Records todo list
 
+(!) Add merge option to the record.set.
+So, set must accept and pass through: add, remove, merge. 
+
+
+
 Okay. So.
 
 transaction.ts (needs to be renamed to record.ts) will me the base thingy.
