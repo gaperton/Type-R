@@ -96,10 +96,14 @@ exports.emptySet = function emptySet( collection, items, a_options, silent ){
 };
 
 
+/***
+ */
+
 
 // Transaction class. Implements two-phase transactions on object's tree. 
 class CollectionTransaction implements Transaction {
     isRoot : boolean
+    changed : Record[]
     added : Record[]
     removed : Record[]
     nested : Transaction[]
@@ -109,6 +113,7 @@ class CollectionTransaction implements Transaction {
         this.isRoot  = begin( model );
         this.added = [];
         this.removed = [];
+        this.changed  = [];
         this.nested  = [];
     }
 
@@ -135,5 +140,53 @@ class CollectionTransaction implements Transaction {
         }
 
         this.isRoot && commit( model, options );
+    }
+}
+
+class RecordTransaction implements Transaction {
+    isRoot : boolean
+    changes : string[]
+    nested : Transaction[]
+
+    // open transaction
+    constructor( public object : Record ){
+        this.isRoot  = begin( object );
+        this.changes = [];
+        this.nested  = [];
+    }
+
+    // commit transaction
+    commit( options : TransactionOptions = {} ){
+        const { nested, object, changes } = this;
+
+        // Commit all nested transactions...
+        //TODO
+        /***
+         * Consider returning changed flag from commit. In this way, we may avoid expensive bubbling.
+         * And keep right notifications semantic. Parent needs to be notified from the set or transaction method. Only root transaction notifies the parent.
+         * Problem arize when different subtree is modified from the trigger. Thus, these parazite updates must be handled as separate transaction.
+         */
+        for( let transaction of nested ){ 
+            if( transaction.commit( options ) ){
+                changes.push( transaction.object._ownerKey );
+            }
+        }
+
+        // Notify listeners on attribute changes...
+        const { length } = changes;
+
+        if( !options.silent ){
+            if( length ){
+                object._pending = true;
+            }
+
+            for( let i = 0; i < length; i++ ){
+                object._notifyChangeAttr( changes[ i ], options )
+            }
+        }
+
+        this.isRoot && commit( object, options );
+
+        return length;
     }
 }

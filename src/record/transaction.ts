@@ -248,7 +248,10 @@ export class Record extends Class implements Owner, Transactional {
      // Object sync API
      set( values : {}, options? : TransactionOptions ) : this {
         if( values ){
-            this.createTransaction( values, options ).commit( options );
+            const transaction = this.createTransaction( values, options );
+            transaction && transaction.commit( options );
+
+            // TODO: tell parent to update, if root transaction and there are changes.
         } 
 
         return this;
@@ -256,8 +259,9 @@ export class Record extends Class implements Owner, Transactional {
     
     // Create transaction. TODO: Move to transaction constructor
     createTransaction( a_values : {}, options : TransactionOptions = {} ) : Transaction {
-        const transaction = new RecordTransaction( this ),
-              { changes, nested } = transaction,
+        const isRoot = begin( this ),
+              changes : string[] = [],
+              nested : RecordTransaction[]= [],
               { attributes } = this,
               values = options.parse ? this.parse( a_values ) : a_values,
               merge = !options.reset;
@@ -267,8 +271,13 @@ export class Record extends Class implements Owner, Transactional {
                 const prev = attributes[ key ];
 
                 // handle deep update...
-                if( merge && attr.canBeUpdated( prev, value ) ) {
-                    nested.push( prev.createTransaction( value, options ) );
+                if( merge && attr.canBeUpdated( prev, value ) ) { // todo - skip empty updates.
+                    const nestedTransaction = prev.createTransaction( value, options );
+                    if( nestedTransaction ){
+                        nested.push( nestedTransaction );
+                        changes.push( key );
+                    }
+
                     return;
                 }
 
@@ -288,14 +297,22 @@ export class Record extends Class implements Owner, Transactional {
             log.error( '[Type Error]', this, 'Record update rejected (', values, '). Incompatible type.' );
         }
 
-        return transaction;
+        if( nested.length || changes.length ){
+            return new RecordTransaction( this, isRoot, nested, changes );
+        }
+
+        commit( this, options );
     }
 
     // Execute given function in the scope of ad-hoc transaction
     transaction( fun : ( self : this ) => void, options : TransactionOptions = {} ) {
         const isRoot = begin( this );
         fun( this );
-        isRoot && commit( this, options );
+        
+        if( isRoot ){
+            commit( this, options );
+            // tell parent to update.
+        } 
     }
 
     // Handle nested changes
@@ -313,6 +330,7 @@ export class Record extends Class implements Owner, Transactional {
         }
 
         isRoot && commit( this, options );
+        // TODO: similar to transaction - tell parent to update.
     }
 };
 
@@ -354,7 +372,12 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
 
     // handle deep update...
     if( spec.canBeUpdated( prev, value ) ) {
-        prev.createTransaction( value, options ).commit( options );
+        const nestedTransaction = prev.createTransaction( value, options );
+        if( nestedTransaction ){
+            nestedTransaction.commit( options );
+            record._pending = true;
+            record._notifyChangeAttr( name, options );
+        }
     }
     else {
         // cast and hook...
@@ -374,6 +397,7 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
     }
 
     isRoot && commit( record, options );
+    // TODO: tell parent to update, if root transaction and there are changes.
 }
 
 /**
@@ -448,50 +472,28 @@ class EmptyTransaction {
 
 // Transaction class. Implements two-phase transactions on object's tree. 
 class RecordTransaction implements Transaction {
-    isRoot : boolean
-    changes : string[]
-    nested : Transaction[]
-
     // open transaction
-    constructor( public object : Record ){
-        this.isRoot  = begin( object );
-        this.changes = [];
-        this.nested  = [];
-    }
+    constructor( public object : Record, public isRoot : boolean, public nested : Transaction[], public changes : string[] ){}
 
     // commit transaction
     commit( options : TransactionOptions = {} ){
         const { nested, object, changes } = this;
 
-        // Commit all nested transactions...
-        //TODO
-        /***
-         * Consider returning changed flag from commit. In this way, we may avoid expensive bubbling.
-         * And keep right notifications semantic. Parent needs to be notified from the set or transaction method. Only root transaction notifies the parent.
-         * Problem arize when different subtree is modified from the trigger. Thus, these parazite updates must be handled as separate transaction.
-         */
+        // Commit all pending nested transactions...
         for( let transaction of nested ){ 
-            if( transaction.commit( options ) ){
-                changes.push( transaction.object._ownerKey );
-            }
+            transaction.commit( options )
         }
 
         // Notify listeners on attribute changes...
-        const { length } = changes;
-
         if( !options.silent ){
-            if( length ){
-                object._pending = true;
-            }
+            object._pending = true;
 
-            for( let i = 0; i < length; i++ ){
-                object._notifyChangeAttr( changes[ i ], options )
+            for( let key of changes ){
+                object._notifyChangeAttr( key, options );
             }
         }
 
-        this.isRoot && commit( object, options );
-
-        return length;
+        this.isRoot && commit( object, options ); // Do not tell parent to update.
     }
 }
 
