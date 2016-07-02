@@ -7,7 +7,8 @@ import { log } from '../tools.ts'
 import { Class, ClassDefinition } from '../class.ts'
 
 // TODO: Move these definitions here.
-import { Constructor, Transactional, Transaction, TransactionOptions, Owner } from '../types.ts'
+import { Constructor } from '../types.ts'
+import { begin as _begin, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 
 /***************************************************************
  * Record Definition as accepted by Record.define( definition )
@@ -97,9 +98,8 @@ export class Record extends Class implements Owner, Transactional {
     attributes : AttributesValues
 
     // Transactional control
-    _changing : boolean
-    _pending : boolean
-
+    _transaction : boolean
+    _isDirty : boolean
 
     /**
      * Ownerhsip API
@@ -190,7 +190,7 @@ export class Record extends Class implements Owner, Transactional {
         const options = a_options || {},
               values = ( options.parse ? this.parse( a_values ) :  a_values ) || {};
 
-        this._changing = this._pending = false;
+        this._transaction = this._isDirty = false;
         this._owner = owner;
         this.cid = this.cidPrefix + _cidCounter++;
 
@@ -249,7 +249,7 @@ export class Record extends Class implements Owner, Transactional {
      set( values : {}, options? : TransactionOptions ) : this {
         if( values ){
             const transaction = this.createTransaction( values, options );
-            transaction && transaction.commit( options );
+            transaction && transaction.commit( options, true );
 
             // TODO: tell parent to update, if root transaction and there are changes.
         } 
@@ -300,8 +300,9 @@ export class Record extends Class implements Owner, Transactional {
         if( nested.length || changes.length ){
             return new RecordTransaction( this, isRoot, nested, changes );
         }
-
-        commit( this, options );
+        
+        // No changes
+        isRoot && commit( this, options );
     }
 
     // Execute given function in the scope of ad-hoc transaction
@@ -309,10 +310,7 @@ export class Record extends Class implements Owner, Transactional {
         const isRoot = begin( this );
         fun( this );
         
-        if( isRoot ){
-            commit( this, options );
-            // tell parent to update.
-        } 
+        isRoot && commit( this, options );
     }
 
     // Handle nested changes
@@ -320,17 +318,16 @@ export class Record extends Class implements Owner, Transactional {
         this.forceAttributeChange( child._ownerKey, options );
     }
 
-    forceAttributeChange( key, options : TransactionOptions = {} ){
+    forceAttributeChange( key : string, options : TransactionOptions = {} ){
         // Touch an attribute in bounds of transaction
         const isRoot = begin( this );
 
         if( !options.silent ){
-            this._pending = true;
-            key && this._notifyChangeAttr( key, options );
+            this._isDirty = true;
+            this._notifyChangeAttr( key, options );
         }
 
         isRoot && commit( this, options );
-        // TODO: similar to transaction - tell parent to update.
     }
 };
 
@@ -350,6 +347,16 @@ recordProto.idAttribute = 'id';
  * Helper functions
  */
 
+function begin( record : Record ){
+    if( _begin( record ) ){
+        record._previousAttributes = new record.Attributes( record.attributes );
+        return true;
+    }
+    
+    return false;
+}
+
+
 // Deeply clone record attributes
 function cloneAttributes( record : Record, a_attributes : AttributesValues ) : AttributesValues {
     const attributes = new record.Attributes( a_attributes );
@@ -362,20 +369,20 @@ function cloneAttributes( record : Record, a_attributes : AttributesValues ) : A
 }
 
  // Optimized single attribute transactional update. To be called from attributes setters
+ // options.silent === false, parse === false. 
 export function setAttribute( record : Record, name : string, value : any ) : void {
     const isRoot  = begin( record ),
-          options = {};
-
-    const { attributes } = record,
+          options = {},
+        { attributes } = record,
           spec = record._attributes[ name ],
           prev = attributes[ name ];
 
     // handle deep update...
     if( spec.canBeUpdated( prev, value ) ) {
-        const nestedTransaction = prev.createTransaction( value, options );
+        const nestedTransaction = ( <Transactional> prev ).createTransaction( value, options );
         if( nestedTransaction ){
-            nestedTransaction.commit( options );
-            record._pending = true;
+            nestedTransaction.commit( options, true );
+            record._isDirty = true;
             record._notifyChangeAttr( name, options );
         }
     }
@@ -391,163 +398,37 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
                 spec.handleChange( next, prev, this );
             }
 
-            record._pending = true;
+            record._isDirty = true;
             record._notifyChangeAttr( name, options );
         }
     }
 
     isRoot && commit( record, options );
-    // TODO: tell parent to update, if root transaction and there are changes.
-}
-
-/**
- * Transactional brackets
- *  begin( model ) => true | false;
- *  commit( model, options ) => void 0
- */
-
-// Start transaction on the record. Return true if it's opening transaction.
-function begin( record : Record ) : boolean {
-    const isRoot = !record._changing;
-
-    if( isRoot ){
-        // If it's opening transaction, copy attributes
-        record._changing           = true;
-        record._previousAttributes = new record.Attributes( record.attributes );
-    }
-
-    return isRoot;
-}
-
-// Commit transaction. Send out change event and notify owner.
-function commit( record : Record, options : TransactionOptions ){
-    if( !options.silent ){
-        while( record._pending ){
-            record._pending = false;
-            record._notifyChange( options );
-        }
-    }
-
-    record._pending  = false;
-    record._changing = false;
-
-    // TODO: should it be in the transaction scope?
-    // So, upper-level change:attr handlers will work in the scope of current
-    // transaction. Short answer: no. Leave it like this.
-    const { _owner } = record;
-    if( _owner ){
-        _owner._onChildrenChange( record, options );
-    }
-}
-
-class EmptyTransaction {
-    constructor( public object : Record, public options : TransactionOptions = {} ){
-        if( !object._transaction ){
-            object._transaction = this;
-            object._previousAttributes = new object.Attributes( object.attributes );
-        }
-    }
-
-    commit() : boolean {
-        const { object, options } = this;
-        let changed = object._isDirty;
-
-        if( this === object._transaction && !options.silent ){
-            // Wondering why here's the loop? Read below.
-            while( object._isDirty ){
-                object._isDirty = false;
-
-                // If this object will be modified inside of this event handler,
-                // we need another change event. But we're in the middle of the root transaction,
-                // so we won't be there. That's why we need _dirty flag and while loop.
-                object._notifyChange( options );
-            }
-
-            object._transaction  = null;
-        }
-        
-        return changed;
-    }
 }
 
 // Transaction class. Implements two-phase transactions on object's tree. 
 class RecordTransaction implements Transaction {
     // open transaction
-    constructor( public object : Record, public isRoot : boolean, public nested : Transaction[], public changes : string[] ){}
+    constructor( public object : Record, public isRoot : boolean, public nested : Transaction[], public changes : string[] ){
+        object._isDirty = true;
+    }
 
     // commit transaction
-    commit( options : TransactionOptions = {} ){
+    commit( options : TransactionOptions = {}, isNested? : boolean ) : void {
         const { nested, object, changes } = this;
 
         // Commit all pending nested transactions...
         for( let transaction of nested ){ 
-            transaction.commit( options )
+            transaction.commit( options, true );
         }
 
         // Notify listeners on attribute changes...
         if( !options.silent ){
-            object._pending = true;
-
             for( let key of changes ){
                 object._notifyChangeAttr( key, options );
             }
         }
 
-        this.isRoot && commit( object, options ); // Do not tell parent to update.
-    }
-}
-
-class AttributeTransaction extends EmptyTransaction {
-    changes : string
-    nested : Transaction
-
-    // open transaction
-    constructor( record : Record, key : string, value : any ){
-        const options = {};
-        super( record, options );
-        this.changes = null;
-
-        const { attributes } = record,
-            spec = record._attributes[ key ],
-            prev = attributes[ key ];
-
-        // handle deep update...
-        if( spec.canBeUpdated( prev, value ) ) {
-            this.nested = prev.createTransaction( value, options );
-        }
-        else {
-            // cast and hook...
-            const next = spec.transform( value, options, prev, record );
-
-            if( spec.isChanged( next, prev ) ) {
-                attributes[ key ] = next;
-
-                // Do the rest of the job after assignment
-                if( spec.handleChange ) {
-                    spec.handleChange( next, prev, record );
-                }
-
-                this.changes = key;
-            }
-        }
-    }
-
-    // commit transaction
-    commit(){
-        const { nested, object } = this;
-        let { changes } = this;
-
-        // Commit all nested transactions...
-        if( nested && nested.commit() ){
-            changes = nested.object._ownerKey;
-        }
-
-        // Notify listeners on attribute changes...
-        if( changes ){
-            object._isDirty = true;
-            object._notifyChangeAttr( changes, this.options );
-        }
-
-        return super.commit();
+        this.isRoot && commit( object, options, isNested ); // Do not tell parent to update.
     }
 }

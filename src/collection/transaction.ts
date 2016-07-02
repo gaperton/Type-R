@@ -1,22 +1,34 @@
 import { Class, ClassDefinition } from '../class.ts'
-import { Transactional, Transaction, TransactionOptions, Owner } from '../types.ts'
+import { begin, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 import { Record } from '../record/index.ts'
 
-export class Collection< Model extends Record > extends Class implements Transactional {
+export class Collection extends Class implements Transactional {
     /***********************************
      * Core Members
      */
     // Previous attributes
-    models : Model[]
-    _byId : Index< Model >
+    models : Record[]
+    _byId : Index
 
     model : typeof Record
 
     get length() : number { return this.models.length; }
 
     // Transactional control
-    _changing : boolean
-    _pending : boolean
+    _transaction : boolean
+    _isDirty : boolean
+
+    _notifyChange( options : TransactionOptions ){
+        // TODO: send 'changes' event
+    }
+
+    _notifyChangeItem( event : 'add' | 'remove' | 'change', record : Record, options : TransactionOptions ){
+        // TODO : send item change event 
+    }
+
+    _notifyBulkChange( event : 'update' | 'reset' | 'sort', options : TransactionOptions ){
+        //TBD
+    }
 
     /**
      * Ownerhsip API
@@ -59,7 +71,7 @@ export class Collection< Model extends Record > extends Class implements Transac
 
     // Apply bulk object update without any notifications, and return open transaction.
     // Used internally to implement two-phase commit.   
-    createTransaction( elements : ( {} | Model )[], options : TransactionOptions = {} ) : CollectionTransaction {
+    createTransaction( elements : Elements, options : TransactionOptions = {} ) : CollectionTransaction {
         if( this.models.length ){
             const { remove } = options;
             return remove === void 0 || remove ? setTransaction( this, elements, options ) : addTransaction( this, elements, options );
@@ -76,117 +88,242 @@ interface Index {
 }
 
 
-exports.emptySet = function emptySet( collection, items, a_options, silent ){
-    var options = new MergeOptions( a_options, collection );
+type Elements = ( Object | Record )[];
+const silence = { silent : true };
 
-    if( silent ){
-        options.silent = silent;
+interface CollectionOptions extends TransactionOptions {
+    sort? : boolean
+}
+
+function emptySetTransaction( collection : Collection, items : Elements, options : CollectionOptions, silent? : boolean ){
+    const isRoot = begin( collection );
+
+    const added = _reallocateEmpty( collection, items, options );
+
+    if( added.length ){
+        const needSort = makeSorted( collection, options );
+        return new CollectionTransaction( collection, isRoot, added, [], [], needSort );
     }
 
-    var added = _reallocateEmpty( collection, items, options );
+    // No changes...
+    isRoot && commit( collection, options );
+};
 
-    collection._changed || ( collection._changed = added.length );
+interface AddOptions extends CollectionOptions {
+    at? : number 
+}
 
-    var needSort = options.sort && added.length;
-    if( needSort ) collection.sort( silence );
+function addTransaction( collection, items, options : AddOptions ){
+    const isRoot = begin( collection ),
+          nested = [];
 
-    options.silent || options.notify( collection, added, needSort );
+    var added = _append( collection, items, nested, options );
 
-    return added;
+    if( added.length || nested.length ){
+        let needSort = makeSortedOrInsert( collection, added, options );
+        return new CollectionTransaction( collection, isRoot, added, [], nested, needSort );
+    }
+
+    // No changes...
+    isRoot && commit( collection, options );
+};
+
+function setTransaction( collection, items, options ){
+    const isRoot = begin( collection ),
+          nested = [];
+
+    var previous = collection.models,
+        added    = _reallocate( collection, items, nested, options );
+
+    const reusedCount = collection.models.length - added.length,
+          removed = reusedCount < previous.length ? (
+                        reusedCount ? _garbageCollect( collection, previous ) :
+                                        _disposeAll( collection, previous )
+                    ) : [];                    
+    
+    const addedOrChanged = nested.length || added.length,
+          needSort = addedOrChanged && makeSorted( collection, options );
+
+    if( addedOrChanged || removed.length ){
+        return new CollectionTransaction( collection, isRoot, added, removed, nested, needSort );
+    }
+
+    isRoot && commit( collection, options );
 };
 
 
+// Remove references to all previous elements, which are not present in collection.
+// Returns an array with removed elements.
+function _garbageCollect( collection : Collection, previous : Record[] ) : Record[]{
+    const { _byId }  = collection,
+          removed = [];
+
+    // Filter out removed models and remove them from the index...
+    for( let record of previous ){
+        if( !_byId[ record.cid ] ){
+            removed.push( record );
+            removeReference( collection, record );
+        }
+    }
+
+    return removed;
+}
+
+// Remove all references to previous elements, and return them.
+function _disposeAll( collection : Collection, previous : Record[] ) : Record[]{
+    // Filter out removed models and remove them from the index...
+    for( let record of previous ){
+        removeReference( collection, record );
+    }
+
+    return previous;
+}
+
+// reallocate model and index
+function _reallocate( collection : Collection, source, nested : Transaction[], options ){
+    var models      = Array( source.length ),
+        _byId : Index = {},
+        merge       = options.merge == null ? true : options.merge,
+        _prevById   = collection._byId,
+        idAttribute = collection.model.prototype.idAttribute,
+        toAdd       = [];
+
+    // for each item in source set...
+    for( var i = 0, j = 0; i < source.length; i++ ){
+        var item  = source[ i ],
+            model = null;
+
+        if( item ){
+            var id  = item[ idAttribute ],
+                cid = item.cid;
+
+            if( _byId[ id ] || _byId[ cid ] ) continue;
+
+            model = _prevById[ id ] || _prevById[ cid ];
+        }
+
+        if( model ){
+            if( merge && item !== model ){
+                var attrs = item.attributes || item;
+                const transaction = model.createTransaction( attrs, options );
+                transaction && nested.push( transaction );
+            }
+        }
+        else{
+            model = convertAndRef( collection, item, options );
+            toAdd.push( model );
+        }
+
+        models[ j++ ] = model;
+        addIndex( _byId, model );
+    }
+
+    models.length = j;
+    collection.models   = models;
+    collection._byId    = _byId;
+
+    return toAdd;
+}
+
+// Add reference to the record.
+function addReference( collection : Collection, model : Record ) : void {
+    model._owner || ( model._owner = collection );
+}
+
+// Remove reference to the record.
+function removeReference( collection : Collection, model : Record ) : void {
+    if( collection === model._owner ){
+        model._owner = void 0;
+    }
+}
+
+// Silently sort collection, if its required. Returns true if sort happened.  
+function makeSorted( collection : Collection, options : CollectionOptions ) : boolean {
+    if( collection.comparator && options.sort !== false ){
+        collection.sort({ silence : true });
+        return true;
+    }
+
+    return false;
+}
+
+// Handle sort or insert at options for add operation. Reurns true if sort happened. 
+function makeSortedOrInsert( collection : Collection, added : Record[], options : AddOptions ) : boolean {
+        let at = options.at;
+        if( at != null ){
+            // if at is given, it overrides sorting option...
+            at = +at;
+            if( at < 0 ) at += collection.length + 1;
+            if( at < 0 ) at = 0;
+            if( at > collection.length ) at = collection.length;
+
+            _move( collection.models, at, added );
+            return false;
+        }
+
+        return makeSorted( collection, options );
+}
+
 /***
+ * In Collections, transactions appears only when
+ * add remove or change events might be emitted.
+ * reset doesn't require transaction.
+ * 
+ * Transaction holds information regarding events, and knows how to emit them.
+ * 
+ * Two major optimization cases.
+ * 1) Population of an empty collection
+ * 2) Update of the collection (no or little changes) - it's crucial to reject empty transactions.
+ * 3) 
  */
 
 
 // Transaction class. Implements two-phase transactions on object's tree. 
 class CollectionTransaction implements Transaction {
-    isRoot : boolean
-    changed : Record[]
-    added : Record[]
-    removed : Record[]
-    nested : Transaction[]
-
     // open transaction
-    constructor( public collection : Collection ){
-        this.isRoot  = begin( model );
-        this.added = [];
-        this.removed = [];
-        this.changed  = [];
-        this.nested  = [];
+    constructor(    public object : Collection,
+                    public isRoot : boolean,
+                    public added : Record[],
+                    public removed : Record[],
+                    public nested : Transaction[],
+                    public sorted : boolean ){
+        object._isDirty = true;
     }
 
     // commit transaction
-    commit( options : TransactionOptions = {} ){
-        const { nested, model } = this;
+    commit( options : TransactionOptions = {}, isNested? : boolean ){
+        const { nested, object } = this;
 
         // Commit all nested transactions...
-        for( let i = 0; i < nested.length; i++ ){
-            nested[ i ].commit( options );
+        for( let transaction of nested ){
+            transaction.commit( options, true );
         }
 
         // Notify listeners on attribute changes...
         if( !options.silent ){
-            const { changes } = this;
+            const { added, removed } = this;
 
-            if( changes.length ){
-                model._pending = true;
+            for( let record of added ){
+                object._notifyChangeItem( 'add', record, options );
             }
 
-            for( let i = 0; i < changes.length; i++ ){
-                model._notifyChangeAttr( changes[ i ], options )
+            for( let record of removed ){
+                object._notifyChangeItem( 'remove', record, options );
             }
-        }
 
-        this.isRoot && commit( model, options );
-    }
-}
+            for( let transaction of nested ){
+                object._notifyChangeItem( 'change', <Record> transaction.object, options );
+            }
 
-class RecordTransaction implements Transaction {
-    isRoot : boolean
-    changes : string[]
-    nested : Transaction[]
+            if( this.sorted ){
+                object._notifyBulkChange( 'sort', options );
+            }
 
-    // open transaction
-    constructor( public object : Record ){
-        this.isRoot  = begin( object );
-        this.changes = [];
-        this.nested  = [];
-    }
-
-    // commit transaction
-    commit( options : TransactionOptions = {} ){
-        const { nested, object, changes } = this;
-
-        // Commit all nested transactions...
-        //TODO
-        /***
-         * Consider returning changed flag from commit. In this way, we may avoid expensive bubbling.
-         * And keep right notifications semantic. Parent needs to be notified from the set or transaction method. Only root transaction notifies the parent.
-         * Problem arize when different subtree is modified from the trigger. Thus, these parazite updates must be handled as separate transaction.
-         */
-        for( let transaction of nested ){ 
-            if( transaction.commit( options ) ){
-                changes.push( transaction.object._ownerKey );
+            if( added.length || removed.length ){
+                object._notifyBulkChange( 'update', options );
             }
         }
 
-        // Notify listeners on attribute changes...
-        const { length } = changes;
-
-        if( !options.silent ){
-            if( length ){
-                object._pending = true;
-            }
-
-            for( let i = 0; i < length; i++ ){
-                object._notifyChangeAttr( changes[ i ], options )
-            }
-        }
-
-        this.isRoot && commit( object, options );
-
-        return length;
+        this.isRoot && commit( object, options, isNested );
     }
 }
