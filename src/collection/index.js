@@ -1,142 +1,15 @@
-import { Record } from '../record'
+import { Class } from '../class.ts'
 
-export class Collection {
-    static define( spec ){
-
-    }
-
-    _onAdd( model, options ){}
-    _onRemove( model, options ){}
-
-    // handler for the model change event
-    // needed to update index when id is changed, even in 'ref' collections
-    _onChange( record, options ){
-        const { idAttribute } = record;
-        if( idAttribute ){
-            const prev = record._previousAttributes[ idAttribute ],
-                  next = record.attributes[ idAttribute ];
-            if( prev !== next ){
-                this._byId[ prev ] = void 0;
-                this._byId[ next ] = record;
-            }
-        }
-
-        // todo: refs must trigger change here. onChildrenChange win't be called.
-    }
-
-    // only owner is changed, not refs
-    _onChildrenChange( record, options ){
-        const isRoot = begin( this );
-
-        if( !options.silent ){
-            this._pending = options;
-            // todo: trigger 'change' event.
-        }
-
-        isRoot && commit( this, options );
-    }
+export interface CollectionDefinition {
+    Record : IRecord
 }
 
-var Commons               = require( './collections/commons' ),
-    toModel               = Commons.toModel,
-    dispose               = Commons.dispose,
-    ModelEventsDispatcher = Commons.ModelEventsDispatcher;
 
-var Add          = require( './collections/add' ),
-    MergeOptions = Add.MergeOptions,
-    add          = Add.add,
-    set          = Add.set,
-    emptySet     = Add.emptySet;
 
-var Remove     = require( './collections/remove' ),
-    removeOne  = Remove.removeOne,
-    removeMany = Remove.removeMany;
-
-// transactional wrapper for collections
-function transaction( func ){
-    return function(){
-        this.__changing++ || ( this._changed = false );
-
-        var res = func.apply( this, arguments );
-
-        if( !--this.__changing && this._changed ){
-            this._changeToken = {};
-            trigger1( this, 'changes', this );
-        }
-
-        return res;
-    };
-}
-
-// wrapper for standard collections modification methods
-// wrap call in transaction and convert singular args
-function method( method ){
-    return function( a_models, a_options ){
-        this.__changing++ || ( this._changed = false );
-
-        var options = a_options || {},
-            models  = options.parse ? this.parse( a_models, options ) : a_models;
-
-        var res = models ? (
-            models instanceof Array ?
-            method.call( this, models, options )
-                : method.call( this, [ models ], options )[ 0 ]
-        ) : method.call( this, [], options );
-
-        if( !--this.__changing && this._changed ){
-            this._changeToken = {};
-            options.silent || trigger1( this, 'changes', this );
-        }
-
-        return res;
+export class Collection extends Class {
+    get length(){
+        return this.models.length;
     }
-}
-
-function handleChange(){
-    if( this.__changing ){
-        this._changed = true;
-    }
-    else{
-        this._changeToken = {};
-        trigger1( this, 'changes', this );
-    }
-}
-
-function SilentOptions( a_options ){
-    var options = a_options || {};
-    this.parse = options.parse;
-    this.sort = options.sort;
-}
-
-SilentOptions.prototype.silent = true;
-
-function CreateOptions( options, collection ){
-    MergeOptions.call( this, options, collection );
-    if( options ){
-        _.defaults( this, options );
-    }
-}
-
-module.exports = Backbone.Collection.extend( {
-    model : Model,
-
-    _owner : null,
-    _store : null,
-
-    __changing   : 0,
-    _changed     : false,
-    _changeToken : {},
-
-    _dispatcher : null,
-
-    properties : {
-        length : {
-            enumerable : false,
-            get        : function(){
-                return this.models.length;
-            }
-        }
-    },
 
     _validateNested : function( errors ){
         var models = this.models,
@@ -156,7 +29,7 @@ module.exports = Backbone.Collection.extend( {
     },
 
     modelId : function( attrs ){
-        return attrs[ this.model.prototype.idAttribute || 'id' ];
+        return attrs[ this.Record.prototype.idAttribute || 'id' ];
     },
 
     constructor : function( models, a_options ){
@@ -184,35 +57,10 @@ module.exports = Backbone.Collection.extend( {
         this.initialize.apply( this, arguments );
     },
 
-    getStore : function(){
-        return this._store || ( this._store = this._owner ? this._owner.getStore() : this._defaultStore );
-    },
-
-    sync : function(){
-        return this.getStore().sync.apply( this, arguments );
-    },
-
     isValid : function( options ){
         return this.every( function( model ){
             return model.isValid( options );
         } );
-    },
-
-    // Toggle model in collection
-    toggle : function( model, a_next ){
-        var prev = Boolean( this.get( model ) ),
-            next = a_next === void 0 ? !prev : Boolean( a_next );
-
-        if( prev !== next ){
-            if( prev ){
-                this.remove( model );
-            }
-            else{
-                this.add( model );
-            }
-        }
-
-        return next;
     },
 
     get : function( obj ){
@@ -242,22 +90,12 @@ module.exports = Backbone.Collection.extend( {
         return models;
     } ),
 
-    // Add a model to the end of the collection.
-    push : function( model, options ){
-        return this.add( model, _.extend( { at : this.length }, options ) );
-    },
-
     add : method( function( models, options ){
         return this.length ?
                add( this, models, options )
             : emptySet( this, models, options );
     } ),
 
-    sort : transaction( CollectionProto.sort ),
-
-// Methods with singular fast-path
-//------------------------------------------------
-    // Remove a model, or a list of models from the set.
     remove( models, options = {} ){
         const isRoot = begin( this ),
               result = models instanceof Array ?
@@ -266,14 +104,6 @@ module.exports = Backbone.Collection.extend( {
 
         isRoot && commit( this );
         return result;
-    },
-
-    _onModelEvent : function( event, model, collection, options ){
-        // lazy initialize dispatcher...
-        var dispatcher = this._dispatcher || ( this._dispatcher = new ModelEventsDispatcher( this.model ) ),
-            handler    = dispatcher[ event ] || trigger3;
-
-        handler( this, event, model, collection, options );
     },
 
     at( index ){
@@ -306,16 +136,4 @@ module.exports = Backbone.Collection.extend( {
         subset.resolve( this );
         return subset;
     }
-}, {
-    // Cache for subsetOf collection subclass.
-    __subsetOf : null,
-    defaults   : function( attrs ){
-        return this.prototype.model.extend( { defaults : attrs } ).Collection;
-    },
-    extend     : function(){
-        // Need to subsetOf cache when extending the collection
-        var This = Backbone.Collection.extend.apply( this, arguments );
-        This.__subsetOf = null;
-        return This;
-    }
-} );
+}
