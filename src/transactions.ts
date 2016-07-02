@@ -117,3 +117,27 @@ export function commit( object : Transactional, options : TransactionOptions, is
         object._owner._onChildrenChange( object, options );
     }
 }
+
+/************************************
+ * Reference management
+ */
+
+// Add reference to the record.
+export function aquire( owner : Owner, child : Transactional ) : void {
+    child._owner || ( child._owner = owner );
+}
+
+// Remove reference to the record.
+export function free( owner : Owner, child : Transactional ) : void {
+    if( owner === child._owner ){
+        child._owner = void 0;
+    }
+}
+
+export function freeAll< T extends Transactional >( collection : Owner, children : T[] ) : T[]{
+    for( let child of children ){
+        free( collection, child );
+    }
+
+    return children;
+}

@@ -1,29 +1,14 @@
-/**
- * Remove single element from collection
- * el: ModelId | ModelCid | Model | ModelAttrs
- * Options:
- *      - silent : Boolean = false
+/*************
+ * Remove items from collections.
+ * 
+ * Cannot be a part of two-phase transaction on object tree.
+ * Can be executed in the scope of ad-hoc transaction or from the trigger, though.
+ *
+ * Implemented with low-level API. 
+ * Most frequent operation - single element remove. Thus, it have the fast-path.
  */
 
-var Commons         = require( './commons' ),
-    removeIndex     = Commons.removeIndex,
-    removeReference = Commons.removeReference;
-
-var Events   = require( '../backbone+' ).Events,
-    trigger3 = Events.trigger3,
-    trigger2 = Events.trigger2;
-
-function RemoveOptions( options ){
-    this.silent = options.silent;
-}
-
-RemoveOptions.prototype = {
-    add    : false,
-    remove : true,
-    merge  : false
-};
-
-exports.removeOne = function removeOne( collection, el, a_options ){
+export function removeOne( collection, el, a_options ){
     var options = new RemoveOptions( a_options );
 
     var model = collection.get( el );
@@ -52,7 +37,7 @@ exports.removeOne = function removeOne( collection, el, a_options ){
  * 2. Create new models array matching index
  * 3. Send notifications and remove references
  */
-exports.removeMany = function removeMany( collection, toRemove, a_options ){
+export function removeMany( collection, toRemove, a_options ){
     var options = new RemoveOptions( a_options );
 
     var removed = _removeFromIndex( collection, toRemove );
