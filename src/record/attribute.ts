@@ -82,7 +82,7 @@ export class GenericAttribute implements Attribute {
         return value;
     }
 
-    validate( model, value, name ) {}
+    validate( record : Record, value : any, key : string ){}
 
     toJSON( value, key ) {
         return value && value.toJSON ? value.toJSON() : value;

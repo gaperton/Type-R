@@ -7,7 +7,7 @@ import { Class, ClassDefinition, trigger3, log } from '../toolkit/index.ts'
 
 // TODO: Move these definitions here.
 import { Constructor } from '../types.ts'
-import { begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
+import { ChildrenErrors, begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 
 /***************************************************************
  * Record Definition as accepted by Record.define( definition )
@@ -58,6 +58,7 @@ export interface AttributesSpec {
 export interface Attribute extends AttributeUpdatePipeline, AttributeSerialization {
     clone( value : any ) : any
     create() : any
+    validate( record : Record, value : any, key : string )
 }
 
 export interface AttributeUpdatePipeline{
@@ -203,6 +204,21 @@ export class Record extends Transactional implements Owner {
     // Deeply clone record, optionally setting new owner.
     clone( owner? : any ) : this {
         return new (<any>this.constructor)( this.attributes, { clone : true }, owner );
+    }
+
+    _validateNested( errors : ChildrenErrors ) : number {
+        var length    = 0;
+
+        this.forEachAttr( this.attributes, ( value, name, attribute ) => {
+            const error = attribute.validate( this, value, name );
+
+            if( error ){
+                errors[ name ] = error;
+                length++;
+            }
+        } );
+
+        return length;
     }
 
     /**
