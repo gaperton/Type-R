@@ -205,6 +205,7 @@ export class Record extends Transactional implements Owner {
         return new (<any>this.constructor)( this.attributes, { clone : true }, owner );
     }
 
+    // Validate attributes.
     _validateNested( errors : ChildrenErrors ) : number {
         var length    = 0;
 
@@ -302,6 +303,7 @@ export class Record extends Transactional implements Owner {
         this.forceAttributeChange( child._ownerKey, options );
     }
 
+    // Simulate attribute change 
     forceAttributeChange( key : string, options : TransactionOptions = {} ){
         // Touch an attribute in bounds of transaction
         const isRoot = begin( this );
@@ -312,6 +314,17 @@ export class Record extends Transactional implements Owner {
         }
 
         isRoot && commit( this, options );
+    }
+
+    // Dispose object and all childrens
+    dispose(){
+        this.forEachAttr( this.attributes, ( value, key, attribute ) => {
+            if( value && this === value._owner ){
+                value.dispose();
+            }
+        });
+
+        super.dispose();
     }
 };
 
