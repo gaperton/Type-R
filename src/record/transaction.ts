@@ -3,12 +3,11 @@
  * The root of all definitions. 
  */
 
-import { log } from '../tools.ts'
-import { Class, ClassDefinition } from '../class.ts'
+import { Class, ClassDefinition, trigger3, log } from '../toolkit/index.ts'
 
 // TODO: Move these definitions here.
 import { Constructor } from '../types.ts'
-import { begin as _begin, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
+import { begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 
 /***************************************************************
  * Record Definition as accepted by Record.define( definition )
@@ -84,7 +83,7 @@ interface ConstructorOptions extends TransactionOptions{
 // Client unique id counter
 let _cidCounter : number = 0;
 
-export class Record extends Class implements Owner, Transactional {
+export class Record extends Transactional implements Owner {
     // Implemented at the index.ts to avoid circular dependency. Here we have just proper singature.
     static define( protoProps : RecordDefinition, staticProps ) : typeof Record { return this; }
 
@@ -97,18 +96,27 @@ export class Record extends Class implements Owner, Transactional {
     // Current attributes    
     attributes : AttributesValues
 
-    // Transactional control
-    _transaction : boolean
-    _isDirty : boolean
+    // Lazily evaluated changed attributes hash
+    _changedAttributes : AttributesValues
 
-    /**
-     * Ownerhsip API
-     */
-    // Reference to owner
-    _owner : Owner
+    get changed(){
+        let changed = this._changedAttributes;
 
-    // Owner's attribute name, if it's Record 
-    _ownerKey : string;
+        if( !changed ){
+            const prev = this._previousAttributes;
+            changed = {};
+
+            this.forEachAttr( this.attributes, ( value, key, attribute ) => { 
+                if( attribute.isChanged( value, prev[ key ] ) ){
+                    changed[ key ] = value;
+                }
+            } );
+
+            this._changedAttributes = changed;
+        }
+
+        return changed;    
+    } 
 
     // Returns Record owner skipping collections. TODO: Move out
     getOwner() : Owner {
@@ -119,23 +127,8 @@ export class Record extends Class implements Owner, Transactional {
     }
 
     /***********************************
-     * Notification API
-     */ 
-    // Record is changed
-    _notifyChange( options : TransactionOptions ) : void {}
-
-    // Record's attribute is changed
-    _notifyChangeAttr( key : string, options : TransactionOptions ) : void {}
-
-    /***********************************
      * Identity managements
      */
-
-    // Client unique id 
-    cid : string;
-
-    // Client id prefix
-    cidPrefix : string;
 
     // Id attribute name ('id' by default)
     idAttribute : string;
@@ -185,14 +178,10 @@ export class Record extends Class implements Owner, Transactional {
      */
     // Create record, optionally setting an owner
     constructor( a_values? : {}, a_options? : ConstructorOptions, owner? : Owner ){
-        super();
+        super( _cidCounter++, owner );
 
         const options = a_options || {},
               values = ( options.parse ? this.parse( a_values ) :  a_values ) || {};
-
-        this._transaction = this._isDirty = false;
-        this._owner = owner;
-        this.cid = this.cidPrefix + _cidCounter++;
 
         // TODO: type error for wrong object.
 
@@ -244,18 +233,6 @@ export class Record extends Class implements Owner, Transactional {
     /**
      * Transactional control
      */
-
-     // Object sync API
-     set( values : {}, options? : TransactionOptions ) : this {
-        if( values ){
-            const transaction = this.createTransaction( values, options );
-            transaction && transaction.commit( options, true );
-
-            // TODO: tell parent to update, if root transaction and there are changes.
-        } 
-
-        return this;
-    }
     
     // Create transaction. TODO: Move to transaction constructor
     createTransaction( a_values : {}, options : TransactionOptions = {} ) : Transaction {
@@ -305,14 +282,6 @@ export class Record extends Class implements Owner, Transactional {
         isRoot && commit( this, options );
     }
 
-    // Execute given function in the scope of ad-hoc transaction
-    transaction( fun : ( self : this ) => void, options : TransactionOptions = {} ) {
-        const isRoot = begin( this );
-        fun( this );
-        
-        isRoot && commit( this, options );
-    }
-
     // Handle nested changes
     _onChildrenChange( child : Transactional, options : TransactionOptions ) : void {        
         this.forceAttributeChange( child._ownerKey, options );
@@ -323,8 +292,8 @@ export class Record extends Class implements Owner, Transactional {
         const isRoot = begin( this );
 
         if( !options.silent ){
-            this._isDirty = true;
-            this._notifyChangeAttr( key, options );
+            markAsDirty( this );
+            trigger3( this, 'change:' + key, this.attributes[ key ], this, options );
         }
 
         isRoot && commit( this, options );
@@ -356,6 +325,10 @@ function begin( record : Record ){
     return false;
 }
 
+function markAsDirty( record ){
+    _markAsDirty( record );
+    record._changedAttributes = null;
+}
 
 // Deeply clone record attributes
 function cloneAttributes( record : Record, a_attributes : AttributesValues ) : AttributesValues {
@@ -382,8 +355,8 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
         const nestedTransaction = ( <Transactional> prev ).createTransaction( value, options );
         if( nestedTransaction ){
             nestedTransaction.commit( options, true );
-            record._isDirty = true;
-            record._notifyChangeAttr( name, options );
+            markAsDirty( record );
+            trigger3( record, 'change:' + name, prev, record, options );
         }
     }
     else {
@@ -398,8 +371,9 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
                 spec.handleChange( next, prev, this );
             }
 
-            record._isDirty = true;
-            record._notifyChangeAttr( name, options );
+            markAsDirty( record );
+            trigger3( record, 'change:' + name, next, record, options );
+
         }
     }
 
@@ -410,7 +384,7 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
 class RecordTransaction implements Transaction {
     // open transaction
     constructor( public object : Record, public isRoot : boolean, public nested : Transaction[], public changes : string[] ){
-        object._isDirty = true;
+        markAsDirty( object );
     }
 
     // commit transaction
@@ -424,8 +398,9 @@ class RecordTransaction implements Transaction {
 
         // Notify listeners on attribute changes...
         if( !options.silent ){
+            const { attributes } = object;
             for( let key of changes ){
-                object._notifyChangeAttr( key, options );
+                trigger3( object, 'change:' + key, attributes[ key ], object, options );
             }
         }
 
