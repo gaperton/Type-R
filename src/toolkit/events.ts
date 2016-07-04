@@ -140,7 +140,7 @@ export abstract class Messenger {
     // callbacks with that function. If `callback` is null, removes all
     // callbacks for the event. If `name` is null, removes all bound
     // callbacks for all events.
-    off(name, callback, context) {
+    off(name? : string, callback? : Function, context? ) {
         if (!this._events) return this;
         this._events = eventsApi(offApi, this._events, name, callback,
                                 new OffOptions(
@@ -152,7 +152,7 @@ export abstract class Messenger {
 
     // Tell this object to stop listening to either specific events ... or
     // to every object it's currently listening to.
-    stopListening(obj : Messenger, name, callback) {
+    stopListening( obj? : Messenger, name? : string, callback? : Function ) {
         var listeningTo = this._listeningTo;
         if (!listeningTo) return this;
 
@@ -223,6 +223,11 @@ export abstract class Messenger {
 
         eventsApi(triggerApi, this._events, name, void 0, args);
         return this;
+    }
+
+    dispose(){
+        this.stopListening();
+        this.off();
     }
 }
 

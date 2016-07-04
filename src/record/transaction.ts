@@ -5,7 +5,6 @@
 
 import { Class, ClassDefinition, trigger3, log } from '../toolkit/index.ts'
 
-// TODO: Move these definitions here.
 import { Constructor } from '../types.ts'
 import { ChildrenErrors, begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 

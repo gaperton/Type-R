@@ -100,7 +100,7 @@ export abstract class Transactional extends Messenger {
 
 Transactional.prototype._changeEventName = 'change';
 
-interface ChildrenErrors {
+export interface ChildrenErrors {
     [ key : string ] : ValidationError | any
 } 
 
