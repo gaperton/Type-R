@@ -1,29 +1,15 @@
-import { Messenger, trigger2 } from './toolkit/index.ts'
+import { Messenger, trigger2, trigger3, assign } from './toolkit/index.ts'
+
 /***
  * Two-phase transactions on ownership tree.
  * 1. createTransaction() - apply changes to an object tree, and if there are some events to send, transaction object is created.
  * 2. transaction.commit() - send and process all change events, and close transaction.
  */
 
-class ValidationError {
-    // Invalid nested object keys 
-    nested : { [ key : string ] : ValidationError | any }
-    length : number
-
-    // Local error
-    error : any
-
-    // TODO: Decide, whenever use _changeToken or erase it in transaction
-    _changeToken : {}
-}
-
 // Transactional object interface
 export abstract class Transactional extends Messenger {
     // Unique version token replaced on change
     _changeToken : {} = {}
-
-    // Lazily evaluated validation error
-    _validationError : ValidationError = void 0
 
     // true while inside of the transaction
     _transaction : boolean = false;
@@ -81,9 +67,60 @@ export abstract class Transactional extends Messenger {
 
     // Convert object to the serializable JSON structure
     abstract toJSON() : {}
+
+    /***
+     * Validation API
+     */
+
+    // Lazily evaluated validation error
+    _validationError : ValidationError = void 0
+
+    get validationError(){
+        return this._validationError || ( this._validationError = new ValidationError( this ) );
+    }
+
+    // Validate nested members. Returns errors count.
+    abstract _validateNested( errors : ChildrenErrors ) : number;
+
+    // Object-level validator.
+    // Anything it returns except undefined is an error
+    validate( obj : Transactional ) : any {}
+
+    // Return validation error (or undefined) for nested object with the given key. 
+    getValidationError( key : string ) : any {
+        var error = this.validationError;
+        return ( key ? error && error.nested[ key ] : error ) || null;
+    }
+
+    // Check whenever member with a given key is valid. 
+    isValid( key : string ) : boolean {
+        return !this.getValidationError( key );
+    }
 }
 
 Transactional.prototype._changeEventName = 'change';
+
+interface ChildrenErrors {
+    [ key : string ] : ValidationError | any
+} 
+
+// Validation error object.
+export class ValidationError {
+    // Invalid nested object keys 
+    nested : ChildrenErrors 
+    length : number
+
+    // Local error
+    error : any
+
+    constructor( obj : Transactional ){
+        this.length = obj._validateNested( this.nested = {} );
+
+        if( this.error = obj.validate( obj ) ){
+            this.length++;
+        }
+    }
+}
 
 // Owner must accept children update events. It's an only way children communicates with an owner.
 export interface Owner {
@@ -91,6 +128,7 @@ export interface Owner {
 }
 
 // Transaction object used for two-phase commit protocol.
+// Must be implemented by subclasses.
 export interface Transaction {
     // Object transaction is being made on.
     object : Transactional
@@ -116,6 +154,8 @@ export interface TransactionOptions {
 
     // Always replace enclosed objects with new instances
     reset? : boolean // = false
+
+    validate? : boolean
 }
 
 /**
@@ -128,20 +168,12 @@ export interface TransactionOptions {
  * commit( object, options, isNested ) 
  */
 
-// Start transaction. Return true if it's opening transaction.
+// Start transaction. Return true if it's the root one.
 export function begin( object : Transactional ) : boolean {
     return object._transaction ? false : ( object._transaction = true );  
 }
 
-// Consider making the base class for transactional object
-// So, the type classes will work. Seems like good idea.
-// Also, we can put validation stuff here. No mixin will be required.
-// May be merge it with Class. Or not. Or mixin Class functionality - better.
-// If we mix in events, it might be even better. Faster - hidden classes.
-// No real reason to avoid events. Useful stuff.
-// So, "transactional object" base class with events and validation prebuilt.
-// Good stuff. Events needed to be mixed in to other classes, though.
-// Easy to do.
+// Mark transactional object as dirty, so change event will be sent on commit.
 export function markAsDirty( object : Transactional ){
     object._isDirty  = true;
     object._changeToken = {};
@@ -172,7 +204,7 @@ export function commit( object : Transactional, options : TransactionOptions, is
 }
 
 /************************************
- * Reference management
+ * Ownership management
  */
 
 // Add reference to the record.
@@ -191,6 +223,7 @@ export function free( owner : Owner, child : Transactional ) : void {
     }
 }
 
+// TODO: move to commons
 export function freeAll( collection : Owner, children : Transactional[] ) : void{
     for( let child of children ){
         free( collection, child );
