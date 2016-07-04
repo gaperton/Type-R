@@ -318,7 +318,7 @@ export class Record extends Transactional implements Owner {
 
     // Dispose object and all childrens
     dispose(){
-        this.forEachAttr( this.attributes, ( value, key, attribute ) => {
+        this.forEachAttr( this.attributes, ( value, key ) => {
             if( value && this === value._owner ){
                 value.dispose();
             }

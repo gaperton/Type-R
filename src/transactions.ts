@@ -1,7 +1,7 @@
 import { Messenger, trigger2, trigger3, assign } from './toolkit/index.ts'
 
 /***
- * Two-phase transactions on ownership tree.
+ * Abstract class implementing ownership tree, tho-phase transactions, and validation. 
  * 1. createTransaction() - apply changes to an object tree, and if there are some events to send, transaction object is created.
  * 2. transaction.commit() - send and process all change events, and close transaction.
  */
@@ -84,7 +84,7 @@ export abstract class Transactional extends Messenger {
 
     // Object-level validator.
     // Anything it returns except undefined is an error
-    validate( obj : Transactional ) : any {}
+    validate( obj? : Transactional ) : any {}
 
     // Return validation error (or undefined) for nested object with the given key. 
     getValidationError( key : string ) : any {
