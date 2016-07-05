@@ -1,5 +1,6 @@
 import { Messenger, trigger2, trigger3, assign } from './toolkit/index.ts'
-
+import { ValidationError, Validatable, ChildrenErrors } from './validation.ts'
+import { Traversable, resolveReference } from './references.ts'
 /***
  * Abstract class implementing ownership tree, tho-phase transactions, and validation. 
  * 1. createTransaction() - apply changes to an object tree, and if there are some events to send, transaction object is created.
@@ -7,7 +8,7 @@ import { Messenger, trigger2, trigger3, assign } from './toolkit/index.ts'
  */
 
 // Transactional object interface
-export abstract class Transactional extends Messenger {
+export abstract class Transactional extends Messenger implements Validatable, Traversable {
     // Unique version token replaced on change
     _changeToken : {} = {}
 
@@ -33,12 +34,10 @@ export abstract class Transactional extends Messenger {
         this._ownerKey = ownerKey;
     }
 
-    // Returns nearest owner skipping collections.
-    //getOwner() : Owner
-
     // Deeply clone ownership subtree, optionally setting the new owner
-    // (TODO: Do we really need it? Record must ignore events with empty keys) 
-    abstract clone( owner? ) : this
+    // (TODO: Do we really need it? Record must ignore events with empty keys)
+    // 'Pin store' shall assign this._defaultStore = this.getStore();
+    abstract clone( options? : { owner? : Owner, key? : string, pinStore? : boolean }) : this
     
     // Execute given function in the scope of ad-hoc transaction.
     transaction( fun : ( self : this ) => void, options? : TransactionOptions ) : void{
@@ -47,9 +46,17 @@ export abstract class Transactional extends Messenger {
         isRoot && commit( this, options );
     }
 
+    // Loop through the members in the scope of transaction.
+    // Transactional version of each()
+    updateEach( iteratee : ( val : any, key : string ) => void, options? : TransactionOptions ){
+        const isRoot = begin( this );
+        this.each( iteratee );
+        isRoot && commit( this, options );
+    }
+
     // Apply bulk in-place object update in scope of ad-hoc transaction 
     set( values : any, options? : TransactionOptions ) : this {
-        if( values ){
+        if( values ){ 
             const transaction = this.createTransaction( values, options );
             transaction && transaction.commit( options, true );
         } 
@@ -68,6 +75,73 @@ export abstract class Transactional extends Messenger {
     // Convert object to the serializable JSON structure
     abstract toJSON() : {}
 
+    /*******************
+     * Traversals and iteration
+     */
+    
+    abstract get( key : string ) : any;
+
+    deepGet( reference : string ) : any {
+        return resolveReference( this, reference, ( object, key ) => object.get( key ) );
+    }
+
+    //_isCollection : boolean
+
+    // Return owner skipping collections.
+    getOwner() : Owner {
+        return this._owner;
+    }
+
+    // Store used when owner chain store lookup failed. Static value in the prototype. 
+    _defaultStore : Transactional
+
+    // Locate the closest store. Store object stops traversal by overriding this method. 
+    getStore() : Transactional {
+        const { _owner } = this;
+        return _owner ? <Transactional> _owner.getStore() : this._defaultStore;
+    }
+
+    // Loop through the members
+    abstract each( iteratee : ( val : any, key : string ) => void, context? : any )
+
+    // Map members to an array
+    map<T>( iteratee : ( val : any, key : string ) => T, context? : any ) : T[]{
+        const arr : T[] = [],
+              fun = arguments.length === 2 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee;
+        
+        this.each( ( val, key ) => {
+            const result = fun( val, key );
+            if( result !== void 0 ) arr.push( result );
+        } );
+
+        return arr;
+    }
+
+    // Map members to an object
+    mapObject<T>( iteratee : ( val : any, key : string ) => T, context? : any ) : { [ key : string ] : T }{
+        const obj : { [ key : string ] : T } = {},
+            fun = arguments.length === 2 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee;
+        
+        this.each( ( val, key ) => {
+            const result = iteratee( val, key );
+            if( result !== void 0 ) obj[ key ] = result;
+        } );
+
+        return obj;
+    }
+
+    // Get array of attribute keys (Record) or record ids (Collection) 
+    keys() : string[] {
+        return this.map( ( value, key ) => {
+            if( value !== void 0 ) return key;
+        });
+    }
+
+    // Get array of attribute values (Record) or records (Collection)
+    values() : any[] {
+        return this.map( value => value );
+    }
+    
     /***
      * Validation API
      */
@@ -92,6 +166,16 @@ export abstract class Transactional extends Messenger {
         return ( key ? error && error.nested[ key ] : error ) || null;
     }
 
+    // Get validation error for the given symbolic reference.
+    deepValidationError( reference : string ) : any {
+        return resolveReference( this, reference, ( object, key ) => object.getValidationError( key ) );
+    }
+
+    eachValidationError( iteratee ){
+        const { validationError } = this;
+        validationError && validationError.eachError( iteratee, this );
+    }
+
     // Check whenever member with a given key is valid. 
     isValid( key : string ) : boolean {
         return !this.getValidationError( key );
@@ -100,30 +184,8 @@ export abstract class Transactional extends Messenger {
 
 Transactional.prototype._changeEventName = 'change';
 
-export interface ChildrenErrors {
-    [ key : string ] : ValidationError | any
-} 
-
-// Validation error object.
-export class ValidationError {
-    // Invalid nested object keys 
-    nested : ChildrenErrors 
-    length : number
-
-    // Local error
-    error : any
-
-    constructor( obj : Transactional ){
-        this.length = obj._validateNested( this.nested = {} );
-
-        if( this.error = obj.validate( obj ) ){
-            this.length++;
-        }
-    }
-}
-
 // Owner must accept children update events. It's an only way children communicates with an owner.
-export interface Owner {
+export interface Owner extends Traversable {
     _onChildrenChange( child : Transactional, options : TransactionOptions );
 }
 

@@ -6,7 +6,8 @@
 import { Class, ClassDefinition, trigger3, log } from '../toolkit/index.ts'
 
 import { Constructor } from '../types.ts'
-import { ChildrenErrors, begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
+import { begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
+import { ChildrenErrors } from '../validation.ts'
 
 /***************************************************************
  * Record Definition as accepted by Record.define( definition )
@@ -120,10 +121,11 @@ export class Record extends Transactional implements Owner {
 
     // Returns Record owner skipping collections. TODO: Move out
     getOwner() : Owner {
-        const { _owner } = this;
+        const owner : any = this._owner;
+
         // If there are no key, owner must be transactional object, and it's the collection.
         // We don't expect that collection can be the member of collection, so we're skipping just one level up. An optimization.
-        return this._ownerKey ? _owner : _owner && ( <any>_owner )._owner;
+        return this._ownerKey ? owner : owner && owner._owner;
     }
 
     /***********************************
@@ -161,6 +163,16 @@ export class Record extends Transactional implements Owner {
             else{
                 log.warn( '[Unknown Attribute]', this, 'Unknown record attribute "' + name + '" is ignored:', attrs );
             }
+        }
+    }
+
+    each( iteratee : ( value? : any, key? : string ) => void, context? : any ){
+        const fun = arguments.length === 2 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
+            { attributes } = this;
+
+        for( const key in attributes ){
+            const value = attributes[ key ];
+            if( value !== void 0 ) fun( value, key );
         }
     }
 
@@ -219,6 +231,11 @@ export class Record extends Transactional implements Owner {
         } );
 
         return length;
+    }
+
+    // Get attribute by key
+    get( key : string ) : any {
+        return this[ key ];
     }
 
     /**

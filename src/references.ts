@@ -6,16 +6,16 @@
  * 
  * We need two functions. One for get, and one for compile. 
  */
+export interface Traversable {
+    getStore() : Traversable
+    getOwner() : Traversable
+    get( key : string ) : any 
+}
 
 const referenceMask =  /\~|\^|([^.]+)/g;
 
-// Need to be implemented in the model
-export function resolve( reference : string, object : any ) : any { 
-    return parse( object, reference, ( self, key ) => self[ key ] );
-}
-
 // Compile reference to function
-export function compile( reference : string ) : ( root : any ) => any {
+export function compileReference( reference : string ) : ( root : any ) => any {
     const path = reference
                     .match( referenceMask )
                     .map( key => key === '~' ? 'getStrore()' : ( key === '^' ? 'getOwner()' : key ) )
@@ -24,23 +24,40 @@ export function compile( reference : string ) : ( root : any ) => any {
     return <any> new Function( 'self', `return self.${ path };` );          
 }
 
-function parse( object : any, reference : string, action ) : any {
+export function resolveReference( root : Traversable, reference : string, action : ( object, key : string ) => any ) : any {
     const path = reference.match( referenceMask ),
           skip = path.length - 1;
     
-    let self = object;
+    let self = root;
 
     for( var i = 0; i < skip; i++ ){
         const key = path[ i ];
         switch( key ){
             case '~' : self = self.getStore(); break;
             case '^' : self = self.getOwner(); break;
-            default  : self = self[ key ];
+            default  : self = self.get( key );
         }
 
         // Do nothing if object on the path doesn't exist.
         if( !self ) return;
     }
 
-    return action( self, path[ skip ] );
+    action( self, path[ skip ] );
+    return self;
+}
+
+// Construct object reference { a : { b : { c : 0 } } }
+export function referenceToObject( reference, value ){
+    const path = reference.split( '.' ),
+          root = {},
+          last = path.length - 1;
+    let current = root;
+
+    for( let i = 0; i < last; i++ ){
+        current = current[ path[ i ] ] = {};
+    }
+
+    current[ path[ last ] ] = value;
+
+    return root;
 }
