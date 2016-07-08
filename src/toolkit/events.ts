@@ -120,7 +120,9 @@ interface Listeners {
     [ id : string ] : Messenger
 }
 
-export abstract class Messenger {
+export abstract class Messenger implements Class {
+    bindAll : ( ...names : string [] ) => void
+
     _events : EventsMap = void 0;
     _listeners : Listeners = void 0;
     _listeningTo : ListeningToMap = void 0;

@@ -2,21 +2,62 @@ import { Class, ClassDefinition } from '../class.ts'
 import { begin, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 import { Record } from '../record/index.ts'
 
-export class Collection extends Class implements Transactional {
+import { IdIndex } from './commons.ts'
+
+let _count = 0;
+
+export class Collection extends Transactional {
     /***********************************
      * Core Members
      */
-    // Previous attributes
+    // Array of the records
     models : Record[]
-    _byId : Index
+
+    // Index by id and cid
+    _byId : IdIndex
+
+    get( objOrId : string | Record | Object ) : Record {
+        return objOrId ? (
+            this._byId[ typeof objOrId === 'object' ? ( <Record> objOrId ).cid || objOrId[ this.idAttribute ] : objOrId ]
+        ) : null;
+    }
+
+    each( iteratee : ( val : Record, key : number ) => void, context? : any ){
+        const fun = arguments.length === 2 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
+            { models } = this;
+
+        for( let i = 0; i < models.length; i++ ){
+            fun( models[ i ], i ); 
+        }
+    }
+
+    _validateNested( errors : {} ) : number {
+        let count = 0;
+
+        this.each( record => {
+            const error = record.validationError;
+            if( error ){
+                errors[ record.cid ] = error;
+                count++;
+            }
+        });
+
+        return count;
+    }
 
     model : typeof Record
 
-    get length() : number { return this.models.length; }
+    // idAttribute extracted from the model type.
+    idAttribute : string
 
-    // Transactional control
-    _transaction : boolean
-    _isDirty : boolean
+    constructor( records? : ( Record | {} )[], options? : TransactionOptions ){
+        super( _count++ );
+        this.models = [];
+        this._byId = {};
+        this.idAttribute = this.model.prototype.idAttribute;
+    }
+
+    get length() : number { return this.models.length; }
 
     _notifyChange( options : TransactionOptions ){
         // TODO: send 'changes' event
@@ -30,15 +71,6 @@ export class Collection extends Class implements Transactional {
         //TBD
     }
 
-    /**
-     * Ownerhsip API
-     */
-    // Reference to owner
-    _owner : Owner
-
-    // Owner's attribute name, if it's Record 
-    _ownerKey : string
-
     // Deeply clone collection, optionally setting new owner.
     clone( owner? : any ) : this {
         return new (<any>this.constructor)( this.models, { clone : true }, owner );
@@ -48,21 +80,14 @@ export class Collection extends Class implements Transactional {
         return this.models.map( model => model.toJSON() );
     }
 
-    parse( data : any ) : Object[] { return data; }
-
-    // Execute given function in the scope of ad-hoc transaction.
-    transaction( fun : ( self : this ) => void, options? : TransactionOptions ) : void {
-
-    }
-
     // Apply bulk in-place object update in scope of ad-hoc transaction 
-    set( elements : ( {} | Model )[], options? : TransactionOptions ) : this {
+    set( elements : ( {} | Record )[], options? : TransactionOptions ) : this {
         // Handle reset option here - no way it will be populated from the top as nested transaction. 
         return ( options.reset ? this.reset( elements, options ) : 
-                                 this.createTransaction( elements, options ).commit( options ) );
+                                 this._createTransaction( elements, options ).commit( options ) );
     }
 
-    reset( elements : ( {} | Model )[], options : TransactionOptions = {} ) : this {
+    reset( elements : ( {} | Record )[], options : TransactionOptions = {} ) : this {
         const previousModels = dispose( this );
         emptySet( this, elements, options );
 
@@ -71,7 +96,7 @@ export class Collection extends Class implements Transactional {
 
     // Apply bulk object update without any notifications, and return open transaction.
     // Used internally to implement two-phase commit.   
-    createTransaction( elements : Elements, options : TransactionOptions = {} ) : CollectionTransaction {
+    _createTransaction( elements : Elements, options : TransactionOptions = {} ) : CollectionTransaction {
         if( this.models.length ){
             const { remove } = options;
             return remove === void 0 || remove ? setTransaction( this, elements, options ) : addTransaction( this, elements, options );

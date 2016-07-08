@@ -57,7 +57,7 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     // Apply bulk in-place object update in scope of ad-hoc transaction 
     set( values : any, options? : TransactionOptions ) : this {
         if( values ){ 
-            const transaction = this.createTransaction( values, options );
+            const transaction = this._createTransaction( values, options );
             transaction && transaction.commit( options, true );
         } 
 
@@ -67,7 +67,7 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     // Apply bulk object update without any notifications, and return open transaction.
     // Used internally to implement two-phase commit.
     // Returns null if there are no any changes.  
-    abstract createTransaction( values : any, options? : TransactionOptions ) : Transaction
+    abstract _createTransaction( values : any, options? : TransactionOptions ) : Transaction
     
     // Parse function applied when 'parse' option is set for transaction.
     parse( data : any ) : any { return data }
@@ -76,11 +76,13 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     abstract toJSON() : {}
 
     /*******************
-     * Traversals and iteration
+     * Traversals and member access
      */
     
+    // Get object member by its key.
     abstract get( key : string ) : any;
 
+    // Get object member by symbolic reference.
     deepGet( reference : string ) : any {
         return resolveReference( this, reference, ( object, key ) => object.get( key ) );
     }
@@ -101,8 +103,13 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
         return _owner ? <Transactional> _owner.getStore() : this._defaultStore;
     }
 
-    // Loop through the members
-    abstract each( iteratee : ( val : any, key : string ) => void, context? : any )
+
+    /***************************************************
+     * Iteration API
+     */
+
+    // Loop through the members. Must be efficiently implemented in container class.
+    abstract each( iteratee : ( val : any, key : string | number ) => void, context? : any )
 
     // Map members to an array
     map<T>( iteratee : ( val : any, key : string ) => T, context? : any ) : T[]{
@@ -118,7 +125,7 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     }
 
     // Map members to an object
-    mapObject<T>( iteratee : ( val : any, key : string ) => T, context? : any ) : { [ key : string ] : T }{
+    mapObject<T>( iteratee : ( val : any, key : string | number ) => T, context? : any ) : { [ key : string ] : T }{
         const obj : { [ key : string ] : T } = {},
             fun = arguments.length === 2 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee;
         
@@ -142,22 +149,22 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
         return this.map( value => value );
     }
     
-    /***
+    /*********************************
      * Validation API
      */
 
     // Lazily evaluated validation error
     _validationError : ValidationError = void 0
 
-    get validationError(){
+    // Validate ownership tree and return valudation error 
+    get validationError() : ValidationError {
         return this._validationError || ( this._validationError = new ValidationError( this ) );
     }
 
     // Validate nested members. Returns errors count.
     abstract _validateNested( errors : ChildrenErrors ) : number;
 
-    // Object-level validator.
-    // Anything it returns except undefined is an error
+    // Object-level validator. Returns validation error.
     validate( obj? : Transactional ) : any {}
 
     // Return validation error (or undefined) for nested object with the given key. 
@@ -171,7 +178,8 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
         return resolveReference( this, reference, ( object, key ) => object.getValidationError( key ) );
     }
 
-    eachValidationError( iteratee ){
+    // Iterate through all validation errors across the ownership tree.
+    eachValidationError( iteratee : ( error : any, key : string, object : Transactional ) => void ) : void {
         const { validationError } = this;
         validationError && validationError.eachError( iteratee, this );
     }
@@ -187,6 +195,8 @@ Transactional.prototype._changeEventName = 'change';
 // Owner must accept children update events. It's an only way children communicates with an owner.
 export interface Owner extends Traversable {
     _onChildrenChange( child : Transactional, options : TransactionOptions );
+    getOwner() : Owner
+    getStore() : Transactional
 }
 
 // Transaction object used for two-phase commit protocol.
@@ -282,12 +292,5 @@ export function free( owner : Owner, child : Transactional ) : void {
     if( owner === child._owner ){
         child._owner = void 0;
         child._ownerKey = void 0;
-    }
-}
-
-// TODO: move to commons
-export function freeAll( collection : Owner, children : Transactional[] ) : void{
-    for( let child of children ){
-        free( collection, child );
     }
 }

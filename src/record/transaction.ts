@@ -268,7 +268,7 @@ export class Record extends Transactional implements Owner {
      */
     
     // Create transaction. TODO: Move to transaction constructor
-    createTransaction( a_values : {}, options : TransactionOptions = {} ) : Transaction {
+    _createTransaction( a_values : {}, options : TransactionOptions = {} ) : Transaction {
         const isRoot = begin( this ),
               changes : string[] = [],
               nested : RecordTransaction[]= [],
@@ -397,7 +397,7 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
 
     // handle deep update...
     if( spec.canBeUpdated( prev, value ) ) {
-        const nestedTransaction = ( <Transactional> prev ).createTransaction( value, options );
+        const nestedTransaction = ( <Transactional> prev )._createTransaction( value, options );
         if( nestedTransaction ){
             nestedTransaction.commit( options, true );
             markAsDirty( record );

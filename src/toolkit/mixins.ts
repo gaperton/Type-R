@@ -76,7 +76,7 @@ export class Class {
     }
 
     // Autobinding helper to be used from constructors
-    bindAll( ...names : string [] )
+    bindAll( ...names : string [] ) : void
     bindAll() {
         for( var i = 0; i < arguments.length; i++ ) {
             const name = arguments[ i ];

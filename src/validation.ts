@@ -35,7 +35,7 @@ export class ValidationError {
         }
     }
 
-    eachError( iteratee : ( value : any, key : string, object : Validatable ) => void, object : Validatable ){
+    eachError( iteratee : ( error : any, key : string, object : Validatable ) => void, object : Validatable ){
         this.each( ( value, key ) => {
             if( value instanceof ValidationError ){
                 value._traverse( iteratee, object.get( key ) );

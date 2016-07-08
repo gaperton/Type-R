@@ -1,8 +1,8 @@
 import { Record } from '../record/index.ts'
-import { Owner, aquire, freeAll, Transaction, 
+import { Owner, aquire, free, Transaction, 
         TransactionOptions, Transactional, commit } from '../transactions.ts'
 
-export interface CollectionData extends Transactional, Owner {
+export interface CollectionCore extends Transactional, Owner {
     _byId : IdIndex
     models : Record[]
     model : typeof Record
@@ -22,17 +22,24 @@ export type Comparator = string |
             ( ( a : Record ) => number ) |
             ( ( a : Record, b : Record ) => number );  
 
-export function dispose( collection : CollectionData ){
+export function dispose( collection : CollectionCore ) : Record[]{
     const models = collection.models;
 
     collection.models = [];
     collection._byId  = {};
 
-    return freeAll( collection, models );
+    freeAll( collection, models );
+    return models;
+}
+
+export function freeAll( collection : CollectionCore, children : Transactional[] ) : void {
+    for( let child of children ){
+        free( collection, child );
+    }
 }
 
 // Silently sort collection, if its required. Returns true if sort happened.  
-export function sortElements( collection : CollectionData, options : CollectionOptions ) : boolean {
+export function sortElements( collection : CollectionCore, options : CollectionOptions ) : boolean {
     let { comparator } = collection;
     if( comparator && options.sort !== false ){
         collection.models = typeof comparator === 'functon' ? (
@@ -76,12 +83,12 @@ export function removeIndex( index : IdIndex, model : Record ) : void {
 }
 
 // convert argument to model. Return false if fails.
-export function toModel( collection : CollectionData, attrs, options ){
+export function toModel( collection : CollectionCore, attrs, options ){
     const { model } = collection;
     return attrs instanceof model ? attrs : model.create( attrs, options, collection );
 }
 
-export function convertAndAquire( collection : CollectionData, attrs, options ){
+export function convertAndAquire( collection : CollectionCore, attrs, options ){
     const { model } = collection,
     	  record = attrs instanceof model ? attrs : model.create( attrs, options, collection );
 
@@ -106,7 +113,7 @@ export function convertAndAquire( collection : CollectionData, attrs, options ){
 // Transaction class. Implements two-phase transactions on object's tree. 
 export class CollectionTransaction implements Transaction {
     // open transaction
-    constructor(    public object : CollectionData,
+    constructor(    public object : CollectionCore,
                     public isRoot : boolean,
                     public added : Record[],
                     public removed : Record[],
