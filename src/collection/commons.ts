@@ -1,6 +1,8 @@
 import { Record } from '../record/index.ts'
-import { Owner, aquire, free, Transaction, 
+import { Owner, aquire, free, Transaction, markAsDirty,
         TransactionOptions, Transactional, commit } from '../transactions.ts'
+
+import { trigger2, trigger3 } from '../toolkit/events.ts'        
 
 export interface CollectionCore extends Transactional, Owner {
     _byId : IdIndex
@@ -119,7 +121,7 @@ export class CollectionTransaction implements Transaction {
                     public removed : Record[],
                     public nested : Transaction[],
                     public sorted : boolean ){
-        object._isDirty = true;
+        markAsDirty( object );
     }
 
     // commit transaction
@@ -136,23 +138,23 @@ export class CollectionTransaction implements Transaction {
             const { added, removed } = this;
 
             for( let record of added ){
-                object._notifyChangeItem( 'add', record, options );
+                trigger3( object, 'add', record, object, options );
             }
 
             for( let record of removed ){
-                object._notifyChangeItem( 'remove', record, options );
+                trigger3( object, 'remove', record, object, options );
             }
 
             for( let transaction of nested ){
-                object._notifyChangeItem( 'change', <Record> transaction.object, options );
+                trigger2( object, 'change', transaction.object, options );
             }
 
             if( this.sorted ){
-                object._notifyBulkChange( 'sort', options );
+                trigger2( object, 'sort', object, options );
             }
 
             if( added.length || removed.length ){
-                object._notifyBulkChange( 'update', options );
+                trigger2( object, 'update', object, options );
             }
         }
 

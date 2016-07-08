@@ -1,12 +1,12 @@
-import { begin, commit, aquire, free } from '../transactions.ts'
-import { CollectionTransaction, sortElements, CollectionOptions, toModel, addIndex, CollectionData } from './commons.ts'
+import { Transaction, begin, commit, aquire, free } from '../transactions.ts'
+import { CollectionTransaction, sortElements, CollectionOptions, toModel, addIndex, CollectionCore } from './commons.ts'
 import { Record } from '../record/index.ts'
 
 interface AddOptions extends CollectionOptions {
     at? : number 
 }
 
-export function addTransaction( collection : CollectionData, items, options : AddOptions ){
+export function addTransaction( collection : CollectionCore, items, options : AddOptions ){
     const isRoot = begin( collection ),
           nested = [];
 
@@ -22,7 +22,7 @@ export function addTransaction( collection : CollectionData, items, options : Ad
 };
 
 // Handle sort or insert at options for add operation. Reurns true if sort happened. 
-function sortOrMoveElements( collection : CollectionData, added : Record[], options : AddOptions ) : boolean {
+function sortOrMoveElements( collection : CollectionCore, added : Record[], options : AddOptions ) : boolean {
     let at = options.at;
     if( at != null ){
         // if at is given, it overrides sorting option...
@@ -39,7 +39,7 @@ function sortOrMoveElements( collection : CollectionData, added : Record[], opti
     return sortElements( collection, options );
 }
 
-function moveElements( source, at, added ){
+function moveElements( source : any[], at : number, added : any[] ) : void {
     for( var j = source.length - 1, i = j - added.length; i >= at; i--, j-- ){
         source[ j ] = source[ i ];
     }
@@ -50,7 +50,7 @@ function moveElements( source, at, added ){
 }
 
 // append data to model and index
-function appendElements( collection : CollectionData, a_items, nested, a_options ){
+function appendElements( collection : CollectionCore, a_items, nested : Transaction[], a_options ){
     var models      = collection.models,
         _byId       = collection._byId,
         merge       = a_options.merge,
@@ -64,7 +64,7 @@ function appendElements( collection : CollectionData, a_items, nested, a_options
         if( model ){
             if( merge && item !== model ){
                 var attrs = item.attributes || item;
-                const transaction = model.createTransaction( attrs, a_options );
+                const transaction = model._createTransaction( attrs, a_options );
                 transaction && nested.push( transaction );
             }
         }
