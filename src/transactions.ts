@@ -1,4 +1,4 @@
-import { Messenger, trigger2, trigger3, assign } from './toolkit/index.ts'
+import { Messenger, trigger2, trigger3, assign, define } from './toolkit/index.ts'
 import { ValidationError, Validatable, ChildrenErrors } from './validation.ts'
 import { Traversable, resolveReference } from './references.ts'
 /***
@@ -8,6 +8,9 @@ import { Traversable, resolveReference } from './references.ts'
  */
 
 // Transactional object interface
+@define({
+    _changeEventName : 'change'
+})
 export abstract class Transactional extends Messenger implements Validatable, Traversable {
     // Unique version token replaced on change
     _changeToken : {} = {}
@@ -189,8 +192,6 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
         return !this.getValidationError( key );
     }
 }
-
-Transactional.prototype._changeEventName = 'change';
 
 // Owner must accept children update events. It's an only way children communicates with an owner.
 export interface Owner extends Traversable {

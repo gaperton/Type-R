@@ -5,7 +5,8 @@
     "sourceMap": true,
     "outDir": "./dist",
     "noImplicitAny": false,
-    "removeComments":true
+    "removeComments":true,
+    "experimentalDecorators": true
   },
   "files":[
     "./src/index.ts"

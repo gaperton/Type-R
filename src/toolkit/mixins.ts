@@ -3,7 +3,7 @@
  * 
  * Vlad Balin & Volicon, (c) 2016
  */
-import { log, assign, omit, getPropertyDescriptor } from './tools.ts'
+import { log, assign, omit, getPropertyDescriptor, getBaseClass, defaults } from './tools.ts'
 
 type MergeRule = 'merge' | 'pipe' | 'sequence' | 'reverse' | 'every' | 'some'
 
@@ -24,12 +24,7 @@ export interface Factory {
     create( ...args : any[] ) : {}
 }
 
-export interface Extendable extends Factory {
-    define(spec? : ClassDefinition, statics? : {} ) : Extendable
-    extend(spec? : ClassDefinition, statics? : {} ) : Extendable
-    mixins( ...mixins : {}[] ) : Extendable
-    mixinRules( mixinRules : IMixinRules ) : Extendable
-}
+export type Extendable = typeof Class;
 
 // Base class, holding metaprogramming class extensions
 // Supports mixins, and Class.define metaprogramming method.
@@ -45,7 +40,7 @@ export class Class {
     /**
      * Attach mixins to class prototype.
      */
-    static mixins( ...mixins : {}[] ) : Extendable {
+    static mixins( ...mixins : ( Function | {} )[] ) : typeof Class {
         const proto      = this.prototype,
               mergeRules : IMixinRules = this._mixinRules || {};
 
@@ -53,6 +48,10 @@ export class Class {
             const mixin = mixins[ i ];
             if( mixin instanceof Array ) {
                 Class.mixins.apply( this, mixin );
+            }
+            else if( typeof mixin === 'function' ){
+                defaults( mixin, this );
+                mergeProps( proto, (<Function>mixin).prototype, mergeRules );
             }
             else {
                 mergeProps( proto, mixin, mergeRules );
@@ -85,16 +84,13 @@ export class Class {
         }
     }
 
-    // Attach Class methods to existing constructors
-    static attach( ...args : any[] ) : void {
-        for (let Ctor of args) {
-            Ctor.create            = this.create;
-            Ctor.define            = this.define;
-            Ctor.mixins            = this.mixins;
-            Ctor.mixinRules        = this.mixinRules;
-            Ctor._mixinRules       = this._mixinRules;
-            Ctor.prototype.bindAll = this.prototype.bindAll;
+    // Inversion of control version of Class.mixin.
+    static mixTo( ...args : Function[] ) : Extendable {
+        for( let Ctor of args ) {
+            Class.mixins.call( Ctor, this );
         }
+
+        return this;
     }
 
     /**
@@ -113,13 +109,7 @@ export class Class {
         }
 
         // Obtain references to prototype and base class.
-        const proto = this.prototype,
-              BaseClass : Extendable = Object.getPrototypeOf( proto ).constructor;
-
-        // Make sure we don't inherit class factories.
-        if( BaseClass.create === this.create ) {
-            this.create = Class.create;
-        }
+        const proto = this.prototype;
 
         // Extract prototype properties from the definition.
         const protoProps = omit( definition, 'properties', 'mixins', 'mixinRules' ),
@@ -143,6 +133,7 @@ export class Class {
     static extend(spec? : ClassDefinition, statics? : {} ) : Extendable {
         let Subclass : Extendable;
 
+        // 1. Create the subclass (ES5 compatibility shim).
         // If constructor function is given...
         if( spec && spec.hasOwnProperty( 'constructor' ) ){
             // ...we need to manually call internal TypeScript __extend function. Hack! Hack!
@@ -154,8 +145,21 @@ export class Class {
             Subclass = class Subclass extends this {};
         }
 
-        // And apply definitions
+        // 2. Apply definitions
         return Subclass.define( spec, statics );
+    }
+
+    // Do the magic necessary for forward declarations.
+    // Must be written in the way that it's safe to call twice.
+    static predefine(){
+        const BaseClass : Extendable = getBaseClass( this );
+
+        // Make sure we don't inherit class factories.
+        if( BaseClass.create === this.create ) {
+            this.create = Class.create;
+        }
+
+        return this;
     }
 }
 
@@ -170,30 +174,30 @@ export function mixins( ...list : {}[] ) {
 }
 
 // @extendable decorator
-export function extendable( Type : Function ) : Function{
-    Class.attach( Type );
+export function extendable< C extends Function >( Type : C ) : C {
+    Class.mixTo( Type );
     return Type;
 }
 
-function defineDecorator( spec : {} | Extendable ) {
-    return typeof spec === 'function' ?
-                   (<Extendable>spec).define() :
-                   createDecorator( 'define', spec );
+// @predefine decorator for forward definitions. 
+export function predefine( Constructor : Extendable ){
+    return Constructor.predefine();
 }
 
-export { defineDecorator as define };
+// @define decorator for metaprogramming magic.
+export function define( spec : ClassDefinition ){
+    return createDecorator( 'define', spec );
+} 
 
 // create ES7 decorator function for the static class members
-function createDecorator( name : string, spec : {} ) : ( Ctor : Extendable ) => Extendable {
-    return function( Ctor : Extendable ) : Extendable {
+function createDecorator( name : string, spec : {} ){
+    return function< C >( Ctor : C ) : void {
         if( Ctor[ name ] ) {
             Ctor[ name ]( spec );
         }
         else {
             Class[ name ].call( Ctor, spec );
         }
-
-        return Ctor;
     }
 }
 

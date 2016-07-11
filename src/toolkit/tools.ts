@@ -50,6 +50,10 @@ export function isValidJSON( value : any ) : boolean {
  * Object manipulation helpers...
  */
 
+export function getBaseClass( Class : Function ){
+    return Object.getPrototypeOf( Class.prototype ).constructor
+}
+
 type Iteratee = ( value : any, key? : string | number ) => any;
 
 function someArray( arr : any[], fun : Iteratee ) : any {

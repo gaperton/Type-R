@@ -3,7 +3,7 @@
  * The root of all definitions. 
  */
 
-import { Class, ClassDefinition, trigger3, log } from '../toolkit/index.ts'
+import { Class, ClassDefinition, trigger3, log, define } from '../toolkit/index.ts'
 
 import { Constructor } from '../types.ts'
 import { begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
@@ -84,6 +84,13 @@ interface ConstructorOptions extends TransactionOptions{
 // Client unique id counter
 let _cidCounter : number = 0;
 
+@define({
+    // Default client id prefix 
+    cidPrefix : 'c',
+
+    // Default id attribute name
+    idAttribute : 'id'
+})
 export class Record extends Transactional implements Owner {
     // Implemented at the index.ts to avoid circular dependency. Here we have just proper singature.
     static define( protoProps : RecordDefinition, staticProps ) : typeof Record { return this; }
@@ -344,18 +351,6 @@ export class Record extends Transactional implements Owner {
         super.dispose();
     }
 };
-
-/**************************************************
- * Initialize Record prototype elements
- */
-
-const recordProto = Record.prototype;
-
-// Default client id prefix 
-recordProto.cid = 'c';
-
-// Default id attribute name
-recordProto.idAttribute = 'id';
 
 /***********************************************
  * Helper functions
