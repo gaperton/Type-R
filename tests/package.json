@@ -1,0 +1,43 @@
+{
+  "name": "transactional",
+  "version": "0.1.0",
+  "description": "Observable record and collection with transactional updates",
+  "main": "transactional.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "mocha",
+    "build": "node_modules/.bin/webpack",
+    "watch": "node_modules/.bin/webpack --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gaperton/TransactionalJS.git"
+  },
+  "keywords": [
+    "model",
+    "backbone",
+    "data",
+    "nestedtypes",
+    "schema",
+    "serialization"
+  ],
+  "author": "Vlad Balin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gaperton/TransactionalJS/issues"
+  },
+  "homepage": "https://github.com/gaperton/TransactionalJS#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.4.5",
+    "mocha-loader": "^0.7.1",
+    "sinon": "^1.17.3",
+    "sinon-chai": "^2.8.0",
+    "ts-loader": "^0.8.2",
+    "source-map-loader" : "*",
+    "typescript": "^1.8.10",
+    "webpack": "^1.13.0"
+  }
+}

@@ -8,6 +8,7 @@ Will be the basis for next NestedTypes version.
 Features
 ------------
 Model
+
     - new Model( attrs, options )
     - model.set( attrs, options )
     - model.toJSON()
@@ -24,6 +25,7 @@ Model
 
 
 1. Transactional API:
+
 - model.transaction( fun )
 - model.attr = x;
     - every assignment is nested transaction
@@ -33,6 +35,7 @@ Model
     - every commited nested transaction is local `touch`.
     
 2. Object sync API. Mostly used inside of fetch.
+
 - model.set
     - optimized for complete object set (unrolled attr loop).
     - change:attr is delayed (two-phase commit, nested first)
