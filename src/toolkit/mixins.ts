@@ -144,7 +144,7 @@ export class Class {
         let Subclass : Extendable;
 
         // If constructor function is given...
-        if( spec.constructor ){
+        if( spec && spec.hasOwnProperty( 'constructor' ) ){
             // ...we need to manually call internal TypeScript __extend function. Hack! Hack!
             Subclass = <any>spec.constructor; 
             __extends( Subclass, this );
