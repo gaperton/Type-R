@@ -24,16 +24,18 @@ export interface Constructor< T >{
     new ( ...args : any[] ) : T
 }
 
-export interface ExtendableConstructor extends Constructor< Class >{
+export interface ExtendableConstructor< T > extends Constructor< T >{
     prototype : Class
     create( a : any, b? : any, c? : any ) : Class
-    mixins( ...mixins : ( Constructor<any> | {} )[] ) : ExtendableConstructor
-    mixinRules( mixinRules : IMixinRules ) : ExtendableConstructor
-    mixTo( ...args : Constructor<any>[] ) : ExtendableConstructor
-    define( definition : ClassDefinition, staticProps? : {} ) : ExtendableConstructor
-    extend(spec? : ClassDefinition, statics? : {} ) : ExtendableConstructor
-    predefine() : ExtendableConstructor
+    mixins( ...mixins : ( Constructor<any> | {} )[] ) : ExtendableConstructor< T >
+    mixinRules( mixinRules : IMixinRules ) : ExtendableConstructor< T >
+    mixTo( ...args : Constructor<any>[] ) : ExtendableConstructor< T >
+    define( definition : ClassDefinition, staticProps? : {} ) : ExtendableConstructor< T >
+    extend(spec? : ClassDefinition, statics? : {} ) : ExtendableConstructor< T >
+    predefine() : ExtendableConstructor< T >
 }
+
+type ClassConstructor = ExtendableConstructor< Class >
 
 // Base class, holding metaprogramming class extensions
 // Supports mixins, and Class.define metaprogramming method.
@@ -71,7 +73,7 @@ export class Class {
     }
 
     // Inversion of control version of Class.mixin.
-    static mixTo( ...args : Function[] ) : ExtendableConstructor {
+    static mixTo< T >( ...args : Function[] ) : typeof Class {
         for( let Ctor of args ) {
             Class.mixins.call( Ctor, this );
         }
@@ -81,7 +83,7 @@ export class Class {
 
     // Members merging policy is controlled by MyClass.mixinRules property.
     // mixinRules are properly inherited and merged.
-    static mixinRules( mixinRules : IMixinRules ) : ExtendableConstructor {
+    static mixinRules( mixinRules : IMixinRules ) : ExtendableConstructor< Class > {
         const Base = Object.getPrototypeOf( this.prototype ).constructor;
 
         if( Base._mixinRules ) {
@@ -110,7 +112,7 @@ export class Class {
      * - Assign mixinRules static property, and merge it with parent.
      * - Adds mixins.
      */
-    static define( definition : ClassDefinition = {}, staticProps? : {} ) : ExtendableConstructor {
+    static define( definition : ClassDefinition = {}, staticProps? : {} ) : typeof Class {
         // That actually might happen when we're using @define decorator... 
         if( !this.define ){
             log.error( "[Class.define] Class must have class extensions to use @define decorator. Use '@extendable' before @define, or extend the base class with class extensions.", definition );
@@ -139,8 +141,8 @@ export class Class {
     }
 
     // Backbone-compatible extend method to be used in ES5 and for backward compatibility
-    static extend(spec? : ClassDefinition, statics? : {} ) : ExtendableConstructor {
-        let Subclass : ExtendableConstructor;
+    static extend(spec? : ClassDefinition, statics? : {} ) : typeof Class {
+        let Subclass : typeof Class;
 
         // 1. Create the subclass (ES5 compatibility shim).
         // If constructor function is given...
@@ -160,8 +162,8 @@ export class Class {
 
     // Do the magic necessary for forward declarations.
     // Must be written in the way that it's safe to call twice.
-    static predefine() : ExtendableConstructor {
-        const BaseClass : ExtendableConstructor = getBaseClass( this );
+    static predefine() : typeof Class {
+        const BaseClass : typeof Class = getBaseClass( this );
 
         // Make sure we don't inherit class factories.
         if( BaseClass.create === this.create ) {
@@ -182,15 +184,14 @@ export function mixins( ...list : {}[] ) {
     return createDecorator( 'mixins', list );
 }
 
-// @extendable decorator
-export function extendable< C extends Function >( Type : C ) : C {
+// @extendable decorator. Convert class to be an ExtendableConstructor.
+export function extendable( Type : Constructor< any > ) : void {
     Class.mixTo( Type );
-    return Type;
 }
 
 // @predefine decorator for forward definitions. 
-export function predefine( Constructor : ExtendableConstructor ){
-    return Constructor.predefine();
+export function predefine( Constructor : ExtendableConstructor< any > ) : void {
+    Constructor.predefine();
 }
 
 // @define decorator for metaprogramming magic.
@@ -198,9 +199,10 @@ export function define( spec : ClassDefinition ){
     return createDecorator( 'define', spec );
 } 
 
-// create ES7 decorator function for the static class members
+// Create ES7 class decorator forwarding call to the static class member.
+// If there is no such a member, forward the call to Class.
 function createDecorator( name : string, spec : {} ){
-    return function< C >( Ctor : C ) : void {
+    return function( Ctor : Constructor< any > ) : void {
         if( Ctor[ name ] ) {
             Ctor[ name ]( spec );
         }

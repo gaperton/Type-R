@@ -15,7 +15,7 @@ export interface TransactionalConstructor extends Constructor< Transactional >, 
 @define({
     _changeEventName : 'change'
 })
-export class Transactional extends Messenger implements Validatable, Traversable {
+export abstract class Transactional extends Messenger implements Validatable, Traversable {
     // Unique version token replaced on change
     _changeToken : {} = {}
 
@@ -44,9 +44,7 @@ export class Transactional extends Messenger implements Validatable, Traversable
     // Deeply clone ownership subtree, optionally setting the new owner
     // (TODO: Do we really need it? Record must ignore events with empty keys)
     // 'Pin store' shall assign this._defaultStore = this.getStore();
-    clone( options? : { owner? : Owner, key? : string, pinStore? : boolean }) : this {
-        throw new ReferenceError( 'Not implemented' );
-     }
+    abstract clone( options? : { owner? : Owner, key? : string, pinStore? : boolean }) : this
     
     // Execute given function in the scope of ad-hoc transaction.
     transaction( fun : ( self : this ) => void, options? : TransactionOptions ) : void{
@@ -76,26 +74,20 @@ export class Transactional extends Messenger implements Validatable, Traversable
     // Apply bulk object update without any notifications, and return open transaction.
     // Used internally to implement two-phase commit.
     // Returns null if there are no any changes.  
-    _createTransaction( values : any, options? : TransactionOptions ) : Transaction {
-        throw new ReferenceError( 'Not implemented' );
-    }
+    abstract _createTransaction( values : any, options? : TransactionOptions ) : Transaction
     
     // Parse function applied when 'parse' option is set for transaction.
     parse( data : any ) : any { return data }
 
     // Convert object to the serializable JSON structure
-    toJSON() : {} {
-        throw new ReferenceError( 'Not implemented' );
-    }
+    abstract toJSON() : {}
 
     /*******************
      * Traversals and member access
      */
     
     // Get object member by its key.
-    get( key : string ) : any {
-        throw new ReferenceError( 'Not implemented' );
-    }
+    abstract get( key : string ) : any
 
     // Get object member by symbolic reference.
     deepGet( reference : string ) : any {
@@ -124,9 +116,7 @@ export class Transactional extends Messenger implements Validatable, Traversable
      */
 
     // Loop through the members. Must be efficiently implemented in container class.
-    each( iteratee : ( val : any, key : string | number ) => void, context? : any ){
-        throw new ReferenceError( 'Not implemented' );
-    }
+    abstract each( iteratee : ( val : any, key : string | number ) => void, context? : any )
 
     // Map members to an array
     map<T>( iteratee : ( val : any, key : string ) => T, context? : any ) : T[]{
@@ -179,9 +169,7 @@ export class Transactional extends Messenger implements Validatable, Traversable
     }
 
     // Validate nested members. Returns errors count.
-    _validateNested( errors : ChildrenErrors ) : number {
-        throw new ReferenceError( 'Not implemented' );
-    }
+    abstract _validateNested( errors : ChildrenErrors ) : number
 
     // Object-level validator. Returns validation error.
     validate( obj? : Transactional ) : any {}

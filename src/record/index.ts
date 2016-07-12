@@ -1,5 +1,5 @@
 import { Record, RecordDefinition } from './transaction.ts'
-import { assign, defaults, omit, Class, ClassDefinition, ExtendableConstructor } from '../objectplus/index.ts'
+import { assign, defaults, omit, Class, ClassDefinition } from '../objectplus/index.ts'
 import { compile, AttributesSpec } from './define.ts'
 
 import { TransactionalType } from './nestedTypes.ts'
