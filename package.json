@@ -1,6 +1,6 @@
 {
-  "name": "transactional",
-  "version": "1.0.0-0",
+  "name": "type-r",
+  "version": "1.0.0-1",
   "description": "Reactive objects with transactional updates and automatic serialization",
   "main": "index.js",
   "directories": {
