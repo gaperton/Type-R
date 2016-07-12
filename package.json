@@ -1,7 +1,7 @@
 {
   "name": "transactional",
-  "version": "0.1.0",
-  "description": "Observable record and collection with transactional updates",
+  "version": "1.0.0-0",
+  "description": "Reactive objects with transactional updates and automatic serialization",
   "main": "index.js",
   "directories": {
     "test": "tests"
