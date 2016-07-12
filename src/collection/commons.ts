@@ -2,7 +2,7 @@ import { Record } from '../record/index.ts'
 import { Owner, aquire, free, Transaction, markAsDirty,
         TransactionOptions, Transactional, commit } from '../transactions.ts'
 
-import { trigger2, trigger3 } from '../toolkit/events.ts'        
+import { trigger2, trigger3 } from '../objectplus/index.ts'        
 
 export interface CollectionCore extends Transactional, Owner {
     _byId : IdIndex

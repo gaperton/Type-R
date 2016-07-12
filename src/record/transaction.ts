@@ -3,7 +3,7 @@
  * The root of all definitions. 
  */
 
-import { Class, ClassDefinition, trigger3, log, define } from '../toolkit/index.ts'
+import { Class, ClassDefinition, trigger3, log, define } from '../objectplus/index.ts'
 
 import { Constructor } from '../types.ts'
 import { begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'

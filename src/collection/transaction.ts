@@ -1,4 +1,4 @@
-import { Class, ClassDefinition } from '../class.ts'
+import { Class, ClassDefinition } from '../objectplus/index.ts'
 import { begin, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 import { Record } from '../record/index.ts'
 
