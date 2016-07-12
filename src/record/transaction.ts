@@ -3,9 +3,8 @@
  * The root of all definitions. 
  */
 
-import { Class, ClassDefinition, trigger3, log, define } from '../objectplus/index.ts'
+import { Class, ClassDefinition, Constructor, trigger3, log, define } from '../objectplus/index.ts'
 
-import { Constructor } from '../types.ts'
 import { begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 import { ChildrenErrors } from '../validation.ts'
 
@@ -22,7 +21,7 @@ export interface AttributeDescriptorMap {
 }
 
 export interface AttributeDescriptor {
-    type? : Constructor
+    type? : Constructor< any >
     value? : any
 
     parse? : AttributeParse
