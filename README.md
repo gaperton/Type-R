@@ -4,52 +4,10 @@ Minimalistic transactional model core. ES6
 
 Will be the basis for next NestedTypes version.
 
+## Current state
 
-Features
-------------
-Model
+Detailed design is finished.
 
-    - new Model( attrs, options )
-    - model.set( attrs, options )
-    - model.toJSON()
-    - model.parse( data )
-    - model.name = value; 
-    - model.transaction( fun );
-    - model.attributes spec
-        - Primitive Types
-        - Type inference
-        - Date
-        - Model
-        - Type.value( x ) support.
-    - NO backbone events depencency
+NestedTypes 1.3 test harness is deployed and ready to engage. Beware, bugs. Time to code and debug.
 
-
-1. Transactional API:
-
-- model.transaction( fun )
-- model.attr = x;
-    - every assignment is nested transaction
-    - immediate change:attr event
-    - optimized for primitives
-    - 'deep set' uses object sync API.
-    - every commited nested transaction is local `touch`.
-    
-2. Object sync API. Mostly used inside of fetch.
-
-- model.set
-    - optimized for complete object set (unrolled attr loop).
-    - change:attr is delayed (two-phase commit, nested first)
-    - treat every nested commited transaction in the same way as local attr change.
-    - commit nested transactions ( -- )
-    - commit self 
-    Sequence (sync):
-    0. Open transaction, if needed
-    1. Set all local and nested attrs
-    Check if marked for delayed external commit (delayed change:attr), exit if true.
-    2. Commit nested transactions (change:attr + change).
-    3. Commit self
-    
-- An API:
-    - Open transaction and update
-    - Commit.
-     
+We're on the finish line. Lets see what we will got in terms of performance. It should be the real beast in V8, outperforming everything which is written for the data layer up to the date. Magic people, voodoo people! :)
