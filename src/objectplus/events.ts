@@ -4,8 +4,16 @@ import { Class, mixins, define } from './mixins.ts'
 /************
  * JIT-Optimized monomorphic functions to trigger single event 
  */
+export function trigger0( self : Messenger, name : string ) : void {
+    const { _events } = self;
+    if( _events ){
+        _fireEvent0( _events[ name ] );
+        _fireEvent1( _events.all, name );
+    }
+};
+
 export function trigger1( self : Messenger, name : string, a : any ) : void {
-    var _events = self._events;
+    const { _events } = self;
     if( _events ){
         _fireEvent1( _events[ name ], a );
         _fireEvent2( _events.all, name, a );
@@ -13,7 +21,7 @@ export function trigger1( self : Messenger, name : string, a : any ) : void {
 };
 
 export function trigger2( self : Messenger, name : string, a, b ) : void {
-    var _events = self._events;
+    const { _events } = self;
     if( _events ){
         _fireEvent2( _events[ name ], a, b );
         _fireEvent3( _events.all, name, a, b );
@@ -21,38 +29,12 @@ export function trigger2( self : Messenger, name : string, a, b ) : void {
 };
 
 export function trigger3( self : Messenger, name : string, a, b, c ) : void{
-    var _events = self._events;
+    const { _events } = self;
     if( _events ){
         _fireEvent3( _events[ name ], a, b, c );
         _fireEvent4( _events.all, name, a, b, c );
     }
 };
-
-// ...and specialized functions with triggering loops.
-// Crappy JS JIT loves these small functions and code duplication.
-function _fireEvent1( events : Handler[], a ) : void {
-    if( events )
-        for( var i = 0, l = events.length, ev; i < l; i ++ )
-            (ev = events[i]).callback.call(ev.ctx, a );
-}
-
-function _fireEvent2( events : Handler[], a, b ) : void {
-    if( events )
-        for( var i = 0, l = events.length, ev; i < l; i ++ )
-            (ev = events[i]).callback.call(ev.ctx, a, b);
-}
-
-function _fireEvent3( events : Handler[], a, b, c ) : void {
-    if( events )
-        for( var i = 0, l = events.length, ev; i < l; i ++ )
-            (ev = events[i]).callback.call(ev.ctx, a, b, c);
-}
-
-function _fireEvent4( events : Handler[], a, b, c, d ) : void {
-    if( events )
-        for( var i = 0, l = events.length, ev; i < l; i ++ )
-            (ev = events[i]).callback.call(ev.ctx, a, b, c, d);
-}
 
 // Backbone.Events
 // ---------------
@@ -227,22 +209,42 @@ export abstract class Messenger implements Class {
     // passed the same arguments as `trigger` is, apart from the event name
     // (unless you're listening on `"all"`, which will cause your callback to
     // receive the true name of the event as the first argument).
-    trigger(name) {
-        if (!this._events) return this;
+    trigger(name : string, a?, b?, c? ) : this {
+        switch( arguments.length ){
+            // Forward call to monomorphic fast-path functions.
+            case 1 : trigger0( this, name ); break;
+            case 2 : trigger1( this, name, a ); break;
+            case 3 : trigger2( this, name, a, b ); break;
+            case 4 : trigger3( this, name, a, b, c ); break;
+            
+            // Trigger event with more than 3 arguments.
+            default :
+                // Passing arguments around killing performance. Convert it to array.
+                const allArgs = Array( arguments.length );
+                
+                for( let i = 0; i < allArgs.length; i++ ){
+                    allArgs[ i ] = arguments[ i ];
+                }
 
-        var length = Math.max(0, arguments.length - 1);
-        var args = Array(length);
-        for (var i = 0; i < length; i++) args[i] = arguments[i + 1];
+                // Send events.
+                const { _events } = this;
 
-        eventsApi(triggerApi, this._events, name, void 0, args);
+                if( _events ){
+                    _fireEventAll( _events[ name ], allArgs.splice( 0, 1 ) );
+                    _fireEventAll( _events.all, allArgs );
+                }                      
+        }
+
         return this;
     }
 
-    dispose(){
+    dispose() : void {
         this.stopListening();
         this.off();
     }
 }
+
+const slice = Array.prototype.slice;
 
 export const Events = Messenger.prototype;
 
@@ -360,28 +362,40 @@ var onceMap = function(map, name, callback, offer) {
     return map;
 };
 
-// Handles triggering the appropriate event callbacks.
-var triggerApi = function(objEvents, name, cb, args) {
-    if (objEvents) {
-        var events = objEvents[name];
-        var allEvents = objEvents.all;
-        if (events && allEvents) allEvents = allEvents.slice();
-        if (events) triggerEvents(events, args);
-        if (allEvents) triggerEvents(allEvents, [name].concat(args));
-    }
-    return objEvents;
-};
+// Specialized functions with events triggering loops.
+// JS JIT loves these small functions and code duplication.
+function _fireEvent0( events : Handler[] ) : void {
+    if( events )
+        for( let ev of events )
+            ev.callback.call( ev.ctx );
+}
 
-// A difficult-to-believe, but optimized internal dispatch function for
-// triggering events. Tries to keep the usual cases speedy (most internal
-// Backbone events have 3 arguments).
-var triggerEvents = function(events, args) {
-    var ev, i = -1, l = events.length, a1 = args[0], a2 = args[1], a3 = args[2];
-    switch (args.length) {
-        case 0: while (++i < l) (ev = events[i]).callback.call(ev.ctx); return;
-        case 1: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1); return;
-        case 2: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1, a2); return;
-        case 3: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1, a2, a3); return;
-        default: while (++i < l) (ev = events[i]).callback.apply(ev.ctx, args); return;
-    }
-};
+function _fireEvent1( events : Handler[], a ) : void {
+    if( events )
+        for( let ev of events )
+            ev.callback.call( ev.ctx, a );
+}
+
+function _fireEvent2( events : Handler[], a, b ) : void {
+    if( events )
+        for( let ev of events )
+            ev.callback.call( ev.ctx, a, b );
+}
+
+function _fireEvent3( events : Handler[], a, b, c ) : void {
+    if( events )
+        for( let ev of events )
+            ev.callback.call( ev.ctx, a, b, c );
+}
+
+function _fireEvent4( events : Handler[], a, b, c, d ) : void {
+    if( events )
+        for( let ev of events )
+            ev.callback.call( ev.ctx, a, b, c, d );
+}
+
+function _fireEventAll( events : Handler[], args : any[] ) : void {
+    if( events )
+        for( let ev of events )
+            ev.callback.apply( ev.ctx, args );
+}
