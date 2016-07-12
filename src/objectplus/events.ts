@@ -122,6 +122,8 @@ export abstract class Messenger implements Class {
     cidPrefix : string
     cid : string
 
+    static create : ( a : any, b? : any, c? : any ) => Messenger
+
     constructor( cid : string | number ){
         this.cid = this.cidPrefix + cid;
     }

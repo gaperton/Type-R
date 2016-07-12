@@ -1,4 +1,4 @@
-import { Messenger, trigger2, trigger3, assign, define } from './toolkit/index.ts'
+import { Messenger, trigger2, trigger3, assign, define, Constructor, ExtendableConstructor } from './objectplus/index.ts'
 import { ValidationError, Validatable, ChildrenErrors } from './validation.ts'
 import { Traversable, resolveReference } from './references.ts'
 /***
@@ -7,11 +7,15 @@ import { Traversable, resolveReference } from './references.ts'
  * 2. transaction.commit() - send and process all change events, and close transaction.
  */
 
+export interface TransactionalConstructor extends Constructor< Transactional >, ExtendableConstructor {
+
+}
+
 // Transactional object interface
 @define({
     _changeEventName : 'change'
 })
-export abstract class Transactional extends Messenger implements Validatable, Traversable {
+export class Transactional extends Messenger implements Validatable, Traversable {
     // Unique version token replaced on change
     _changeToken : {} = {}
 
@@ -40,7 +44,9 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     // Deeply clone ownership subtree, optionally setting the new owner
     // (TODO: Do we really need it? Record must ignore events with empty keys)
     // 'Pin store' shall assign this._defaultStore = this.getStore();
-    abstract clone( options? : { owner? : Owner, key? : string, pinStore? : boolean }) : this
+    clone( options? : { owner? : Owner, key? : string, pinStore? : boolean }) : this {
+        throw new ReferenceError( 'Not implemented' );
+     }
     
     // Execute given function in the scope of ad-hoc transaction.
     transaction( fun : ( self : this ) => void, options? : TransactionOptions ) : void{
@@ -70,20 +76,26 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     // Apply bulk object update without any notifications, and return open transaction.
     // Used internally to implement two-phase commit.
     // Returns null if there are no any changes.  
-    abstract _createTransaction( values : any, options? : TransactionOptions ) : Transaction
+    _createTransaction( values : any, options? : TransactionOptions ) : Transaction {
+        throw new ReferenceError( 'Not implemented' );
+    }
     
     // Parse function applied when 'parse' option is set for transaction.
     parse( data : any ) : any { return data }
 
     // Convert object to the serializable JSON structure
-    abstract toJSON() : {}
+    toJSON() : {} {
+        throw new ReferenceError( 'Not implemented' );
+    }
 
     /*******************
      * Traversals and member access
      */
     
     // Get object member by its key.
-    abstract get( key : string ) : any;
+    get( key : string ) : any {
+        throw new ReferenceError( 'Not implemented' );
+    }
 
     // Get object member by symbolic reference.
     deepGet( reference : string ) : any {
@@ -112,7 +124,9 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
      */
 
     // Loop through the members. Must be efficiently implemented in container class.
-    abstract each( iteratee : ( val : any, key : string | number ) => void, context? : any )
+    each( iteratee : ( val : any, key : string | number ) => void, context? : any ){
+        throw new ReferenceError( 'Not implemented' );
+    }
 
     // Map members to an array
     map<T>( iteratee : ( val : any, key : string ) => T, context? : any ) : T[]{
@@ -165,7 +179,9 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     }
 
     // Validate nested members. Returns errors count.
-    abstract _validateNested( errors : ChildrenErrors ) : number;
+    _validateNested( errors : ChildrenErrors ) : number {
+        throw new ReferenceError( 'Not implemented' );
+    }
 
     // Object-level validator. Returns validation error.
     validate( obj? : Transactional ) : any {}
@@ -195,7 +211,7 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
 
 // Owner must accept children update events. It's an only way children communicates with an owner.
 export interface Owner extends Traversable {
-    _onChildrenChange( child : Transactional, options : TransactionOptions );
+    _onChildrenChange( child : Transactional, options : TransactionOptions ) : void;
     getOwner() : Owner
     getStore() : Transactional
 }

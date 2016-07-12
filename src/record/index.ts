@@ -1,14 +1,8 @@
 import { Record, RecordDefinition } from './transaction.ts'
-import { assign, defaults, omit } from '../tools.ts'
-import { Class, ClassDefinition, Extendable } from '../class.ts'
+import { assign, defaults, omit, Class, ClassDefinition, ExtendableConstructor } from '../objectplus/index.ts'
 import { compile, AttributesSpec } from './define.ts'
 
 import { TransactionalType } from './nestedTypes.ts'
-
-export interface RecordConstructor extends Extendable {
-    new ( attrs? : {}, options? : {} ) : Record;
-    define( spec? : RecordDefinition, statics? : {} )
-}
 
 Record.define = function( protoProps : RecordDefinition, staticProps ){
     const baseProto : Record = Object.getPrototypeOf( this.prototype ),
@@ -29,7 +23,7 @@ Record.define = function( protoProps : RecordDefinition, staticProps ){
     return this;
 }
 
-Record._attribute = TransactionalType
+Record._attribute = TransactionalType;
 
 
 export { Record }

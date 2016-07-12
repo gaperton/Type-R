@@ -1,7 +1,7 @@
 import { setAttribute, Record, Attribute, Transform, ChangeHandler, AttributeDescriptor } from './transaction.ts'
-import { notEqual, assign } from '../tools.ts'
+import { notEqual, assign, Constructor } from '../objectplus/index.ts'
 
-import { Owner, Transactional, TransactionOptions, Constructor } from '../types.ts'
+import { Owner, Transactional, TransactionOptions } from '../transactions.ts'
 
 type GetHook = ( value : any, key : string ) => any;
 export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | string;
@@ -111,7 +111,7 @@ export class GenericAttribute implements Attribute {
     }
 
     value : any
-    type : Constructor
+    type : Constructor< any >
 
     parse : ( value, key : string ) => any
 

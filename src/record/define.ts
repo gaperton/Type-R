@@ -1,7 +1,6 @@
 import { GenericAttribute } from './attribute.ts';
 import { Attribute, AttributesValues, AttributeDescriptorMap, CloneAttributesCtor } from './transaction.ts'
-import { defaults, isValidJSON, transform } from '../tools.ts'
-import { log } from '../tools.ts'
+import { defaults, isValidJSON, transform, log } from '../objectplus/index.ts'
 
 export interface DynamicMixin {
     _attributes : AttributesSpec
