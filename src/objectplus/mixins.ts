@@ -202,7 +202,7 @@ export function define( spec : ClassDefinition ){
 // Create ES7 class decorator forwarding call to the static class member.
 // If there is no such a member, forward the call to Class.
 function createDecorator( name : string, spec : {} ){
-    return function( Ctor : Constructor< any > ) : void {
+    return function( Ctor : Function ) : void {
         if( Ctor[ name ] ) {
             Ctor[ name ]( spec );
         }

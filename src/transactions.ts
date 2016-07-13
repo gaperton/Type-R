@@ -7,9 +7,7 @@ import { Traversable, resolveReference } from './references.ts'
  * 2. transaction.commit() - send and process all change events, and close transaction.
  */
 
-export interface TransactionalConstructor extends Constructor< Transactional >, ExtendableConstructor {
-
-}
+export type TransactionalConstructor = ExtendableConstructor< Transactional >;
 
 // Transactional object interface
 @define({

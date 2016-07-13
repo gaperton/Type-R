@@ -707,11 +707,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.mixins = mixins;
 	function extendable(Type) {
 	    Class.mixTo(Type);
-	    return Type;
 	}
 	exports.extendable = extendable;
 	function predefine(Constructor) {
-	    return Constructor.predefine();
+	    Constructor.predefine();
 	}
 	exports.predefine = predefine;
 	function define(spec) {
@@ -1132,9 +1131,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this._owner = owner;
 	        this._ownerKey = ownerKey;
 	    }
-	    Transactional.prototype.clone = function (options) {
-	        throw new ReferenceError('Not implemented');
-	    };
 	    Transactional.prototype.transaction = function (fun, options) {
 	        var isRoot = begin(this);
 	        fun(this);
@@ -1152,16 +1148,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return this;
 	    };
-	    Transactional.prototype._createTransaction = function (values, options) {
-	        throw new ReferenceError('Not implemented');
-	    };
 	    Transactional.prototype.parse = function (data) { return data; };
-	    Transactional.prototype.toJSON = function () {
-	        throw new ReferenceError('Not implemented');
-	    };
-	    Transactional.prototype.get = function (key) {
-	        throw new ReferenceError('Not implemented');
-	    };
 	    Transactional.prototype.deepGet = function (reference) {
 	        return references_ts_1.resolveReference(this, reference, function (object, key) { return object.get(key); });
 	    };
@@ -1171,9 +1158,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Transactional.prototype.getStore = function () {
 	        var _owner = this._owner;
 	        return _owner ? _owner.getStore() : this._defaultStore;
-	    };
-	    Transactional.prototype.each = function (iteratee, context) {
-	        throw new ReferenceError('Not implemented');
 	    };
 	    Transactional.prototype.map = function (iteratee, context) {
 	        var arr = [], fun = arguments.length === 2 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee;
@@ -1209,9 +1193,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        enumerable: true,
 	        configurable: true
 	    });
-	    Transactional.prototype._validateNested = function (errors) {
-	        throw new ReferenceError('Not implemented');
-	    };
 	    Transactional.prototype.validate = function (obj) { };
 	    Transactional.prototype.getValidationError = function (key) {
 	        var error = this.validationError;
