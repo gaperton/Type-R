@@ -1,8 +1,8 @@
-import { Record } from './record/index.ts'
-import { CollectionConstructor, RecordDefinition, CollectionDefinition, ICollection } from './types'
+import { Record, RecordDefinition } from './record/index.ts'
+//import { Collection, CollectionDefinition, ICollection } from './collection/transaction'
 
 export class Model extends Record {
-    static Collection : CollectionConstructor
+    static Collection : typeof Collection
 
     // Returns owner without the key (usually it's collection)
     get collection() : ICollection {

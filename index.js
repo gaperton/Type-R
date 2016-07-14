@@ -61,7 +61,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var tools = __webpack_require__(1);
 	exports.tools = tools;
 	var index_ts_1 = __webpack_require__(2);
-	exports.Record = index_ts_1.Record;
+	exports.Model = index_ts_1.Record;
 	var events_ts_1 = __webpack_require__(6);
 	exports.on = events_ts_1.Events.on, exports.off = events_ts_1.Events.off, exports.trigger = events_ts_1.Events.trigger, exports.once = events_ts_1.Events.once, exports.listenTo = events_ts_1.Events.listenTo, exports.stopListening = events_ts_1.Events.stopListening, exports.listenToOnce = events_ts_1.Events.listenToOnce;
 	__export(__webpack_require__(5));
