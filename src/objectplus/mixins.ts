@@ -3,7 +3,7 @@
  * 
  * Vlad Balin & Volicon, (c) 2016
  */
-import { log, assign, omit, getPropertyDescriptor, getBaseClass, defaults } from './tools.ts'
+import { log, assign, omit, getPropertyDescriptor, getBaseClass, defaults, transform } from './tools.ts'
 
 type MergeRule = 'merge' | 'pipe' | 'sequence' | 'reverse' | 'every' | 'some'
 
@@ -11,8 +11,14 @@ interface IMixinRules {
     [ propertyName : string ] : MergeRule | IMixinRules
 }
 
+interface PropertyMap {
+    [ name : string ] : Property
+}
+
+type Property = PropertyDescriptor | ( () => any )
+
 export interface ClassDefinition {
-    properties? : PropertyDescriptorMap
+    properties? : PropertyMap
     mixins? : Array< Object >
     mixinRules? : IMixinRules
     [ name : string ] : any
@@ -124,14 +130,14 @@ export class Class {
 
         // Extract prototype properties from the definition.
         const protoProps = omit( definition, 'properties', 'mixins', 'mixinRules' ),
-            { properties = <PropertyDescriptorMap> {}, mixins, mixinRules } = definition;
+            { properties = <PropertyMap> {}, mixins, mixinRules } = definition;
 
         // Update prototype and statics.
         assign( proto, protoProps );
         assign( this, staticProps );
 
         // Define native properties.
-        properties && Object.defineProperties( proto, properties );
+        properties && Object.defineProperties( proto, transform( {}, properties, toPropertyDescriptor ) );
 
         // Apply mixins and mixin rules.
         mixinRules && this.mixinRules( mixinRules );
@@ -172,6 +178,10 @@ export class Class {
 
         return this;
     }
+}
+
+function toPropertyDescriptor( x : Property ) : PropertyDescriptor {
+    return typeof x === 'function' ? { get : < () => any >x } : <PropertyDescriptor> x;
 }
 
 // @mixinRules({ ... }) decorator

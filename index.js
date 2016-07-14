@@ -668,7 +668,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var protoProps = tools_ts_1.omit(definition, 'properties', 'mixins', 'mixinRules'), _a = definition.properties, properties = _a === void 0 ? {} : _a, mixins = definition.mixins, mixinRules = definition.mixinRules;
 	        tools_ts_1.assign(proto, protoProps);
 	        tools_ts_1.assign(this, staticProps);
-	        properties && Object.defineProperties(proto, properties);
+	        properties && Object.defineProperties(proto, tools_ts_1.transform({}, properties, toPropertyDescriptor));
 	        mixinRules && this.mixinRules(mixinRules);
 	        mixins && this.mixins(mixins);
 	        return this;
@@ -701,6 +701,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return Class;
 	}());
 	exports.Class = Class;
+	function toPropertyDescriptor(x) {
+	    return typeof x === 'function' ? { get: x } : x;
+	}
 	function mixinRules(rules) {
 	    return createDecorator('mixinRules', rules);
 	}
