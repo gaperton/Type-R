@@ -1,5 +1,5 @@
 (function() {
-
+/*
   var proxy = Backbone.Model.defaults({
     id     : '1-the-tempest',
     title  : "The Tempest",
@@ -13,7 +13,7 @@
   var klass = Backbone.Collection.extend({
     model : proxy,
     url : function() { return '/collection'; }
-  });
+  }); */
   var doc, collection;
 
   QUnit.module("Backbone.Model", {

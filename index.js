@@ -62,6 +62,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.tools = tools;
 	var index_ts_1 = __webpack_require__(2);
 	exports.Record = index_ts_1.Record;
+	var events_ts_1 = __webpack_require__(6);
+	exports.on = events_ts_1.Events.on, exports.off = events_ts_1.Events.off, exports.trigger = events_ts_1.Events.trigger, exports.once = events_ts_1.Events.once, exports.listenTo = events_ts_1.Events.listenTo, exports.stopListening = events_ts_1.Events.stopListening, exports.listenToOnce = events_ts_1.Events.listenToOnce;
 	__export(__webpack_require__(5));
 	__export(__webpack_require__(6));
 
@@ -799,12 +801,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
 	    return c > 3 && r && Object.defineProperty(target, key, r), r;
 	};
+	var tools_ts_1 = __webpack_require__(1);
 	var mixins_ts_1 = __webpack_require__(5);
 	function trigger0(self, name) {
 	    var _events = self._events;
 	    if (_events) {
+	        var all = _events.all;
 	        _fireEvent0(_events[name]);
-	        _fireEvent1(_events.all, name);
+	        _fireEvent1(all, name);
 	    }
 	}
 	exports.trigger0 = trigger0;
@@ -812,8 +816,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	function trigger1(self, name, a) {
 	    var _events = self._events;
 	    if (_events) {
+	        var all = _events.all;
 	        _fireEvent1(_events[name], a);
-	        _fireEvent2(_events.all, name, a);
+	        _fireEvent2(all, name, a);
 	    }
 	}
 	exports.trigger1 = trigger1;
@@ -821,8 +826,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	function trigger2(self, name, a, b) {
 	    var _events = self._events;
 	    if (_events) {
+	        var all = _events.all;
 	        _fireEvent2(_events[name], a, b);
-	        _fireEvent3(_events.all, name, a, b);
+	        _fireEvent3(all, name, a, b);
 	    }
 	}
 	exports.trigger2 = trigger2;
@@ -830,8 +836,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	function trigger3(self, name, a, b, c) {
 	    var _events = self._events;
 	    if (_events) {
+	        var all = _events.all;
 	        _fireEvent3(_events[name], a, b, c);
-	        _fireEvent4(_events.all, name, a, b, c);
+	        _fireEvent4(all, name, a, b, c);
 	    }
 	}
 	exports.trigger3 = trigger3;
@@ -842,7 +849,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (name && typeof name === 'object') {
 	        if (callback !== void 0 && 'context' in opts && opts.context === void 0)
 	            opts.context = callback;
-	        for (names = Object.keys(name); i < names.length; i++) {
+	        for (names = keys(name); i < names.length; i++) {
 	            events = eventsApi(iteratee, events, names[i], name[names[i]], opts);
 	        }
 	    }
@@ -896,7 +903,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var listeningTo = this._listeningTo;
 	        if (!listeningTo)
 	            return this;
-	        var ids = obj ? [obj.cid] : Object.keys(listeningTo);
+	        var ids = obj ? [obj.cid] : keys(listeningTo);
 	        for (var i = 0; i < ids.length; i++) {
 	            var listening = listeningTo[ids[i]];
 	            if (!listening)
@@ -995,8 +1002,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	}());
 	var onApi = function (events, name, callback, options) {
 	    if (callback) {
-	        var handlers = events[name] || (events[name] = []);
-	        handlers.push(options.clone(callback));
+	        var handlers = events[name] || [];
+	        events[name] = handlers.concat([options.clone(callback)]);
 	    }
 	    return events;
 	};
@@ -1007,13 +1014,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    return OffOptions;
 	}());
+	function keys(o) {
+	    return o ? Object.keys(o) : [];
+	}
 	var offApi = function (events, name, callback, options) {
 	    if (!events)
 	        return;
 	    var i = 0, listening;
 	    var context = options.context, listeners = options.listeners;
 	    if (!name && !callback && !context) {
-	        var ids = Object.keys(listeners);
+	        var ids = keys(listeners);
 	        for (; i < ids.length; i++) {
 	            listening = listeners[ids[i]];
 	            delete listeners[listening.id];
@@ -1021,7 +1031,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return;
 	    }
-	    var names = name ? [name] : Object.keys(events);
+	    var names = name ? [name] : keys(events);
 	    for (; i < names.length; i++) {
 	        name = names[i];
 	        var handlers = events[name];
@@ -1055,11 +1065,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var onceMap = function (map, name, callback, offer) {
 	    if (callback) {
-	        var once = map[name] = once(function () {
-	            offer(name, once);
+	        var _once = map[name] = tools_ts_1.once(function () {
+	            offer(name, _once);
 	            callback.apply(this, arguments);
 	        });
-	        once._callback = callback;
+	        _once._callback = callback;
 	    }
 	    return map;
 	};

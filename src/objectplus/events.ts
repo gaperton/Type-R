@@ -7,32 +7,36 @@ import { Class, mixins, define, extendable } from './mixins.ts'
 export function trigger0( self : Messenger, name : string ) : void {
     const { _events } = self;
     if( _events ){
+        const { all } = _events;
         _fireEvent0( _events[ name ] );
-        _fireEvent1( _events.all, name );
+        _fireEvent1( all, name );
     }
 };
 
 export function trigger1( self : Messenger, name : string, a : any ) : void {
     const { _events } = self;
     if( _events ){
+        const { all } = _events;
         _fireEvent1( _events[ name ], a );
-        _fireEvent2( _events.all, name, a );
+        _fireEvent2( all, name, a );
     }
 };
 
 export function trigger2( self : Messenger, name : string, a, b ) : void {
     const { _events } = self;
     if( _events ){
+        const { all } = _events;
         _fireEvent2( _events[ name ], a, b );
-        _fireEvent3( _events.all, name, a, b );
+        _fireEvent3( all, name, a, b );
     }
 };
 
 export function trigger3( self : Messenger, name : string, a, b, c ) : void{
     const { _events } = self;
     if( _events ){
+        const { all } = _events;
         _fireEvent3( _events[ name ], a, b, c );
-        _fireEvent4( _events.all, name, a, b, c );
+        _fireEvent4( all, name, a, b, c );
     }
 };
 
@@ -61,7 +65,7 @@ var eventsApi = function(iteratee, events, name, callback, opts) {
     if (name && typeof name === 'object') {
         // Handle event maps.
         if (callback !== void 0 && 'context' in opts && opts.context === void 0) opts.context = callback;
-        for (names = Object.keys(name); i < names.length ; i++) {
+        for (names = keys(name); i < names.length ; i++) {
             events = eventsApi(iteratee, events, names[i], name[names[i]], opts);
         }
     } else if (name && eventSplitter.test(name)) {
@@ -152,7 +156,7 @@ export abstract class Messenger implements Class {
         var listeningTo = this._listeningTo;
         if (!listeningTo) return this;
 
-        var ids = obj ? [obj.cid] : Object.keys(listeningTo);
+        var ids = obj ? [obj.cid] : keys(listeningTo);
 
         for (var i = 0; i < ids.length; i++) {
             var listening = listeningTo[ids[i]];
@@ -285,14 +289,19 @@ interface EventsMap {
 // The reducing API that adds a callback to the `events` object.
 var onApi = function(events : EventsMap, name : string, callback : Function, options) : EventsMap {
     if (callback) {
-        var handlers = events[name] || (events[name] = []);
-        handlers.push( options.clone( callback ) );
+        var handlers = events[name] || [];
+        events[name] = handlers.concat([ options.clone( callback ) ])
     }
+    
     return events;
 };
 
 class OffOptions {
     constructor( public context, public listeners : Listeners ){}
+}
+
+function keys( o : any ) : string[]{
+    return o ? Object.keys( o ) : [];
 }
 
 // The reducing API that removes a callback from the `events` object.
@@ -304,7 +313,7 @@ var offApi = function(events : EventsMap, name, callback, options : OffOptions )
 
     // Delete all events listeners and "drop" events.
     if (!name && !callback && !context) {
-        var ids = Object.keys(listeners);
+        var ids = keys(listeners);
         for (; i < ids.length; i++) {
             listening = listeners[ids[i]];
             delete listeners[listening.id];
@@ -313,7 +322,7 @@ var offApi = function(events : EventsMap, name, callback, options : OffOptions )
         return;
     }
 
-    var names = name ? [name] : Object.keys(events);
+    var names = name ? [name] : keys(events);
     for (; i < names.length; i++) {
         name = names[i];
         var handlers = events[name];
@@ -350,15 +359,20 @@ var offApi = function(events : EventsMap, name, callback, options : OffOptions )
     if (!isEmpty(events)) return events;
 };
 
+
+interface Once extends Function {
+    _callback? : Function
+}
+
 // Reduces the event callbacks into a map of `{event: onceWrapper}`.
 // `offer` unbinds the `onceWrapper` after it has been called.
 var onceMap = function(map, name, callback, offer) {
     if (callback) {
-        var once = map[name] = once(function() {
-            offer(name, once);
+        var _once : Once = map[name] = once(function() {
+            offer(name, _once);
             callback.apply(this, arguments);
         });
-        once._callback = callback;
+        _once._callback = callback;
     }
     return map;
 };
