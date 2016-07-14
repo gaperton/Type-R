@@ -289,8 +289,10 @@ interface EventsMap {
 // The reducing API that adds a callback to the `events` object.
 var onApi = function(events : EventsMap, name : string, callback : Function, options) : EventsMap {
     if (callback) {
-        var handlers = events[name] || [];
-        events[name] = handlers.concat([ options.clone( callback ) ])
+        var handlers = events[name],
+            toAdd = [ options.clone( callback ) ];
+            
+        events[name] = handlers ? handlers.concat( toAdd ) : toAdd;
     }
     
     return events;
