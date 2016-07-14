@@ -61,7 +61,7 @@ export class Class {
                 Class.mixins.apply( this, mixin );
             }
             else if( typeof mixin === 'function' ){
-                defaults( mixin, this );
+                defaults( this, mixin );
                 mergeProps( proto, (<Function>mixin).prototype, mergeRules );
             }
             else {
@@ -185,7 +185,7 @@ export function mixins( ...list : {}[] ) {
 }
 
 // @extendable decorator. Convert class to be an ExtendableConstructor.
-export function extendable( Type : Constructor< any > ) : void {
+export function extendable( Type : Function ) : void {
     Class.mixTo( Type );
 }
 
@@ -259,7 +259,7 @@ const mergeFunctions : IMergeFunctions = {
 };
 
 function mergeProps< T extends {} >( target : T, source : {}, rules : IMixinRules = {}) : T {
-    for( let name of Object.getOwnPropertyNames( source ) ) {
+    for( let name of Object.keys( source ) ) {
         const sourceProp = Object.getOwnPropertyDescriptor( source, name ),
               destProp   = getPropertyDescriptor( target, name ); // Shouldn't be own
 

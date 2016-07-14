@@ -3,25 +3,27 @@
  *
  */
 
-export let log = {
-    level : 2,
+class Log {
+    level : Number = 2
 
     error( ...args : any[] ) : void {
-        console.error.apply( this, args );
-    },
+        console.error.apply( console, args );
+    }
 
     warn( ...args : any[] ) : void {
-        if( this.level > 0 ) console.warn.apply( this, args );
-    },
+        if( this.level > 0 ) console.warn.apply( console, args );
+    }
 
     info(){
-        if( this.level > 1 ) console.info.apply( this, arguments );
-    },
+        if( this.level > 1 ) console.info.apply( console, arguments );
+    }
 
     debug(){
-        if( this.level > 2 ) console.log.apply( this, arguments );
+        if( this.level > 2 ) console.log.apply( console, arguments );
     }
-};
+}
+
+export let log = new Log();
 
 // Check if value is valid JSON.
 export function isValidJSON( value : any ) : boolean {
@@ -137,7 +139,9 @@ export function fastAssign( dest : {}, source : {} ) : void {
 
 export function fastDefaults( dest : {}, source : {} ) : void {
     for( var name in source ) {
-        dest[ name ] === void 0 || ( dest[ name ] = source[ name ] );
+        if( dest[ name ] === void 0 ){
+            dest[ name ] = source[ name ];
+        }
     }
 }
 
@@ -162,8 +166,8 @@ export const assign = forAllArgs( ( dest, source ) => {
 
 export const defaults = forAllArgs( ( dest, source ) => {
     for( var name in source ) {
-        if( source.hasOwnProperty( name ) ) {
-            dest[ name ] === void 0 || ( dest[ name ] = source[ name ] );
+        if( source.hasOwnProperty( name ) && dest[ name ] === void 0 ) {
+             dest[ name ] = source[ name ];
         }
     }
 } );

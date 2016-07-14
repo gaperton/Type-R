@@ -71,32 +71,36 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports) {
 
 	"use strict";
-	exports.log = {
-	    level: 2,
-	    error: function () {
+	var Log = (function () {
+	    function Log() {
+	        this.level = 2;
+	    }
+	    Log.prototype.error = function () {
 	        var args = [];
 	        for (var _i = 0; _i < arguments.length; _i++) {
 	            args[_i - 0] = arguments[_i];
 	        }
-	        console.error.apply(this, args);
-	    },
-	    warn: function () {
+	        console.error.apply(console, args);
+	    };
+	    Log.prototype.warn = function () {
 	        var args = [];
 	        for (var _i = 0; _i < arguments.length; _i++) {
 	            args[_i - 0] = arguments[_i];
 	        }
 	        if (this.level > 0)
-	            console.warn.apply(this, args);
-	    },
-	    info: function () {
+	            console.warn.apply(console, args);
+	    };
+	    Log.prototype.info = function () {
 	        if (this.level > 1)
-	            console.info.apply(this, arguments);
-	    },
-	    debug: function () {
+	            console.info.apply(console, arguments);
+	    };
+	    Log.prototype.debug = function () {
 	        if (this.level > 2)
-	            console.log.apply(this, arguments);
-	    }
-	};
+	            console.log.apply(console, arguments);
+	    };
+	    return Log;
+	}());
+	exports.log = new Log();
 	function isValidJSON(value) {
 	    if (value === null) {
 	        return true;
@@ -189,7 +193,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.fastAssign = fastAssign;
 	function fastDefaults(dest, source) {
 	    for (var name in source) {
-	        dest[name] === void 0 || (dest[name] = source[name]);
+	        if (dest[name] === void 0) {
+	            dest[name] = source[name];
+	        }
 	    }
 	}
 	exports.fastDefaults = fastDefaults;
@@ -215,8 +221,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.defaults = forAllArgs(function (dest, source) {
 	    for (var name in source) {
-	        if (source.hasOwnProperty(name)) {
-	            dest[name] === void 0 || (dest[name] = source[name]);
+	        if (source.hasOwnProperty(name) && dest[name] === void 0) {
+	            dest[name] = source[name];
 	        }
 	    }
 	});
@@ -616,7 +622,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                Class.mixins.apply(this, mixin);
 	            }
 	            else if (typeof mixin === 'function') {
-	                tools_ts_1.defaults(mixin, this);
+	                tools_ts_1.defaults(this, mixin);
 	                mergeProps(proto, mixin.prototype, mergeRules);
 	            }
 	            else {
@@ -762,7 +768,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	function mergeProps(target, source, rules) {
 	    if (rules === void 0) { rules = {}; }
-	    for (var _i = 0, _a = Object.getOwnPropertyNames(source); _i < _a.length; _i++) {
+	    for (var _i = 0, _a = Object.keys(source); _i < _a.length; _i++) {
 	        var name_2 = _a[_i];
 	        var sourceProp = Object.getOwnPropertyDescriptor(source, name_2), destProp = tools_ts_1.getPropertyDescriptor(target, name_2);
 	        if (destProp) {
@@ -954,10 +960,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.off();
 	    };
 	    Messenger = __decorate([
-	        mixins_ts_1.mixins(mixins_ts_1.Class),
 	        mixins_ts_1.define({
 	            cidPrefix: 'l'
-	        })
+	        }),
+	        mixins_ts_1.extendable
 	    ], Messenger);
 	    return Messenger;
 	}());

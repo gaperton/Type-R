@@ -1,5 +1,5 @@
 import { once } from './tools.ts'
-import { Class, mixins, define } from './mixins.ts'
+import { Class, mixins, define, extendable } from './mixins.ts'
 
 /************
  * JIT-Optimized monomorphic functions to trigger single event 
@@ -107,12 +107,11 @@ interface Listeners {
  * This class itself can serve as both mixin and base class
  */
 
-// Make it extendable.
-@mixins( Class )
 // Attach default cid prefix to the prototype.
 @define({
     cidPrefix : 'l'
 })
+@extendable
 export abstract class Messenger implements Class {
     bindAll : ( ...names : string [] ) => void
 
