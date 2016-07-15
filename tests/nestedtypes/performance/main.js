@@ -1,5 +1,5 @@
 define( function( require, exports, module ){
-    var Nested   = require( '../nestedtypes' ),
+    var Nested   = require( '../../../index' ),
         Backbone = require( 'backbone' );
 
     var NLarge = Nested.Model.extend({

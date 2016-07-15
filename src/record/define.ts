@@ -7,7 +7,7 @@ export interface DynamicMixin {
     _attributes : AttributesSpec
     Attributes : CloneAttributesCtor
     properties : PropertyDescriptorMap
-    forEach? : ForEach
+    forEachAttr? : ForEach
     defaults : Defaults
     _toJSON : ToJSON
     _parse : Parse
@@ -40,8 +40,8 @@ export function compile( rawSpecs : AttributeDescriptorMap, baseAttributes : Att
          };
 
     // Enable optimized forEach if warnings are disabled.
-    if( log.level > 0 ){
-        mixin.forEach = createForEach( allAttributes );
+    if( !log.level ){
+        mixin.forEachAttr = createForEach( allAttributes );
     }
 
     return mixin;
@@ -54,13 +54,14 @@ function createAttribute( spec, name ){
 
 // Build events map for attribute change events.
 function createEventMap( attrSpecs : AttributesSpec ) : EventHandlers {
-    var events : EventHandlers = {};
+    var events : EventHandlers = null;
 
     for( var key in attrSpecs ){
         const attribute = attrSpecs[ key ],
             { _onChange } = attribute.options; 
 
         if( _onChange ){
+            events || ( events = {} );
             events[ 'change:' + key ] = _onChange;
         }
     }

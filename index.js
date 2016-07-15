@@ -66,6 +66,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.on = events_ts_1.Events.on, exports.off = events_ts_1.Events.off, exports.trigger = events_ts_1.Events.trigger, exports.once = events_ts_1.Events.once, exports.listenTo = events_ts_1.Events.listenTo, exports.stopListening = events_ts_1.Events.stopListening, exports.listenToOnce = events_ts_1.Events.listenToOnce;
 	__export(__webpack_require__(5));
 	__export(__webpack_require__(6));
+	function transaction(method) {
+	    return function () {
+	        var _this = this;
+	        var args = [];
+	        for (var _i = 0; _i < arguments.length; _i++) {
+	            args[_i - 0] = arguments[_i];
+	        }
+	        var result;
+	        this.transaction(function () {
+	            result = method.apply(_this, args);
+	        });
+	        return result;
+	    };
+	}
+	exports.transaction = transaction;
 
 
 /***/ },
@@ -318,8 +333,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.Record = transaction_ts_1.Record;
 	var index_ts_1 = __webpack_require__(4);
 	var define_ts_1 = __webpack_require__(10);
-	var nestedTypes_ts_1 = __webpack_require__(12);
-	__webpack_require__(13);
+	var nestedTypes_ts_1 = __webpack_require__(13);
+	__webpack_require__(14);
 	transaction_ts_1.Record.define = function (protoProps, staticProps) {
 	    var baseProto = Object.getPrototypeOf(this.prototype), BaseConstructor = baseProto.constructor;
 	    if (protoProps) {
@@ -1370,7 +1385,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	var attribute_ts_1 = __webpack_require__(11);
 	var index_ts_1 = __webpack_require__(4);
-	var typespec_ts_1 = __webpack_require__(14);
+	var typespec_ts_1 = __webpack_require__(12);
 	function compile(rawSpecs, baseAttributes) {
 	    var myAttributes = index_ts_1.transform({}, rawSpecs, createAttribute), allAttributes = index_ts_1.defaults({}, myAttributes, baseAttributes), Attributes = createCloneCtor(allAttributes), mixin = {
 	        Attributes: Attributes,
@@ -1381,8 +1396,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _parse: createParse(myAttributes, allAttributes),
 	        _listenToSelf: createEventMap(allAttributes)
 	    };
-	    if (index_ts_1.log.level > 0) {
-	        mixin.forEach = createForEach(allAttributes);
+	    if (!index_ts_1.log.level) {
+	        mixin.forEachAttr = createForEach(allAttributes);
 	    }
 	    return mixin;
 	}
@@ -1391,10 +1406,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return attribute_ts_1.GenericAttribute.create(typespec_ts_1.toAttributeDescriptor(spec), name);
 	}
 	function createEventMap(attrSpecs) {
-	    var events = {};
+	    var events = null;
 	    for (var key in attrSpecs) {
 	        var attribute = attrSpecs[key], _onChange = attribute.options._onChange;
 	        if (_onChange) {
+	            events || (events = {});
 	            events['change:' + key] = _onChange;
 	        }
 	    }
@@ -1584,6 +1600,93 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	var index_ts_1 = __webpack_require__(4);
+	var ChainableAttributeSpec = (function () {
+	    function ChainableAttributeSpec(options) {
+	        if (options === void 0) { options = {}; }
+	        this.options = { getHooks: [], transforms: [], changeHandlers: [] };
+	        index_ts_1.assign(this.options, options);
+	    }
+	    ChainableAttributeSpec.prototype.get = function (fun) {
+	        this.options.getHooks.push(fun);
+	        return this;
+	    };
+	    ChainableAttributeSpec.prototype.set = function (fun) {
+	        this.options.transforms.push(function (next, options, prev, model) {
+	            if (this.isChanged(next, prev)) {
+	                var changed = fun.call(model, next, name);
+	                return changed === void 0 ? prev : changed;
+	            }
+	            return prev;
+	        });
+	        return this;
+	    };
+	    ChainableAttributeSpec.prototype.events = function (map) {
+	        this.options.changeHandlers.push(function (next, prev, record) {
+	            prev && record.stopListening(prev);
+	            next && record.listenTo(next, map);
+	        });
+	        return this;
+	    };
+	    ChainableAttributeSpec.prototype.onChange = function (handler) {
+	        this.options._onChange = handler;
+	        return this;
+	    };
+	    Object.defineProperty(ChainableAttributeSpec.prototype, "has", {
+	        get: function () { return this; },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    ChainableAttributeSpec.prototype.value = function (x) {
+	        this.options.value = x;
+	        return this;
+	    };
+	    return ChainableAttributeSpec;
+	}());
+	exports.ChainableAttributeSpec = ChainableAttributeSpec;
+	Function.prototype.value = function (x) {
+	    return new ChainableAttributeSpec({ type: this, value: x });
+	};
+	Object.defineProperty(Function.prototype, 'has', {
+	    get: function () {
+	        return this._has || new ChainableAttributeSpec({ type: this });
+	    },
+	    set: function (value) { this._has = value; }
+	});
+	function toAttributeDescriptor(spec) {
+	    if (typeof spec === 'function') {
+	        return { type: spec };
+	    }
+	    if (spec && spec instanceof ChainableAttributeSpec) {
+	        return spec.options;
+	    }
+	    return {
+	        type: inferType(spec),
+	        value: spec
+	    };
+	}
+	exports.toAttributeDescriptor = toAttributeDescriptor;
+	function inferType(value) {
+	    switch (typeof value) {
+	        case 'number':
+	            return Number;
+	        case 'string':
+	            return String;
+	        case 'boolean':
+	            return Boolean;
+	        case 'undefined':
+	            return void 0;
+	        case 'object':
+	            return value ? value.constructor : Object;
+	    }
+	}
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
 	var __extends = (this && this.__extends) || function (d, b) {
 	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
 	    function __() { this.constructor = d; }
@@ -1621,7 +1724,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1712,93 +1815,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	}(attribute_ts_1.GenericAttribute));
 	exports.ArrayType = ArrayType;
 	Array._attribute = ArrayType;
-
-
-/***/ },
-/* 14 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var index_ts_1 = __webpack_require__(4);
-	var ChainableAttributeSpec = (function () {
-	    function ChainableAttributeSpec(options) {
-	        if (options === void 0) { options = {}; }
-	        this.options = { getHooks: [], transforms: [], changeHandlers: [] };
-	        index_ts_1.assign(this.options, options);
-	    }
-	    ChainableAttributeSpec.prototype.get = function (fun) {
-	        this.options.getHooks.push(fun);
-	        return this;
-	    };
-	    ChainableAttributeSpec.prototype.set = function (fun) {
-	        this.options.transforms.push(function (next, options, prev, model) {
-	            if (this.isChanged(next, prev)) {
-	                var changed = fun.call(model, next, name);
-	                return changed === void 0 ? prev : changed;
-	            }
-	            return prev;
-	        });
-	        return this;
-	    };
-	    ChainableAttributeSpec.prototype.events = function (map) {
-	        this.options.changeHandlers.push(function (next, prev, record) {
-	            prev && record.stopListening(prev);
-	            next && record.listenTo(next, map);
-	        });
-	        return this;
-	    };
-	    ChainableAttributeSpec.prototype.onChange = function (handler) {
-	        this.options._onChange = handler;
-	        return this;
-	    };
-	    Object.defineProperty(ChainableAttributeSpec.prototype, "has", {
-	        get: function () { return this; },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    ChainableAttributeSpec.prototype.value = function (x) {
-	        this.options.value = x;
-	        return this;
-	    };
-	    return ChainableAttributeSpec;
-	}());
-	exports.ChainableAttributeSpec = ChainableAttributeSpec;
-	Function.prototype.value = function (x) {
-	    return new ChainableAttributeSpec({ type: this, value: x });
-	};
-	Object.defineProperty(Function.prototype, 'has', {
-	    get: function () {
-	        return this._has || new ChainableAttributeSpec({ type: this });
-	    },
-	    set: function (value) { this._has = value; }
-	});
-	function toAttributeDescriptor(spec) {
-	    if (typeof spec === 'function') {
-	        return { type: spec };
-	    }
-	    if (spec && spec instanceof ChainableAttributeSpec) {
-	        return spec.options;
-	    }
-	    return {
-	        type: inferType(spec),
-	        value: spec
-	    };
-	}
-	exports.toAttributeDescriptor = toAttributeDescriptor;
-	function inferType(value) {
-	    switch (typeof value) {
-	        case 'number':
-	            return Number;
-	        case 'string':
-	            return String;
-	        case 'boolean':
-	            return Boolean;
-	        case 'undefined':
-	            return void 0;
-	        case 'object':
-	            return value ? value.constructor : Object;
-	    }
-	}
 
 
 /***/ }

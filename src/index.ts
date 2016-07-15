@@ -13,4 +13,17 @@ export {
     tools,
     Model,
     //Collection,
+    transaction
 }; 
+
+function transaction( method ){
+    return function( ...args ){
+        let result;
+        
+        this.transaction( () => {
+            result = method.apply( this, args );
+        });
+        
+        return result;
+    }
+}
