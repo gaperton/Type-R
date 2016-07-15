@@ -341,7 +341,7 @@ export class Record extends Transactional implements Owner {
 
         if( !options.silent ){
             markAsDirty( this );
-            trigger3( this, 'change:' + key, this.attributes[ key ], this, options );
+            trigger3( this, 'change:' + key, this, this.attributes[ key ], options );
         }
 
         isRoot && commit( this, options );
@@ -403,7 +403,7 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
         if( nestedTransaction ){
             nestedTransaction.commit( options, true );
             markAsDirty( record );
-            trigger3( record, 'change:' + name, prev, record, options );
+            trigger3( record, 'change:' + name, record, prev, options );
         }
     }
     else {
@@ -417,7 +417,7 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
             spec.handleChange( next, prev, this );
 
             markAsDirty( record );
-            trigger3( record, 'change:' + name, next, record, options );
+            trigger3( record, 'change:' + name, record, next, options );
 
         }
     }
@@ -445,7 +445,7 @@ class RecordTransaction implements Transaction {
         if( !options.silent ){
             const { attributes } = object;
             for( let key of changes ){
-                trigger3( object, 'change:' + key, attributes[ key ], object, options );
+                trigger3( object, 'change:' + key, object, attributes[ key ], options );
             }
         }
 

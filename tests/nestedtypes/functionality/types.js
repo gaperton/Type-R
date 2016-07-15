@@ -292,7 +292,7 @@
 
                 it( 'is called from model.set', function(){
                     var m = new A();
-                    m.set( 'a', 1 );
+                    m.set({ 'a' :  1 });
 
                     expect( m.a ).to.be.equal( 2 );
 
@@ -315,7 +315,7 @@
                     expect( m.a ).to.be.equal( 66 );
                 });
 
-                it( 'may prevent attribute\'s assignment', function(){
+                it( 'Watcher functions', function(){
                     var m = new A();
                     m.watcher = sinon.spy();
 

@@ -20,8 +20,8 @@ export class ChainableAttributeSpec {
         return this;
     }
 
-    watcher( ref ) : this {
-        // TODO: not clear
+    watcher( ref : string | ( ( value : any, key : string ) => void ) ) : this {
+        this.options._onChange = ref;
         return this;
     }
 
@@ -63,13 +63,6 @@ export class ChainableAttributeSpec {
 
                 next && record.listenTo( next, map );
             });
-
-        return this;
-    }
-
-    // Subscribe for a change event from an attribute.
-    onChange( handler : ChangeAttrHandler ) : this {
-        this.options._onChange = handler;
 
         return this;
     }

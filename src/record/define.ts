@@ -3,6 +3,8 @@ import { Attribute, AttributesValues, AttributeDescriptorMap, CloneAttributesCto
 import { defaults, isValidJSON, transform, log, EventHandlers } from '../objectplus/index.ts'
 import { toAttributeDescriptor } from './typespec.ts'
 
+import { CompiledReference } from '../references.ts'
+
 export interface DynamicMixin {
     _attributes : AttributesSpec
     Attributes : CloneAttributesCtor
@@ -62,11 +64,32 @@ function createEventMap( attrSpecs : AttributesSpec ) : EventHandlers {
 
         if( _onChange ){
             events || ( events = {} );
-            events[ 'change:' + key ] = _onChange;
+
+            events[ 'change:' + key ] =
+                typeof _onChange === 'string' ?
+                    createWatcherFromRef( _onChange, key ) : 
+                    wrapWatcher( _onChange, key );
         }
     }
 
     return events;
+}
+
+function wrapWatcher( watcher, key ){
+    return function( record, value ){
+        watcher.call( record, value, key );
+    } 
+}
+
+function createWatcherFromRef( ref : string, key : string ){
+    const { local, resolve, tail } = new CompiledReference( ref, true );
+    return local ?
+        function( record, value ){
+            record[ tail ]( value, key );
+        } :
+        function( record, value ){
+            resolve( record )[ tail ]( value, key );
+        }
 }
 
 export function createForEach( attrSpecs : AttributesSpec ) : ForEach {

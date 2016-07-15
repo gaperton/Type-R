@@ -15,13 +15,24 @@ export interface Traversable {
 const referenceMask =  /\~|\^|([^.]+)/g;
 
 // Compile reference to function
-export function compileReference( reference : string ) : ( root : any ) => any {
-    const path = reference
-                    .match( referenceMask )
-                    .map( key => key === '~' ? 'getStrore()' : ( key === '^' ? 'getOwner()' : key ) )
-                    .join( '.' );
 
-    return <any> new Function( 'self', `return self.${ path };` );          
+export class CompiledReference {
+    resolve : ( root : Traversable ) => any
+    tail : string
+    local : boolean
+
+    constructor( reference : string, splitTail : boolean = false ){
+        const path = reference
+                        .match( referenceMask )
+                        .map( key => key === '~' ? 'getStore()' : ( key === '^' ? 'getOwner()' : key ) );
+               
+        this.tail = splitTail && path.pop();
+        this.local = !path.length;
+
+        path.unshift( 'self' );
+        
+        this.resolve = <any> new Function( 'self', `return ${ path };` );
+    }
 }
 
 export function resolveReference( root : Traversable, reference : string, action : ( object, key : string ) => any ) : any {

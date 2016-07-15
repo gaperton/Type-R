@@ -520,7 +520,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var isRoot = begin(this);
 	        if (!options.silent) {
 	            markAsDirty(this);
-	            index_ts_1.trigger3(this, 'change:' + key, this.attributes[key], this, options);
+	            index_ts_1.trigger3(this, 'change:' + key, this, this.attributes[key], options);
 	        }
 	        isRoot && transactions_ts_1.commit(this, options);
 	    };
@@ -568,7 +568,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (nestedTransaction) {
 	            nestedTransaction.commit(options, true);
 	            markAsDirty(record);
-	            index_ts_1.trigger3(record, 'change:' + name, prev, record, options);
+	            index_ts_1.trigger3(record, 'change:' + name, record, prev, options);
 	        }
 	    }
 	    else {
@@ -577,7 +577,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            attributes[name] = next;
 	            spec.handleChange(next, prev, this);
 	            markAsDirty(record);
-	            index_ts_1.trigger3(record, 'change:' + name, next, record, options);
+	            index_ts_1.trigger3(record, 'change:' + name, record, next, options);
 	        }
 	    }
 	    isRoot && transactions_ts_1.commit(record, options);
@@ -602,7 +602,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var attributes = object.attributes;
 	            for (var _b = 0, changes_1 = changes; _b < changes_1.length; _b++) {
 	                var key = changes_1[_b];
-	                index_ts_1.trigger3(object, 'change:' + key, attributes[key], object, options);
+	                index_ts_1.trigger3(object, 'change:' + key, object, attributes[key], options);
 	            }
 	        }
 	        this.isRoot && transactions_ts_1.commit(object, options, isNested);
@@ -1350,14 +1350,20 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	var referenceMask = /\~|\^|([^.]+)/g;
-	function compileReference(reference) {
-	    var path = reference
-	        .match(referenceMask)
-	        .map(function (key) { return key === '~' ? 'getStrore()' : (key === '^' ? 'getOwner()' : key); })
-	        .join('.');
-	    return new Function('self', "return self." + path + ";");
-	}
-	exports.compileReference = compileReference;
+	var CompiledReference = (function () {
+	    function CompiledReference(reference, splitTail) {
+	        if (splitTail === void 0) { splitTail = false; }
+	        var path = reference
+	            .match(referenceMask)
+	            .map(function (key) { return key === '~' ? 'getStore()' : (key === '^' ? 'getOwner()' : key); });
+	        this.tail = splitTail && path.pop();
+	        this.local = !path.length;
+	        path.unshift('self');
+	        this.resolve = new Function('self', "return " + path + ";");
+	    }
+	    return CompiledReference;
+	}());
+	exports.CompiledReference = CompiledReference;
 	function resolveReference(root, reference, action) {
 	    var path = reference.match(referenceMask), skip = path.length - 1;
 	    var self = root;
@@ -1399,6 +1405,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var attribute_ts_1 = __webpack_require__(11);
 	var index_ts_1 = __webpack_require__(4);
 	var typespec_ts_1 = __webpack_require__(12);
+	var references_ts_1 = __webpack_require__(9);
 	function compile(rawSpecs, baseAttributes) {
 	    var myAttributes = index_ts_1.transform({}, rawSpecs, createAttribute), allAttributes = index_ts_1.defaults({}, myAttributes, baseAttributes), Attributes = createCloneCtor(allAttributes), mixin = {
 	        Attributes: Attributes,
@@ -1424,10 +1431,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var attribute = attrSpecs[key], _onChange = attribute.options._onChange;
 	        if (_onChange) {
 	            events || (events = {});
-	            events['change:' + key] = _onChange;
+	            events['change:' + key] =
+	                typeof _onChange === 'string' ?
+	                    createWatcherFromRef(_onChange, key) :
+	                    wrapWatcher(_onChange, key);
 	        }
 	    }
 	    return events;
+	}
+	function wrapWatcher(watcher, key) {
+	    return function (record, value) {
+	        watcher.call(record, value, key);
+	    };
+	}
+	function createWatcherFromRef(ref, key) {
+	    var _a = new references_ts_1.CompiledReference(ref, true), local = _a.local, resolve = _a.resolve, tail = _a.tail;
+	    return local ?
+	        function (record, value) {
+	            record[tail](value, key);
+	        } :
+	        function (record, value) {
+	            resolve(record)[tail](value, key);
+	        };
 	}
 	function createForEach(attrSpecs) {
 	    var statements = ['var v, _a=this._attributes;'];
@@ -1624,6 +1649,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this;
 	    };
 	    ChainableAttributeSpec.prototype.watcher = function (ref) {
+	        this.options._onChange = ref;
 	        return this;
 	    };
 	    ChainableAttributeSpec.prototype.parse = function (fun) {
@@ -1653,10 +1679,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            prev && record.stopListening(prev);
 	            next && record.listenTo(next, map);
 	        });
-	        return this;
-	    };
-	    ChainableAttributeSpec.prototype.onChange = function (handler) {
-	        this.options._onChange = handler;
 	        return this;
 	    };
 	    Object.defineProperty(ChainableAttributeSpec.prototype, "has", {
