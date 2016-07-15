@@ -186,12 +186,12 @@
         describe( 'Class type', function(){
             var C = Nested.Class.extend({
                 a : 'a',
-                initialize : function(){
+                constructor : function(){
                     this.b = 'b';
                 }
             });
 
-            it( 'has initialize method', function(){
+            it( 'has custom constructor method', function(){
                 var c = new C();
                 expect( c.a ).to.eql( 'a' );
                 expect( c.b ).to.eql( 'b' );
@@ -209,9 +209,11 @@
                 expect( d.d ).to.eql( 'd' );
             });
 
-            it( 'can trigger/listen to backbone events', function(){
-                var C = Nested.Class.extend({
-                    initialize : function(){
+            it( 'Messenger can trigger/listen to backbone events', function(){
+                var C = Nested.Messenger.extend({
+                    constructor : function(){
+                        Nested.Messenger.apply( this, arguments );
+
                         this.listenTo( this, {
                             'hello' : function(){
                                 this.hello = true;
