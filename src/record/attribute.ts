@@ -161,21 +161,21 @@ export class GenericAttribute implements Attribute {
     get : ( value, key : string ) => any
 }
 
-function chainChangeHandlers( prev : ChangeHandler, next : ChangeHandler ) : ChangeHandler {
+function chainChangeHandlers( prevHandler : ChangeHandler, nextHandler : ChangeHandler ) : ChangeHandler {
     return function( next, prev, model ) {
-        prev.call( this, next, prev, model );
-        next.call( this, next, prev, model );
+        prevHandler.call( this, next, prev, model );
+        nextHandler.call( this, next, prev, model );
     }
 }
 
-function chainGetHooks( prev : GetHook, next : GetHook ) : GetHook {
+function chainGetHooks( prevHook : GetHook, nextHook : GetHook ) : GetHook {
     return function( value, name ) {
-        return next.call( prev.call( value, name ), name );
+        return nextHook.call( prevHook.call( value, name ), name );
     }
 }
 
-function chainTransforms( prev : Transform, next : Transform ) : Transform {
+function chainTransforms( prevTransform : Transform, nextTransform : Transform ) : Transform {
     return function( value, options, prev, model ) {
-        return next.call( this, prev.call( this, value, options, prev, model ), options, prev, model );
+        return nextTransform.call( this, prevTransform.call( this, value, options, prev, model ), options, prev, model );
     }
 }

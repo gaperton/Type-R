@@ -1590,20 +1590,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return GenericAttribute;
 	}());
 	exports.GenericAttribute = GenericAttribute;
-	function chainChangeHandlers(prev, next) {
+	function chainChangeHandlers(prevHandler, nextHandler) {
 	    return function (next, prev, model) {
-	        prev.call(this, next, prev, model);
-	        next.call(this, next, prev, model);
+	        prevHandler.call(this, next, prev, model);
+	        nextHandler.call(this, next, prev, model);
 	    };
 	}
-	function chainGetHooks(prev, next) {
+	function chainGetHooks(prevHook, nextHook) {
 	    return function (value, name) {
-	        return next.call(prev.call(value, name), name);
+	        return nextHook.call(prevHook.call(value, name), name);
 	    };
 	}
-	function chainTransforms(prev, next) {
+	function chainTransforms(prevTransform, nextTransform) {
 	    return function (value, options, prev, model) {
-	        return next.call(this, prev.call(this, value, options, prev, model), options, prev, model);
+	        return nextTransform.call(this, prevTransform.call(this, value, options, prev, model), options, prev, model);
 	    };
 	}
 
