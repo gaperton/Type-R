@@ -66,6 +66,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.on = events_ts_1.Events.on, exports.off = events_ts_1.Events.off, exports.trigger = events_ts_1.Events.trigger, exports.once = events_ts_1.Events.once, exports.listenTo = events_ts_1.Events.listenTo, exports.stopListening = events_ts_1.Events.stopListening, exports.listenToOnce = events_ts_1.Events.listenToOnce;
 	__export(__webpack_require__(5));
 	__export(__webpack_require__(6));
+	function value(x) {
+	    return new index_ts_1.ChainableAttributeSpec({ value: x });
+	}
+	exports.value = value;
 	function transaction(method) {
 	    return function () {
 	        var _this = this;
@@ -333,6 +337,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.Record = transaction_ts_1.Record;
 	var index_ts_1 = __webpack_require__(4);
 	var define_ts_1 = __webpack_require__(10);
+	var typespec_ts_1 = __webpack_require__(12);
+	exports.ChainableAttributeSpec = typespec_ts_1.ChainableAttributeSpec;
 	var nestedTypes_ts_1 = __webpack_require__(13);
 	__webpack_require__(14);
 	transaction_ts_1.Record.define = function (protoProps, staticProps) {
@@ -1614,6 +1620,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.options = { getHooks: [], transforms: [], changeHandlers: [] };
 	        index_ts_1.assign(this.options, options);
 	    }
+	    ChainableAttributeSpec.prototype.triggerWhenChanged = function (events) {
+	        return this;
+	    };
+	    ChainableAttributeSpec.prototype.watcher = function (ref) {
+	        return this;
+	    };
+	    ChainableAttributeSpec.prototype.parse = function (fun) {
+	        this.options.parse = fun;
+	        return this;
+	    };
+	    ChainableAttributeSpec.prototype.toJSON = function (fun) {
+	        this.options.toJSON = fun;
+	        return this;
+	    };
 	    ChainableAttributeSpec.prototype.get = function (fun) {
 	        this.options.getHooks.push(fun);
 	        return this;

@@ -1,6 +1,7 @@
 import { Record, RecordDefinition, AttributeDescriptorMap } from './transaction.ts'
 import { assign, defaults, omit, Class, ClassDefinition } from '../objectplus/index.ts'
 import { compile, AttributesSpec } from './define.ts'
+import { ChainableAttributeSpec } from './typespec.ts'
 
 import { TransactionalType } from './nestedTypes.ts'
 import './basicTypes.ts'
@@ -34,4 +35,4 @@ function getAttributes({ defaults, attributes } : RecordDefinition ) : Attribute
     return typeof defaults === 'function' ? (<any>defaults)() : attributes || defaults;
 }
 
-export { Record }
+export { Record, ChainableAttributeSpec }

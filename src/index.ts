@@ -1,5 +1,5 @@
 import * as tools from './objectplus/tools.ts'
-import { Record as Model } from './record/index.ts'
+import { Record as Model, ChainableAttributeSpec } from './record/index.ts'
 
 import { Events } from './objectplus/events.ts'
 export const { on, off, trigger, once, listenTo, stopListening, listenToOnce } = Events;
@@ -13,8 +13,13 @@ export {
     tools,
     Model,
     //Collection,
-    transaction
+    transaction,
+    value
 }; 
+
+function value( x ){
+    return new ChainableAttributeSpec({ value : x });
+}
 
 function transaction( method ){
     return function( ...args ){

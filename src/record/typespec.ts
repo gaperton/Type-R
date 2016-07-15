@@ -15,15 +15,35 @@ export class ChainableAttributeSpec {
         assign( this.options, options );
     }
 
+    triggerWhenChanged( events ) : this {
+        // TODO: not clear
+        return this;
+    }
+
+    watcher( ref ) : this {
+        // TODO: not clear
+        return this;
+    }
+
+    parse( fun ) : this {
+        this.options.parse = fun;
+        return this;
+    }
+
+    toJSON( fun ) : this{
+        this.options.toJSON = fun;
+        return this;
+    }
+
     // Attribute get hook.
-    get( fun ) {
+    get( fun ) : this {
         this.options.getHooks.push( fun );
 
         return this;
     }
 
     // Attribute set hook.
-    set( fun ) {
+    set( fun ) : this {
         this.options.transforms.push( function( next, options, prev, model ) {
             if( this.isChanged( next, prev ) ) {
                 var changed = fun.call( model, next, name );
@@ -37,7 +57,7 @@ export class ChainableAttributeSpec {
     }
 
     // Subsribe to events from an attribute.
-    events( map : EventHandlers ){
+    events( map : EventHandlers ) : this {
         this.options.changeHandlers.push( function( next, prev, record : Record ){
                 prev && record.stopListening( prev );
 
@@ -48,13 +68,13 @@ export class ChainableAttributeSpec {
     }
 
     // Subscribe for a change event from an attribute.
-    onChange( handler : ChangeAttrHandler ){
+    onChange( handler : ChangeAttrHandler ) : this {
         this.options._onChange = handler;
 
         return this;
     }
 
-    get has() { return this; }
+    get has() : this { return this; }
 
     /*
     get isRequired() {
@@ -62,7 +82,7 @@ export class ChainableAttributeSpec {
         return this;
     }*/
 
-    value( x ){
+    value( x ) : this {
         this.options.value = x;
         return this;
     }
