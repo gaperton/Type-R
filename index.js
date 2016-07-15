@@ -338,7 +338,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	transaction_ts_1.Record.define = function (protoProps, staticProps) {
 	    var baseProto = Object.getPrototypeOf(this.prototype), BaseConstructor = baseProto.constructor;
 	    if (protoProps) {
-	        var definition = define_ts_1.compile(protoProps.attributes || protoProps.defaults, baseProto._attributes);
+	        var definition = define_ts_1.compile(getAttributes(protoProps), baseProto._attributes);
 	        if (protoProps.properties === false) {
 	            definition.properties = {};
 	        }
@@ -349,6 +349,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return this;
 	};
 	transaction_ts_1.Record._attribute = nestedTypes_ts_1.TransactionalType;
+	function getAttributes(_a) {
+	    var defaults = _a.defaults, attributes = _a.attributes;
+	    return typeof defaults === 'function' ? defaults() : attributes || defaults;
+	}
 
 
 /***/ },

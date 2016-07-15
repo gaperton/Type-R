@@ -1,4 +1,4 @@
-import { Record, RecordDefinition } from './transaction.ts'
+import { Record, RecordDefinition, AttributeDescriptorMap } from './transaction.ts'
 import { assign, defaults, omit, Class, ClassDefinition } from '../objectplus/index.ts'
 import { compile, AttributesSpec } from './define.ts'
 
@@ -11,7 +11,7 @@ Record.define = function( protoProps : RecordDefinition, staticProps ){
 
     if( protoProps ) {
         // Compile attributes spec, creating definition mixin.
-        const definition = compile( protoProps.attributes || protoProps.defaults, <AttributesSpec> baseProto._attributes );
+        const definition = compile( getAttributes( protoProps ), <AttributesSpec> baseProto._attributes );
 
         // Explicit 'properties' declaration overrides auto-generated attribute properties.
         if( protoProps.properties === false ){
@@ -29,5 +29,9 @@ Record.define = function( protoProps : RecordDefinition, staticProps ){
 }
 
 Record._attribute = TransactionalType;
+
+function getAttributes({ defaults, attributes } : RecordDefinition ) : AttributeDescriptorMap {
+    return typeof defaults === 'function' ? (<any>defaults)() : attributes || defaults;
+}
 
 export { Record }
