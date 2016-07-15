@@ -413,9 +413,7 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
             attributes[ name ] = next;
 
             // Do the rest of the job after assignment
-            if( spec.handleChange ) {
-                spec.handleChange( next, prev, this );
-            }
+            spec.handleChange( next, prev, this );
 
             markAsDirty( record );
             trigger3( record, 'change:' + name, next, record, options );

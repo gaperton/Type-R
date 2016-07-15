@@ -547,9 +547,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var next = spec.transform(value, options, prev, record);
 	        if (spec.isChanged(next, prev)) {
 	            attributes[name] = next;
-	            if (spec.handleChange) {
-	                spec.handleChange(next, prev, this);
-	            }
+	            spec.handleChange(next, prev, this);
 	            markAsDirty(record);
 	            index_ts_1.trigger3(record, 'change:' + name, next, record, options);
 	        }
@@ -1485,21 +1483,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	var index_ts_1 = __webpack_require__(4);
 	var GenericAttribute = (function () {
 	    function GenericAttribute(name, options) {
-	        var _this = this;
 	        this.name = name;
 	        this.options = options;
+	        this.getHook = null;
 	        var value = options.value, type = options.type, parse = options.parse, toJSON = options.toJSON, _a = options.getHooks, getHooks = _a === void 0 ? [] : _a, _b = options.transforms, transforms = _b === void 0 ? [] : _b, _c = options.changeHandlers, changeHandlers = _c === void 0 ? [] : _c;
 	        this.value = value;
 	        this.type = type;
 	        this.parse = parse;
 	        this.toJSON = toJSON === void 0 ? this.toJSON : toJSON;
-	        this.transform = this.convert;
-	        this.handleChange = null;
-	        this.getHook = this.get || null;
+	        transforms.unshift(this.convert);
+	        if (this.get)
+	            getHooks.unshift(this.get);
 	        this.initialize.apply(this, arguments);
-	        getHooks.forEach(function (gh) { return _this.addGetHook(gh); });
-	        transforms.forEach(function (t) { return _this.addTransform(t); });
-	        changeHandlers.forEach(function (ch) { return _this.addChangeHandler(ch); });
+	        if (getHooks.length) {
+	            this.getHook = getHooks.reduce(chainGetHooks);
+	        }
+	        if (transforms.length) {
+	            this.transform = transforms.reduce(chainTransforms);
+	        }
+	        if (changeHandlers.length) {
+	            this.handleChange = changeHandlers.reduce(chainChangeHandlers);
+	        }
 	    }
 	    GenericAttribute.create = function (options, name) {
 	        var type = options.type, AttributeCtor = type ? type._attribute : GenericAttribute;
@@ -1552,32 +1556,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    };
 	    GenericAttribute.prototype.initialize = function (name, options) { };
-	    GenericAttribute.prototype.addGetHook = function (next) {
-	        var prev = this.getHook;
-	        this.getHook = prev ?
-	            function (value, name) {
-	                var next = prev.call(value, name);
-	                return next.call(next, name);
-	            } : next;
-	    };
-	    GenericAttribute.prototype.addTransform = function (next) {
-	        var prev = this.transform;
-	        this.transform = function (value, options, prev, model) {
-	            var next = prev.call(this, value, options, prev, model);
-	            return next.call(this, next, options, prev, model);
-	        };
-	    };
-	    GenericAttribute.prototype.addChangeHandler = function (next) {
-	        var prev = this.handleChange;
-	        this.handleChange = prev ?
-	            function (next, prev, model) {
-	                prev.call(this, next, prev, model);
-	                next.call(this, next, prev, model);
-	            } : next;
-	    };
 	    return GenericAttribute;
 	}());
 	exports.GenericAttribute = GenericAttribute;
+	function chainChangeHandlers(prev, next) {
+	    return function (next, prev, model) {
+	        prev.call(this, next, prev, model);
+	        next.call(this, next, prev, model);
+	    };
+	}
+	function chainGetHooks(prev, next) {
+	    return function (value, name) {
+	        return next.call(prev.call(value, name), name);
+	    };
+	}
+	function chainTransforms(prev, next) {
+	    return function (value, options, prev, model) {
+	        return next.call(this, prev.call(this, value, options, prev, model), options, prev, model);
+	    };
+	}
 
 
 /***/ },

@@ -52,7 +52,6 @@ export class GenericAttribute implements Attribute {
      */
     handleChange( next, prev, model ) {}
 
-
     /**
      * End update pipeline definitions.
      */
@@ -136,52 +135,47 @@ export class GenericAttribute implements Attribute {
          */
 
         // `convert` is default transform, which is always present...
-        this.transform = this.convert;
-
-        // No change handler by default
-        this.handleChange = null;
+        transforms.unshift( this.convert );
 
         // Get hook from the attribute will be used first...
-        this.getHook = this.get || null;
+        if( this.get ) getHooks.unshift( this.get );
 
         // let subclasses configure the pipeline...
         this.initialize.apply( this, arguments );
 
         // let attribute spec configure the pipeline...
-        getHooks.forEach( gh => this.addGetHook( gh ) );
-        transforms.forEach( t => this.addTransform( t ) );
-        changeHandlers.forEach( ch => this.addChangeHandler( ch ) );
+        if( getHooks.length ){
+            this.getHook = getHooks.reduce( chainGetHooks );
+        }
+        
+        if( transforms.length ){
+            this.transform = transforms.reduce( chainTransforms );
+        }
+        
+        if( changeHandlers.length ){
+            this.handleChange = changeHandlers.reduce( chainChangeHandlers );
+        }
     }
 
-    getHook : ( value, key : string ) => any
+    getHook : ( value, key : string ) => any = null
     get : ( value, key : string ) => any
+}
 
-    addGetHook( next : GetHook ) : void {
-        const prev = this.getHook;
-
-        this.getHook = prev ?
-                       function( value, name ) {
-                           const next = prev.call( value, name );
-                           return next.call( next, name );
-                       } : next;
+function chainChangeHandlers( prev : ChangeHandler, next : ChangeHandler ) : ChangeHandler {
+    return function( next, prev, model ) {
+        prev.call( this, next, prev, model );
+        next.call( this, next, prev, model );
     }
+}
 
-    addTransform( next : Transform ) : void {
-        const prev = this.transform;
-
-        this.transform = function( value, options, prev, model ) {
-                             const next = prev.call( this, value, options, prev, model );
-                             return next.call( this, next, options, prev, model );
-                         }
+function chainGetHooks( prev : GetHook, next : GetHook ) : GetHook {
+    return function( value, name ) {
+        return next.call( prev.call( value, name ), name );
     }
+}
 
-    addChangeHandler( next : ChangeHandler ) : void {
-        const prev = this.handleChange;
-
-        this.handleChange = prev ?
-                            function( next, prev, model ) {
-                                prev.call( this, next, prev, model );
-                                next.call( this, next, prev, model );
-                            } : next;
+function chainTransforms( prev : Transform, next : Transform ) : Transform {
+    return function( value, options, prev, model ) {
+        return next.call( this, prev.call( this, value, options, prev, model ), options, prev, model );
     }
 }
