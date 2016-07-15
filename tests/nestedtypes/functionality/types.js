@@ -11,7 +11,7 @@
             var Ctor = Nested.Class.extend({
                 a : 1,
 
-                initialize : function( a ){
+                constructor : function( a ){
                     a === undefined || ( this.a = a );
                 },
 
