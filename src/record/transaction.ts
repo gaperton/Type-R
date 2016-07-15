@@ -95,7 +95,7 @@ let _cidCounter : number = 0;
 })
 export class Record extends Transactional implements Owner {
     // Implemented at the index.ts to avoid circular dependency. Here we have just proper singature.
-    static define( protoProps : RecordDefinition, staticProps ) : typeof Record { return this; }
+    static define( protoProps : RecordDefinition, staticProps? ) : typeof Record { return <any>Transactional.define( protoProps, staticProps ); }
 
     /***********************************
      * Core Members

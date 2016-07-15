@@ -161,6 +161,8 @@ export class GenericAttribute implements Attribute {
     get : ( value, key : string ) => any
 }
 
+Record.prototype._attributes = { id : GenericAttribute.create({ value : void 0 }, 'id' )};
+
 function chainChangeHandlers( prevHandler : ChangeHandler, nextHandler : ChangeHandler ) : ChangeHandler {
     return function( next, prev, model ) {
         prevHandler.call( this, next, prev, model );

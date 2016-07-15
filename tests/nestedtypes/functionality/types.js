@@ -310,7 +310,7 @@
 
                 it( 'may prevent attribute\'s assignment', function(){
                     var m = new A();
-                    m.set( 'a', 0 );
+                    m.set({ 'a' : 0 });
 
                     expect( m.a ).to.be.equal( 66 );
                 });

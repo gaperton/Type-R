@@ -170,17 +170,12 @@
                     expect( m.first.id ).to.eql( 1 );
                 });
 
-                it( 'triggers "change", "change:attr", and "replace:attr" events', function(){
-                    var m = new B({ first : null } ),
-                        replace = sinon.spy();
-
-                    m.on( 'replace:first', replace );
+                it( 'triggers "change", "change:attr" events', function(){
+                    var m = new B({ first : null } );
 
                     shouldFireChangeOnce( m, 'first', function(){
                         m.first = {id : 1, a : 1, b : 2};
                     });
-
-                    expect( replace ).to.be.calledOnce;
                 });
             });
         });
@@ -241,9 +236,9 @@
                 var m = new B();
 
                 shouldFireChangeOnce( m, 'first', function(){
-                    m.first.transaction( function(){
-                        this.a = 7;
-                        this.b = 7;
+                    m.first.transaction( function( first ){
+                        first.a = 7;
+                        first.b = 7;
                     });
                 });
             });
@@ -251,10 +246,10 @@
             it( 'send single "change" event in a nested transaction', function(){
                 var m = new B();
 
-                shouldFireChangeOnce( m, 'first', function(){
+                shouldFireChangeOnce( m, 'first second', function(){
                     m.transaction( function(){
                         m.first.a = 7;
-                        m.first.b = 7;
+                        m.second.a = 7;
                     });
                 });
             });

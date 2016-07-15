@@ -396,7 +396,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (this._listenToSelf)
 	            this.listenTo(this, this._listenToSelf);
 	    }
-	    Record.define = function (protoProps, staticProps) { return this; };
+	    Record.define = function (protoProps, staticProps) { return transactions_ts_1.Transactional.define(protoProps, staticProps); };
 	    Object.defineProperty(Record.prototype, "changed", {
 	        get: function () {
 	            var changed = this._changedAttributes;
@@ -1182,6 +1182,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this._ownerKey = ownerKey;
 	    }
 	    Transactional.prototype.transaction = function (fun, options) {
+	        if (options === void 0) { options = {}; }
 	        var isRoot = begin(this);
 	        fun(this);
 	        isRoot && commit(this, options);
@@ -1615,6 +1616,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return GenericAttribute;
 	}());
 	exports.GenericAttribute = GenericAttribute;
+	transaction_ts_1.Record.prototype._attributes = { id: GenericAttribute.create({ value: void 0 }, 'id') };
 	function chainChangeHandlers(prevHandler, nextHandler) {
 	    return function (next, prev, model) {
 	        prevHandler.call(this, next, prev, model);
