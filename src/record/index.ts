@@ -11,7 +11,7 @@ Record.define = function( protoProps : RecordDefinition, staticProps ){
 
     if( protoProps ) {
         // Compile attributes spec, creating definition mixin.
-        const definition = compile( protoProps.attributes, <AttributesSpec> baseProto._attributes );
+        const definition = compile( protoProps.attributes || protoProps.defaults, <AttributesSpec> baseProto._attributes );
 
         // Explicit 'properties' declaration overrides auto-generated attribute properties.
         assign( definition.properties, protoProps.properties || {} );

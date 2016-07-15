@@ -14,6 +14,7 @@ import { ChildrenErrors } from '../validation.ts'
 
 export interface RecordDefinition extends ClassDefinition {
     attributes? : AttributeDescriptorMap
+    defaults? : AttributeDescriptorMap
 }
 
 export interface AttributeDescriptorMap {

@@ -323,7 +323,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	transaction_ts_1.Record.define = function (protoProps, staticProps) {
 	    var baseProto = Object.getPrototypeOf(this.prototype), BaseConstructor = baseProto.constructor;
 	    if (protoProps) {
-	        var definition = define_ts_1.compile(protoProps.attributes, baseProto._attributes);
+	        var definition = define_ts_1.compile(protoProps.attributes || protoProps.defaults, baseProto._attributes);
 	        index_ts_1.assign(definition.properties, protoProps.properties || {});
 	        index_ts_1.defaults(definition, index_ts_1.omit(protoProps, 'attributes', 'collection'));
 	        index_ts_1.Class.define.call(this, definition, staticProps);
