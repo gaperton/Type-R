@@ -703,7 +703,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	}());
 	exports.Class = Class;
 	function toPropertyDescriptor(x) {
-	    return typeof x === 'function' ? { get: x } : x;
+	    if (x) {
+	        return typeof x === 'function' ? { get: x } : x;
+	    }
 	}
 	function mixinRules(rules) {
 	    return createDecorator('mixinRules', rules);
@@ -1726,6 +1728,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    ChainableAttributeSpec.prototype.get = function (fun) {
 	        this.options.getHooks.push(fun);
+	        return this;
 	    };
 	    ChainableAttributeSpec.prototype.set = function (fun) {
 	        this.options.transforms.push(function (next, options, prev, model) {
@@ -1735,22 +1738,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	            return prev;
 	        });
+	        return this;
 	    };
 	    ChainableAttributeSpec.prototype.events = function (map) {
 	        this.options.changeHandlers.push(function (next, prev, record) {
 	            prev && record.stopListening(prev);
 	            next && record.listenTo(next, map);
 	        });
+	        return this;
 	    };
 	    ChainableAttributeSpec.prototype.onChange = function (handler) {
 	        this.options._onChange = handler;
+	        return this;
 	    };
 	    Object.defineProperty(ChainableAttributeSpec.prototype, "has", {
 	        get: function () { return this; },
 	        enumerable: true,
 	        configurable: true
 	    });
-	    ChainableAttributeSpec.prototype.value = function (x) { this.options.value = x; };
+	    ChainableAttributeSpec.prototype.value = function (x) {
+	        this.options.value = x;
+	        return this;
+	    };
 	    return ChainableAttributeSpec;
 	}());
 	exports.ChainableAttributeSpec = ChainableAttributeSpec;

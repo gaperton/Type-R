@@ -181,7 +181,9 @@ export class Class {
 }
 
 function toPropertyDescriptor( x : Property ) : PropertyDescriptor {
-    return typeof x === 'function' ? { get : < () => any >x } : <PropertyDescriptor> x;
+    if( x ){
+        return typeof x === 'function' ? { get : < () => any >x } : <PropertyDescriptor> x;
+    }
 }
 
 // @mixinRules({ ... }) decorator

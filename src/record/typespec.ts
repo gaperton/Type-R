@@ -18,6 +18,8 @@ export class ChainableAttributeSpec {
     // Attribute get hook.
     get( fun ) {
         this.options.getHooks.push( fun );
+
+        return this;
     }
 
     // Attribute set hook.
@@ -30,6 +32,8 @@ export class ChainableAttributeSpec {
 
             return prev;
         } );
+
+        return this;
     }
 
     // Subsribe to events from an attribute.
@@ -39,11 +43,15 @@ export class ChainableAttributeSpec {
 
                 next && record.listenTo( next, map );
             });
+
+        return this;
     }
 
     // Subscribe for a change event from an attribute.
     onChange( handler : ChangeAttrHandler ){
         this.options._onChange = handler;
+
+        return this;
     }
 
     get has() { return this; }
@@ -54,7 +62,10 @@ export class ChainableAttributeSpec {
         return this;
     }*/
 
-    value( x ) { this.options.value = x; }
+    value( x ){
+        this.options.value = x;
+        return this;
+    }
 }
 
 declare global {
