@@ -106,6 +106,10 @@ interface Listeners {
     [ id : string ] : Messenger
 }
 
+export interface EventHandlers {
+    [ events : string ] : Function | string
+}
+
 /*************************
  * Messenger is extendable class with capabilities of sending and receiving messages.
  * This class itself can serve as both mixin and base class

@@ -3,6 +3,7 @@ import { assign, defaults, omit, Class, ClassDefinition } from '../objectplus/in
 import { compile, AttributesSpec } from './define.ts'
 
 import { TransactionalType } from './nestedTypes.ts'
+import './basicTypes.ts'
 
 Record.define = function( protoProps : RecordDefinition, staticProps ){
     const baseProto : Record = Object.getPrototypeOf( this.prototype ),
@@ -24,6 +25,5 @@ Record.define = function( protoProps : RecordDefinition, staticProps ){
 }
 
 Record._attribute = TransactionalType;
-
 
 export { Record }

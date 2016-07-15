@@ -3,7 +3,7 @@
  * The root of all definitions. 
  */
 
-import { Class, ClassDefinition, Constructor, trigger3, log, define } from '../objectplus/index.ts'
+import { EventHandlers, Class, ClassDefinition, Constructor, trigger3, log, define } from '../objectplus/index.ts'
 
 import { begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 import { ChildrenErrors } from '../validation.ts'
@@ -30,6 +30,8 @@ export interface AttributeDescriptor {
     getHooks? : GetHook[]
     transforms? : Transform[]
     changeHandlers? : ChangeHandler[]
+
+    _onChange? : ChangeAttrHandler
 }
 
 export type GetHook = ( value : any, key : string ) => any;
@@ -188,8 +190,11 @@ export class Record extends Transactional implements Owner {
     // Attributes-level parse
     _parse( data ){ return data; }
 
-    // Create record default values, optionally augmenting given values 
+    // Create record default values, optionally augmenting given values.
     defaults( values? : {} ){ return {}; }
+
+    // Event map for change:attribute events. 
+    _listenToSelf : EventHandlers
 
     /***************************************************
      * Record construction
@@ -213,6 +218,8 @@ export class Record extends Transactional implements Owner {
         this.attributes = this._previousAttributes = attributes;
 
         this.initialize( a_values, a_options );
+
+        if( this._listenToSelf ) this.listenTo( this, this._listenToSelf );
     }
 
     // Initialization callback, to be overriden by the subclasses 

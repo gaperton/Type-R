@@ -68,6 +68,18 @@ export class NumericType extends PrimitiveType {
 
 Number._attribute = NumericType;
 
+// Add global Integer data type
+declare global {
+    interface Window {
+        Integer : Function
+    }
+}
+
+if( window ){
+    window.Integer = function( x ){ return x ? Math.round( x ) : 0; }
+    window.Integer._attribute = NumericType;
+}
+
 // Compatibility wrapper for Array type.
 export class ArrayType extends GenericAttribute {
     toJSON( value ) { return value; }

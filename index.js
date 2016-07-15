@@ -319,6 +319,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var index_ts_1 = __webpack_require__(4);
 	var define_ts_1 = __webpack_require__(10);
 	var nestedTypes_ts_1 = __webpack_require__(12);
+	__webpack_require__(13);
 	transaction_ts_1.Record.define = function (protoProps, staticProps) {
 	    var baseProto = Object.getPrototypeOf(this.prototype), BaseConstructor = baseProto.constructor;
 	    if (protoProps) {
@@ -364,6 +365,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        });
 	        this.attributes = this._previousAttributes = attributes;
 	        this.initialize(a_values, a_options);
+	        if (this._listenToSelf)
+	            this.listenTo(this, this._listenToSelf);
 	    }
 	    Record.define = function (protoProps, staticProps) { return this; };
 	    Object.defineProperty(Record.prototype, "changed", {
@@ -1367,14 +1370,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	var attribute_ts_1 = __webpack_require__(11);
 	var index_ts_1 = __webpack_require__(4);
+	var typespec_ts_1 = __webpack_require__(14);
 	function compile(rawSpecs, baseAttributes) {
-	    var myAttributes = index_ts_1.transform({}, rawSpecs, attribute_ts_1.GenericAttribute.create), allAttributes = index_ts_1.defaults({}, myAttributes, baseAttributes), Attributes = createCloneCtor(allAttributes), mixin = {
+	    var myAttributes = index_ts_1.transform({}, rawSpecs, createAttribute), allAttributes = index_ts_1.defaults({}, myAttributes, baseAttributes), Attributes = createCloneCtor(allAttributes), mixin = {
 	        Attributes: Attributes,
 	        _attributes: new Attributes(allAttributes),
 	        properties: index_ts_1.transform({}, myAttributes, function (x) { return x.createPropertyDescriptor(); }),
 	        defaults: createDefaults(allAttributes),
 	        _toJSON: createToJSON(allAttributes),
-	        _parse: createParse(myAttributes, allAttributes)
+	        _parse: createParse(myAttributes, allAttributes),
+	        _listenToSelf: createEventMap(allAttributes)
 	    };
 	    if (index_ts_1.log.level > 0) {
 	        mixin.forEach = createForEach(allAttributes);
@@ -1382,6 +1387,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return mixin;
 	}
 	exports.compile = compile;
+	function createAttribute(spec, name) {
+	    return attribute_ts_1.GenericAttribute.create(typespec_ts_1.toAttributeDescriptor(spec), name);
+	}
+	function createEventMap(attrSpecs) {
+	    var events = {};
+	    for (var key in attrSpecs) {
+	        var attribute = attrSpecs[key], _onChange = attribute.options._onChange;
+	        if (_onChange) {
+	            events['change:' + key] = _onChange;
+	        }
+	    }
+	    return events;
+	}
 	function createForEach(attrSpecs) {
 	    var statements = ['var v, _a=this._attributes;'];
 	    for (var name_1 in attrSpecs) {
@@ -1601,6 +1619,180 @@ return /******/ (function(modules) { // webpackBootstrap
 	}(attribute_ts_1.GenericAttribute));
 	exports.TransactionalType = TransactionalType;
 	transaction_ts_1.Record._attribute = TransactionalType;
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var attribute_ts_1 = __webpack_require__(11);
+	var index_ts_1 = __webpack_require__(4);
+	var ConstructorType = (function (_super) {
+	    __extends(ConstructorType, _super);
+	    function ConstructorType() {
+	        _super.apply(this, arguments);
+	    }
+	    ConstructorType.prototype.convert = function (value) {
+	        return value == null || value instanceof this.type ? value : new this.type(value);
+	    };
+	    ConstructorType.prototype.clone = function (value, options) {
+	        return value.clone ? value.clone(value, options) : this.convert(JSON.parse(JSON.stringify(value)));
+	    };
+	    return ConstructorType;
+	}(attribute_ts_1.GenericAttribute));
+	Function.prototype._attribute = ConstructorType;
+	var DateType = (function (_super) {
+	    __extends(DateType, _super);
+	    function DateType() {
+	        _super.apply(this, arguments);
+	    }
+	    DateType.prototype.convert = function (value) {
+	        return value == null || value instanceof Date ? value :
+	            new Date(typeof value === 'string' ? index_ts_1.parseDate(value) : value);
+	    };
+	    DateType.prototype.validate = function (model, value, name) {
+	        if (isNaN(+value))
+	            return name + ' is Invalid Date';
+	    };
+	    DateType.prototype.toJSON = function (value) { return value && value.toJSON(); };
+	    DateType.prototype.isChanged = function (a, b) { return (a && +a) !== (b && +b); };
+	    DateType.prototype.clone = function (value) { return value && new Date(+value); };
+	    return DateType;
+	}(attribute_ts_1.GenericAttribute));
+	Date._attribute = DateType;
+	var PrimitiveType = (function (_super) {
+	    __extends(PrimitiveType, _super);
+	    function PrimitiveType() {
+	        _super.apply(this, arguments);
+	    }
+	    PrimitiveType.prototype.create = function () { return this.type(); };
+	    PrimitiveType.prototype.toJSON = function (value) { return value; };
+	    PrimitiveType.prototype.convert = function (value) { return value == null ? value : this.type(value); };
+	    PrimitiveType.prototype.isChanged = function (a, b) { return a !== b; };
+	    PrimitiveType.prototype.clone = function (value) { return value; };
+	    return PrimitiveType;
+	}(attribute_ts_1.GenericAttribute));
+	exports.PrimitiveType = PrimitiveType;
+	Boolean._attribute = String._attribute = PrimitiveType;
+	var NumericType = (function (_super) {
+	    __extends(NumericType, _super);
+	    function NumericType() {
+	        _super.apply(this, arguments);
+	    }
+	    NumericType.prototype.validate = function (model, value, name) {
+	        if (!isFinite(value)) {
+	            return name + ' is not valid number';
+	        }
+	    };
+	    return NumericType;
+	}(PrimitiveType));
+	exports.NumericType = NumericType;
+	Number._attribute = NumericType;
+	if (window) {
+	    window.Integer = function (x) { return x ? Math.round(x) : 0; };
+	    window.Integer._attribute = NumericType;
+	}
+	var ArrayType = (function (_super) {
+	    __extends(ArrayType, _super);
+	    function ArrayType() {
+	        _super.apply(this, arguments);
+	    }
+	    ArrayType.prototype.toJSON = function (value) { return value; };
+	    ArrayType.prototype.convert = function (value) {
+	        if (value == null || value instanceof Array)
+	            return value;
+	        return [];
+	    };
+	    return ArrayType;
+	}(attribute_ts_1.GenericAttribute));
+	exports.ArrayType = ArrayType;
+	Array._attribute = ArrayType;
+
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var index_ts_1 = __webpack_require__(4);
+	var ChainableAttributeSpec = (function () {
+	    function ChainableAttributeSpec(options) {
+	        if (options === void 0) { options = {}; }
+	        this.options = { getHooks: [], transforms: [], changeHandlers: [] };
+	        index_ts_1.assign(this.options, options);
+	    }
+	    ChainableAttributeSpec.prototype.get = function (fun) {
+	        this.options.getHooks.push(fun);
+	    };
+	    ChainableAttributeSpec.prototype.set = function (fun) {
+	        this.options.transforms.push(function (next, options, prev, model) {
+	            if (this.isChanged(next, prev)) {
+	                var changed = fun.call(model, next, name);
+	                return changed === void 0 ? prev : changed;
+	            }
+	            return prev;
+	        });
+	    };
+	    ChainableAttributeSpec.prototype.events = function (map) {
+	        this.options.changeHandlers.push(function (next, prev, record) {
+	            prev && record.stopListening(prev);
+	            next && record.listenTo(next, map);
+	        });
+	    };
+	    ChainableAttributeSpec.prototype.onChange = function (handler) {
+	        this.options._onChange = handler;
+	    };
+	    Object.defineProperty(ChainableAttributeSpec.prototype, "has", {
+	        get: function () { return this; },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    ChainableAttributeSpec.prototype.value = function (x) { this.options.value = x; };
+	    return ChainableAttributeSpec;
+	}());
+	exports.ChainableAttributeSpec = ChainableAttributeSpec;
+	Function.prototype.value = function (x) {
+	    return new ChainableAttributeSpec({ type: this, value: x });
+	};
+	Object.defineProperty(Function.prototype, 'has', {
+	    get: function () {
+	        return this._has || new ChainableAttributeSpec({ type: this });
+	    },
+	    set: function (value) { this._has = value; }
+	});
+	function toAttributeDescriptor(spec) {
+	    if (typeof spec === 'function') {
+	        return { type: spec };
+	    }
+	    if (spec && spec instanceof ChainableAttributeSpec) {
+	        return spec.options;
+	    }
+	    return {
+	        type: inferType(spec),
+	        value: spec
+	    };
+	}
+	exports.toAttributeDescriptor = toAttributeDescriptor;
+	function inferType(value) {
+	    switch (typeof value) {
+	        case 'number':
+	            return Number;
+	        case 'string':
+	            return String;
+	        case 'boolean':
+	            return Boolean;
+	        case 'undefined':
+	            return void 0;
+	        case 'object':
+	            return value ? value.constructor : Object;
+	    }
+	}
 
 
 /***/ }
