@@ -339,6 +339,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var baseProto = Object.getPrototypeOf(this.prototype), BaseConstructor = baseProto.constructor;
 	    if (protoProps) {
 	        var definition = define_ts_1.compile(protoProps.attributes || protoProps.defaults, baseProto._attributes);
+	        if (protoProps.properties === false) {
+	            definition.properties = {};
+	        }
 	        index_ts_1.assign(definition.properties, protoProps.properties || {});
 	        index_ts_1.defaults(definition, index_ts_1.omit(protoProps, 'attributes', 'collection'));
 	        index_ts_1.Class.define.call(this, definition, staticProps);

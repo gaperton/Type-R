@@ -18,7 +18,7 @@ interface PropertyMap {
 type Property = PropertyDescriptor | ( () => any )
 
 export interface ClassDefinition {
-    properties? : PropertyMap
+    properties? : PropertyMap | boolean
     mixins? : Array< Object >
     mixinRules? : IMixinRules
     [ name : string ] : any
@@ -137,7 +137,7 @@ export class Class {
         assign( this, staticProps );
 
         // Define native properties.
-        properties && Object.defineProperties( proto, transform( {}, properties, toPropertyDescriptor ) );
+        properties && Object.defineProperties( proto, transform( {}, <PropertyMap>properties, toPropertyDescriptor ) );
 
         // Apply mixins and mixin rules.
         mixinRules && this.mixinRules( mixinRules );

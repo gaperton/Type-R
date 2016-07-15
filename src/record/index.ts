@@ -14,6 +14,10 @@ Record.define = function( protoProps : RecordDefinition, staticProps ){
         const definition = compile( protoProps.attributes || protoProps.defaults, <AttributesSpec> baseProto._attributes );
 
         // Explicit 'properties' declaration overrides auto-generated attribute properties.
+        if( protoProps.properties === false ){
+            definition.properties = {};
+        }
+
         assign( definition.properties, protoProps.properties || {} );
 
         // Merge in definition.
