@@ -47,7 +47,7 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     // Execute given function in the scope of ad-hoc transaction.
     transaction( fun : ( self : this ) => void, options : TransactionOptions = {} ) : void{
         const isRoot = begin( this );
-        fun( this );
+        fun.call( this, this );
         isRoot && commit( this, options );
     }
 

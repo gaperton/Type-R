@@ -1184,7 +1184,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Transactional.prototype.transaction = function (fun, options) {
 	        if (options === void 0) { options = {}; }
 	        var isRoot = begin(this);
-	        fun(this);
+	        fun.call(this, this);
 	        isRoot && commit(this, options);
 	    };
 	    Transactional.prototype.updateEach = function (iteratee, options) {
