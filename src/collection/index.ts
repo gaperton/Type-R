@@ -61,10 +61,9 @@ export class Collection extends Transactional implements CollectionCore {
             addIndex( _byId, record[ idAttribute ] );
         }
 
-        if( !options.silent ){
-            markAsDirty( this );
-            trigger2( this, 'change', record, options );
-        }
+        markAsDirty( this );
+
+        options.silent || trigger2( this, 'change', record, options );
 
         isRoot && commit( this, options );
     }

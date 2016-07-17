@@ -357,10 +357,9 @@ export class Record extends Transactional implements Owner {
         // Touch an attribute in bounds of transaction
         const isRoot = begin( this );
 
-        if( !options.silent ){
-            markAsDirty( this );
-            trigger3( this, 'change:' + key, this, this.attributes[ key ], options );
-        }
+        markAsDirty( this );
+        
+        options.silent || trigger3( this, 'change:' + key, this, this.attributes[ key ], options );
 
         isRoot && commit( this, options );
     }

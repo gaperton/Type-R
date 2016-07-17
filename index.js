@@ -535,10 +535,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Record.prototype.forceAttributeChange = function (key, options) {
 	        if (options === void 0) { options = {}; }
 	        var isRoot = begin(this);
-	        if (!options.silent) {
-	            markAsDirty(this);
-	            index_ts_1.trigger3(this, 'change:' + key, this, this.attributes[key], options);
-	        }
+	        markAsDirty(this);
+	        options.silent || index_ts_1.trigger3(this, 'change:' + key, this, this.attributes[key], options);
 	        isRoot && transactions_ts_1.commit(this, options);
 	    };
 	    Record.prototype.dispose = function () {
@@ -1952,10 +1950,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            commons_ts_1.removeIndex(_byId, record.previous(idAttribute));
 	            commons_ts_1.addIndex(_byId, record[idAttribute]);
 	        }
-	        if (!options.silent) {
-	            transactions_ts_1.markAsDirty(this);
-	            index_ts_1.trigger2(this, 'change', record, options);
-	        }
+	        transactions_ts_1.markAsDirty(this);
+	        options.silent || index_ts_1.trigger2(this, 'change', record, options);
 	        isRoot && transactions_ts_1.commit(this, options);
 	    };
 	    Collection.prototype.get = function (objOrId) {
