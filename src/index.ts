@@ -4,7 +4,7 @@ import { Record as Model, ChainableAttributeSpec } from './record/index.ts'
 import { Events } from './objectplus/events.ts'
 export const { on, off, trigger, once, listenTo, stopListening, listenToOnce } = Events;
 
-//import { Collection } from './collection'
+import { Collection } from './collection/index.ts'
 
 export * from './objectplus/mixins.ts'
 export * from './objectplus/events.ts'
@@ -12,7 +12,7 @@ export * from './objectplus/events.ts'
 export {
     tools,
     Model,
-    //Collection,
+    Collection,
     transaction,
     value
 }; 

@@ -8,21 +8,17 @@ export interface CollectionCore extends Transactional, Owner {
     _byId : IdIndex
     models : Record[]
     model : typeof Record
-    comparator : Comparator    
-    sortBy( c : Comparator ) : Record[]
-
-    _notifyChange( options : TransactionOptions ) : void
-    _notifyChangeItem( event : 'add' | 'remove' | 'change', record : Record, options : TransactionOptions )
-    _notifyBulkChange( event : 'update' | 'reset' | 'sort', options : TransactionOptions )
+    _comparator : Comparator    
 }
+
+// Collection's manipulation methods elements
+export type Elements = ( Object | Record )[];
 
 export interface CollectionOptions extends TransactionOptions {
     sort? : boolean
 }
 
-export type Comparator = string |
-            ( ( a : Record ) => number ) |
-            ( ( a : Record, b : Record ) => number );  
+export type Comparator = ( a : Record, b : Record ) => number;  
 
 export function dispose( collection : CollectionCore ) : Record[]{
     const models = collection.models;
@@ -34,22 +30,19 @@ export function dispose( collection : CollectionCore ) : Record[]{
     return models;
 }
 
-export function freeAll( collection : CollectionCore, children : Transactional[] ) : void {
+export function freeAll( collection : CollectionCore, children : Record[] ) : Record[] {
     for( let child of children ){
         free( collection, child );
     }
+
+    return children;
 }
 
 // Silently sort collection, if its required. Returns true if sort happened.  
 export function sortElements( collection : CollectionCore, options : CollectionOptions ) : boolean {
-    let { comparator } = collection;
-    if( comparator && options.sort !== false ){
-        collection.models = typeof comparator === 'functon' ? (
-            comparator.length === 1 ?
-                    collection.sortBy( x => comparator.call( collection, x ) ) :
-                    collection.models.sort( ( a, b ) => comparator.call( collection, a, b ) )
-        ) : collection.sortBy( comparator );
-        
+    let { _comparator } = collection;
+    if( _comparator && options.sort !== false ){
+        collection.models.sort( ( a, b ) => _comparator.call( collection, a, b ) )
         return true;
     }
 

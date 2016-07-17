@@ -88,7 +88,7 @@ let _cidCounter : number = 0;
 
 @define({
     // Default client id prefix 
-    cidPrefix : 'c',
+    cidPrefix : 'm',
 
     // Default id attribute name
     idAttribute : 'id'
@@ -280,6 +280,24 @@ export class Record extends Transactional implements Owner {
     /**
      * Transactional control
      */
+
+    // Polimorphic set method.
+    set( key : string, value : any, options? : TransactionOptions ) : this
+    set( attrs : {}, options? : TransactionOptions ) : this
+    set( a, b?, c? ) : this {
+        if( typeof a === 'string' ){
+            if( c ){
+                return <this> super.set({ [ a ] : b }, c );
+            }
+            else{
+                setAttribute( this, a, b );
+                return this;
+            } 
+        }
+        else{
+            return <this> super.set( a, b );
+        }
+    }
     
     // Create transaction. TODO: Move to transaction constructor
     _createTransaction( a_values : {}, options : TransactionOptions = {} ) : Transaction {
