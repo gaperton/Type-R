@@ -64,6 +64,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.Model = index_ts_1.Record;
 	var events_ts_1 = __webpack_require__(6);
 	exports.on = events_ts_1.Events.on, exports.off = events_ts_1.Events.off, exports.trigger = events_ts_1.Events.trigger, exports.once = events_ts_1.Events.once, exports.listenTo = events_ts_1.Events.listenTo, exports.stopListening = events_ts_1.Events.stopListening, exports.listenToOnce = events_ts_1.Events.listenToOnce;
+	var index_ts_2 = __webpack_require__(15);
+	exports.Collection = index_ts_2.Collection;
 	__export(__webpack_require__(5));
 	__export(__webpack_require__(6));
 	function value(x) {
@@ -481,6 +483,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Record.prototype.parse = function (data) {
 	        return this._parse(data);
 	    };
+	    Record.prototype.set = function (a, b, c) {
+	        if (typeof a === 'string') {
+	            if (c) {
+	                return _super.prototype.set.call(this, (_a = {}, _a[a] = b, _a), c);
+	            }
+	            else {
+	                setAttribute(this, a, b);
+	                return this;
+	            }
+	        }
+	        else {
+	            return _super.prototype.set.call(this, a, b);
+	        }
+	        var _a;
+	    };
 	    Record.prototype._createTransaction = function (a_values, options) {
 	        var _this = this;
 	        if (options === void 0) { options = {}; }
@@ -535,7 +552,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Record = __decorate([
 	        index_ts_1.define({
-	            cidPrefix: 'c',
+	            cidPrefix: 'm',
 	            idAttribute: 'id'
 	        })
 	    ], Record);
@@ -1866,6 +1883,403 @@ return /******/ (function(modules) { // webpackBootstrap
 	}(attribute_ts_1.GenericAttribute));
 	exports.ArrayType = ArrayType;
 	Array._attribute = ArrayType;
+
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var index_ts_1 = __webpack_require__(4);
+	var transactions_ts_1 = __webpack_require__(7);
+	var commons_ts_1 = __webpack_require__(16);
+	var add_ts_1 = __webpack_require__(17);
+	var set_ts_1 = __webpack_require__(18);
+	var _count = 0;
+	var Collection = (function (_super) {
+	    __extends(Collection, _super);
+	    function Collection(records, options) {
+	        _super.call(this, _count++);
+	        this.models = [];
+	        this._byId = {};
+	        this.idAttribute = this.model.prototype.idAttribute;
+	    }
+	    Object.defineProperty(Collection.prototype, "comparator", {
+	        get: function () { return this._comparator; },
+	        set: function (x) {
+	            var compare;
+	            switch (typeof x) {
+	                case 'string':
+	                    this._comparator = function (a, b) {
+	                        var aa = a[x], bb = b[x];
+	                        if (aa === bb)
+	                            return 0;
+	                        return aa < bb ? -1 : +1;
+	                    };
+	                    break;
+	                case 'function':
+	                    if (x.length === 1) {
+	                        this._comparator = function (a, b) {
+	                            var aa = x(a), bb = x(b);
+	                            if (aa === bb)
+	                                return 0;
+	                            return aa < bb ? -1 : +1;
+	                        };
+	                    }
+	                    else {
+	                        this._comparator = x;
+	                    }
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Collection.prototype._onChildrenChange = function (record, options) {
+	        var isRoot = transactions_ts_1.begin(this), idAttribute = this.idAttribute;
+	        if (record.hasChanged(idAttribute)) {
+	            var _byId = this._byId;
+	            commons_ts_1.removeIndex(_byId, record.previous(idAttribute));
+	            commons_ts_1.addIndex(_byId, record[idAttribute]);
+	        }
+	        if (!options.silent) {
+	            transactions_ts_1.markAsDirty(this);
+	            index_ts_1.trigger2(this, 'change', record, options);
+	        }
+	        isRoot && transactions_ts_1.commit(this, options);
+	    };
+	    Collection.prototype.get = function (objOrId) {
+	        return objOrId ? (this._byId[typeof objOrId === 'object' ? objOrId.cid || objOrId[this.idAttribute] : objOrId]) : null;
+	    };
+	    Collection.prototype.each = function (iteratee, context) {
+	        var fun = arguments.length === 2 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, models = this.models;
+	        for (var i = 0; i < models.length; i++) {
+	            fun(models[i], i);
+	        }
+	    };
+	    Collection.prototype._validateNested = function (errors) {
+	        var count = 0;
+	        this.each(function (record) {
+	            var error = record.validationError;
+	            if (error) {
+	                errors[record.cid] = error;
+	                count++;
+	            }
+	        });
+	        return count;
+	    };
+	    Object.defineProperty(Collection.prototype, "length", {
+	        get: function () { return this.models.length; },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Collection.prototype.clone = function (owner) {
+	        return new this.constructor(this.models, { clone: true }, owner);
+	    };
+	    Collection.prototype.toJSON = function () {
+	        return this.models.map(function (model) { return model.toJSON(); });
+	    };
+	    Collection.prototype.set = function (elements, options) {
+	        if (options.reset) {
+	            this.reset(elements, options);
+	        }
+	        else {
+	            this._createTransaction(elements, options).commit(options);
+	        }
+	        return this;
+	    };
+	    Collection.prototype.reset = function (elements, options) {
+	        if (options === void 0) { options = {}; }
+	        throw new ReferenceError('TBD');
+	    };
+	    Collection.prototype._createTransaction = function (elements, options) {
+	        if (options === void 0) { options = {}; }
+	        if (this.models.length) {
+	            return options.remove === false ?
+	                add_ts_1.addTransaction(this, elements, options) :
+	                set_ts_1.setTransaction(this, elements, options);
+	        }
+	        else {
+	            return set_ts_1.emptySetTransaction(this, elements, options);
+	        }
+	    };
+	    Collection = __decorate([
+	        index_ts_1.define({
+	            cidPrefix: 'c'
+	        })
+	    ], Collection);
+	    return Collection;
+	}(transactions_ts_1.Transactional));
+	exports.Collection = Collection;
+
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var transactions_ts_1 = __webpack_require__(7);
+	var index_ts_1 = __webpack_require__(4);
+	function dispose(collection) {
+	    var models = collection.models;
+	    collection.models = [];
+	    collection._byId = {};
+	    freeAll(collection, models);
+	    return models;
+	}
+	exports.dispose = dispose;
+	function freeAll(collection, children) {
+	    for (var _i = 0, children_1 = children; _i < children_1.length; _i++) {
+	        var child = children_1[_i];
+	        transactions_ts_1.free(collection, child);
+	    }
+	    return children;
+	}
+	exports.freeAll = freeAll;
+	function sortElements(collection, options) {
+	    var _comparator = collection._comparator;
+	    if (_comparator && options.sort !== false) {
+	        collection.models.sort(function (a, b) { return _comparator.call(collection, a, b); });
+	        return true;
+	    }
+	    return false;
+	}
+	exports.sortElements = sortElements;
+	function addIndex(index, model) {
+	    index[model.cid] = model;
+	    var id = model.id;
+	    if (id != null) {
+	        index[id] = model;
+	    }
+	}
+	exports.addIndex = addIndex;
+	function removeIndex(index, model) {
+	    delete index[model.cid];
+	    var id = model.id;
+	    if (id != null) {
+	        delete index[id];
+	    }
+	}
+	exports.removeIndex = removeIndex;
+	function toModel(collection, attrs, options) {
+	    var model = collection.model;
+	    return attrs instanceof model ? attrs : model.create(attrs, options, collection);
+	}
+	exports.toModel = toModel;
+	function convertAndAquire(collection, attrs, options) {
+	    var model = collection.model, record = attrs instanceof model ? attrs : model.create(attrs, options, collection);
+	    transactions_ts_1.aquire(collection, record);
+	    return record;
+	}
+	exports.convertAndAquire = convertAndAquire;
+	var CollectionTransaction = (function () {
+	    function CollectionTransaction(object, isRoot, added, removed, nested, sorted) {
+	        this.object = object;
+	        this.isRoot = isRoot;
+	        this.added = added;
+	        this.removed = removed;
+	        this.nested = nested;
+	        this.sorted = sorted;
+	        transactions_ts_1.markAsDirty(object);
+	    }
+	    CollectionTransaction.prototype.commit = function (options, isNested) {
+	        if (options === void 0) { options = {}; }
+	        var _a = this, nested = _a.nested, object = _a.object;
+	        for (var _i = 0, nested_1 = nested; _i < nested_1.length; _i++) {
+	            var transaction = nested_1[_i];
+	            transaction.commit(options, true);
+	        }
+	        if (!options.silent) {
+	            var _b = this, added = _b.added, removed = _b.removed;
+	            for (var _c = 0, added_1 = added; _c < added_1.length; _c++) {
+	                var record = added_1[_c];
+	                index_ts_1.trigger3(object, 'add', record, object, options);
+	            }
+	            for (var _d = 0, removed_1 = removed; _d < removed_1.length; _d++) {
+	                var record = removed_1[_d];
+	                index_ts_1.trigger3(object, 'remove', record, object, options);
+	            }
+	            for (var _e = 0, nested_2 = nested; _e < nested_2.length; _e++) {
+	                var transaction = nested_2[_e];
+	                index_ts_1.trigger2(object, 'change', transaction.object, options);
+	            }
+	            if (this.sorted) {
+	                index_ts_1.trigger2(object, 'sort', object, options);
+	            }
+	            if (added.length || removed.length) {
+	                index_ts_1.trigger2(object, 'update', object, options);
+	            }
+	        }
+	        this.isRoot && transactions_ts_1.commit(object, options, isNested);
+	    };
+	    return CollectionTransaction;
+	}());
+	exports.CollectionTransaction = CollectionTransaction;
+
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var transactions_ts_1 = __webpack_require__(7);
+	var commons_ts_1 = __webpack_require__(16);
+	function addTransaction(collection, items, options) {
+	    var isRoot = transactions_ts_1.begin(collection), nested = [];
+	    var added = appendElements(collection, items, nested, options);
+	    if (added.length || nested.length) {
+	        var needSort = sortOrMoveElements(collection, added, options);
+	        return new commons_ts_1.CollectionTransaction(collection, isRoot, added, [], nested, needSort);
+	    }
+	    isRoot && transactions_ts_1.commit(collection, options);
+	}
+	exports.addTransaction = addTransaction;
+	;
+	function sortOrMoveElements(collection, added, options) {
+	    var at = options.at;
+	    if (at != null) {
+	        var length_1 = collection.models.length;
+	        at = +at;
+	        if (at < 0)
+	            at += length_1 + 1;
+	        if (at < 0)
+	            at = 0;
+	        if (at > length_1)
+	            at = length_1;
+	        moveElements(collection.models, at, added);
+	        return false;
+	    }
+	    return commons_ts_1.sortElements(collection, options);
+	}
+	function moveElements(source, at, added) {
+	    for (var j = source.length - 1, i = j - added.length; i >= at; i--, j--) {
+	        source[j] = source[i];
+	    }
+	    for (i = 0, j = at; i < added.length; i++, j++) {
+	        source[j] = added[i];
+	    }
+	}
+	function appendElements(collection, a_items, nested, a_options) {
+	    var models = collection.models, _byId = collection._byId, merge = a_options.merge, parse = a_options.parse, idAttribute = collection.model.prototype.idAttribute, prevLength = models.length;
+	    for (var _i = 0, _a = a_items.length; _i < _a.length; _i++) {
+	        var item = _a[_i];
+	        var model = item ? _byId[item[idAttribute]] || _byId[item.cid] : null;
+	        if (model) {
+	            if (merge && item !== model) {
+	                var attrs = item.attributes || item;
+	                var transaction = model._createTransaction(attrs, a_options);
+	                transaction && nested.push(transaction);
+	            }
+	        }
+	        else {
+	            model = commons_ts_1.toModel(collection, item, a_options);
+	            models.push(model);
+	            transactions_ts_1.aquire(collection, model);
+	            commons_ts_1.addIndex(_byId, model);
+	        }
+	    }
+	    return models.slice(prevLength);
+	}
+
+
+/***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var transactions_ts_1 = __webpack_require__(7);
+	var commons_ts_1 = __webpack_require__(16);
+	function emptySetTransaction(collection, items, options, silent) {
+	    var isRoot = transactions_ts_1.begin(collection);
+	    var added = _reallocateEmpty(collection, items, options);
+	    if (added.length) {
+	        var needSort = commons_ts_1.sortElements(collection, options);
+	        return new commons_ts_1.CollectionTransaction(collection, isRoot, added, [], [], needSort);
+	    }
+	    isRoot && transactions_ts_1.commit(collection, options);
+	}
+	exports.emptySetTransaction = emptySetTransaction;
+	;
+	function setTransaction(collection, items, options) {
+	    var isRoot = transactions_ts_1.begin(collection), nested = [];
+	    var previous = collection.models, added = _reallocate(collection, items, nested, options);
+	    var reusedCount = collection.models.length - added.length, removed = reusedCount < previous.length ? (reusedCount ? _garbageCollect(collection, previous) :
+	        commons_ts_1.freeAll(collection, previous)) : [];
+	    var addedOrChanged = nested.length || added.length, needSort = addedOrChanged && commons_ts_1.sortElements(collection, options);
+	    if (addedOrChanged || removed.length) {
+	        return new commons_ts_1.CollectionTransaction(collection, isRoot, added, removed, nested, needSort);
+	    }
+	    isRoot && transactions_ts_1.commit(collection, options);
+	}
+	exports.setTransaction = setTransaction;
+	;
+	function _garbageCollect(collection, previous) {
+	    var _byId = collection._byId, removed = [];
+	    for (var _i = 0, previous_1 = previous; _i < previous_1.length; _i++) {
+	        var record = previous_1[_i];
+	        if (!_byId[record.cid]) {
+	            removed.push(record);
+	            transactions_ts_1.free(collection, record);
+	        }
+	    }
+	    return removed;
+	}
+	function _reallocate(collection, source, nested, options) {
+	    var models = Array(source.length), _byId = {}, merge = options.merge == null ? true : options.merge, _prevById = collection._byId, idAttribute = collection.model.prototype.idAttribute, toAdd = [];
+	    for (var i = 0, j = 0; i < source.length; i++) {
+	        var item = source[i], model = null;
+	        if (item) {
+	            var id = item[idAttribute], cid = item.cid;
+	            if (_byId[id] || _byId[cid])
+	                continue;
+	            model = _prevById[id] || _prevById[cid];
+	        }
+	        if (model) {
+	            if (merge && item !== model) {
+	                var attrs = item.attributes || item;
+	                var transaction = model.createTransaction(attrs, options);
+	                transaction && nested.push(transaction);
+	            }
+	        }
+	        else {
+	            model = commons_ts_1.toModel(collection, item, options);
+	            transactions_ts_1.aquire(collection, model);
+	            toAdd.push(model);
+	        }
+	        models[j++] = model;
+	        commons_ts_1.addIndex(_byId, model);
+	    }
+	    models.length = j;
+	    collection.models = models;
+	    collection._byId = _byId;
+	    return toAdd;
+	}
+	function _reallocateEmpty(self, source, options) {
+	    var len = source ? source.length : 0, models = Array(len), _byId = {}, idAttribute = self.model.prototype.idAttribute;
+	    for (var i = 0, j = 0; i < len; i++) {
+	        var src = source[i];
+	        if (src && (_byId[src[idAttribute]] || _byId[src.cid])) {
+	            continue;
+	        }
+	        var model = commons_ts_1.toModel(self, src, options);
+	        transactions_ts_1.aquire(self, model);
+	        models[j++] = model;
+	        commons_ts_1.addIndex(_byId, model);
+	    }
+	    models.length = j;
+	    self._byId = _byId;
+	    return self.models = models;
+	}
 
 
 /***/ }
