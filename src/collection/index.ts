@@ -1,12 +1,14 @@
-import { define, Class, ClassDefinition, trigger2 } from '../objectplus/index.ts'
+import { define, Class, ClassDefinition, defaults, trigger2 } from '../objectplus/index.ts'
 import { begin, commit, markAsDirty, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 import { Record } from '../record/index.ts'
 
-import { IdIndex, Elements, CollectionCore, addIndex, removeIndex, Comparator, CollectionTransaction } from './commons.ts'
+import { IdIndex, dispose, Elements, CollectionCore, addIndex, removeIndex, Comparator, CollectionTransaction } from './commons.ts'
 import { addTransaction } from './add.ts'
 import { setTransaction, emptySetTransaction } from './set.ts'
 
 let _count = 0;
+
+const silentOptions = { silent : true };
 
 @define({
     // Default client id prefix 
@@ -103,11 +105,16 @@ export class Collection extends Transactional implements CollectionCore {
     // idAttribute extracted from the model type.
     idAttribute : string
 
-    constructor( records? : ( Record | {} )[], options? : TransactionOptions ){
+    constructor( records? : ( Record | {} )[], options : TransactionOptions = {} ){
         super( _count++ );
         this.models = [];
         this._byId = {};
         this.idAttribute = this.model.prototype.idAttribute;
+
+        if( records ){
+            const elements : Elements = options.parse ? this.parse( records ) : records;
+            emptySetTransaction( this, records, options ).commit( silentOptions );
+        }
 
         this.initialize.apply( this, arguments );
     }
@@ -127,7 +134,7 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     // Apply bulk in-place object update in scope of ad-hoc transaction 
-    set( elements : ( {} | Record )[], options? : TransactionOptions ) : this {
+    set( elements : ( {} | Record )[], options : TransactionOptions = {} ) : this {
         // Handle reset option here - no way it will be populated from the top as nested transaction. 
         if( options.reset ){
             this.reset( elements, options )
@@ -139,17 +146,35 @@ export class Collection extends Transactional implements CollectionCore {
         return this;    
     }
 
-    reset( elements : ( {} | Record )[], options : TransactionOptions = {} ) : this {
-        throw new ReferenceError( 'TBD' );
-        /*const previousModels = dispose( this );
-        emptySet( this, elements, options );
+    reset( a_elements : ( {} | Record )[], options : TransactionOptions = {} ) : Record[] {
+        const previousModels = dispose( this );
 
-        return previousModels;*/
+        // Make all changes required, but be silent.
+        if( a_elements ){
+            const elements : Elements = options.parse ? this.parse( a_elements ) : a_elements;
+            emptySetTransaction( this, elements, options ).commit( silentOptions );
+        }
+
+        options.silent || trigger2( this, 'reset', this, defaults( { previousModels : previousModels }, options ) );
+
+        return this.models;
+    }
+
+    // Add elements to collection.
+    add( something : Elements | {} | Record , options : TransactionOptions = {} ){
+        const parsed : Elements = options.parse ? this.parse( something ) : something,
+              elements : Elements = Array.isArray( parsed ) ? parsed : [ parsed ];
+
+        return this.models.length ?
+                    addTransaction( this, elements, options ) :
+                    emptySetTransaction( this, elements, options );
     }
 
     // Apply bulk object update without any notifications, and return open transaction.
     // Used internally to implement two-phase commit.   
-    _createTransaction( elements : Elements, options : TransactionOptions = {} ) : CollectionTransaction {
+    _createTransaction( a_elements : Elements, options : TransactionOptions = {} ) : CollectionTransaction {
+        const elements = options.parse ? this.parse( a_elements ) : a_elements;
+
         if( this.models.length ){
             return options.remove === false ?
                         addTransaction( this, elements, options ) :
@@ -162,4 +187,3 @@ export class Collection extends Transactional implements CollectionCore {
 }
 
 Collection.prototype.model = Record;
-

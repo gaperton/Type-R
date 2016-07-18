@@ -86,7 +86,7 @@ export class ArrayType extends GenericAttribute {
 
     convert( value ) {
         // Fix incompatible constructor behaviour of Array...
-        if( value == null || value instanceof Array ) return value;
+        if( value == null || Array.isArray( value ) ) return value;
 
         // todo: log an error.
         return [];

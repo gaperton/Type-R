@@ -208,17 +208,12 @@
                     expect( m.c.first().id ).to.eql( 1 );
                 });
 
-                it( 'triggers "change", "change:attr", and "replace:attr" events', function(){
-                    var m = new B({ c : null } ),
-                        replace = sinon.spy();
-
-                    m.on( 'replace:c', replace );
+                it( 'triggers "change", "change:attr", events', function(){
+                    var m = new B({ c : null } );
 
                     shouldFireChangeOnce( m, 'c', function(){
                         m.c = [{id : 1, a : 1, b : 2}];
                     });
-
-                    expect( replace ).to.be.calledOnce;
                 });
             });
         });

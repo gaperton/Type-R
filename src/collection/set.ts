@@ -72,7 +72,7 @@ function _reallocate( collection : CollectionCore, source, nested : Transaction[
     // for each item in source set...
     for( var i = 0, j = 0; i < source.length; i++ ){
         var item  = source[ i ],
-            model = null;
+            model : Record = null;
 
         if( item ){
             var id  = item[ idAttribute ],
@@ -86,7 +86,7 @@ function _reallocate( collection : CollectionCore, source, nested : Transaction[
         if( model ){
             if( merge && item !== model ){
                 var attrs = item.attributes || item;
-                const transaction = model.createTransaction( attrs, options );
+                const transaction = model._createTransaction( attrs, options );
                 transaction && nested.push( transaction );
             }
         }

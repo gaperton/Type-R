@@ -317,7 +317,7 @@ export class Record extends Transactional implements Owner {
 
                 // handle deep update...
                 if( merge && attr.canBeUpdated( prev, value ) ) { // todo - skip empty updates.
-                    const nestedTransaction = prev.createTransaction( value, options );
+                    const nestedTransaction = prev._createTransaction( value, options );
                     if( nestedTransaction ){
                         nested.push( nestedTransaction );
                         changes.push( key );

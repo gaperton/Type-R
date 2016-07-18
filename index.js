@@ -507,7 +507,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.forEachAttr(values, function (value, key, attr) {
 	                var prev = attributes[key];
 	                if (merge && attr.canBeUpdated(prev, value)) {
-	                    var nestedTransaction = prev.createTransaction(value, options);
+	                    var nestedTransaction = prev._createTransaction(value, options);
 	                    if (nestedTransaction) {
 	                        nested.push(nestedTransaction);
 	                        changes.push(key);
@@ -1882,7 +1882,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    ArrayType.prototype.toJSON = function (value) { return value; };
 	    ArrayType.prototype.convert = function (value) {
-	        if (value == null || value instanceof Array)
+	        if (value == null || Array.isArray(value))
 	            return value;
 	        return [];
 	    };
@@ -1974,13 +1974,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	var add_ts_1 = __webpack_require__(18);
 	var set_ts_1 = __webpack_require__(19);
 	var _count = 0;
+	var silentOptions = { silent: true };
 	var Collection = (function (_super) {
 	    __extends(Collection, _super);
 	    function Collection(records, options) {
+	        if (options === void 0) { options = {}; }
 	        _super.call(this, _count++);
 	        this.models = [];
 	        this._byId = {};
 	        this.idAttribute = this.model.prototype.idAttribute;
+	        if (records) {
+	            var elements = options.parse ? this.parse(records) : records;
+	            set_ts_1.emptySetTransaction(this, records, options).commit(silentOptions);
+	        }
 	        this.initialize.apply(this, arguments);
 	    }
 	    Collection.predefine = function () { return this; };
@@ -2059,6 +2065,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this.models.map(function (model) { return model.toJSON(); });
 	    };
 	    Collection.prototype.set = function (elements, options) {
+	        if (options === void 0) { options = {}; }
 	        if (options.reset) {
 	            this.reset(elements, options);
 	        }
@@ -2067,12 +2074,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return this;
 	    };
-	    Collection.prototype.reset = function (elements, options) {
+	    Collection.prototype.reset = function (a_elements, options) {
 	        if (options === void 0) { options = {}; }
-	        throw new ReferenceError('TBD');
+	        var previousModels = commons_ts_1.dispose(this);
+	        if (a_elements) {
+	            var elements = options.parse ? this.parse(a_elements) : a_elements;
+	            set_ts_1.emptySetTransaction(this, elements, options).commit(silentOptions);
+	        }
+	        options.silent || index_ts_1.trigger2(this, 'reset', this, index_ts_1.defaults({ previousModels: previousModels }, options));
+	        return this.models;
 	    };
-	    Collection.prototype._createTransaction = function (elements, options) {
+	    Collection.prototype.add = function (something, options) {
 	        if (options === void 0) { options = {}; }
+	        var parsed = options.parse ? this.parse(something) : something, elements = Array.isArray(parsed) ? parsed : [parsed];
+	        return this.models.length ?
+	            add_ts_1.addTransaction(this, elements, options) :
+	            set_ts_1.emptySetTransaction(this, elements, options);
+	    };
+	    Collection.prototype._createTransaction = function (a_elements, options) {
+	        if (options === void 0) { options = {}; }
+	        var elements = options.parse ? this.parse(a_elements) : a_elements;
 	        if (this.models.length) {
 	            return options.remove === false ?
 	                add_ts_1.addTransaction(this, elements, options) :
@@ -2317,7 +2338,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (model) {
 	            if (merge && item !== model) {
 	                var attrs = item.attributes || item;
-	                var transaction = model.createTransaction(attrs, options);
+	                var transaction = model._createTransaction(attrs, options);
 	                transaction && nested.push(transaction);
 	            }
 	        }
