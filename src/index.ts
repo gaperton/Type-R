@@ -1,5 +1,6 @@
 import * as tools from './objectplus/tools.ts'
-import { Record as Model, ChainableAttributeSpec } from './record/index.ts'
+import { ChainableAttributeSpec } from './record/index.ts'
+import { Record as Model } from './model.ts' 
 
 import { Events } from './objectplus/events.ts'
 export const { on, off, trigger, once, listenTo, stopListening, listenToOnce } = Events;

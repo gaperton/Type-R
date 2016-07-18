@@ -125,6 +125,8 @@ export class Class {
             return this;
         }
 
+        this.predefine();
+
         // Obtain references to prototype and base class.
         const proto = this.prototype;
 
@@ -163,7 +165,7 @@ export class Class {
         }
 
         // 2. Apply definitions
-        return Subclass.define( spec, statics );
+        return spec ? Subclass.define( spec, statics ) : Subclass.predefine();
     }
 
     // Do the magic necessary for forward declarations.

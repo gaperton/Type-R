@@ -61,10 +61,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	var tools = __webpack_require__(1);
 	exports.tools = tools;
 	var index_ts_1 = __webpack_require__(2);
-	exports.Model = index_ts_1.Record;
+	var model_ts_1 = __webpack_require__(15);
+	exports.Model = model_ts_1.Record;
 	var events_ts_1 = __webpack_require__(6);
 	exports.on = events_ts_1.Events.on, exports.off = events_ts_1.Events.off, exports.trigger = events_ts_1.Events.trigger, exports.once = events_ts_1.Events.once, exports.listenTo = events_ts_1.Events.listenTo, exports.stopListening = events_ts_1.Events.stopListening, exports.listenToOnce = events_ts_1.Events.listenToOnce;
-	var index_ts_2 = __webpack_require__(15);
+	var index_ts_2 = __webpack_require__(16);
 	exports.Collection = index_ts_2.Collection;
 	__export(__webpack_require__(5));
 	__export(__webpack_require__(6));
@@ -539,6 +540,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        options.silent || index_ts_1.trigger3(this, 'change:' + key, this, this.attributes[key], options);
 	        isRoot && transactions_ts_1.commit(this, options);
 	    };
+	    Object.defineProperty(Record.prototype, "collection", {
+	        get: function () {
+	            return this._ownerKey ? null : this._owner;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
 	    Record.prototype.dispose = function () {
 	        var _this = this;
 	        this.forEachAttr(this.attributes, function (value, key) {
@@ -708,6 +716,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            tools_ts_1.log.error("[Class.define] Class must have class extensions to use @define decorator. Use '@extendable' before @define, or extend the base class with class extensions.", definition);
 	            return this;
 	        }
+	        this.predefine();
 	        var proto = this.prototype;
 	        var protoProps = tools_ts_1.omit(definition, 'properties', 'mixins', 'mixinRules'), _a = definition.properties, properties = _a === void 0 ? {} : _a, mixins = definition.mixins, mixinRules = definition.mixinRules;
 	        tools_ts_1.assign(proto, protoProps);
@@ -732,7 +741,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                return Subclass;
 	            }(this));
 	        }
-	        return Subclass.define(spec, statics);
+	        return spec ? Subclass.define(spec, statics) : Subclass.predefine();
 	    };
 	    Class.predefine = function () {
 	        var BaseClass = tools_ts_1.getBaseClass(this);
@@ -1888,6 +1897,65 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	var transaction_ts_1 = __webpack_require__(3);
+	exports.Record = transaction_ts_1.Record;
+	var index_ts_1 = __webpack_require__(4);
+	var define_ts_1 = __webpack_require__(10);
+	var typespec_ts_1 = __webpack_require__(12);
+	exports.ChainableAttributeSpec = typespec_ts_1.ChainableAttributeSpec;
+	var nestedTypes_ts_1 = __webpack_require__(13);
+	__webpack_require__(14);
+	var index_ts_2 = __webpack_require__(16);
+	transaction_ts_1.Record.define = function (protoProps, staticProps) {
+	    var BaseConstructor = index_ts_1.getBaseClass(this), baseProto = BaseConstructor.prototype;
+	    if (protoProps) {
+	        var definition = define_ts_1.compile(getAttributes(protoProps), baseProto._attributes);
+	        if (protoProps.properties === false) {
+	            definition.properties = {};
+	        }
+	        index_ts_1.assign(definition.properties, protoProps.properties || {});
+	        index_ts_1.defaults(definition, index_ts_1.omit(protoProps, 'attributes', 'collection'));
+	        index_ts_1.Class.define.call(this, definition, staticProps);
+	        defineCollection.call(this, protoProps && protoProps.collection);
+	    }
+	    return this;
+	};
+	transaction_ts_1.Record.predefine = function () {
+	    index_ts_1.Class.predefine.call(this);
+	    this.Collection = index_ts_1.getBaseClass(this).Collection.extend();
+	    this.Collection.prototype.model = this;
+	    return this;
+	};
+	index_ts_2.Collection._attribute = transaction_ts_1.Record._attribute = nestedTypes_ts_1.TransactionalType;
+	transaction_ts_1.Record.Collection = index_ts_2.Collection;
+	function getAttributes(_a) {
+	    var defaults = _a.defaults, attributes = _a.attributes;
+	    return typeof defaults === 'function' ? defaults() : attributes || defaults;
+	}
+	function defineCollection(collection) {
+	    var BaseCollection = index_ts_1.getBaseClass(this).Collection;
+	    var CollectionConstructor;
+	    if (typeof collection === 'function') {
+	        CollectionConstructor = collection;
+	    }
+	    else if (this.Collection !== BaseCollection) {
+	        CollectionConstructor = this.Collection;
+	        if (collection)
+	            CollectionConstructor.mixins(collection);
+	    }
+	    else {
+	        CollectionConstructor = BaseCollection.extend(collection);
+	    }
+	    CollectionConstructor.prototype.model = this;
+	    this.Collection = CollectionConstructor;
+	}
+
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
 	var __extends = (this && this.__extends) || function (d, b) {
 	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
 	    function __() { this.constructor = d; }
@@ -1901,9 +1969,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var index_ts_1 = __webpack_require__(4);
 	var transactions_ts_1 = __webpack_require__(7);
-	var commons_ts_1 = __webpack_require__(16);
-	var add_ts_1 = __webpack_require__(17);
-	var set_ts_1 = __webpack_require__(18);
+	var index_ts_2 = __webpack_require__(2);
+	var commons_ts_1 = __webpack_require__(17);
+	var add_ts_1 = __webpack_require__(18);
+	var set_ts_1 = __webpack_require__(19);
 	var _count = 0;
 	var Collection = (function (_super) {
 	    __extends(Collection, _super);
@@ -1912,7 +1981,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.models = [];
 	        this._byId = {};
 	        this.idAttribute = this.model.prototype.idAttribute;
+	        this.initialize.apply(this, arguments);
 	    }
+	    Collection.predefine = function () { return this; };
 	    Object.defineProperty(Collection.prototype, "comparator", {
 	        get: function () { return this._comparator; },
 	        set: function (x) {
@@ -1974,11 +2045,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        });
 	        return count;
 	    };
+	    Collection.prototype.initialize = function () { };
 	    Object.defineProperty(Collection.prototype, "length", {
 	        get: function () { return this.models.length; },
 	        enumerable: true,
 	        configurable: true
 	    });
+	    Collection.prototype.first = function () { return this.models[0]; };
 	    Collection.prototype.clone = function (owner) {
 	        return new this.constructor(this.models, { clone: true }, owner);
 	    };
@@ -2017,10 +2090,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return Collection;
 	}(transactions_ts_1.Transactional));
 	exports.Collection = Collection;
+	Collection.prototype.model = index_ts_2.Record;
 
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2124,12 +2198,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var transactions_ts_1 = __webpack_require__(7);
-	var commons_ts_1 = __webpack_require__(16);
+	var commons_ts_1 = __webpack_require__(17);
 	function addTransaction(collection, items, options) {
 	    var isRoot = transactions_ts_1.begin(collection), nested = [];
 	    var added = appendElements(collection, items, nested, options);
@@ -2189,12 +2263,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var transactions_ts_1 = __webpack_require__(7);
-	var commons_ts_1 = __webpack_require__(16);
+	var commons_ts_1 = __webpack_require__(17);
 	function emptySetTransaction(collection, items, options, silent) {
 	    var isRoot = transactions_ts_1.begin(collection);
 	    var added = _reallocateEmpty(collection, items, options);

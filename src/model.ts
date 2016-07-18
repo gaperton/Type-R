@@ -1,43 +1,76 @@
-import { Record, RecordDefinition } from './record/index.ts'
-//import { Collection, CollectionDefinition, ICollection } from './collection/transaction'
+import { Record, RecordDefinition, AttributeDescriptorMap } from './record/transaction.ts'
+import { assign, defaults, omit, Class, ClassDefinition, getBaseClass } from './objectplus/index.ts'
+import { compile, AttributesSpec } from './record/define.ts'
+import { ChainableAttributeSpec } from './record/typespec.ts'
 
-export class Model extends Record {
-    static Collection : typeof Collection
+import { TransactionalType } from './record/nestedTypes.ts'
+import './record/basicTypes.ts'
 
-    // Returns owner without the key (usually it's collection)
-    get collection() : ICollection {
-        return this._ownerKey ? null : <any> this._owner;
-    }
+import { Collection } from './collection/index.ts'
 
-    static define( protoProps : RecordDefinition, staticProps ){
-        Record.define( protoProps, staticProps );
+Record.define = function( protoProps : RecordDefinition, staticProps ){
+    const BaseConstructor : typeof Record = getBaseClass( this ),
+          baseProto : Record = BaseConstructor.prototype;
 
-        const BaseCollection : CollectionConstructor = Object.getPrototypeOf( this.prototype ).constructor.Collection;
+    if( protoProps ) {
+        // Compile attributes spec, creating definition mixin.
+        const definition = compile( getAttributes( protoProps ), <AttributesSpec> baseProto._attributes );
 
-        const collection = protoProps && protoProps.collection;
-
-
-        let CollectionConstructor : CollectionConstructor;
-
-        // If collection constructor is specified, just take it. 
-        if( typeof collection === 'function' ) {
-            CollectionConstructor = <CollectionConstructor> collection;
-        } 
-        // Same when Collection is specified as static class member.  
-        else if( this.Collection !== BaseCollection ){
-            CollectionConstructor = this.Collection;
-        } 
-        // Otherwise we need to create new Collection type...
-        else{
-            // ...which must extend Collection of our base Record.
-            CollectionConstructor = class Collection extends BaseCollection {};
-            CollectionConstructor.define( <CollectionDefinition> collection );
+        // Explicit 'properties' declaration overrides auto-generated attribute properties.
+        if( protoProps.properties === false ){
+            definition.properties = {};
         }
 
-        // Link collection with the record
-        CollectionConstructor.prototype.Record = this;
-        this.Collection = CollectionConstructor;
+        assign( definition.properties, protoProps.properties || {} );
 
-        return this;
+        // Merge in definition.
+        defaults( definition, omit( protoProps, 'attributes', 'collection' ) );            
+        Class.define.call( this, definition, staticProps );
+        defineCollection.call( this, protoProps && protoProps.collection );
     }
+
+    return this;
+}
+
+Record.predefine = function(){
+    Class.predefine.call( this );
+
+    this.Collection = getBaseClass( this ).Collection.extend();
+    this.Collection.prototype.model = this;
+
+    return this;
+}
+
+Collection._attribute = Record._attribute = TransactionalType;
+Record.Collection = <any>Collection;
+
+function getAttributes({ defaults, attributes } : RecordDefinition ) : AttributeDescriptorMap {
+    return typeof defaults === 'function' ? (<any>defaults)() : attributes || defaults;
+}
+
+export { Record, ChainableAttributeSpec }
+
+function defineCollection( collection : {} ){
+    const BaseCollection : typeof Collection = getBaseClass( this ).Collection;
+
+    let CollectionConstructor : typeof Collection;
+
+    // If collection constructor is specified, just take it. 
+    if( typeof collection === 'function' ) {
+        CollectionConstructor = <typeof Collection> collection;
+    } 
+    // Same when Collection is specified as static class member.  
+    else if( this.Collection !== BaseCollection ){
+        CollectionConstructor = this.Collection;
+        if( collection ) (<any>CollectionConstructor).mixins( collection );
+    } 
+    // Otherwise we need to create new Collection type...
+    else{
+        // ...which must extend Collection of our base Record.
+        CollectionConstructor = <any> BaseCollection.extend( collection );
+    }
+
+    // Link collection with the record
+    CollectionConstructor.prototype.model = this;
+    this.Collection = CollectionConstructor;
 }

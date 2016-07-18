@@ -15,6 +15,7 @@ import { ChildrenErrors } from '../validation.ts'
 export interface RecordDefinition extends ClassDefinition {
     attributes? : AttributeDescriptorMap
     defaults? : AttributeDescriptorMap | ( () => AttributeDescriptorMap )
+    collection? : typeof Transactional | {}
 }
 
 export interface AttributeDescriptorMap {
@@ -96,7 +97,9 @@ let _cidCounter : number = 0;
 export class Record extends Transactional implements Owner {
     // Implemented at the index.ts to avoid circular dependency. Here we have just proper singature.
     static define( protoProps : RecordDefinition, staticProps? ) : typeof Record { return <any>Transactional.define( protoProps, staticProps ); }
-
+    static predefine : () => typeof Record
+    static Collection : typeof Transactional
+    
     /***********************************
      * Core Members
      */
@@ -362,6 +365,11 @@ export class Record extends Transactional implements Owner {
         options.silent || trigger3( this, 'change:' + key, this, this.attributes[ key ], options );
 
         isRoot && commit( this, options );
+    }
+
+    // Returns owner without the key (usually it's collection)
+    get collection() : any {
+        return this._ownerKey ? null : this._owner;
     }
 
     // Dispose object and all childrens

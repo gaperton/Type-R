@@ -13,6 +13,7 @@ let _count = 0;
     cidPrefix : 'c'
 })
 export class Collection extends Transactional implements CollectionCore {
+    static predefine() : typeof Collection { return this; }
     /***********************************
      * Core Members
      */
@@ -107,9 +108,14 @@ export class Collection extends Transactional implements CollectionCore {
         this.models = [];
         this._byId = {};
         this.idAttribute = this.model.prototype.idAttribute;
+
+        this.initialize.apply( this, arguments );
     }
 
+    initialize(){}
+
     get length() : number { return this.models.length; }
+    first() : Record { return this.models[ 0 ]; }
 
     // Deeply clone collection, optionally setting new owner.
     clone( owner? : any ) : this {
@@ -154,4 +160,6 @@ export class Collection extends Transactional implements CollectionCore {
         }
     }
 }
+
+Collection.prototype.model = Record;
 
