@@ -301,6 +301,13 @@ export class Record extends Transactional implements Owner {
             return <this> super.set( a, b );
         }
     }
+
+    // TODO: make transaction brackets polymorphic
+    transaction( fun : ( self : this ) => void, options : TransactionOptions = {} ) : void{
+        const isRoot = begin( this );
+        fun.call( this, this );
+        isRoot && commit( this, options );
+    }
     
     // Create transaction. TODO: Move to transaction constructor
     _createTransaction( a_values : {}, options : TransactionOptions = {} ) : Transaction {

@@ -499,6 +499,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        var _a;
 	    };
+	    Record.prototype.transaction = function (fun, options) {
+	        if (options === void 0) { options = {}; }
+	        var isRoot = begin(this);
+	        fun.call(this, this);
+	        isRoot && transactions_ts_1.commit(this, options);
+	    };
 	    Record.prototype._createTransaction = function (a_values, options) {
 	        var _this = this;
 	        if (options === void 0) { options = {}; }
