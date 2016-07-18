@@ -604,7 +604,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var next = spec.transform(value, options, prev, record);
 	        if (spec.isChanged(next, prev)) {
 	            attributes[name] = next;
-	            spec.handleChange(next, prev, this);
+	            spec.handleChange(next, prev, record);
 	            markAsDirty(record);
 	            index_ts_1.trigger3(record, 'change:' + name, record, next, options);
 	        }

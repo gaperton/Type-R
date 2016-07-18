@@ -446,7 +446,7 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
             attributes[ name ] = next;
 
             // Do the rest of the job after assignment
-            spec.handleChange( next, prev, this );
+            spec.handleChange( next, prev, record );
 
             markAsDirty( record );
             trigger3( record, 'change:' + name, record, next, options );
