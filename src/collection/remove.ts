@@ -8,25 +8,35 @@
  * Most frequent operation - single element remove. Thus, it have the fast-path.
  */
 
-export function removeOne( collection, el, a_options ){
-    var options = new RemoveOptions( a_options );
+import { Record } from '../record/index.ts'
+import { CollectionCore, removeIndex } from './commons.ts'
+import { trigger2, trigger3 } from '../objectplus/index.ts'
+import { free, TransactionOptions, markAsDirty, begin, commit } from '../transactions.ts' 
 
-    var model = collection.get( el );
+export function removeOne( collection : CollectionCore, el : Record | {} | string, options : TransactionOptions ) : Record {
+    var model : Record = collection.get( el );
+
     if( model ){
-        var models = collection.models,
-            // TODO: for sorted collection, find element with binary search.
-            at     = _.indexOf( models, model ),
-            silent = options.silent;
+        const isRoot = begin( collection ),
+              models = collection.models,
+              silent = options.silent;
 
-        models.splice( at, 1 );
-
+        // Remove model form the collection. 
+        models.splice( models.indexOf( model ), 1 );
         removeIndex( collection._byId, model );
+        
+        // Mark transaction as dirty. 
+        markAsDirty( collection );
 
+        // Send out events.
         silent || trigger3( model, 'remove', model, collection, options );
 
-        removeReference( collection, model );
+        free( collection, model );
 
         silent || trigger2( collection, 'update', collection, options );
+
+        // Commit transaction.
+        isRoot && commit( collection, options );
 
         return model;
     }

@@ -1979,6 +1979,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var commons_ts_1 = __webpack_require__(17);
 	var add_ts_1 = __webpack_require__(18);
 	var set_ts_1 = __webpack_require__(19);
+	var remove_ts_1 = __webpack_require__(20);
 	var _count = 0;
 	var silentOptions = { silent: true };
 	var Collection = (function (_super) {
@@ -2096,6 +2097,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this.models.length ?
 	            add_ts_1.addTransaction(this, elements, options) :
 	            set_ts_1.emptySetTransaction(this, elements, options);
+	    };
+	    Collection.prototype.remove = function (recordsOrIds, options) {
+	        if (options === void 0) { options = {}; }
+	        if (recordsOrIds) {
+	            return Array.isArray(recordsOrIds) ?
+	                remove_ts_1.removeMany(this, recordsOrIds, options) :
+	                remove_ts_1.removeOne(this, recordsOrIds, options);
+	        }
+	        return [];
 	    };
 	    Collection.prototype._createTransaction = function (a_elements, options) {
 	        if (options === void 0) { options = {}; }
@@ -2376,6 +2386,72 @@ return /******/ (function(modules) { // webpackBootstrap
 	    models.length = j;
 	    self._byId = _byId;
 	    return self.models = models;
+	}
+
+
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var commons_ts_1 = __webpack_require__(17);
+	var index_ts_1 = __webpack_require__(4);
+	var transactions_ts_1 = __webpack_require__(7);
+	function removeOne(collection, el, options) {
+	    var model = collection.get(el);
+	    if (model) {
+	        var isRoot = transactions_ts_1.begin(collection), models = collection.models, silent = options.silent;
+	        models.splice(models.indexOf(model), 1);
+	        commons_ts_1.removeIndex(collection._byId, model);
+	        transactions_ts_1.markAsDirty(collection);
+	        silent || index_ts_1.trigger3(model, 'remove', model, collection, options);
+	        transactions_ts_1.free(collection, model);
+	        silent || index_ts_1.trigger2(collection, 'update', collection, options);
+	        isRoot && transactions_ts_1.commit(collection, options);
+	        return model;
+	    }
+	}
+	exports.removeOne = removeOne;
+	;
+	function removeMany(collection, toRemove, a_options) {
+	    var options = new RemoveOptions(a_options);
+	    var removed = _removeFromIndex(collection, toRemove);
+	    _reallocate(collection, removed.length);
+	    _removeModels(collection, removed, options);
+	    options.silent || !removed.length || index_ts_1.trigger2(collection, 'update', collection, options);
+	    return removed;
+	}
+	exports.removeMany = removeMany;
+	;
+	function _removeFromIndex(collection, toRemove) {
+	    var removed = Array(toRemove.length), _byId = collection._byId;
+	    for (var i = 0, j = 0; i < toRemove.length; i++) {
+	        var model = collection.get(toRemove[i]);
+	        if (model) {
+	            removed[j++] = model;
+	            commons_ts_1.removeIndex(_byId, model);
+	        }
+	    }
+	    removed.length = j;
+	    return removed;
+	}
+	function _reallocate(collection, removed) {
+	    var prev = collection.models, models = collection.models = Array(prev.length - removed), _byId = collection._byId;
+	    for (var i = 0, j = 0; i < prev.length; i++) {
+	        var model = prev[i];
+	        if (_byId[model.cid]) {
+	            models[j++] = model;
+	        }
+	    }
+	    models.length = j;
+	}
+	function _removeModels(collection, removed, options) {
+	    var silent = options.silent;
+	    for (var i = 0; i < removed.length; i++) {
+	        var model = removed[i];
+	        silent || index_ts_1.trigger3(model, 'remove', model, collection, options);
+	        removeReference(collection, model);
+	    }
 	}
 
 

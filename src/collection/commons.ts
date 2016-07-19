@@ -8,7 +8,8 @@ export interface CollectionCore extends Transactional, Owner {
     _byId : IdIndex
     models : Record[]
     model : typeof Record
-    _comparator : Comparator    
+    _comparator : Comparator
+    get( objOrId : string | Record | Object ) : Record    
 }
 
 // Collection's manipulation methods elements

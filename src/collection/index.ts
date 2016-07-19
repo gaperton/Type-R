@@ -5,6 +5,7 @@ import { Record } from '../record/index.ts'
 import { IdIndex, dispose, Elements, CollectionCore, addIndex, removeIndex, Comparator, CollectionTransaction } from './commons.ts'
 import { addTransaction } from './add.ts'
 import { setTransaction, emptySetTransaction } from './set.ts'
+import { removeOne, removeMany } from './remove.ts'
 
 let _count = 0;
 
@@ -168,6 +169,17 @@ export class Collection extends Transactional implements CollectionCore {
         return this.models.length ?
                     addTransaction( this, elements, options ) :
                     emptySetTransaction( this, elements, options );
+    }
+
+    // Remove elements. 
+    remove( recordsOrIds : Elements | string, options : TransactionOptions = {} ) : Record[]{
+        if( recordsOrIds ){
+            return Array.isArray( recordsOrIds ) ?
+                        removeMany( this, recordsOrIds, options ) :
+                        removeOne( this, recordsOrIds, options );
+        }
+
+        return [];
     }
 
     // Apply bulk object update without any notifications, and return open transaction.
