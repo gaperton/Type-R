@@ -55,7 +55,7 @@ export class Collection extends Transactional implements CollectionCore {
     get comparator(){ return this._comparator; }
     _comparator : ( a : Record, b : Record ) => number
 
-    _onChildrenChange( record, options? ){
+    _onChildrenChange( record : Record, options? ){
         const isRoot = begin( this ),
               { idAttribute } = this;
 
@@ -141,7 +141,8 @@ export class Collection extends Transactional implements CollectionCore {
             this.reset( elements, options )
         }
         else{
-            this._createTransaction( elements, options ).commit( options );
+            const transaction = this._createTransaction( elements, options );
+            transaction && transaction.commit( options );
         } 
 
         return this;    
@@ -164,15 +165,21 @@ export class Collection extends Transactional implements CollectionCore {
     // Add elements to collection.
     add( something : Elements | {} | Record , options : TransactionOptions = {} ){
         const parsed : Elements = options.parse ? this.parse( something ) : something,
-              elements : Elements = Array.isArray( parsed ) ? parsed : [ parsed ];
-
-        return this.models.length ?
+              elements : Elements = Array.isArray( parsed ) ? parsed : [ parsed ],
+              transaction = this.models.length ?
                     addTransaction( this, elements, options ) :
                     emptySetTransaction( this, elements, options );
+
+        if( transaction ){
+            transaction.commit( options );
+            return transaction.added;
+        }
+
+        return []; 
     }
 
     // Remove elements. 
-    remove( recordsOrIds : Elements | string, options : TransactionOptions = {} ) : Record[]{
+    remove( recordsOrIds : any, options : TransactionOptions = {} ) : Record[] | Record {
         if( recordsOrIds ){
             return Array.isArray( recordsOrIds ) ?
                         removeMany( this, recordsOrIds, options ) :

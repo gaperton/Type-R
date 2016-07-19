@@ -147,6 +147,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return Object.getPrototypeOf(Class.prototype).constructor;
 	}
 	exports.getBaseClass = getBaseClass;
+	function isEmpty(obj) {
+	    if (obj) {
+	        for (var key in obj) {
+	            if (obj.hasOwnProperty(key)) {
+	                return false;
+	            }
+	        }
+	    }
+	    return true;
+	}
+	exports.isEmpty = isEmpty;
 	function someArray(arr, fun) {
 	    var result;
 	    for (var i = 0; i < arr.length; i++) {
@@ -418,6 +429,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	        enumerable: true,
 	        configurable: true
 	    });
+	    Record.prototype.hasChanged = function (key) {
+	        var _previousAttributes = this._previousAttributes;
+	        if (!_previousAttributes)
+	            return false;
+	        return key ?
+	            this._attributes[key].isChanged(this.attributes[key], _previousAttributes[key]) :
+	            !index_ts_1.isEmpty(this.changed);
+	    };
+	    Record.prototype.previous = function (key) {
+	        if (key) {
+	            var _previousAttributes = this._previousAttributes;
+	            if (_previousAttributes)
+	                return _previousAttributes[key];
+	        }
+	        return null;
+	    };
 	    Record.prototype.getOwner = function () {
 	        var owner = this._owner;
 	        return this._ownerKey ? owner : owner && owner._owner;
@@ -2077,7 +2104,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.reset(elements, options);
 	        }
 	        else {
-	            this._createTransaction(elements, options).commit(options);
+	            var transaction = this._createTransaction(elements, options);
+	            transaction && transaction.commit(options);
 	        }
 	        return this;
 	    };
@@ -2093,10 +2121,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Collection.prototype.add = function (something, options) {
 	        if (options === void 0) { options = {}; }
-	        var parsed = options.parse ? this.parse(something) : something, elements = Array.isArray(parsed) ? parsed : [parsed];
-	        return this.models.length ?
+	        var parsed = options.parse ? this.parse(something) : something, elements = Array.isArray(parsed) ? parsed : [parsed], transaction = this.models.length ?
 	            add_ts_1.addTransaction(this, elements, options) :
 	            set_ts_1.emptySetTransaction(this, elements, options);
+	        if (transaction) {
+	            transaction.commit(options);
+	            return transaction.added;
+	        }
+	        return [];
 	    };
 	    Collection.prototype.remove = function (recordsOrIds, options) {
 	        if (options === void 0) { options = {}; }
@@ -2413,13 +2445,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	exports.removeOne = removeOne;
 	;
-	function removeMany(collection, toRemove, a_options) {
-	    var options = new RemoveOptions(a_options);
+	function removeMany(collection, toRemove, options) {
 	    var removed = _removeFromIndex(collection, toRemove);
-	    _reallocate(collection, removed.length);
-	    _removeModels(collection, removed, options);
-	    options.silent || !removed.length || index_ts_1.trigger2(collection, 'update', collection, options);
-	    return removed;
+	    if (removed.length) {
+	        var isRoot = transactions_ts_1.begin(collection);
+	        _reallocate(collection, removed.length);
+	        var transaction = new commons_ts_1.CollectionTransaction(collection, isRoot, null, removed, null, false);
+	        transaction.commit(options);
+	        return removed;
+	    }
 	}
 	exports.removeMany = removeMany;
 	;
@@ -2430,6 +2464,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (model) {
 	            removed[j++] = model;
 	            commons_ts_1.removeIndex(_byId, model);
+	            transactions_ts_1.free(collection, model);
 	        }
 	    }
 	    removed.length = j;
@@ -2444,14 +2479,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    }
 	    models.length = j;
-	}
-	function _removeModels(collection, removed, options) {
-	    var silent = options.silent;
-	    for (var i = 0; i < removed.length; i++) {
-	        var model = removed[i];
-	        silent || index_ts_1.trigger3(model, 'remove', model, collection, options);
-	        removeReference(collection, model);
-	    }
 	}
 
 

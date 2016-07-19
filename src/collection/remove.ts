@@ -9,7 +9,7 @@
  */
 
 import { Record } from '../record/index.ts'
-import { CollectionCore, removeIndex } from './commons.ts'
+import { CollectionCore, CollectionTransaction, removeIndex } from './commons.ts'
 import { trigger2, trigger3 } from '../objectplus/index.ts'
 import { free, TransactionOptions, markAsDirty, begin, commit } from '../transactions.ts' 
 
@@ -47,18 +47,18 @@ export function removeOne( collection : CollectionCore, el : Record | {} | strin
  * 2. Create new models array matching index
  * 3. Send notifications and remove references
  */
-export function removeMany( collection, toRemove, a_options ){
-    var options = new RemoveOptions( a_options );
+export function removeMany( collection : CollectionCore, toRemove : any[], options ){
+    const removed = _removeFromIndex( collection, toRemove );
+    if( removed.length ){
+        const isRoot = begin( collection );
 
-    var removed = _removeFromIndex( collection, toRemove );
+        _reallocate( collection, removed.length );
 
-    _reallocate( collection, removed.length );
+        const transaction = new CollectionTransaction( collection, isRoot, null, removed, null, false );
+        transaction.commit( options );
 
-    _removeModels( collection, removed, options );
-
-    options.silent || !removed.length || trigger2( collection, 'update', collection, options );
-
-    return removed;
+        return removed;
+    }
 };
 
 // remove models from the index...
@@ -71,6 +71,7 @@ function _removeFromIndex( collection, toRemove ){
         if( model ){
             removed[ j++ ] = model;
             removeIndex( _byId, model );
+            free( collection, model );
         }
     }
 
@@ -94,13 +95,4 @@ function _reallocate( collection, removed ){
     }
 
     models.length = j;
-}
-
-function _removeModels( collection, removed, options ){
-    var silent = options.silent;
-    for( var i = 0; i < removed.length; i++ ){
-        var model = removed[ i ];
-        silent || trigger3( model, 'remove', model, collection, options );
-        removeReference( collection, model );
-    }
 }

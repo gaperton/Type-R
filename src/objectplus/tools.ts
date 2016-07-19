@@ -56,6 +56,18 @@ export function getBaseClass( Class : Function ){
     return Object.getPrototypeOf( Class.prototype ).constructor
 }
 
+export function isEmpty( obj : {} ) : boolean {
+    if( obj ){
+        for( let key in obj ){
+            if( obj.hasOwnProperty( key ) ){
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 type Iteratee = ( value : any, key? : string | number ) => any;
 
 function someArray( arr : any[], fun : Iteratee ) : any {

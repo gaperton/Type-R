@@ -3,7 +3,7 @@
  * The root of all definitions. 
  */
 
-import { EventHandlers, Class, ClassDefinition, Constructor, trigger3, log, define } from '../objectplus/index.ts'
+import { isEmpty, EventHandlers, Class, ClassDefinition, Constructor, trigger3, log, define } from '../objectplus/index.ts'
 
 import { begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 import { ChildrenErrors } from '../validation.ts'
@@ -129,7 +129,25 @@ export class Record extends Transactional implements Owner {
         }
 
         return changed;    
-    } 
+    }
+
+    hasChanged( key : string ) : boolean {
+        const { _previousAttributes } = this;
+        if( !_previousAttributes ) return false;
+
+        return key ?
+                this._attributes[ key ].isChanged( this.attributes[ key ], _previousAttributes[ key ] ) :
+                !isEmpty( this.changed );
+    }
+
+    previous( key : string ) : any {
+        if( key ){
+            const { _previousAttributes } = this;
+            if( _previousAttributes ) return _previousAttributes[ key ];
+        }
+        
+        return null;
+    }
 
     // Returns Record owner skipping collections. TODO: Move out
     getOwner() : Owner {

@@ -123,12 +123,12 @@
                 expect( m.arr.length ).to.be.equal( 0 );
             });
 
-            it( 'wrap non-array value in array on assignment', function(){
+            it( 'non-array value in array on assignment is ignored', function(){
                 var m = new M();
                 m.arr = 1;
 
                 expect( m.arr ).to.be.instanceOf( Array );
-                expect( m.arr[ 0 ] ).to.be.equal( 1 );
+                expect( m.arr.length ).to.be.equal( 0 );
             });
         });
 
