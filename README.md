@@ -6,8 +6,14 @@ Will be the basis for next NestedTypes version.
 
 ## Current state
 
-Detailed design is finished.
+Basic regression tests passes. Transactional core seems to work.
 
-NestedTypes 1.3 test harness is deployed and ready to engage. Beware, bugs. Time to code and debug.
+Need to create new integration test harness, to test both performance and functionality
+in conditions close to our production system. Reuqurements notes are in performance test folder.
 
-We're on the finish line. Lets see what we will got in terms of performance. It should be the real beast in V8, outperforming everything which is written for the data layer up to the date. Magic people, voodoo people! :)
+New tests must recognize the fact that performance really matters on large data structures received
+from the server, and must simulate all typical scenarios we have.
+
+This time we're taking disciplined scientific approach, considering real priorities and isolating 
+different factors contributing to performance with dedicated tests. 
+Quality and professional decision making this time - we're good at that aren't we? :)   
