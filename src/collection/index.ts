@@ -114,8 +114,10 @@ export class Collection extends Transactional implements CollectionCore {
         this.idAttribute = this.model.prototype.idAttribute;
 
         if( records ){
-            const elements : Elements = options.parse ? this.parse( records ) : records;
-            emptySetTransaction( this, records, options ).commit( silentOptions );
+            const elements : Elements = options.parse ? this.parse( records ) : records,
+                  transaction = emptySetTransaction( this, records, options );
+
+            transaction && transaction.commit( silentOptions );
         }
 
         this.initialize.apply( this, arguments );

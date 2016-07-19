@@ -192,4 +192,117 @@ define( function( require, exports, module ){
             });
         });
     });
+
+    describe( 'Recursive model/collection tree', function(){
+        this.timeout( 100000 );
+
+        var Comment = Model.extend();
+        Comment.define({
+            attributes : {
+                time : Date,
+                text : String,
+                author_id : Number,
+                replies : Comment.Collection,
+            }
+        });
+
+        function createTree( level ){
+            var l = level - 1;
+            return {
+                time : new Date(),
+                author_id : level,
+                text : 'hjkfshdkhjfksdhkj fhsdjkhfsdjk hjfksdhjk hfjsdkhjk hfjdskhjkhj fdssdffsdn,m nm, nm, nv,xvcvcx',
+                replies : l ? [
+                    createTree( l ),
+                    createTree( l ),
+                    createTree( l ),
+                    createTree( l ),
+                    createTree( l ),
+                    createTree( l ),
+                    createTree( l ),
+                    createTree( l ),
+                    createTree( l ),
+                    createTree( l )
+                ] : []
+            }
+        }
+
+        function createList( width, depth ){
+            var list = [];
+
+            for( var i = 0; i < width; i++ ){
+                list.push( createTree( depth ) );
+            }
+
+            return list;
+        }
+
+        var treeData = JSON.stringify( createTree( 6 ) ),
+            shortList = JSON.stringify( createList( 100, 4 ) ),
+            midList = JSON.stringify( createList( 1000, 3 ) ),
+            longList = JSON.stringify( createList( 10000, 2 ) );
+
+        var _comment, _short, _mid, _long;
+
+        describe( 'Create and update', function(){
+            it( 'Create 100K Tree', function(){
+                _comment  = new Comment( JSON.parse( treeData ) );
+            });
+
+            it( 'Update 100K Tree', function(){
+                _comment.set( JSON.parse( treeData ) );
+                _comment = null;
+            });
+
+            it( 'Create 100 elements of 1000 items', function(){
+                _short = new Comment.Collection( JSON.parse( shortList ) );
+            });
+
+            it( 'Update 100 elements of 1000 items', function(){
+                _short.set( JSON.parse( shortList ) );
+                _short = null;
+            });
+
+            it( 'Create 1000 elements of 100 items', function(){
+                _mid = new Comment.Collection( JSON.parse( midList ) );
+            });
+
+            it( 'Update 1000 elements of 100 items', function(){
+                _mid.set( JSON.parse( midList ) );
+                _mid = null;
+            });
+
+            it( 'Create 10000 elements of 10 items', function(){
+                _long = new Comment.Collection( JSON.parse( longList ) );
+            });
+
+
+            it( 'Update 10000 elements of 10 items', function(){
+                _long.set( JSON.parse( longList ) );
+                _long = null;
+            });
+        });
+
+        describe( 'Fetch structure', function(){
+            it( '100K Tree', function(){
+                var comment  = new Comment();
+                comment.set( JSON.parse( treeData ) );
+            });
+
+            it( '100 elements of 1000 items', function(){
+                var comments = new Comment.Collection(  );
+                comments.set( JSON.parse( shortList ) );
+            });
+
+            it( '1000 elements of 100 items', function(){
+                var comments = new Comment.Collection(  );
+                comments.set( JSON.parse( midList ) );
+            });
+
+            it( '10000 elements of 10 items', function(){
+                var comments = new Comment.Collection(  );
+                comments.set( JSON.parse( longList ) );
+            });
+        });
+    });
 });

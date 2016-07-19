@@ -1983,8 +1983,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this._byId = {};
 	        this.idAttribute = this.model.prototype.idAttribute;
 	        if (records) {
-	            var elements = options.parse ? this.parse(records) : records;
-	            set_ts_1.emptySetTransaction(this, records, options).commit(silentOptions);
+	            var elements = options.parse ? this.parse(records) : records, transaction = set_ts_1.emptySetTransaction(this, records, options);
+	            transaction && transaction.commit(silentOptions);
 	        }
 	        this.initialize.apply(this, arguments);
 	    }
