@@ -1,6 +1,6 @@
 import { define, Class, ClassDefinition, defaults, trigger2 } from '../objectplus/index.ts'
 import { begin, commit, markAsDirty, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
-import { Record } from '../record/index.ts'
+import { Record, TransactionalType } from '../record/index.ts'
 
 import { IdIndex, dispose, Elements, CollectionCore, addIndex, removeIndex, Comparator, CollectionTransaction } from './commons.ts'
 import { addTransaction } from './add.ts'
@@ -13,7 +13,8 @@ const silentOptions = { silent : true };
 
 @define({
     // Default client id prefix 
-    cidPrefix : 'c'
+    cidPrefix : 'c',
+    model : Record
 })
 export class Collection extends Transactional implements CollectionCore {
     static predefine() : typeof Collection { return this; }
@@ -203,6 +204,8 @@ export class Collection extends Transactional implements CollectionCore {
             return emptySetTransaction( this, elements, options );
         }
     }
+
+    static _attribute = TransactionalType;
 }
 
-Collection.prototype.model = Record;
+Record.Collection = <any>Collection;

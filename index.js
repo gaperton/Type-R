@@ -61,12 +61,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	var tools = __webpack_require__(1);
 	exports.tools = tools;
 	var index_ts_1 = __webpack_require__(2);
-	var model_ts_1 = __webpack_require__(15);
-	exports.Model = model_ts_1.Record;
+	var index_ts_2 = __webpack_require__(2);
+	exports.Model = index_ts_2.Record;
 	var events_ts_1 = __webpack_require__(6);
 	exports.on = events_ts_1.Events.on, exports.off = events_ts_1.Events.off, exports.trigger = events_ts_1.Events.trigger, exports.once = events_ts_1.Events.once, exports.listenTo = events_ts_1.Events.listenTo, exports.stopListening = events_ts_1.Events.stopListening, exports.listenToOnce = events_ts_1.Events.listenToOnce;
-	var index_ts_2 = __webpack_require__(16);
-	exports.Collection = index_ts_2.Collection;
+	var index_ts_3 = __webpack_require__(16);
+	exports.Collection = index_ts_3.Collection;
 	__export(__webpack_require__(5));
 	__export(__webpack_require__(6));
 	function value(x) {
@@ -354,9 +354,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	var typespec_ts_1 = __webpack_require__(12);
 	exports.ChainableAttributeSpec = typespec_ts_1.ChainableAttributeSpec;
 	var nestedTypes_ts_1 = __webpack_require__(13);
-	__webpack_require__(14);
+	exports.TransactionalType = nestedTypes_ts_1.TransactionalType;
+	__webpack_require__(15);
 	transaction_ts_1.Record.define = function (protoProps, staticProps) {
-	    var baseProto = Object.getPrototypeOf(this.prototype), BaseConstructor = baseProto.constructor;
+	    var BaseConstructor = index_ts_1.getBaseClass(this), baseProto = BaseConstructor.prototype;
 	    if (protoProps) {
 	        var definition = define_ts_1.compile(getAttributes(protoProps), baseProto._attributes);
 	        if (protoProps.properties === false) {
@@ -365,13 +366,37 @@ return /******/ (function(modules) { // webpackBootstrap
 	        index_ts_1.assign(definition.properties, protoProps.properties || {});
 	        index_ts_1.defaults(definition, index_ts_1.omit(protoProps, 'attributes', 'collection'));
 	        index_ts_1.Class.define.call(this, definition, staticProps);
+	        defineCollection.call(this, protoProps && protoProps.collection);
 	    }
+	    return this;
+	};
+	transaction_ts_1.Record.predefine = function () {
+	    index_ts_1.Class.predefine.call(this);
+	    this.Collection = index_ts_1.getBaseClass(this).Collection.extend();
+	    this.Collection.prototype.model = this;
 	    return this;
 	};
 	transaction_ts_1.Record._attribute = nestedTypes_ts_1.TransactionalType;
 	function getAttributes(_a) {
 	    var defaults = _a.defaults, attributes = _a.attributes;
 	    return typeof defaults === 'function' ? defaults() : attributes || defaults;
+	}
+	function defineCollection(collection) {
+	    var BaseCollection = index_ts_1.getBaseClass(this).Collection;
+	    var CollectionConstructor;
+	    if (typeof collection === 'function') {
+	        CollectionConstructor = collection;
+	    }
+	    else if (this.Collection !== BaseCollection) {
+	        CollectionConstructor = this.Collection;
+	        if (collection)
+	            CollectionConstructor.mixins(collection);
+	    }
+	    else {
+	        CollectionConstructor = BaseCollection.extend(collection);
+	    }
+	    CollectionConstructor.prototype.model = this;
+	    this.Collection = CollectionConstructor;
 	}
 
 
@@ -1832,7 +1857,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 14 */
+/* 14 */,
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1923,65 +1949,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	}(attribute_ts_1.GenericAttribute));
 	exports.ArrayType = ArrayType;
 	Array._attribute = ArrayType;
-
-
-/***/ },
-/* 15 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var transaction_ts_1 = __webpack_require__(3);
-	exports.Record = transaction_ts_1.Record;
-	var index_ts_1 = __webpack_require__(4);
-	var define_ts_1 = __webpack_require__(10);
-	var typespec_ts_1 = __webpack_require__(12);
-	exports.ChainableAttributeSpec = typespec_ts_1.ChainableAttributeSpec;
-	var nestedTypes_ts_1 = __webpack_require__(13);
-	__webpack_require__(14);
-	var index_ts_2 = __webpack_require__(16);
-	transaction_ts_1.Record.define = function (protoProps, staticProps) {
-	    var BaseConstructor = index_ts_1.getBaseClass(this), baseProto = BaseConstructor.prototype;
-	    if (protoProps) {
-	        var definition = define_ts_1.compile(getAttributes(protoProps), baseProto._attributes);
-	        if (protoProps.properties === false) {
-	            definition.properties = {};
-	        }
-	        index_ts_1.assign(definition.properties, protoProps.properties || {});
-	        index_ts_1.defaults(definition, index_ts_1.omit(protoProps, 'attributes', 'collection'));
-	        index_ts_1.Class.define.call(this, definition, staticProps);
-	        defineCollection.call(this, protoProps && protoProps.collection);
-	    }
-	    return this;
-	};
-	transaction_ts_1.Record.predefine = function () {
-	    index_ts_1.Class.predefine.call(this);
-	    this.Collection = index_ts_1.getBaseClass(this).Collection.extend();
-	    this.Collection.prototype.model = this;
-	    return this;
-	};
-	index_ts_2.Collection._attribute = transaction_ts_1.Record._attribute = nestedTypes_ts_1.TransactionalType;
-	transaction_ts_1.Record.Collection = index_ts_2.Collection;
-	function getAttributes(_a) {
-	    var defaults = _a.defaults, attributes = _a.attributes;
-	    return typeof defaults === 'function' ? defaults() : attributes || defaults;
-	}
-	function defineCollection(collection) {
-	    var BaseCollection = index_ts_1.getBaseClass(this).Collection;
-	    var CollectionConstructor;
-	    if (typeof collection === 'function') {
-	        CollectionConstructor = collection;
-	    }
-	    else if (this.Collection !== BaseCollection) {
-	        CollectionConstructor = this.Collection;
-	        if (collection)
-	            CollectionConstructor.mixins(collection);
-	    }
-	    else {
-	        CollectionConstructor = BaseCollection.extend(collection);
-	    }
-	    CollectionConstructor.prototype.model = this;
-	    this.Collection = CollectionConstructor;
-	}
 
 
 /***/ },
@@ -2151,15 +2118,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return set_ts_1.emptySetTransaction(this, elements, options);
 	        }
 	    };
+	    Collection._attribute = index_ts_2.TransactionalType;
 	    Collection = __decorate([
 	        index_ts_1.define({
-	            cidPrefix: 'c'
+	            cidPrefix: 'c',
+	            model: index_ts_2.Record
 	        })
 	    ], Collection);
 	    return Collection;
 	}(transactions_ts_1.Transactional));
 	exports.Collection = Collection;
-	Collection.prototype.model = index_ts_2.Record;
+	index_ts_2.Record.Collection = Collection;
 
 
 /***/ },
