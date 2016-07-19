@@ -1499,9 +1499,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _parse: createParse(myAttributes, allAttributes),
 	        _listenToSelf: createEventMap(allAttributes)
 	    };
-	    if (!index_ts_1.log.level) {
-	        mixin.forEachAttr = createForEach(allAttributes);
-	    }
+	    mixin.forEachAttr = createForEach(allAttributes);
 	    return mixin;
 	}
 	exports.compile = compile;

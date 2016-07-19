@@ -42,9 +42,9 @@ export function compile( rawSpecs : AttributeDescriptorMap, baseAttributes : Att
          };
 
     // Enable optimized forEach if warnings are disabled.
-    if( !log.level ){
+    //if( !log.level ){
         mixin.forEachAttr = createForEach( allAttributes );
-    }
+    //}
 
     return mixin;
 }

@@ -38,7 +38,7 @@
                 mocha.setup( 'bdd' );
 
                 var search = window.location.search;
-                require( [ 'performance/main' ], function(){
+                require( [ 'performance/complex' /*, 'performance/main' */], function(){
                     mocha.run();
                 } );
             }
