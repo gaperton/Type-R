@@ -2465,7 +2465,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        commons_ts_1.removeIndex(collection._byId, model);
 	        var notify = transactions_ts_1.markAsDirty(collection, options);
 	        if (notify) {
-	            index_ts_1.trigger3(model, 'remove', model, collection, options);
 	            index_ts_1.trigger3(collection, 'remove', model, collection, options);
 	        }
 	        transactions_ts_1.free(collection, model);
