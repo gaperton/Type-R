@@ -258,10 +258,11 @@ export function markAsDirty( object : Transactional ){
 // Commit transaction. Send out change event and notify owner. Returns true if there were changes.
 // Should be executed for the root transaction only.
 export function commit( object : Transactional, options : TransactionOptions, isNested? : boolean ){
-    const wasDirty = object._isDirty;
+    let wasDirty = object._isDirty;
 
     if( options.silent ){
-        object._isDirty  = false;
+        // Turn off all notifications if silent.
+        wasDirty = object._isDirty  = false;
     }
     else{
         while( object._isDirty ){

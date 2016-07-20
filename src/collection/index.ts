@@ -107,6 +107,9 @@ export class Collection extends Transactional implements CollectionCore {
     // idAttribute extracted from the model type.
     idAttribute : string
 
+
+    // TODO! Don't create transaction when silent options is true.
+
     constructor( records? : ( Record | {} )[], options : TransactionOptions = {} ){
         super( _count++ );
         this.models = [];

@@ -3,7 +3,7 @@
  * The root of all definitions. 
  */
 
-import { isEmpty, EventHandlers, Class, ClassDefinition, Constructor, trigger3, log, define } from '../objectplus/index.ts'
+import { assign, isEmpty, EventHandlers, Class, ClassDefinition, Constructor, trigger3, log, define } from '../objectplus/index.ts'
 
 import { begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 import { ChildrenErrors } from '../validation.ts'
@@ -49,6 +49,7 @@ export type AttributeParse = ( value : any, key : string ) => any
  * Attribute definitions
  */
 export interface AttributesValues {
+    id? : string | number 
     [ key : string ] : any
 }
 
@@ -99,12 +100,18 @@ export class Record extends Transactional implements Owner {
     static define( protoProps : RecordDefinition, staticProps? ) : typeof Record { return <any>Transactional.define( protoProps, staticProps ); }
     static predefine : () => typeof Record
     static Collection : typeof Transactional
+
+    static defaults( attrs : AttributeDescriptorMap ){
+        return this.extend({ attributes : attrs });
+    }
     
     /***********************************
      * Core Members
      */
     // Previous attributes
     _previousAttributes : {}
+
+    previousAttributes(){ return new this.Attributes( this._previousAttributes ); } 
 
     // Current attributes    
     attributes : AttributesValues
@@ -119,11 +126,15 @@ export class Record extends Transactional implements Owner {
             const prev = this._previousAttributes;
             changed = {};
 
-            this.forEachAttr( this.attributes, ( value, key, attribute ) => { 
-                if( attribute.isChanged( value, prev[ key ] ) ){
+            const { _attributes, attributes } = this;
+
+            for( let key of this._keys ){
+                const value = attributes[ key ];
+
+                if( _attributes[ key ].isChanged( value, prev[ key ] ) ){
                     changed[ key ] = value;
                 }
-            } );
+            }
 
             this._changedAttributes = changed;
         }
@@ -131,7 +142,22 @@ export class Record extends Transactional implements Owner {
         return changed;    
     }
 
-    hasChanged( key : string ) : boolean {
+    changedAttributes( diff? : {} ) : boolean | {} {
+        if( !diff ) return this.hasChanged() ? assign( {}, this.changed ) : false;
+
+        var val, changed : {} | boolean = false,
+            old          = this._transaction ? this._previousAttributes : this.attributes,
+            attrSpecs    = this._attributes;
+
+        for( var attr in diff ){
+            if( !attrSpecs[ attr ].isChanged( old[ attr ], ( val = diff[ attr ] ) ) ) continue;
+            (changed || (changed = {}))[ attr ] = val;
+        }
+
+        return changed;        
+    }
+
+    hasChanged( key? : string ) : boolean {
         const { _previousAttributes } = this;
         if( !_previousAttributes ) return false;
 
@@ -147,6 +173,25 @@ export class Record extends Transactional implements Owner {
         }
         
         return null;
+    }
+
+    isNew() : boolean {
+        return this.id === void 0;
+    }
+
+    has( key : string ) : boolean {
+        return this[ key ] != void 0;
+    }
+
+    unset( key, options? ) {
+        this.set( key, void 0, options );
+        return this; 
+    }
+
+    clear( options ){
+        this.transaction( () =>{
+            this.forEachAttr( this.attributes, ( value, key ) => this[ key ] = void 0 );
+        }, options );
     }
 
     // Returns Record owner skipping collections. TODO: Move out
@@ -175,9 +220,13 @@ export class Record extends Transactional implements Owner {
 
     // Attributes specifications 
     _attributes : AttributesSpec
+
+    // Attribute keys
+    _keys : string[]
     
     // Attributes object copy constructor
-    Attributes : CloneAttributesCtor
+//    Attributes : CloneAttributesCtor
+    Attributes( x : AttributesValues ) : void { this.id = x.id; }
 
     // forEach function for traversing through attributes, with protective default implementation
     // Overriden by dynamically compiled loop unrolled function in define.ts
@@ -367,7 +416,8 @@ export class Record extends Transactional implements Owner {
             log.error( '[Type Error]', this, 'Record update rejected (', values, '). Incompatible type.' );
         }
 
-        if( nested.length || changes.length ){
+        if( ( nested.length || changes.length ) && !options.silent ){
+            // Do not create transaction in silent mode.
             return new RecordTransaction( this, isRoot, nested, changes );
         }
         

@@ -436,17 +436,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.listenTo(this, this._listenToSelf);
 	    }
 	    Record.define = function (protoProps, staticProps) { return transactions_ts_1.Transactional.define(protoProps, staticProps); };
+	    Record.defaults = function (attrs) {
+	        return this.extend({ attributes: attrs });
+	    };
+	    Record.prototype.previousAttributes = function () { return new this.Attributes(this._previousAttributes); };
 	    Object.defineProperty(Record.prototype, "changed", {
 	        get: function () {
 	            var changed = this._changedAttributes;
 	            if (!changed) {
-	                var prev_1 = this._previousAttributes;
+	                var prev = this._previousAttributes;
 	                changed = {};
-	                this.forEachAttr(this.attributes, function (value, key, attribute) {
-	                    if (attribute.isChanged(value, prev_1[key])) {
+	                var _a = this, _attributes = _a._attributes, attributes = _a.attributes;
+	                for (var _i = 0, _b = this._keys; _i < _b.length; _i++) {
+	                    var key = _b[_i];
+	                    var value = attributes[key];
+	                    if (_attributes[key].isChanged(value, prev[key])) {
 	                        changed[key] = value;
 	                    }
-	                });
+	                }
 	                this._changedAttributes = changed;
 	            }
 	            return changed;
@@ -454,6 +461,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        enumerable: true,
 	        configurable: true
 	    });
+	    Record.prototype.changedAttributes = function (diff) {
+	        if (!diff)
+	            return this.hasChanged() ? index_ts_1.assign({}, this.changed) : false;
+	        var val, changed = false, old = this._transaction ? this._previousAttributes : this.attributes, attrSpecs = this._attributes;
+	        for (var attr in diff) {
+	            if (!attrSpecs[attr].isChanged(old[attr], (val = diff[attr])))
+	                continue;
+	            (changed || (changed = {}))[attr] = val;
+	        }
+	        return changed;
+	    };
 	    Record.prototype.hasChanged = function (key) {
 	        var _previousAttributes = this._previousAttributes;
 	        if (!_previousAttributes)
@@ -470,6 +488,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return null;
 	    };
+	    Record.prototype.isNew = function () {
+	        return this.id === void 0;
+	    };
+	    Record.prototype.has = function (key) {
+	        return this[key] != void 0;
+	    };
+	    Record.prototype.unset = function (key, options) {
+	        this.set(key, void 0, options);
+	        return this;
+	    };
+	    Record.prototype.clear = function (options) {
+	        var _this = this;
+	        this.transaction(function () {
+	            _this.forEachAttr(_this.attributes, function (value, key) { return _this[key] = void 0; });
+	        }, options);
+	    };
 	    Record.prototype.getOwner = function () {
 	        var owner = this._owner;
 	        return this._ownerKey ? owner : owner && owner._owner;
@@ -480,6 +514,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        enumerable: true,
 	        configurable: true
 	    });
+	    Record.prototype.Attributes = function (x) { this.id = x.id; };
 	    Record.prototype.forEachAttr = function (attrs, iteratee) {
 	        var _attributes = this._attributes;
 	        for (var name_1 in attrs) {
@@ -583,7 +618,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        else {
 	            index_ts_1.log.error('[Type Error]', this, 'Record update rejected (', values, '). Incompatible type.');
 	        }
-	        if (nested.length || changes.length) {
+	        if ((nested.length || changes.length) && !options.silent) {
 	            return new RecordTransaction(this, isRoot, nested, changes);
 	        }
 	        isRoot && transactions_ts_1.commit(this, options);
@@ -1362,7 +1397,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function commit(object, options, isNested) {
 	    var wasDirty = object._isDirty;
 	    if (options.silent) {
-	        object._isDirty = false;
+	        wasDirty = object._isDirty = false;
 	    }
 	    else {
 	        while (object._isDirty) {
@@ -1497,9 +1532,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        defaults: createDefaults(allAttributes),
 	        _toJSON: createToJSON(allAttributes),
 	        _parse: createParse(myAttributes, allAttributes),
-	        _listenToSelf: createEventMap(allAttributes)
+	        _listenToSelf: createEventMap(allAttributes),
+	        _keys: Object.keys(allAttributes)
 	    };
-	    mixin.forEachAttr = createForEach(allAttributes);
+	    if (!index_ts_1.log.level) {
+	        mixin.forEachAttr = createForEach(allAttributes);
+	    }
 	    return mixin;
 	}
 	exports.compile = compile;
@@ -1697,6 +1735,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	}());
 	exports.GenericAttribute = GenericAttribute;
 	transaction_ts_1.Record.prototype._attributes = { id: GenericAttribute.create({ value: void 0 }, 'id') };
+	transaction_ts_1.Record.prototype.defaults = function (attrs) {
+	    if (attrs === void 0) { attrs = {}; }
+	    return { id: attrs.id };
+	};
 	function chainChangeHandlers(prevHandler, nextHandler) {
 	    return function (next, prev, model) {
 	        prevHandler.call(this, next, prev, model);
@@ -2243,7 +2285,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function addTransaction(collection, items, options) {
 	    var isRoot = transactions_ts_1.begin(collection), nested = [];
 	    var added = appendElements(collection, items, nested, options);
-	    if (added.length || nested.length) {
+	    if ((added.length || nested.length) && !options.silent) {
 	        var needSort = sortOrMoveElements(collection, added, options);
 	        return new commons_ts_1.CollectionTransaction(collection, isRoot, added, [], nested, needSort);
 	    }

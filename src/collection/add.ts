@@ -12,7 +12,7 @@ export function addTransaction( collection : CollectionCore, items, options : Ad
 
     var added = appendElements( collection, items, nested, options );
 
-    if( added.length || nested.length ){
+    if( ( added.length || nested.length ) && !options.silent ){
         let needSort = sortOrMoveElements( collection, added, options );
         return new CollectionTransaction( collection, isRoot, added, [], nested, needSort );
     }

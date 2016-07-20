@@ -14,6 +14,7 @@ export interface DynamicMixin {
     _toJSON : ToJSON
     _parse : Parse
     _listenToSelf : EventHandlers
+    _keys : string[]
 }
 
 // Refine AttributesSpec definition.
@@ -38,13 +39,14 @@ export function compile( rawSpecs : AttributeDescriptorMap, baseAttributes : Att
             defaults : createDefaults( allAttributes ),
             _toJSON : createToJSON( allAttributes ), // <- TODO: profile and check if there is any real benefit. I doubt it. 
             _parse : createParse( myAttributes, allAttributes ),
-            _listenToSelf : createEventMap( allAttributes )
+            _listenToSelf : createEventMap( allAttributes ),
+            _keys : Object.keys( allAttributes )
          };
 
     // Enable optimized forEach if warnings are disabled.
-    //if( !log.level ){
+    if( !log.level ){
         mixin.forEachAttr = createForEach( allAttributes );
-    //}
+    }
 
     return mixin;
 }

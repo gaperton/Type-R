@@ -24,3 +24,8 @@ Because we can.
 - [ ] Implement classes support in NestedReact.
 - [ ] Deploy NestedReact and NestedTypes 2.0 RC to Volicon Observer product.
 - [ ] Release NestedTypes 2.0 and NestedReact 1.0
+
+## Compatibility notes
+
+- `model.initialize( attrs, options, owner )` uses thrird parameter to set owner, `options.collection` is ignored.
+- default model cid prefix is `m`

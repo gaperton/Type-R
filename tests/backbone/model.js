@@ -1,5 +1,5 @@
 (function() {
-/*
+
   var proxy = Backbone.Model.defaults({
     id     : '1-the-tempest',
     title  : "The Tempest",
@@ -13,7 +13,7 @@
   var klass = Backbone.Collection.extend({
     model : proxy,
     url : function() { return '/collection'; }
-  }); */
+  });
   var doc, collection;
 
   QUnit.module("Backbone.Model", {
@@ -39,7 +39,7 @@
         assert.equal(this.collection, collection);
       }
     });
-    var model = new Model({}, {collection: collection});
+    var model = new Model({}, {}, collection );
     assert.equal(model.one, 1);
     assert.equal(model.collection, collection);
   });
@@ -408,7 +408,7 @@
     assert.equal(model.cid.charAt(0), 'm');
 
     model = new Backbone.Model();
-    assert.equal(model.cid.charAt(0), 'c');
+    assert.equal(model.cid.charAt(0), 'm');
 
     var Collection = Backbone.Collection.extend({
       model: Model
@@ -878,7 +878,7 @@
 
   QUnit.test("Nested change events don't clobber previous attributes", function(assert) {
     assert.expect(4);
-    new Backbone.Model()
+    ( new ( Backbone.Model.defaults({ state : undefined, other : undefined, z : undefined }) ) )
     .on('change:state', function(model, newState) {
       equal(model.previous('state'), undefined);
       equal(newState, 'hello');
@@ -924,7 +924,10 @@
 
   QUnit.test("#871, set with attributes property", function(assert) {
     assert.expect(1);
-    var model = new Backbone.Model();
+    var model = new ( Backbone.Model.extend({
+      attributes: { attributes : void 0 },
+      properties : { attributes : false }
+    }) );
     model.set({attributes: true});
     assert.ok(model.has('attributes'));
   });
@@ -1086,7 +1089,7 @@
 
   QUnit.test("nested `change` only fires once", function(assert) {
     assert.expect(1);
-    var model = new Backbone.Model();
+    var model = new ( Backbone.Model.defaults({ x : Boolean }) );
     model.on('change', function() {
       assert.ok(true);
       model.set({x: true});
@@ -1149,7 +1152,7 @@
 
   QUnit.test("nested `change:attr` with silent", function(assert) {
     assert.expect(0);
-    var model = new Backbone.Model();
+    var model = new ( Backbone.Model.defaults({ x : undefined, y : undefined, z : undefined }) );
     model.on('change:y', function(){ assert.ok(false); });
     model.on('change', function() {
       model.set({y: true}, {silent: true});
@@ -1160,7 +1163,7 @@
 
   QUnit.test("multiple nested changes with silent", function(assert) {
     assert.expect(1);
-    var model = new Backbone.Model();
+    var model = new ( Backbone.Model.defaults({ x : undefined, y : undefined, z : undefined }) );
     model.on('change:x', function() {
       model.set({y: 1}, {silent: true});
       model.set({y: 2});
@@ -1174,7 +1177,7 @@
   QUnit.test("multiple nested changes with silent", function(assert) {
     assert.expect(1);
     var changes = [];
-    var model = new Backbone.Model();
+    var model = new ( Backbone.Model.defaults({ x : undefined, y : undefined, b : undefined }) );
     model.on('change:b', function(model, val) { changes.push(val); });
     model.on('change', function() {
       model.set({b: 1});
@@ -1185,7 +1188,7 @@
 
   QUnit.test("basic silent change semantics", function(assert) {
     assert.expect(1);
-    var model = new Backbone.Model;
+    var model = new ( Backbone.Model.defaults({ x : undefined, y : undefined, z : undefined }) );
     model.set({x: 1});
     model.on('change', function(){ assert.ok(true); });
     model.set({x: 2}, {silent: true});
@@ -1194,7 +1197,7 @@
 
   QUnit.test("nested set multiple times", function(assert) {
     assert.expect(1);
-    var model = new Backbone.Model();
+    var model = new ( Backbone.Model.defaults({ a : undefined, b : undefined, z : undefined }) );
     model.on('change:b', function() {
       assert.ok(true);
     });
@@ -1215,7 +1218,7 @@
 
   QUnit.test("#1122 - unset does not alter options.", function(assert) {
     assert.expect(1);
-    var model = new Backbone.Model();
+    var model = new ( Backbone.Model.defaults({x: 6 }) );
     var options = {};
     model.unset('x', options);
     assert.ok(!options.unset);
@@ -1311,7 +1314,7 @@
 
   QUnit.test("#1664 - Changing from one value, silently to another, back to original triggers a change.", function(assert) {
     assert.expect(1);
-    var model = new Backbone.Model({x:1});
+    var model = new ( Backbone.Model.defaults({x:1}) );
     model.on('change:x', function() { assert.ok(true); });
     model.set({x:2},{silent:true});
     model.set({x:3},{silent:true});
@@ -1344,7 +1347,7 @@
   QUnit.test("silent changes in last `change` event back to original triggers change", function(assert) {
     assert.expect(2);
     var changes = [];
-    var model = new Backbone.Model();
+    var model = new ( Backbone.Model.defaults({ a : void 0, b : void 0, c : void 0 }) );
     model.on('change:a change:b change:c', function(model, val) { changes.push(val); });
     model.on('change', function() {
       model.set({a:'c'}, {silent:true});
@@ -1356,14 +1359,14 @@
   });
 
   QUnit.test("#1943 change calculations should use _.isEqual", function(assert) {
-    var model = new Backbone.Model({a: {key: 'value'}});
+    var model = new ( Backbone.Model.defaults({a: {key: 'value'}}) );
     model.set('a', {key:'value'}, {silent:true});
     assert.equal(model.changedAttributes(), false);
   });
 
   QUnit.test("#1964 - final `change` event is always fired, regardless of interim changes", function(assert) {
     assert.expect(1);
-    var model = new Backbone.Model();
+    var model = new ( Backbone.Model.defaults({ property : void 0 }) );
     model.on('change:property', function() {
       model.set('property', 'bar');
     });
@@ -1418,7 +1421,7 @@
 
   QUnit.test("#2034 - nested set with silent only triggers one change", function(assert) {
     assert.expect(1);
-    var model = new Backbone.Model();
+    var model = new ( Backbone.Model.defaults({ a : Boolea, b : Boolean }) );
     model.on('change', function() {
       model.set({b: true}, {silent: true});
       assert.ok(true);
