@@ -8,6 +8,10 @@ Mostly compatible by API with your backbonejs, but 10 times faster in all browse
 
 Will be the basis of NestedTypes 2.0 version.
 
+## Rationale
+
+Because we can.
+
 ## Current state
 
 - [x] Basic regression tests passes. Transactional core seems to work.
