@@ -12,7 +12,7 @@ export interface DynamicMixin {
     forEachAttr? : ForEach
     defaults : Defaults
     _toJSON : ToJSON
-    _parse : Parse
+    _parse? : Parse
     _listenToSelf : EventHandlers
     _keys : string[]
 }
@@ -38,10 +38,14 @@ export function compile( rawSpecs : AttributeDescriptorMap, baseAttributes : Att
             properties : transform( <PropertyDescriptorMap>{}, myAttributes, x => x.createPropertyDescriptor() ),
             defaults : createDefaults( allAttributes ),
             _toJSON : createToJSON( allAttributes ), // <- TODO: profile and check if there is any real benefit. I doubt it. 
-            _parse : createParse( myAttributes, allAttributes ),
             _listenToSelf : createEventMap( allAttributes ),
             _keys : Object.keys( allAttributes )
          };
+
+    const _parse = createParse( myAttributes, allAttributes );
+    if( _parse ){
+        mixin._parse = _parse;
+    }
 
     // Enable optimized forEach if warnings are disabled.
     if( !log.level ){

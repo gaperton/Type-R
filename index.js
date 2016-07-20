@@ -65,7 +65,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.Model = index_ts_2.Record;
 	var events_ts_1 = __webpack_require__(6);
 	exports.on = events_ts_1.Events.on, exports.off = events_ts_1.Events.off, exports.trigger = events_ts_1.Events.trigger, exports.once = events_ts_1.Events.once, exports.listenTo = events_ts_1.Events.listenTo, exports.stopListening = events_ts_1.Events.stopListening, exports.listenToOnce = events_ts_1.Events.listenToOnce;
-	var index_ts_3 = __webpack_require__(16);
+	var index_ts_3 = __webpack_require__(15);
 	exports.Collection = index_ts_3.Collection;
 	__export(__webpack_require__(5));
 	__export(__webpack_require__(6));
@@ -355,7 +355,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.ChainableAttributeSpec = typespec_ts_1.ChainableAttributeSpec;
 	var nestedTypes_ts_1 = __webpack_require__(13);
 	exports.TransactionalType = nestedTypes_ts_1.TransactionalType;
-	__webpack_require__(15);
+	__webpack_require__(14);
 	transaction_ts_1.Record.define = function (protoProps, staticProps) {
 	    var BaseConstructor = index_ts_1.getBaseClass(this), baseProto = BaseConstructor.prototype;
 	    if (protoProps) {
@@ -1546,10 +1546,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        properties: index_ts_1.transform({}, myAttributes, function (x) { return x.createPropertyDescriptor(); }),
 	        defaults: createDefaults(allAttributes),
 	        _toJSON: createToJSON(allAttributes),
-	        _parse: createParse(myAttributes, allAttributes),
 	        _listenToSelf: createEventMap(allAttributes),
 	        _keys: Object.keys(allAttributes)
 	    };
+	    var _parse = createParse(myAttributes, allAttributes);
+	    if (_parse) {
+	        mixin._parse = _parse;
+	    }
 	    if (!index_ts_1.log.level) {
 	        mixin.forEachAttr = createForEach(allAttributes);
 	    }
@@ -1912,8 +1915,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 14 */,
-/* 15 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2007,7 +2009,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 16 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2025,10 +2027,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	var index_ts_1 = __webpack_require__(4);
 	var transactions_ts_1 = __webpack_require__(7);
 	var index_ts_2 = __webpack_require__(2);
-	var commons_ts_1 = __webpack_require__(17);
-	var add_ts_1 = __webpack_require__(18);
-	var set_ts_1 = __webpack_require__(19);
-	var remove_ts_1 = __webpack_require__(20);
+	var commons_ts_1 = __webpack_require__(16);
+	var add_ts_1 = __webpack_require__(17);
+	var set_ts_1 = __webpack_require__(18);
+	var remove_ts_1 = __webpack_require__(19);
 	var _count = 0;
 	var silentOptions = { silent: true };
 	var Collection = (function (_super) {
@@ -2039,6 +2041,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.models = [];
 	        this._byId = {};
 	        this.idAttribute = this.model.prototype.idAttribute;
+	        this.comparator = options.comparator;
 	        if (records) {
 	            var elements = options.parse ? this.parse(records) : records, transaction = set_ts_1.emptySetTransaction(this, records, options, true);
 	        }
@@ -2070,6 +2073,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    else {
 	                        this._comparator = x;
 	                    }
+	                    break;
+	                default:
+	                    this._comparator = null;
 	            }
 	        },
 	        enumerable: true,
@@ -2115,6 +2121,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        configurable: true
 	    });
 	    Collection.prototype.first = function () { return this.models[0]; };
+	    Collection.prototype.last = function () { return this.models[this.models.length - 1]; };
 	    Collection.prototype.clone = function (owner) {
 	        return new this.constructor(this.models, { clone: true }, owner);
 	    };
@@ -2174,6 +2181,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return set_ts_1.emptySetTransaction(this, elements, options);
 	        }
 	    };
+	    Collection.prototype.pluck = function (key) {
+	        return this.models.map(function (model) { return model[key]; });
+	    };
+	    Collection.prototype.sort = function (options) {
+	        if (options === void 0) { options = {}; }
+	        if (commons_ts_1.sortElements(this, options)) {
+	            var isRoot = transactions_ts_1.begin(this);
+	            if (transactions_ts_1.markAsDirty(this, options)) {
+	                index_ts_1.trigger2(this, 'sort', this, options);
+	            }
+	            isRoot && transactions_ts_1.commit(this);
+	        }
+	        return this;
+	    };
 	    Collection._attribute = index_ts_2.TransactionalType;
 	    Collection = __decorate([
 	        index_ts_1.define({
@@ -2188,7 +2209,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 17 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2288,12 +2309,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 18 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var transactions_ts_1 = __webpack_require__(7);
-	var commons_ts_1 = __webpack_require__(17);
+	var commons_ts_1 = __webpack_require__(16);
 	function addTransaction(collection, items, options) {
 	    var isRoot = transactions_ts_1.begin(collection), nested = [];
 	    var added = appendElements(collection, items, nested, options);
@@ -2355,12 +2376,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 19 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var transactions_ts_1 = __webpack_require__(7);
-	var commons_ts_1 = __webpack_require__(17);
+	var commons_ts_1 = __webpack_require__(16);
 	var silentOptions = { silent: true };
 	function emptySetTransaction(collection, items, options, silent) {
 	    var isRoot = transactions_ts_1.begin(collection);
@@ -2450,11 +2471,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 20 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var commons_ts_1 = __webpack_require__(17);
+	var commons_ts_1 = __webpack_require__(16);
 	var index_ts_1 = __webpack_require__(4);
 	var transactions_ts_1 = __webpack_require__(7);
 	function removeOne(collection, el, options) {

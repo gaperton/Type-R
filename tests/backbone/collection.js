@@ -1,13 +1,13 @@
 (function(){
 
     var a, b, c, d, e, col, otherCol;
-/*
+
     var Model = Backbone.Model.extend( {} );
 
     var M = Backbone.Model.defaults( {
         label : String
     } );
-*/
+
     QUnit.module( "Backbone.Collection", {
 
         beforeEach : function( assert ){

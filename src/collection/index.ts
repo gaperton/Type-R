@@ -2,7 +2,7 @@ import { define, assign, Class, ClassDefinition, defaults, trigger2 } from '../o
 import { begin, commit, markAsDirty, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 import { Record, TransactionalType } from '../record/index.ts'
 
-import { IdIndex, dispose, Elements, CollectionCore, addIndex, removeIndex, Comparator, CollectionTransaction } from './commons.ts'
+import { IdIndex, sortElements, dispose, Elements, CollectionCore, addIndex, removeIndex, Comparator, CollectionTransaction } from './commons.ts'
 import { addTransaction } from './add.ts'
 import { setTransaction, emptySetTransaction } from './set.ts'
 import { removeOne, removeMany } from './remove.ts'
@@ -10,6 +10,13 @@ import { removeOne, removeMany } from './remove.ts'
 let _count = 0;
 
 const silentOptions = { silent : true };
+
+export type GenericComparator = string | ( ( x : Record ) => number ) | ( ( a : Record, b : Record ) => number ); 
+
+
+interface CollectionOptions extends TransactionOptions {
+    comparator? : GenericComparator
+}
 
 @define({
     // Default client id prefix 
@@ -27,13 +34,13 @@ export class Collection extends Transactional implements CollectionCore {
     // Index by id and cid
     _byId : IdIndex
 
-    set comparator( x : any ){
+    set comparator( x : GenericComparator ){
         let compare;
 
         switch( typeof x ){
             case 'string' :
                 this._comparator = ( a, b ) => {
-                    const aa = a[ x ], bb = b[ x ];
+                    const aa = a[ <string>x ], bb = b[ <string>x ];
                     if( aa === bb ) return 0;
                     return aa < bb ? -1 : + 1;
                 } 
@@ -41,18 +48,21 @@ export class Collection extends Transactional implements CollectionCore {
             case 'function' :
                 if( x.length === 1 ){
                     this._comparator = ( a, b ) => {
-                        const aa = x( a ), bb = x( b );
+                        const aa = (<any>x)( a ), bb = (<any>x)( b );
                         if( aa === bb ) return 0;
                         return aa < bb ? -1 : + 1;
                     }
                 }
                 else{
-                    this._comparator = x;
+                    this._comparator = <Comparator> x;
                 }
+                break;
+                
+            default :
+                this._comparator = null;
         }
-
-        // TBD: sort?
     }
+    
     get comparator(){ return this._comparator; }
     _comparator : ( a : Record, b : Record ) => number
 
@@ -110,12 +120,12 @@ export class Collection extends Transactional implements CollectionCore {
 
 
     // TODO! Don't create transaction when silent options is true.
-
-    constructor( records? : ( Record | {} )[], options : TransactionOptions = {} ){
+    constructor( records? : ( Record | {} )[], options : CollectionOptions = {} ){
         super( _count++ );
         this.models = [];
         this._byId = {};
         this.idAttribute = this.model.prototype.idAttribute;
+        this.comparator = options.comparator;
 
         if( records ){
             const elements : Elements = options.parse ? this.parse( records ) : records,
@@ -129,6 +139,7 @@ export class Collection extends Transactional implements CollectionCore {
 
     get length() : number { return this.models.length; }
     first() : Record { return this.models[ 0 ]; }
+    last() : Record { return this.models[ this.models.length - 1 ]; } 
 
     // Deeply clone collection, optionally setting new owner.
     clone( owner? : any ) : this {
@@ -210,6 +221,28 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     static _attribute = TransactionalType;
+
+    /***********************************
+     * Collection manipulation methods
+     */
+
+    pluck( key : string ) : any[] {
+        return this.models.map( model => model[ key ] );
+    }
+
+    sort( options : TransactionOptions = {} ) : this {
+        if( sortElements( this, options ) ){
+            const isRoot = begin( this );
+            
+            if( markAsDirty( this, options ) ){
+                trigger2( this, 'sort', this, options );
+            }
+
+            isRoot && commit( this );
+        }
+
+        return this;
+    }
 }
 
 Record.Collection = <any>Collection;
