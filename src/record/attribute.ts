@@ -1,7 +1,7 @@
 import { setAttribute, Record, Attribute, Transform, ChangeHandler, AttributeDescriptor } from './transaction.ts'
-import { notEqual, assign } from '../tools.ts'
+import { notEqual, assign, Constructor } from '../objectplus/index.ts'
 
-import { Owner, Transactional, TransactionOptions, Constructor } from '../types.ts'
+import { Owner, Transactional, TransactionOptions } from '../transactions.ts'
 
 type GetHook = ( value : any, key : string ) => any;
 export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | string;
@@ -51,7 +51,6 @@ export class GenericAttribute implements Attribute {
      * Stage 3. Handle attribute change
      */
     handleChange( next, prev, model ) {}
-
 
     /**
      * End update pipeline definitions.
@@ -111,7 +110,7 @@ export class GenericAttribute implements Attribute {
     }
 
     value : any
-    type : Constructor
+    type : Constructor< any >
 
     parse : ( value, key : string ) => any
 
@@ -136,52 +135,49 @@ export class GenericAttribute implements Attribute {
          */
 
         // `convert` is default transform, which is always present...
-        this.transform = this.convert;
-
-        // No change handler by default
-        this.handleChange = null;
+        transforms.unshift( this.convert );
 
         // Get hook from the attribute will be used first...
-        this.getHook = this.get || null;
+        if( this.get ) getHooks.unshift( this.get );
 
         // let subclasses configure the pipeline...
         this.initialize.apply( this, arguments );
 
         // let attribute spec configure the pipeline...
-        getHooks.forEach( gh => this.addGetHook( gh ) );
-        transforms.forEach( t => this.addTransform( t ) );
-        changeHandlers.forEach( ch => this.addChangeHandler( ch ) );
+        if( getHooks.length ){
+            this.getHook = getHooks.reduce( chainGetHooks );
+        }
+        
+        if( transforms.length ){
+            this.transform = transforms.reduce( chainTransforms );
+        }
+        
+        if( changeHandlers.length ){
+            this.handleChange = changeHandlers.reduce( chainChangeHandlers );
+        }
     }
 
-    getHook : ( value, key : string ) => any
+    getHook : ( value, key : string ) => any = null
     get : ( value, key : string ) => any
+}
 
-    addGetHook( next : GetHook ) : void {
-        const prev = this.getHook;
+Record.prototype._attributes = { id : GenericAttribute.create({ value : void 0 }, 'id' )};
 
-        this.getHook = prev ?
-                       function( value, name ) {
-                           const next = prev.call( value, name );
-                           return next.call( next, name );
-                       } : next;
+function chainChangeHandlers( prevHandler : ChangeHandler, nextHandler : ChangeHandler ) : ChangeHandler {
+    return function( next, prev, model ) {
+        prevHandler.call( this, next, prev, model );
+        nextHandler.call( this, next, prev, model );
     }
+}
 
-    addTransform( next : Transform ) : void {
-        const prev = this.transform;
-
-        this.transform = function( value, options, prev, model ) {
-                             const next = prev.call( this, value, options, prev, model );
-                             return next.call( this, next, options, prev, model );
-                         }
+function chainGetHooks( prevHook : GetHook, nextHook : GetHook ) : GetHook {
+    return function( value, name ) {
+        return nextHook.call( prevHook.call( value, name ), name );
     }
+}
 
-    addChangeHandler( next : ChangeHandler ) : void {
-        const prev = this.handleChange;
-
-        this.handleChange = prev ?
-                            function( next, prev, model ) {
-                                prev.call( this, next, prev, model );
-                                next.call( this, next, prev, model );
-                            } : next;
+function chainTransforms( prevTransform : Transform, nextTransform : Transform ) : Transform {
+    return function( value, options, prev, model ) {
+        return nextTransform.call( this, prevTransform.call( this, value, options, prev, model ), options, prev, model );
     }
 }

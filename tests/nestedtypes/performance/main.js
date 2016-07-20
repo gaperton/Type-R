@@ -1,5 +1,5 @@
 define( function( require, exports, module ){
-    var Nested   = require( '../nestedtypes' ),
+    var Nested   = require( '../../../index' ),
         Backbone = require( 'backbone' );
 
     var NLarge = Nested.Model.extend({
@@ -343,7 +343,7 @@ define( function( require, exports, module ){
             } );
         });
 
-        describe( 'Update performance', function(){
+        describe( 'Model update performance', function(){
             var n, b;
 
             describe( '1-attr model, 1M .set( "a1", number )', function(){
@@ -360,7 +360,7 @@ define( function( require, exports, module ){
 
                 it( 'Nested', function(){
                     for( var i = 0; i < 1000000; i++ ){
-                        n.set( 'a1', i );
+                        n.set( 'a1' , i );
                     }
                 });
 
@@ -374,9 +374,6 @@ define( function( require, exports, module ){
             });
 
             describe( '20-attrs model, 1M .set( "a1", number )', function(){
-
-
-
                 var b = new BLarge();
 
                 it( 'Backbone', function(){

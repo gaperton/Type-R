@@ -11,7 +11,7 @@
             var Ctor = Nested.Class.extend({
                 a : 1,
 
-                initialize : function( a ){
+                constructor : function( a ){
                     a === undefined || ( this.a = a );
                 },
 
@@ -123,12 +123,12 @@
                 expect( m.arr.length ).to.be.equal( 0 );
             });
 
-            it( 'wrap non-array value in array on assignment', function(){
+            it( 'non-array value in array on assignment is ignored', function(){
                 var m = new M();
                 m.arr = 1;
 
                 expect( m.arr ).to.be.instanceOf( Array );
-                expect( m.arr[ 0 ] ).to.be.equal( 1 );
+                expect( m.arr.length ).to.be.equal( 0 );
             });
         });
 
@@ -292,7 +292,7 @@
 
                 it( 'is called from model.set', function(){
                     var m = new A();
-                    m.set( 'a', 1 );
+                    m.set({ 'a' :  1 });
 
                     expect( m.a ).to.be.equal( 2 );
 
@@ -310,12 +310,12 @@
 
                 it( 'may prevent attribute\'s assignment', function(){
                     var m = new A();
-                    m.set( 'a', 0 );
+                    m.set({ 'a' : 0 });
 
                     expect( m.a ).to.be.equal( 66 );
                 });
 
-                it( 'may prevent attribute\'s assignment', function(){
+                it( 'Watcher functions', function(){
                     var m = new A();
                     m.watcher = sinon.spy();
 

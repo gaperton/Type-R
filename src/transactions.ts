@@ -1,4 +1,4 @@
-import { Messenger, trigger2, trigger3, assign } from './toolkit/index.ts'
+import { Messenger, trigger2, trigger3, assign, define, Constructor, ExtendableConstructor } from './objectplus/index.ts'
 import { ValidationError, Validatable, ChildrenErrors } from './validation.ts'
 import { Traversable, resolveReference } from './references.ts'
 /***
@@ -7,7 +7,12 @@ import { Traversable, resolveReference } from './references.ts'
  * 2. transaction.commit() - send and process all change events, and close transaction.
  */
 
+export type TransactionalConstructor = ExtendableConstructor< Transactional >;
+
 // Transactional object interface
+@define({
+    _changeEventName : 'change'
+})
 export abstract class Transactional extends Messenger implements Validatable, Traversable {
     // Unique version token replaced on change
     _changeToken : {} = {}
@@ -40,9 +45,9 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     abstract clone( options? : { owner? : Owner, key? : string, pinStore? : boolean }) : this
     
     // Execute given function in the scope of ad-hoc transaction.
-    transaction( fun : ( self : this ) => void, options? : TransactionOptions ) : void{
+    transaction( fun : ( self : this ) => void, options : TransactionOptions = {} ) : void{
         const isRoot = begin( this );
-        fun( this );
+        fun.call( this, this );
         isRoot && commit( this, options );
     }
 
@@ -80,7 +85,7 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
      */
     
     // Get object member by its key.
-    abstract get( key : string ) : any;
+    abstract get( key : string ) : any
 
     // Get object member by symbolic reference.
     deepGet( reference : string ) : any {
@@ -162,7 +167,7 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     }
 
     // Validate nested members. Returns errors count.
-    abstract _validateNested( errors : ChildrenErrors ) : number;
+    abstract _validateNested( errors : ChildrenErrors ) : number
 
     // Object-level validator. Returns validation error.
     validate( obj? : Transactional ) : any {}
@@ -190,11 +195,9 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     }
 }
 
-Transactional.prototype._changeEventName = 'change';
-
 // Owner must accept children update events. It's an only way children communicates with an owner.
 export interface Owner extends Traversable {
-    _onChildrenChange( child : Transactional, options : TransactionOptions );
+    _onChildrenChange( child : Transactional, options : TransactionOptions ) : void;
     getOwner() : Owner
     getStore() : Transactional
 }

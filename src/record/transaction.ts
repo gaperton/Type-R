@@ -3,9 +3,8 @@
  * The root of all definitions. 
  */
 
-import { Class, ClassDefinition, trigger3, log } from '../toolkit/index.ts'
+import { isEmpty, EventHandlers, Class, ClassDefinition, Constructor, trigger3, log, define } from '../objectplus/index.ts'
 
-import { Constructor } from '../types.ts'
 import { begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 import { ChildrenErrors } from '../validation.ts'
 
@@ -15,6 +14,8 @@ import { ChildrenErrors } from '../validation.ts'
 
 export interface RecordDefinition extends ClassDefinition {
     attributes? : AttributeDescriptorMap
+    defaults? : AttributeDescriptorMap | ( () => AttributeDescriptorMap )
+    collection? : typeof Transactional | {}
 }
 
 export interface AttributeDescriptorMap {
@@ -22,7 +23,7 @@ export interface AttributeDescriptorMap {
 }
 
 export interface AttributeDescriptor {
-    type? : Constructor
+    type? : Constructor< any >
     value? : any
 
     parse? : AttributeParse
@@ -31,6 +32,8 @@ export interface AttributeDescriptor {
     getHooks? : GetHook[]
     transforms? : Transform[]
     changeHandlers? : ChangeHandler[]
+
+    _onChange? : ChangeAttrHandler
 }
 
 export type GetHook = ( value : any, key : string ) => any;
@@ -84,10 +87,19 @@ interface ConstructorOptions extends TransactionOptions{
 // Client unique id counter
 let _cidCounter : number = 0;
 
+@define({
+    // Default client id prefix 
+    cidPrefix : 'm',
+
+    // Default id attribute name
+    idAttribute : 'id'
+})
 export class Record extends Transactional implements Owner {
     // Implemented at the index.ts to avoid circular dependency. Here we have just proper singature.
-    static define( protoProps : RecordDefinition, staticProps ) : typeof Record { return this; }
-
+    static define( protoProps : RecordDefinition, staticProps? ) : typeof Record { return <any>Transactional.define( protoProps, staticProps ); }
+    static predefine : () => typeof Record
+    static Collection : typeof Transactional
+    
     /***********************************
      * Core Members
      */
@@ -117,7 +129,25 @@ export class Record extends Transactional implements Owner {
         }
 
         return changed;    
-    } 
+    }
+
+    hasChanged( key : string ) : boolean {
+        const { _previousAttributes } = this;
+        if( !_previousAttributes ) return false;
+
+        return key ?
+                this._attributes[ key ].isChanged( this.attributes[ key ], _previousAttributes[ key ] ) :
+                !isEmpty( this.changed );
+    }
+
+    previous( key : string ) : any {
+        if( key ){
+            const { _previousAttributes } = this;
+            if( _previousAttributes ) return _previousAttributes[ key ];
+        }
+        
+        return null;
+    }
 
     // Returns Record owner skipping collections. TODO: Move out
     getOwner() : Owner {
@@ -182,8 +212,11 @@ export class Record extends Transactional implements Owner {
     // Attributes-level parse
     _parse( data ){ return data; }
 
-    // Create record default values, optionally augmenting given values 
+    // Create record default values, optionally augmenting given values.
     defaults( values? : {} ){ return {}; }
+
+    // Event map for change:attribute events. 
+    _listenToSelf : EventHandlers
 
     /***************************************************
      * Record construction
@@ -207,6 +240,8 @@ export class Record extends Transactional implements Owner {
         this.attributes = this._previousAttributes = attributes;
 
         this.initialize( a_values, a_options );
+
+        if( this._listenToSelf ) this.listenTo( this, this._listenToSelf );
     }
 
     // Initialization callback, to be overriden by the subclasses 
@@ -266,6 +301,31 @@ export class Record extends Transactional implements Owner {
     /**
      * Transactional control
      */
+
+    // Polimorphic set method.
+    set( key : string, value : any, options? : TransactionOptions ) : this
+    set( attrs : {}, options? : TransactionOptions ) : this
+    set( a, b?, c? ) : this {
+        if( typeof a === 'string' ){
+            if( c ){
+                return <this> super.set({ [ a ] : b }, c );
+            }
+            else{
+                setAttribute( this, a, b );
+                return this;
+            } 
+        }
+        else{
+            return <this> super.set( a, b );
+        }
+    }
+
+    // TODO: make transaction brackets polymorphic
+    transaction( fun : ( self : this ) => void, options : TransactionOptions = {} ) : void{
+        const isRoot = begin( this );
+        fun.call( this, this );
+        isRoot && commit( this, options );
+    }
     
     // Create transaction. TODO: Move to transaction constructor
     _createTransaction( a_values : {}, options : TransactionOptions = {} ) : Transaction {
@@ -282,7 +342,7 @@ export class Record extends Transactional implements Owner {
 
                 // handle deep update...
                 if( merge && attr.canBeUpdated( prev, value ) ) { // todo - skip empty updates.
-                    const nestedTransaction = prev.createTransaction( value, options );
+                    const nestedTransaction = prev._createTransaction( value, options );
                     if( nestedTransaction ){
                         nested.push( nestedTransaction );
                         changes.push( key );
@@ -325,12 +385,16 @@ export class Record extends Transactional implements Owner {
         // Touch an attribute in bounds of transaction
         const isRoot = begin( this );
 
-        if( !options.silent ){
-            markAsDirty( this );
-            trigger3( this, 'change:' + key, this.attributes[ key ], this, options );
-        }
+        markAsDirty( this );
+        
+        options.silent || trigger3( this, 'change:' + key, this, this.attributes[ key ], options );
 
         isRoot && commit( this, options );
+    }
+
+    // Returns owner without the key (usually it's collection)
+    get collection() : any {
+        return this._ownerKey ? null : this._owner;
     }
 
     // Dispose object and all childrens
@@ -344,18 +408,6 @@ export class Record extends Transactional implements Owner {
         super.dispose();
     }
 };
-
-/**************************************************
- * Initialize Record prototype elements
- */
-
-const recordProto = Record.prototype;
-
-// Default client id prefix 
-recordProto.cid = 'c';
-
-// Default id attribute name
-recordProto.idAttribute = 'id';
 
 /***********************************************
  * Helper functions
@@ -401,7 +453,7 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
         if( nestedTransaction ){
             nestedTransaction.commit( options, true );
             markAsDirty( record );
-            trigger3( record, 'change:' + name, prev, record, options );
+            trigger3( record, 'change:' + name, record, prev, options );
         }
     }
     else {
@@ -412,12 +464,10 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
             attributes[ name ] = next;
 
             // Do the rest of the job after assignment
-            if( spec.handleChange ) {
-                spec.handleChange( next, prev, this );
-            }
+            spec.handleChange( next, prev, record );
 
             markAsDirty( record );
-            trigger3( record, 'change:' + name, next, record, options );
+            trigger3( record, 'change:' + name, record, next, options );
 
         }
     }
@@ -445,7 +495,7 @@ class RecordTransaction implements Transaction {
         if( !options.silent ){
             const { attributes } = object;
             for( let key of changes ){
-                trigger3( object, 'change:' + key, attributes[ key ], object, options );
+                trigger3( object, 'change:' + key, object, attributes[ key ], options );
             }
         }
 

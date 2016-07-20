@@ -1,16 +1,19 @@
 import { GenericAttribute } from './attribute.ts';
 import { Attribute, AttributesValues, AttributeDescriptorMap, CloneAttributesCtor } from './transaction.ts'
-import { defaults, isValidJSON, transform } from '../tools.ts'
-import { log } from '../tools.ts'
+import { defaults, isValidJSON, transform, log, EventHandlers } from '../objectplus/index.ts'
+import { toAttributeDescriptor } from './typespec.ts'
+
+import { CompiledReference } from '../references.ts'
 
 export interface DynamicMixin {
     _attributes : AttributesSpec
     Attributes : CloneAttributesCtor
     properties : PropertyDescriptorMap
-    forEach? : ForEach
+    forEachAttr? : ForEach
     defaults : Defaults
     _toJSON : ToJSON
     _parse : Parse
+    _listenToSelf : EventHandlers
 }
 
 // Refine AttributesSpec definition.
@@ -25,7 +28,7 @@ type ToJSON    = () => any;
 
 // Compile attributes spec
 export function compile( rawSpecs : AttributeDescriptorMap, baseAttributes : AttributesSpec ) : DynamicMixin {
-    const myAttributes = transform( <AttributesSpec>{}, rawSpecs, GenericAttribute.create ),
+    const myAttributes = transform( <AttributesSpec>{}, rawSpecs, createAttribute ),
           allAttributes = defaults( <AttributesSpec>{}, myAttributes, baseAttributes ),
           Attributes = createCloneCtor( allAttributes ),
           mixin : DynamicMixin = {
@@ -34,15 +37,59 @@ export function compile( rawSpecs : AttributeDescriptorMap, baseAttributes : Att
             properties : transform( <PropertyDescriptorMap>{}, myAttributes, x => x.createPropertyDescriptor() ),
             defaults : createDefaults( allAttributes ),
             _toJSON : createToJSON( allAttributes ), // <- TODO: profile and check if there is any real benefit. I doubt it. 
-            _parse : createParse( myAttributes, allAttributes )
-         }; 
+            _parse : createParse( myAttributes, allAttributes ),
+            _listenToSelf : createEventMap( allAttributes )
+         };
 
     // Enable optimized forEach if warnings are disabled.
-    if( log.level > 0 ){
-        mixin.forEach = createForEach( allAttributes );
-    }
+    //if( !log.level ){
+        mixin.forEachAttr = createForEach( allAttributes );
+    //}
 
     return mixin;
+}
+
+// Create attribute from the type spec.
+function createAttribute( spec, name ){
+    return GenericAttribute.create( toAttributeDescriptor( spec ), name );
+}
+
+// Build events map for attribute change events.
+function createEventMap( attrSpecs : AttributesSpec ) : EventHandlers {
+    var events : EventHandlers = null;
+
+    for( var key in attrSpecs ){
+        const attribute = attrSpecs[ key ],
+            { _onChange } = attribute.options; 
+
+        if( _onChange ){
+            events || ( events = {} );
+
+            events[ 'change:' + key ] =
+                typeof _onChange === 'string' ?
+                    createWatcherFromRef( _onChange, key ) : 
+                    wrapWatcher( _onChange, key );
+        }
+    }
+
+    return events;
+}
+
+function wrapWatcher( watcher, key ){
+    return function( record, value ){
+        watcher.call( record, value, key );
+    } 
+}
+
+function createWatcherFromRef( ref : string, key : string ){
+    const { local, resolve, tail } = new CompiledReference( ref, true );
+    return local ?
+        function( record, value ){
+            record[ tail ]( value, key );
+        } :
+        function( record, value ){
+            resolve( record )[ tail ]( value, key );
+        }
 }
 
 export function createForEach( attrSpecs : AttributesSpec ) : ForEach {

@@ -1,5 +1,5 @@
 import { GenericAttribute } from './attribute.ts'
-import { parseDate } from '../tools.ts'
+import { parseDate } from '../objectplus/index.ts'
 
 // Default attribute type for all constructor functions...
 class ConstructorType extends GenericAttribute {
@@ -68,13 +68,25 @@ export class NumericType extends PrimitiveType {
 
 Number._attribute = NumericType;
 
+// Add global Integer data type
+declare global {
+    interface Window {
+        Integer : Function
+    }
+}
+
+if( window ){
+    window.Integer = function( x ){ return x ? Math.round( x ) : 0; }
+    window.Integer._attribute = NumericType;
+}
+
 // Compatibility wrapper for Array type.
 export class ArrayType extends GenericAttribute {
     toJSON( value ) { return value; }
 
     convert( value ) {
         // Fix incompatible constructor behaviour of Array...
-        if( value == null || value instanceof Array ) return value;
+        if( value == null || Array.isArray( value ) ) return value;
 
         // todo: log an error.
         return [];

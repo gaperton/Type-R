@@ -1,13 +1,35 @@
-import { Class, mixins, define,  mixinRules, extendable } from './class.ts'
-import { Record } from './record/index.ts'
-//import { Model } from './model.ts'
-//import { Collection } from './collection'
-import * as tools from './tools.ts'
+import * as tools from './objectplus/tools.ts'
+import { ChainableAttributeSpec } from './record/index.ts'
+import { Record as Model } from './record/index.ts' 
+
+import { Events } from './objectplus/events.ts'
+export const { on, off, trigger, once, listenTo, stopListening, listenToOnce } = Events;
+
+import { Collection } from './collection/index.ts'
+
+export * from './objectplus/mixins.ts'
+export * from './objectplus/events.ts'
 
 export {
-    Class, define, mixins, mixinRules, extendable,
-    Record,
-    //Model,
-    //Collection,
-    tools
+    tools,
+    Model,
+    Collection,
+    transaction,
+    value
 }; 
+
+function value( x ){
+    return new ChainableAttributeSpec({ value : x });
+}
+
+function transaction( method ){
+    return function( ...args ){
+        let result;
+        
+        this.transaction( () => {
+            result = method.apply( this, args );
+        });
+        
+        return result;
+    }
+}

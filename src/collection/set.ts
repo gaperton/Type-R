@@ -1,15 +1,18 @@
+import { Transaction, begin, commit, aquire, free } from '../transactions.ts'
+import { CollectionTransaction, IdIndex, sortElements, CollectionOptions, toModel, addIndex, CollectionCore, Elements, freeAll } from './commons.ts'
+import { Record } from '../record/index.ts'
+
 /*******
  * 
  */
 
-
-export function emptySetTransaction( collection : Collection, items : Elements, options : CollectionOptions, silent? : boolean ){
+export function emptySetTransaction( collection : CollectionCore, items : Elements, options : CollectionOptions, silent? : boolean ){
     const isRoot = begin( collection );
 
     const added = _reallocateEmpty( collection, items, options );
 
     if( added.length ){
-        const needSort = makeSorted( collection, options );
+        const needSort = sortElements( collection, options );
         return new CollectionTransaction( collection, isRoot, added, [], [], needSort );
     }
 
@@ -31,7 +34,7 @@ export function setTransaction( collection, items, options ){
                     ) : [];                    
     
     const addedOrChanged = nested.length || added.length,
-          needSort = addedOrChanged && makeSorted( collection, options );
+          needSort = addedOrChanged && sortElements( collection, options );
 
     if( addedOrChanged || removed.length ){
         return new CollectionTransaction( collection, isRoot, added, removed, nested, needSort );
@@ -42,7 +45,7 @@ export function setTransaction( collection, items, options ){
 
 // Remove references to all previous elements, which are not present in collection.
 // Returns an array with removed elements.
-function _garbageCollect( collection : Collection, previous : Record[] ) : Record[]{
+function _garbageCollect( collection : CollectionCore, previous : Record[] ) : Record[]{
     const { _byId }  = collection,
           removed = [];
 
@@ -58,9 +61,9 @@ function _garbageCollect( collection : Collection, previous : Record[] ) : Recor
 }
 
 // reallocate model and index
-function _reallocate( collection : Collection, source, nested : Transaction[], options ){
+function _reallocate( collection : CollectionCore, source, nested : Transaction[], options ){
     var models      = Array( source.length ),
-        _byId : Index = {},
+        _byId : IdIndex = {},
         merge       = options.merge == null ? true : options.merge,
         _prevById   = collection._byId,
         idAttribute = collection.model.prototype.idAttribute,
@@ -69,7 +72,7 @@ function _reallocate( collection : Collection, source, nested : Transaction[], o
     // for each item in source set...
     for( var i = 0, j = 0; i < source.length; i++ ){
         var item  = source[ i ],
-            model = null;
+            model : Record = null;
 
         if( item ){
             var id  = item[ idAttribute ],
@@ -83,12 +86,13 @@ function _reallocate( collection : Collection, source, nested : Transaction[], o
         if( model ){
             if( merge && item !== model ){
                 var attrs = item.attributes || item;
-                const transaction = model.createTransaction( attrs, options );
+                const transaction = model._createTransaction( attrs, options );
                 transaction && nested.push( transaction );
             }
         }
         else{
-            model = convertAndRef( collection, item, options );
+            model = toModel( collection, item, options );
+            aquire( collection, model );
             toAdd.push( model );
         }
 
@@ -106,7 +110,7 @@ function _reallocate( collection : Collection, source, nested : Transaction[], o
 function _reallocateEmpty( self, source, options ){
     var len         = source ? source.length : 0,
         models      = Array( len ),
-        _byId       = {},
+        _byId : IdIndex = {},
         idAttribute = self.model.prototype.idAttribute;
 
     for( var i = 0, j = 0; i < len; i++ ){
@@ -118,7 +122,7 @@ function _reallocateEmpty( self, source, options ){
 
         var model = toModel( self, src, options );
 
-        addReference( self, model );
+        aquire( self, model );
         models[ j++ ] = model;
         addIndex( _byId, model );
 
