@@ -609,8 +609,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    return;
 	                }
 	                var next = attr.transform(value, options, prev, _this);
+	                attributes[key] = next;
 	                if (attr.isChanged(next, prev)) {
-	                    attributes[key] = next;
 	                    changes.push(key);
 	                    attr.handleChange(next, prev, _this);
 	                }
@@ -663,6 +663,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function begin(record) {
 	    if (transactions_ts_1.begin(record)) {
 	        record._previousAttributes = new record.Attributes(record.attributes);
+	        record._changedAttributes = null;
 	        return true;
 	    }
 	    return false;
@@ -690,8 +691,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    else {
 	        var next = spec.transform(value, options, prev, record);
+	        attributes[name] = next;
 	        if (spec.isChanged(next, prev)) {
-	            attributes[name] = next;
 	            spec.handleChange(next, prev, record);
 	            markAsDirty(record);
 	            index_ts_1.trigger3(record, 'change:' + name, record, next, options);
@@ -1357,11 +1358,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Object.defineProperty(Transactional.prototype, "validationError", {
 	        get: function () {
-	            return this._validationError || (this._validationError = new validation_ts_1.ValidationError(this));
+	            var error = this._validationError || (this._validationError = new validation_ts_1.ValidationError(this));
+	            return error.length ? error : null;
 	        },
 	        enumerable: true,
 	        configurable: true
 	    });
+	    Transactional.prototype._invalidate = function (options) {
+	        var error;
+	        if (options.validate && (error = this.validationError)) {
+	            this.trigger('invalid', this, error, index_ts_1.assign({ validationError: error }, options));
+	            return true;
+	        }
+	    };
 	    Transactional.prototype.validate = function (obj) { };
 	    Transactional.prototype.getValidationError = function (key) {
 	        var error = this.validationError;

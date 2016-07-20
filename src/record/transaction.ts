@@ -413,9 +413,9 @@ export class Record extends Transactional implements Owner {
 
                 // cast and hook...
                 const next = attr.transform( value, options, prev, this );
+                attributes[ key ] = next;
 
-                if( attr.isChanged( next, prev ) ) {
-                    attributes[ key ] = next;
+                if( attr.isChanged( next, prev ) ) {    
                     changes.push( key );
 
                     // Do the rest of the job after assignment
@@ -477,6 +477,7 @@ export class Record extends Transactional implements Owner {
 function begin( record : Record ){
     if( _begin( record ) ){
         record._previousAttributes = new record.Attributes( record.attributes );
+        record._changedAttributes = null;
         return true;
     }
     
@@ -521,9 +522,9 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
         // cast and hook...
         const next = spec.transform( value, options, prev, record );
 
-        if( spec.isChanged( next, prev ) ) {
-            attributes[ name ] = next;
+        attributes[ name ] = next;
 
+        if( spec.isChanged( next, prev ) ) {
             // Do the rest of the job after assignment
             spec.handleChange( next, prev, record );
 

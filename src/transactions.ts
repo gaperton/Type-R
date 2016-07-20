@@ -163,7 +163,16 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
 
     // Validate ownership tree and return valudation error 
     get validationError() : ValidationError {
-        return this._validationError || ( this._validationError = new ValidationError( this ) );
+        const error = this._validationError || ( this._validationError = new ValidationError( this ) );
+        return error.length ? error : null; 
+    }
+
+    _invalidate( options : { validate? : boolean } ) : boolean {
+        var error;
+        if( options.validate && ( error = this.validationError ) ){
+            this.trigger( 'invalid', this, error, assign( { validationError : error }, options ) );
+            return true;
+        }
     }
 
     // Validate nested members. Returns errors count.
@@ -266,7 +275,8 @@ export function commit( object : Transactional, options : TransactionOptions, is
     }
     else{
         while( object._isDirty ){
-            object._isDirty = false; 
+            object._isDirty = false;
+            // Bug - options of nested set are ignored. 
             trigger2( object, object._changeEventName, object, options );
         }
     }

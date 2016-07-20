@@ -112,7 +112,7 @@
     var M = Backbone.Model.defaults({p: 1});
     var foo = new M({p: 1});
     var bar = new M({p: 2});
-    bar.set(foo.clone().attributes, {unset: true});
+    bar.set( 'p', void 0 );
     assert.equal(foo.get('p'), 1);
     assert.equal(bar.get('p'), undefined);
   });
@@ -923,7 +923,7 @@
 
   QUnit.test("#2034 - nested set with silent only triggers one change", function(assert) {
     assert.expect(1);
-    var model = new ( Backbone.Model.defaults({ a : Boolea, b : Boolean }) );
+    var model = new ( Backbone.Model.defaults({ a : Boolean, b : Boolean }) );
     model.on('change', function() {
       model.set({b: true}, {silent: true});
       assert.ok(true);

@@ -29,3 +29,4 @@ Because we can.
 
 - `model.initialize( attrs, options, owner )` uses thrird parameter to set owner, `options.collection` is ignored.
 - default model cid prefix is `m`
+- model.set `unset` option is deprecated.
