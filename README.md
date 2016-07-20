@@ -2,7 +2,7 @@
 
 Transactional, reactive, and serializable state management core written with TypeScript.
 
-Properly implemented two-phase update transactions on object ownership tree, dude. Change events, with updates in the scope of current transaction. All serializable. All dynamically type safe. Just what the doctor's prescribed for the modern data layer.
+Properly implemented two-phase update transactions on object ownership tree, dude. Change events, with updates in the scope of current transaction. All serializable. All dynamically type safe. Just what the doctors prescribe for the modern data layer.
 
 Mostly compatible by API with your backbonejs, but 10 times faster in all browsers and capable of way more than your plugins are, dude. :) 
 
