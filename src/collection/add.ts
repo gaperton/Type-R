@@ -1,4 +1,4 @@
-import { Transaction, begin, commit, aquire, free } from '../transactions.ts'
+import { Transaction, begin, commit, markAsDirty, aquire, free } from '../transactions.ts'
 import { CollectionTransaction, sortElements, CollectionOptions, toModel, addIndex, CollectionCore } from './commons.ts'
 import { Record } from '../record/index.ts'
 
@@ -12,13 +12,15 @@ export function addTransaction( collection : CollectionCore, items, options : Ad
 
     var added = appendElements( collection, items, nested, options );
 
-    if( ( added.length || nested.length ) && !options.silent ){
+    if( added.length || nested.length ){
         let needSort = sortOrMoveElements( collection, added, options );
-        return new CollectionTransaction( collection, isRoot, added, [], nested, needSort );
+        if( markAsDirty( collection, options ) ){
+            return new CollectionTransaction( collection, isRoot, added, [], nested, needSort );
+        }
     }
 
     // No changes...
-    isRoot && commit( collection, options );
+    isRoot && commit( collection );
 };
 
 // Handle sort or insert at options for add operation. Reurns true if sort happened. 

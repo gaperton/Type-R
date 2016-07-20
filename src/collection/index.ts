@@ -1,4 +1,4 @@
-import { define, Class, ClassDefinition, defaults, trigger2 } from '../objectplus/index.ts'
+import { define, assign, Class, ClassDefinition, defaults, trigger2 } from '../objectplus/index.ts'
 import { begin, commit, markAsDirty, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 import { Record, TransactionalType } from '../record/index.ts'
 
@@ -56,7 +56,7 @@ export class Collection extends Transactional implements CollectionCore {
     get comparator(){ return this._comparator; }
     _comparator : ( a : Record, b : Record ) => number
 
-    _onChildrenChange( record : Record, options? ){
+    _onChildrenChange( record : Record, options : TransactionOptions = {} ){
         const isRoot = begin( this ),
               { idAttribute } = this;
 
@@ -66,11 +66,12 @@ export class Collection extends Transactional implements CollectionCore {
             addIndex( _byId, record[ idAttribute ] );
         }
 
-        markAsDirty( this );
+        if( markAsDirty( this, options ) ){
+            // Forward change event from the record.
+            trigger2( this, 'change', record, options )
+        }
 
-        options.silent || trigger2( this, 'change', record, options );
-
-        isRoot && commit( this, options );
+        isRoot && commit( this );
     }
 
     get( objOrId : string | Record | Object ) : Record {
@@ -118,9 +119,7 @@ export class Collection extends Transactional implements CollectionCore {
 
         if( records ){
             const elements : Elements = options.parse ? this.parse( records ) : records,
-                  transaction = emptySetTransaction( this, records, options );
-
-            transaction && transaction.commit( silentOptions );
+                  transaction = emptySetTransaction( this, records, options, true );
         }
 
         this.initialize.apply( this, arguments );
@@ -148,7 +147,7 @@ export class Collection extends Transactional implements CollectionCore {
         }
         else{
             const transaction = this._createTransaction( elements, options );
-            transaction && transaction.commit( options );
+            transaction && transaction.commit();
         } 
 
         return this;    
@@ -160,7 +159,7 @@ export class Collection extends Transactional implements CollectionCore {
         // Make all changes required, but be silent.
         if( a_elements ){
             const elements : Elements = options.parse ? this.parse( a_elements ) : a_elements;
-            emptySetTransaction( this, elements, options ).commit( silentOptions );
+            emptySetTransaction( this, elements, options, true );
         }
 
         options.silent || trigger2( this, 'reset', this, defaults( { previousModels : previousModels }, options ) );
@@ -177,7 +176,7 @@ export class Collection extends Transactional implements CollectionCore {
                     emptySetTransaction( this, elements, options );
 
         if( transaction ){
-            transaction.commit( options );
+            transaction.commit();
             return transaction.added;
         }
 

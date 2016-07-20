@@ -20,8 +20,8 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     // true while inside of the transaction
     _transaction : boolean = false;
 
-    // true, when in the middle of transaction and there're changes but is an unsent change event
-    _isDirty  : boolean = false;
+    // Holds current transaction's options, when in the middle of transaction and there're changes but is an unsent change event
+    _isDirty  : TransactionOptions = null;
 
     // Backreference set by owner (Record, Collection, or other object)
     _owner : Owner
@@ -48,7 +48,7 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     transaction( fun : ( self : this ) => void, options : TransactionOptions = {} ) : void{
         const isRoot = begin( this );
         fun.call( this, this );
-        isRoot && commit( this, options );
+        isRoot && commit( this );
     }
 
     // Loop through the members in the scope of transaction.
@@ -56,14 +56,14 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     updateEach( iteratee : ( val : any, key : string ) => void, options? : TransactionOptions ){
         const isRoot = begin( this );
         this.each( iteratee );
-        isRoot && commit( this, options );
+        isRoot && commit( this );
     }
 
     // Apply bulk in-place object update in scope of ad-hoc transaction 
     set( values : any, options? : TransactionOptions ) : this {
         if( values ){ 
             const transaction = this._createTransaction( values, options );
-            transaction && transaction.commit( options, true );
+            transaction && transaction.commit();
         } 
 
         return this;
@@ -213,13 +213,14 @@ export interface Owner extends Traversable {
 
 // Transaction object used for two-phase commit protocol.
 // Must be implemented by subclasses.
+// Transaction must be created if there are actual changes and when markIsDirty returns true. 
 export interface Transaction {
     // Object transaction is being made on.
     object : Transactional
 
     // Send out change events, process update triggers, and close transaction.
     // Nested transactions must be marked with isNested flag (it suppress owner notification).
-    commit( options? : TransactionOptions, isNested? : boolean )
+    commit( isNested? : boolean )
 }
 
 // Options for distributed transaction  
@@ -257,35 +258,48 @@ export function begin( object : Transactional ) : boolean {
     return object._transaction ? false : ( object._transaction = true );  
 }
 
-// Mark transactional object as dirty, so change event will be sent on commit.
-export function markAsDirty( object : Transactional ){
-    object._isDirty  = true;
+// Mark object having changes inside of the current transaction.
+// Returns true whenever there notifications are required.
+export function markAsDirty( object : Transactional, options : TransactionOptions ) : boolean {
+    // If silent option is in effect, don't set isDirty flag.
+    const dirty = !options.silent;
+    if( dirty ) object._isDirty = options;
+    
+    // Reset version token.
     object._changeToken = {};
+
+    // Object is changed, so validation must happen again. Clear the cache.
     object._validationError = void 0;
+
+    return dirty;
 }
 
 // Commit transaction. Send out change event and notify owner. Returns true if there were changes.
-// Should be executed for the root transaction only.
-export function commit( object : Transactional, options : TransactionOptions, isNested? : boolean ){
-    let wasDirty = object._isDirty;
+// Must be executed for the root transaction only.
+export function commit( object : Transactional, isNested? : boolean ){
+    let originalOptions = object._isDirty;
 
-    if( options.silent ){
-        // Turn off all notifications if silent.
-        wasDirty = object._isDirty  = false;
-    }
-    else{
+    if( originalOptions ){
+        // Send the sequence of change events, handling chained handlers.
         while( object._isDirty ){
-            object._isDirty = false;
-            // Bug - options of nested set are ignored. 
+            const options = object._isDirty;
+            object._isDirty = null; 
             trigger2( object, object._changeEventName, object, options );
         }
-    }
-    
-    object._transaction = false;
+        
+        // Mark transaction as closed.
+        object._transaction = false;
 
-    // Don't notify owner for the case of nested transaction, it already knows if there were changes  
-    if( !isNested && wasDirty && object._owner ){
-        object._owner._onChildrenChange( object, options );
+        // Notify owner on changes out of transaction scope.
+        const { _owner } = object;  
+        if( _owner && !isNested ){ // If it's the nested transaction, owner is already aware there are some changes.
+            _owner._onChildrenChange( object, originalOptions );
+        }
+    }
+    else{
+        // No changes. Silently close transaction.
+        object._isDirty = null;
+        object._transaction = false;
     }
 }
 

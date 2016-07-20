@@ -591,7 +591,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (options === void 0) { options = {}; }
 	        var isRoot = begin(this);
 	        fun.call(this, this);
-	        isRoot && transactions_ts_1.commit(this, options);
+	        isRoot && transactions_ts_1.commit(this);
 	    };
 	    Record.prototype._createTransaction = function (a_values, options) {
 	        var _this = this;
@@ -619,10 +619,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        else {
 	            index_ts_1.log.error('[Type Error]', this, 'Record update rejected (', values, '). Incompatible type.');
 	        }
-	        if ((nested.length || changes.length) && !options.silent) {
+	        if ((nested.length || changes.length) && markAsDirty(this, options)) {
 	            return new RecordTransaction(this, isRoot, nested, changes);
 	        }
-	        isRoot && transactions_ts_1.commit(this, options);
+	        isRoot && transactions_ts_1.commit(this);
 	    };
 	    Record.prototype._onChildrenChange = function (child, options) {
 	        this.forceAttributeChange(child._ownerKey, options);
@@ -630,9 +630,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Record.prototype.forceAttributeChange = function (key, options) {
 	        if (options === void 0) { options = {}; }
 	        var isRoot = begin(this);
-	        markAsDirty(this);
-	        options.silent || index_ts_1.trigger3(this, 'change:' + key, this, this.attributes[key], options);
-	        isRoot && transactions_ts_1.commit(this, options);
+	        if (markAsDirty(this, options)) {
+	            index_ts_1.trigger3(this, 'change:' + key, this, this.attributes[key], options);
+	        }
+	        isRoot && transactions_ts_1.commit(this);
 	    };
 	    Object.defineProperty(Record.prototype, "collection", {
 	        get: function () {
@@ -668,9 +669,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    return false;
 	}
-	function markAsDirty(record) {
-	    transactions_ts_1.markAsDirty(record);
-	    record._changedAttributes = null;
+	function markAsDirty(record, options) {
+	    if (record._changedAttributes) {
+	        record._changedAttributes = null;
+	    }
+	    return transactions_ts_1.markAsDirty(record, options);
 	}
 	function cloneAttributes(record, a_attributes) {
 	    var attributes = new record.Attributes(a_attributes);
@@ -684,8 +687,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (spec.canBeUpdated(prev, value)) {
 	        var nestedTransaction = prev._createTransaction(value, options);
 	        if (nestedTransaction) {
-	            nestedTransaction.commit(options, true);
-	            markAsDirty(record);
+	            nestedTransaction.commit(true);
+	            markAsDirty(record, options);
 	            index_ts_1.trigger3(record, 'change:' + name, record, prev, options);
 	        }
 	    }
@@ -694,11 +697,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        attributes[name] = next;
 	        if (spec.isChanged(next, prev)) {
 	            spec.handleChange(next, prev, record);
-	            markAsDirty(record);
+	            markAsDirty(record, options);
 	            index_ts_1.trigger3(record, 'change:' + name, record, next, options);
 	        }
 	    }
-	    isRoot && transactions_ts_1.commit(record, options);
+	    isRoot && transactions_ts_1.commit(record);
 	}
 	exports.setAttribute = setAttribute;
 	var RecordTransaction = (function () {
@@ -707,23 +710,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.isRoot = isRoot;
 	        this.nested = nested;
 	        this.changes = changes;
-	        markAsDirty(object);
 	    }
-	    RecordTransaction.prototype.commit = function (options, isNested) {
-	        if (options === void 0) { options = {}; }
+	    RecordTransaction.prototype.commit = function (isNested) {
 	        var _a = this, nested = _a.nested, object = _a.object, changes = _a.changes;
 	        for (var _i = 0, nested_1 = nested; _i < nested_1.length; _i++) {
 	            var transaction = nested_1[_i];
-	            transaction.commit(options, true);
+	            transaction.commit(true);
 	        }
-	        if (!options.silent) {
-	            var attributes = object.attributes;
-	            for (var _b = 0, changes_1 = changes; _b < changes_1.length; _b++) {
-	                var key = changes_1[_b];
-	                index_ts_1.trigger3(object, 'change:' + key, object, attributes[key], options);
-	            }
+	        var attributes = object.attributes, _isDirty = object._isDirty;
+	        for (var _b = 0, changes_1 = changes; _b < changes_1.length; _b++) {
+	            var key = changes_1[_b];
+	            index_ts_1.trigger3(object, 'change:' + key, object, attributes[key], _isDirty);
 	        }
-	        this.isRoot && transactions_ts_1.commit(object, options, isNested);
+	        this.isRoot && transactions_ts_1.commit(object, isNested);
 	    };
 	    return RecordTransaction;
 	}());
@@ -1295,7 +1294,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _super.call(this, cid);
 	        this._changeToken = {};
 	        this._transaction = false;
-	        this._isDirty = false;
+	        this._isDirty = null;
 	        this._validationError = void 0;
 	        this._owner = owner;
 	        this._ownerKey = ownerKey;
@@ -1304,17 +1303,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (options === void 0) { options = {}; }
 	        var isRoot = begin(this);
 	        fun.call(this, this);
-	        isRoot && commit(this, options);
+	        isRoot && commit(this);
 	    };
 	    Transactional.prototype.updateEach = function (iteratee, options) {
 	        var isRoot = begin(this);
 	        this.each(iteratee);
-	        isRoot && commit(this, options);
+	        isRoot && commit(this);
 	    };
 	    Transactional.prototype.set = function (values, options) {
 	        if (values) {
 	            var transaction = this._createTransaction(values, options);
-	            transaction && transaction.commit(options, true);
+	            transaction && transaction.commit();
 	        }
 	        return this;
 	    };
@@ -1398,26 +1397,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return object._transaction ? false : (object._transaction = true);
 	}
 	exports.begin = begin;
-	function markAsDirty(object) {
-	    object._isDirty = true;
+	function markAsDirty(object, options) {
+	    var dirty = !options.silent;
+	    if (dirty)
+	        object._isDirty = options;
 	    object._changeToken = {};
 	    object._validationError = void 0;
+	    return dirty;
 	}
 	exports.markAsDirty = markAsDirty;
-	function commit(object, options, isNested) {
-	    var wasDirty = object._isDirty;
-	    if (options.silent) {
-	        wasDirty = object._isDirty = false;
-	    }
-	    else {
+	function commit(object, isNested) {
+	    var originalOptions = object._isDirty;
+	    if (originalOptions) {
 	        while (object._isDirty) {
-	            object._isDirty = false;
+	            var options = object._isDirty;
+	            object._isDirty = null;
 	            index_ts_1.trigger2(object, object._changeEventName, object, options);
 	        }
+	        object._transaction = false;
+	        var _owner = object._owner;
+	        if (_owner && !isNested) {
+	            _owner._onChildrenChange(object, originalOptions);
+	        }
 	    }
-	    object._transaction = false;
-	    if (!isNested && wasDirty && object._owner) {
-	        object._owner._onChildrenChange(object, options);
+	    else {
+	        object._isDirty = null;
+	        object._transaction = false;
 	    }
 	}
 	exports.commit = commit;
@@ -2035,8 +2040,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this._byId = {};
 	        this.idAttribute = this.model.prototype.idAttribute;
 	        if (records) {
-	            var elements = options.parse ? this.parse(records) : records, transaction = set_ts_1.emptySetTransaction(this, records, options);
-	            transaction && transaction.commit(silentOptions);
+	            var elements = options.parse ? this.parse(records) : records, transaction = set_ts_1.emptySetTransaction(this, records, options, true);
 	        }
 	        this.initialize.apply(this, arguments);
 	    }
@@ -2072,15 +2076,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        configurable: true
 	    });
 	    Collection.prototype._onChildrenChange = function (record, options) {
+	        if (options === void 0) { options = {}; }
 	        var isRoot = transactions_ts_1.begin(this), idAttribute = this.idAttribute;
 	        if (record.hasChanged(idAttribute)) {
 	            var _byId = this._byId;
 	            commons_ts_1.removeIndex(_byId, record.previous(idAttribute));
 	            commons_ts_1.addIndex(_byId, record[idAttribute]);
 	        }
-	        transactions_ts_1.markAsDirty(this);
-	        options.silent || index_ts_1.trigger2(this, 'change', record, options);
-	        isRoot && transactions_ts_1.commit(this, options);
+	        if (transactions_ts_1.markAsDirty(this, options)) {
+	            index_ts_1.trigger2(this, 'change', record, options);
+	        }
+	        isRoot && transactions_ts_1.commit(this);
 	    };
 	    Collection.prototype.get = function (objOrId) {
 	        return objOrId ? (this._byId[typeof objOrId === 'object' ? objOrId.cid || objOrId[this.idAttribute] : objOrId]) : null;
@@ -2122,7 +2128,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        else {
 	            var transaction = this._createTransaction(elements, options);
-	            transaction && transaction.commit(options);
+	            transaction && transaction.commit();
 	        }
 	        return this;
 	    };
@@ -2131,7 +2137,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var previousModels = commons_ts_1.dispose(this);
 	        if (a_elements) {
 	            var elements = options.parse ? this.parse(a_elements) : a_elements;
-	            set_ts_1.emptySetTransaction(this, elements, options).commit(silentOptions);
+	            set_ts_1.emptySetTransaction(this, elements, options, true);
 	        }
 	        options.silent || index_ts_1.trigger2(this, 'reset', this, index_ts_1.defaults({ previousModels: previousModels }, options));
 	        return this.models;
@@ -2142,7 +2148,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            add_ts_1.addTransaction(this, elements, options) :
 	            set_ts_1.emptySetTransaction(this, elements, options);
 	        if (transaction) {
-	            transaction.commit(options);
+	            transaction.commit();
 	            return transaction.added;
 	        }
 	        return [];
@@ -2248,37 +2254,33 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.removed = removed;
 	        this.nested = nested;
 	        this.sorted = sorted;
-	        transactions_ts_1.markAsDirty(object);
 	    }
-	    CollectionTransaction.prototype.commit = function (options, isNested) {
-	        if (options === void 0) { options = {}; }
+	    CollectionTransaction.prototype.commit = function (isNested) {
 	        var _a = this, nested = _a.nested, object = _a.object;
 	        for (var _i = 0, nested_1 = nested; _i < nested_1.length; _i++) {
 	            var transaction = nested_1[_i];
-	            transaction.commit(options, true);
+	            transaction.commit(true);
 	        }
-	        if (!options.silent) {
-	            var _b = this, added = _b.added, removed = _b.removed;
-	            for (var _c = 0, added_1 = added; _c < added_1.length; _c++) {
-	                var record = added_1[_c];
-	                index_ts_1.trigger3(object, 'add', record, object, options);
-	            }
-	            for (var _d = 0, removed_1 = removed; _d < removed_1.length; _d++) {
-	                var record = removed_1[_d];
-	                index_ts_1.trigger3(object, 'remove', record, object, options);
-	            }
-	            for (var _e = 0, nested_2 = nested; _e < nested_2.length; _e++) {
-	                var transaction = nested_2[_e];
-	                index_ts_1.trigger2(object, 'change', transaction.object, options);
-	            }
-	            if (this.sorted) {
-	                index_ts_1.trigger2(object, 'sort', object, options);
-	            }
-	            if (added.length || removed.length) {
-	                index_ts_1.trigger2(object, 'update', object, options);
-	            }
+	        var _b = this, added = _b.added, removed = _b.removed, _isDirty = object._isDirty;
+	        for (var _c = 0, added_1 = added; _c < added_1.length; _c++) {
+	            var record = added_1[_c];
+	            index_ts_1.trigger3(object, 'add', record, object, _isDirty);
 	        }
-	        this.isRoot && transactions_ts_1.commit(object, options, isNested);
+	        for (var _d = 0, removed_1 = removed; _d < removed_1.length; _d++) {
+	            var record = removed_1[_d];
+	            index_ts_1.trigger3(object, 'remove', record, object, _isDirty);
+	        }
+	        for (var _e = 0, nested_2 = nested; _e < nested_2.length; _e++) {
+	            var transaction = nested_2[_e];
+	            index_ts_1.trigger2(object, 'change', transaction.object, _isDirty);
+	        }
+	        if (this.sorted) {
+	            index_ts_1.trigger2(object, 'sort', object, _isDirty);
+	        }
+	        if (added.length || removed.length) {
+	            index_ts_1.trigger2(object, 'update', object, _isDirty);
+	        }
+	        this.isRoot && transactions_ts_1.commit(object, isNested);
 	    };
 	    return CollectionTransaction;
 	}());
@@ -2295,11 +2297,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	function addTransaction(collection, items, options) {
 	    var isRoot = transactions_ts_1.begin(collection), nested = [];
 	    var added = appendElements(collection, items, nested, options);
-	    if ((added.length || nested.length) && !options.silent) {
+	    if (added.length || nested.length) {
 	        var needSort = sortOrMoveElements(collection, added, options);
-	        return new commons_ts_1.CollectionTransaction(collection, isRoot, added, [], nested, needSort);
+	        if (transactions_ts_1.markAsDirty(collection, options)) {
+	            return new commons_ts_1.CollectionTransaction(collection, isRoot, added, [], nested, needSort);
+	        }
 	    }
-	    isRoot && transactions_ts_1.commit(collection, options);
+	    isRoot && transactions_ts_1.commit(collection);
 	}
 	exports.addTransaction = addTransaction;
 	;
@@ -2357,14 +2361,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	var transactions_ts_1 = __webpack_require__(7);
 	var commons_ts_1 = __webpack_require__(17);
+	var silentOptions = { silent: true };
 	function emptySetTransaction(collection, items, options, silent) {
 	    var isRoot = transactions_ts_1.begin(collection);
 	    var added = _reallocateEmpty(collection, items, options);
 	    if (added.length) {
 	        var needSort = commons_ts_1.sortElements(collection, options);
-	        return new commons_ts_1.CollectionTransaction(collection, isRoot, added, [], [], needSort);
+	        if (transactions_ts_1.markAsDirty(collection, silent ? silentOptions : options)) {
+	            return new commons_ts_1.CollectionTransaction(collection, isRoot, added, [], [], needSort);
+	        }
 	    }
-	    isRoot && transactions_ts_1.commit(collection, options);
+	    isRoot && transactions_ts_1.commit(collection);
 	}
 	exports.emptySetTransaction = emptySetTransaction;
 	;
@@ -2375,9 +2382,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        commons_ts_1.freeAll(collection, previous)) : [];
 	    var addedOrChanged = nested.length || added.length, needSort = addedOrChanged && commons_ts_1.sortElements(collection, options);
 	    if (addedOrChanged || removed.length) {
-	        return new commons_ts_1.CollectionTransaction(collection, isRoot, added, removed, nested, needSort);
+	        if (transactions_ts_1.markAsDirty(collection, options)) {
+	            return new commons_ts_1.CollectionTransaction(collection, isRoot, added, removed, nested, needSort);
+	        }
 	    }
-	    isRoot && transactions_ts_1.commit(collection, options);
+	    isRoot && transactions_ts_1.commit(collection);
 	}
 	exports.setTransaction = setTransaction;
 	;
@@ -2451,14 +2460,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	function removeOne(collection, el, options) {
 	    var model = collection.get(el);
 	    if (model) {
-	        var isRoot = transactions_ts_1.begin(collection), models = collection.models, silent = options.silent;
+	        var isRoot = transactions_ts_1.begin(collection), models = collection.models;
 	        models.splice(models.indexOf(model), 1);
 	        commons_ts_1.removeIndex(collection._byId, model);
-	        transactions_ts_1.markAsDirty(collection);
-	        silent || index_ts_1.trigger3(model, 'remove', model, collection, options);
+	        var notify = transactions_ts_1.markAsDirty(collection, options);
+	        if (notify) {
+	            index_ts_1.trigger3(model, 'remove', model, collection, options);
+	            index_ts_1.trigger3(collection, 'remove', model, collection, options);
+	        }
 	        transactions_ts_1.free(collection, model);
-	        silent || index_ts_1.trigger2(collection, 'update', collection, options);
-	        isRoot && transactions_ts_1.commit(collection, options);
+	        notify && index_ts_1.trigger2(collection, 'update', collection, options);
+	        isRoot && transactions_ts_1.commit(collection);
 	        return model;
 	    }
 	}
@@ -2469,8 +2481,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (removed.length) {
 	        var isRoot = transactions_ts_1.begin(collection);
 	        _reallocate(collection, removed.length);
-	        var transaction = new commons_ts_1.CollectionTransaction(collection, isRoot, null, removed, null, false);
-	        transaction.commit(options);
+	        if (transactions_ts_1.markAsDirty(collection, options)) {
+	            var transaction = new commons_ts_1.CollectionTransaction(collection, isRoot, null, removed, null, false);
+	            transaction.commit();
+	        }
+	        isRoot && transactions_ts_1.commit(collection);
 	        return removed;
 	    }
 	}

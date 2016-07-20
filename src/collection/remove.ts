@@ -18,25 +18,27 @@ export function removeOne( collection : CollectionCore, el : Record | {} | strin
 
     if( model ){
         const isRoot = begin( collection ),
-              models = collection.models,
-              silent = options.silent;
+              models = collection.models;
 
         // Remove model form the collection. 
         models.splice( models.indexOf( model ), 1 );
         removeIndex( collection._byId, model );
         
         // Mark transaction as dirty. 
-        markAsDirty( collection );
+        const notify = markAsDirty( collection, options );
 
         // Send out events.
-        silent || trigger3( model, 'remove', model, collection, options );
+        if( notify ){
+            trigger3( model, 'remove', model, collection, options );
+            trigger3( collection, 'remove', model, collection, options );
+        } 
 
         free( collection, model );
 
-        silent || trigger2( collection, 'update', collection, options );
+        notify && trigger2( collection, 'update', collection, options );
 
         // Commit transaction.
-        isRoot && commit( collection, options );
+        isRoot && commit( collection );
 
         return model;
     }
@@ -54,8 +56,13 @@ export function removeMany( collection : CollectionCore, toRemove : any[], optio
 
         _reallocate( collection, removed.length );
 
-        const transaction = new CollectionTransaction( collection, isRoot, null, removed, null, false );
-        transaction.commit( options );
+        if( markAsDirty( collection, options ) ){
+            const transaction = new CollectionTransaction( collection, isRoot, null, removed, null, false );
+            transaction.commit();
+        }
+
+        // Commit transaction.
+        isRoot && commit( collection );
 
         return removed;
     }

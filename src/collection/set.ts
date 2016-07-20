@@ -1,10 +1,12 @@
-import { Transaction, begin, commit, aquire, free } from '../transactions.ts'
+import { Transaction, begin, commit, markAsDirty, aquire, free } from '../transactions.ts'
 import { CollectionTransaction, IdIndex, sortElements, CollectionOptions, toModel, addIndex, CollectionCore, Elements, freeAll } from './commons.ts'
 import { Record } from '../record/index.ts'
 
 /*******
  * 
  */
+
+const silentOptions = { silent : true };
 
 export function emptySetTransaction( collection : CollectionCore, items : Elements, options : CollectionOptions, silent? : boolean ){
     const isRoot = begin( collection );
@@ -13,11 +15,14 @@ export function emptySetTransaction( collection : CollectionCore, items : Elemen
 
     if( added.length ){
         const needSort = sortElements( collection, options );
-        return new CollectionTransaction( collection, isRoot, added, [], [], needSort );
+
+        if( markAsDirty( collection, silent ? silentOptions : options ) ){
+            return new CollectionTransaction( collection, isRoot, added, [], [], needSort );
+        }
     }
 
     // No changes...
-    isRoot && commit( collection, options );
+    isRoot && commit( collection );
 };
 
 export function setTransaction( collection, items, options ){
@@ -37,10 +42,12 @@ export function setTransaction( collection, items, options ){
           needSort = addedOrChanged && sortElements( collection, options );
 
     if( addedOrChanged || removed.length ){
-        return new CollectionTransaction( collection, isRoot, added, removed, nested, needSort );
+        if( markAsDirty( collection, options ) ){
+            return new CollectionTransaction( collection, isRoot, added, removed, nested, needSort );
+        }
     }
 
-    isRoot && commit( collection, options );
+    isRoot && commit( collection );
 };
 
 // Remove references to all previous elements, which are not present in collection.

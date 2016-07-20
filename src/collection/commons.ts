@@ -102,7 +102,6 @@ export function convertAndAquire( collection : CollectionCore, attrs, options ){
  * Two major optimization cases.
  * 1) Population of an empty collection
  * 2) Update of the collection (no or little changes) - it's crucial to reject empty transactions.
- * 3) 
  */
 
 
@@ -114,44 +113,41 @@ export class CollectionTransaction implements Transaction {
                     public added : Record[],
                     public removed : Record[],
                     public nested : Transaction[],
-                    public sorted : boolean ){
-        markAsDirty( object );
-    }
+                    public sorted : boolean ){}
 
     // commit transaction
-    commit( options : TransactionOptions = {}, isNested? : boolean ){
+    commit( isNested? : boolean ){
         const { nested, object } = this;
 
         // Commit all nested transactions...
         for( let transaction of nested ){
-            transaction.commit( options, true );
+            transaction.commit( true );
         }
 
         // Notify listeners on attribute changes...
-        if( !options.silent ){
-            const { added, removed } = this;
+        const { added, removed } = this,
+              { _isDirty } = object;
 
-            for( let record of added ){
-                trigger3( object, 'add', record, object, options );
-            }
-
-            for( let record of removed ){
-                trigger3( object, 'remove', record, object, options );
-            }
-
-            for( let transaction of nested ){
-                trigger2( object, 'change', transaction.object, options );
-            }
-
-            if( this.sorted ){
-                trigger2( object, 'sort', object, options );
-            }
-
-            if( added.length || removed.length ){
-                trigger2( object, 'update', object, options );
-            }
+        for( let record of added ){
+            trigger3( object, 'add', record, object, _isDirty );
         }
 
-        this.isRoot && commit( object, options, isNested );
+        for( let record of removed ){
+            trigger3( object, 'remove', record, object, _isDirty );
+        }
+
+        for( let transaction of nested ){
+            trigger2( object, 'change', transaction.object, _isDirty );
+        }
+
+        if( this.sorted ){
+            trigger2( object, 'sort', object, _isDirty );
+        }
+
+        if( added.length || removed.length ){
+            trigger2( object, 'update', object, _isDirty );
+        }
+
+        this.isRoot && commit( object, isNested );
     }
 }

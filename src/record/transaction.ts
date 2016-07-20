@@ -380,11 +380,11 @@ export class Record extends Transactional implements Owner {
         }
     }
 
-    // TODO: make transaction brackets polymorphic
+    // Need to override it here, since begin/end transaction brackets are overriden. 
     transaction( fun : ( self : this ) => void, options : TransactionOptions = {} ) : void{
         const isRoot = begin( this );
         fun.call( this, this );
-        isRoot && commit( this, options );
+        isRoot && commit( this );
     }
     
     // Create transaction. TODO: Move to transaction constructor
@@ -427,13 +427,12 @@ export class Record extends Transactional implements Owner {
             log.error( '[Type Error]', this, 'Record update rejected (', values, '). Incompatible type.' );
         }
 
-        if( ( nested.length || changes.length ) && !options.silent ){
-            // Do not create transaction in silent mode.
+        if( ( nested.length || changes.length ) && markAsDirty( this, options ) ){
             return new RecordTransaction( this, isRoot, nested, changes );
         }
         
         // No changes
-        isRoot && commit( this, options );
+        isRoot && commit( this );
     }
 
     // Handle nested changes
@@ -446,11 +445,11 @@ export class Record extends Transactional implements Owner {
         // Touch an attribute in bounds of transaction
         const isRoot = begin( this );
 
-        markAsDirty( this );
+        if( markAsDirty( this, options ) ){
+            trigger3( this, 'change:' + key, this, this.attributes[ key ], options );
+        }
         
-        options.silent || trigger3( this, 'change:' + key, this, this.attributes[ key ], options );
-
-        isRoot && commit( this, options );
+        isRoot && commit( this );
     }
 
     // Returns owner without the key (usually it's collection)
@@ -484,9 +483,13 @@ function begin( record : Record ){
     return false;
 }
 
-function markAsDirty( record ){
-    _markAsDirty( record );
-    record._changedAttributes = null;
+function markAsDirty( record : Record, options : TransactionOptions ){
+    // Need to recalculate changed attributes, when we have nested set in change:attr handler
+    if( record._changedAttributes ){
+        record._changedAttributes = null;
+    }
+
+    return _markAsDirty( record, options );
 }
 
 // Deeply clone record attributes
@@ -513,8 +516,8 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
     if( spec.canBeUpdated( prev, value ) ) {
         const nestedTransaction = ( <Transactional> prev )._createTransaction( value, options );
         if( nestedTransaction ){
-            nestedTransaction.commit( options, true );
-            markAsDirty( record );
+            nestedTransaction.commit( true );
+            markAsDirty( record, options );
             trigger3( record, 'change:' + name, record, prev, options );
         }
     }
@@ -528,39 +531,39 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
             // Do the rest of the job after assignment
             spec.handleChange( next, prev, record );
 
-            markAsDirty( record );
+            markAsDirty( record, options );
             trigger3( record, 'change:' + name, record, next, options );
-
         }
     }
 
-    isRoot && commit( record, options );
+    isRoot && commit( record );
 }
 
 // Transaction class. Implements two-phase transactions on object's tree. 
+// Transaction must be created if there are actual changes and when markIsDirty returns true. 
 class RecordTransaction implements Transaction {
     // open transaction
-    constructor( public object : Record, public isRoot : boolean, public nested : Transaction[], public changes : string[] ){
-        markAsDirty( object );
-    }
+    constructor( public object : Record,
+                 public isRoot : boolean,
+                 public nested : Transaction[],
+                 public changes : string[] ){}
 
     // commit transaction
-    commit( options : TransactionOptions = {}, isNested? : boolean ) : void {
+    commit( isNested? : boolean ) : void {
         const { nested, object, changes } = this;
 
         // Commit all pending nested transactions...
         for( let transaction of nested ){ 
-            transaction.commit( options, true );
+            transaction.commit( true );
         }
 
         // Notify listeners on attribute changes...
-        if( !options.silent ){
-            const { attributes } = object;
-            for( let key of changes ){
-                trigger3( object, 'change:' + key, object, attributes[ key ], options );
-            }
+        // Transaction is never created when silent option is set, so just send events out.
+        const { attributes, _isDirty } = object;
+        for( let key of changes ){
+            trigger3( object, 'change:' + key, object, attributes[ key ], _isDirty );
         }
 
-        this.isRoot && commit( object, options, isNested ); // Do not tell parent to update.
+        this.isRoot && commit( object, isNested );
     }
 }
