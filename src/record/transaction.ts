@@ -243,13 +243,24 @@ export class Record extends Transactional implements Owner {
                 log.warn( '[Unknown Attribute]', this, 'Unknown record attribute "' + name + '" is ignored:', attrs );
             }
         }
+
+        // TODO: try this versus object traversal.
+        /*
+        const { _attributes, _keys } = this;
+        
+        for( let name of _keys ){
+            const spec = _attributes[ name ],
+                  value = attrs[ name ];
+
+            value && iteratee( value, name, spec );
+        }*/
     }
 
     each( iteratee : ( value? : any, key? : string ) => void, context? : any ){
         const fun = arguments.length === 2 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
-            { attributes } = this;
+            { attributes, _keys } = this;
 
-        for( const key in attributes ){
+        for( const key of _keys ){
             const value = attributes[ key ];
             if( value !== void 0 ) fun( value, key );
         }

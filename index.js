@@ -528,8 +528,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    };
 	    Record.prototype.each = function (iteratee, context) {
-	        var fun = arguments.length === 2 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, attributes = this.attributes;
-	        for (var key in attributes) {
+	        var fun = arguments.length === 2 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, _a = this, attributes = _a.attributes, _keys = _a._keys;
+	        for (var _i = 0, _keys_1 = _keys; _i < _keys_1.length; _i++) {
+	            var key = _keys_1[_i];
 	            var value = attributes[key];
 	            if (value !== void 0)
 	                fun(value, key);
