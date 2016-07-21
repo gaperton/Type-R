@@ -172,9 +172,7 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     // Apply bulk in-place object update in scope of ad-hoc transaction 
-    set( a_elements : Object[] | Object = [], options : TransactionOptions = {} ) : this {
-        const elements = Array.isArray( a_elements ) ? a_elements : [ a_elements ];
-        
+    set( elements : ElementsArg = [], options : TransactionOptions = {} ) : this {
         // Handle reset option here - no way it will be populated from the top as nested transaction. 
         if( options.reset ){
             this.reset( elements, options )
@@ -187,15 +185,12 @@ export class Collection extends Transactional implements CollectionCore {
         return this;    
     }
 
-    reset( a_elements : ( {} | Record )[], options : TransactionOptions = {} ) : Record[] {
+    reset( a_elements : ElementsArg, options : TransactionOptions = {} ) : Record[] {
         const previousModels = dispose( this );
 
         // Make all changes required, but be silent.
-        if( a_elements ){
-            let elements : Elements = Array.isArray( a_elements ) ? a_elements : [ a_elements ];
-            if( options.parse ) elements = this.parse( elements );
-            
-            emptySetTransaction( this, elements, options, true );
+        if( a_elements ){            
+            emptySetTransaction( this, toElements( this, a_elements, options ), options, true );
         }
 
         options.silent || trigger2( this, 'reset', this, defaults( { previousModels : previousModels }, options ) );
@@ -204,9 +199,8 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     // Add elements to collection.
-    add( something : Elements | {} | Record , options : TransactionOptions = {} ){
-        const parsed : Elements = options.parse ? this.parse( something ) : something,
-              elements : Elements =  Array.isArray( parsed ) ? parsed : [ parsed ],
+    add( a_elements : ElementsArg , options : TransactionOptions = {} ){
+        const elements = toElements( this, a_elements, options ),
               transaction = this.models.length ?
                     addTransaction( this, elements, options ) :
                     emptySetTransaction( this, elements, options );
@@ -230,8 +224,8 @@ export class Collection extends Transactional implements CollectionCore {
 
     // Apply bulk object update without any notifications, and return open transaction.
     // Used internally to implement two-phase commit.   
-    _createTransaction( a_elements : Elements, options : TransactionOptions = {} ) : CollectionTransaction {
-        const elements = options.parse ? this.parse( a_elements ) : a_elements;
+    _createTransaction( a_elements : ElementsArg, options : TransactionOptions = {} ) : CollectionTransaction {
+        const elements = toElements( this, a_elements, options );
 
         if( this.models.length ){
             return options.remove === false ?
@@ -304,6 +298,13 @@ export class Collection extends Transactional implements CollectionCore {
     modelId( attrs : {} ) : any {
         return attrs[ this.model.prototype.idAttribute ];
     }
+}
+
+type ElementsArg = Object | Record | Object[] | Record[];
+
+function toElements( collection : Collection, elements : ElementsArg, options : CollectionOptions ) : Elements {
+    const parsed = options.parse ? collection.parse( elements ) : elements; 
+    return Array.isArray( parsed ) ? parsed : [ parsed ];
 }
 
 const slice = Array.prototype.slice;

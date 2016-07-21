@@ -2145,10 +2145,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Collection.prototype.toJSON = function () {
 	        return this.models.map(function (model) { return model.toJSON(); });
 	    };
-	    Collection.prototype.set = function (a_elements, options) {
-	        if (a_elements === void 0) { a_elements = []; }
+	    Collection.prototype.set = function (elements, options) {
+	        if (elements === void 0) { elements = []; }
 	        if (options === void 0) { options = {}; }
-	        var elements = Array.isArray(a_elements) ? a_elements : [a_elements];
 	        if (options.reset) {
 	            this.reset(elements, options);
 	        }
@@ -2162,17 +2161,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (options === void 0) { options = {}; }
 	        var previousModels = commons_ts_1.dispose(this);
 	        if (a_elements) {
-	            var elements = Array.isArray(a_elements) ? a_elements : [a_elements];
-	            if (options.parse)
-	                elements = this.parse(elements);
-	            set_ts_1.emptySetTransaction(this, elements, options, true);
+	            set_ts_1.emptySetTransaction(this, toElements(this, a_elements, options), options, true);
 	        }
 	        options.silent || index_ts_1.trigger2(this, 'reset', this, index_ts_1.defaults({ previousModels: previousModels }, options));
 	        return this.models;
 	    };
-	    Collection.prototype.add = function (something, options) {
+	    Collection.prototype.add = function (a_elements, options) {
 	        if (options === void 0) { options = {}; }
-	        var parsed = options.parse ? this.parse(something) : something, elements = Array.isArray(parsed) ? parsed : [parsed], transaction = this.models.length ?
+	        var elements = toElements(this, a_elements, options), transaction = this.models.length ?
 	            add_ts_1.addTransaction(this, elements, options) :
 	            set_ts_1.emptySetTransaction(this, elements, options);
 	        if (transaction) {
@@ -2191,7 +2187,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Collection.prototype._createTransaction = function (a_elements, options) {
 	        if (options === void 0) { options = {}; }
-	        var elements = options.parse ? this.parse(a_elements) : a_elements;
+	        var elements = toElements(this, a_elements, options);
 	        if (this.models.length) {
 	            return options.remove === false ?
 	                add_ts_1.addTransaction(this, elements, options) :
@@ -2252,6 +2248,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return Collection;
 	}(transactions_ts_1.Transactional));
 	exports.Collection = Collection;
+	function toElements(collection, elements, options) {
+	    var parsed = options.parse ? collection.parse(elements) : elements;
+	    return Array.isArray(parsed) ? parsed : [parsed];
+	}
 	var slice = Array.prototype.slice;
 	index_ts_2.Record.Collection = Collection;
 

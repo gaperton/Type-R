@@ -775,7 +775,7 @@
         var c  = new Backbone.Collection( [ { id : 1 }, { id : 2 }, { id : 3 } ], {
             comparator : 'id'
         } );
-        c.sort = function(){ assert.ok( true ); };
+        c.on( 'sort', function(){ assert.ok( true ) });
         c.add( [] );
         c.add( { id : 1 } );
         c.add( [ { id : 2 }, { id : 3 } ] );
