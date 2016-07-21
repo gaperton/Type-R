@@ -100,7 +100,12 @@
 
     QUnit.test( "get with non-default ids", function( assert ){
         assert.expect( 5 );
-        var MongoModel = Backbone.Model.extend( { idAttribute : '_id' } );
+        var MongoModel = Backbone.Model.extend({
+            idAttribute : '_id',
+            attributes : {
+                _id : void 0 
+            }
+        });
         var model      = new MongoModel( { _id : 100 } );
         var col        = new Backbone.Collection( [ model ], { model : MongoModel } );
         assert.equal( col.get( 100 ), model );

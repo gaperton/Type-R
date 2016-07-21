@@ -2040,6 +2040,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _super.call(this, _count++);
 	        this.models = [];
 	        this._byId = {};
+	        this.model = options.model || this.model;
 	        this.idAttribute = this.model.prototype.idAttribute;
 	        this.comparator = options.comparator;
 	        if (records) {
@@ -2095,7 +2096,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	        isRoot && transactions_ts_1.commit(this);
 	    };
 	    Collection.prototype.get = function (objOrId) {
-	        return objOrId ? (this._byId[typeof objOrId === 'object' ? objOrId.cid || objOrId[this.idAttribute] : objOrId]) : null;
+	        if (objOrId == null)
+	            return null;
+	        var id;
+	        if (typeof objOrId === 'object') {
+	            id = objOrId[this.idAttribute];
+	            if (id === void 0)
+	                id = objOrId.cid;
+	        }
+	        else {
+	            id = objOrId;
+	        }
+	        return this._byId[id];
 	    };
 	    Collection.prototype.each = function (iteratee, context) {
 	        var fun = arguments.length === 2 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, models = this.models;
@@ -2122,6 +2134,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	    Collection.prototype.first = function () { return this.models[0]; };
 	    Collection.prototype.last = function () { return this.models[this.models.length - 1]; };
+	    Collection.prototype.at = function (a_index) {
+	        var index = a_index < 0 ? a_index + this.models.length : a_index;
+	        return this.models[index];
+	    };
 	    Collection.prototype.clone = function (owner) {
 	        return new this.constructor(this.models, { clone: true }, owner);
 	    };

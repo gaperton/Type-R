@@ -16,6 +16,7 @@ export type GenericComparator = string | ( ( x : Record ) => number ) | ( ( a : 
 
 interface CollectionOptions extends TransactionOptions {
     comparator? : GenericComparator
+    model? : typeof Record
 }
 
 @define({
@@ -85,9 +86,19 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     get( objOrId : string | Record | Object ) : Record {
-        return objOrId ? (
-            this._byId[ typeof objOrId === 'object' ? ( <Record> objOrId ).cid || objOrId[ this.idAttribute ] : objOrId ]
-        ) : null;
+        if( objOrId == null ) return null;
+
+        let id : string;
+
+        if( typeof objOrId === 'object' ){
+            id = objOrId[ this.idAttribute ];
+            if( id === void 0 ) id = (<Record>objOrId).cid;
+        }
+        else{
+            id = objOrId;
+        }
+
+        return this._byId[ id ];
     }
 
     each( iteratee : ( val : Record, key : number ) => void, context? : any ){
@@ -119,11 +130,11 @@ export class Collection extends Transactional implements CollectionCore {
     idAttribute : string
 
 
-    // TODO! Don't create transaction when silent options is true.
     constructor( records? : ( Record | {} )[], options : CollectionOptions = {} ){
         super( _count++ );
         this.models = [];
         this._byId = {};
+        this.model      = options.model || this.model;
         this.idAttribute = this.model.prototype.idAttribute;
         this.comparator = options.comparator;
 
@@ -139,7 +150,11 @@ export class Collection extends Transactional implements CollectionCore {
 
     get length() : number { return this.models.length; }
     first() : Record { return this.models[ 0 ]; }
-    last() : Record { return this.models[ this.models.length - 1 ]; } 
+    last() : Record { return this.models[ this.models.length - 1 ]; }
+    at( a_index : number ) : Record {
+        const index = a_index < 0 ? a_index + this.models.length : a_index;    
+        return this.models[ index ];
+    }
 
     // Deeply clone collection, optionally setting new owner.
     clone( owner? : any ) : this {
