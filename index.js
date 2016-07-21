@@ -1902,7 +1902,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    TransactionalType.prototype.handleChange = function (next, prev, record) {
 	        prev && transactions_ts_1.free(record, prev);
-	        next && transactions_ts_1.aquire(record, next);
+	        next && transactions_ts_1.aquire(record, next, this.name);
 	    };
 	    return TransactionalType;
 	}(attribute_ts_1.GenericAttribute));

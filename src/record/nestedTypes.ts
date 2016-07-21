@@ -21,7 +21,7 @@ export class TransactionalType extends GenericAttribute {
 
     handleChange( next : Transactional, prev : Transactional, record : Record ){
         prev && free( record, prev );
-        next && aquire( record, next );
+        next && aquire( record, next, this.name );
     }
 }
 
