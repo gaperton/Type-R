@@ -538,28 +538,6 @@
             JSON.parse('[{"id":3,"label":"a"},{"id":2,"label":"b"},{"id":1,"label":"c"},{"id":0,"label":"d"}]' ) );
     } );
 
-    QUnit.test( "where and findWhere", function( assert ){
-        assert.expect( 8 );
-        var M = Backbone.Model.defaults( { a : 1, b : null } );
-        var model = new M( { a : 1, b : null } );
-        var coll  = new M.Collection( [
-            model,
-            { a : 1 },
-            { a : 1, b : 2 },
-            { a : 2, b : 2 },
-            { a : 3 }
-        ] );
-        assert.equal( coll.where( { a : 1 } ).length, 3 );
-        assert.equal( coll.where( { a : 2 } ).length, 1 );
-        assert.equal( coll.where( { a : 3 } ).length, 1 );
-        assert.equal( coll.where( { b : 1 } ).length, 0 );
-        assert.equal( coll.where( { b : 2 } ).length, 2 );
-        assert.equal( coll.where( { a : 1, b : 2 } ).length, 1 );
-        assert.equal( coll.findWhere( { a : 1 } ), model );
-        assert.equal( coll.findWhere( { a : 4 } ), void 0 );
-    } );
-
-
     QUnit.test( "reset", function( assert ){
         assert.expect( 16 );
         var resetCount = 0;
@@ -763,25 +741,6 @@
         collection.comparator = function( model ){ return model.get( 'x' ); };
         collection.add( { id : 1, x : 3 }, { merge : true } );
         assert.deepEqual( collection.pluck( 'id' ), [ 2, 1 ] );
-    } );
-
-    QUnit.test( "#1655 - groupBy can be used with a string argument.", function( assert ){
-        assert.expect( 3 );
-        var collection = new (Backbone.Model.defaults( { x : 0 } ).Collection)( [ { x : 1 }, { x : 2 } ] );
-        var grouped    = collection.groupBy( 'x' );
-        assert.strictEqual( _.keys( grouped ).length, 2 );
-        assert.strictEqual( grouped[ 1 ][ 0 ].get( 'x' ), 1 );
-        assert.strictEqual( grouped[ 2 ][ 0 ].get( 'x' ), 2 );
-    } );
-
-    QUnit.test( "#1655 - sortBy can be used with a string argument.", function( assert ){
-        assert.expect( 1 );
-        var M = Backbone.Model.defaults({ x : 0 });
-        var collection = new M.Collection( [ { x : 3 }, { x : 1 }, { x : 2 } ] );
-        var values     = _.map( collection.sortBy( 'x' ), function( model ){
-            return model.get( 'x' );
-        } );
-        assert.deepEqual( values, [ 1, 2, 3 ] );
     } );
 
     QUnit.test( "#1638 - `sort` during `add` triggers correctly.", function( assert ){
@@ -1469,22 +1428,6 @@
         collection.set( [ { id : 1 }, { id : 2 } ] );
     } );
 
-    QUnit.test( "#3610 - invoke collects arguments", function( assert ){
-        assert.expect( 3 );
-        var Model      = Backbone.Model.extend( {
-            method : function( a, b, c ){
-                assert.equal( a, 1 );
-                assert.equal( b, 2 );
-                assert.equal( c, 3 );
-            }
-        } );
-        var Collection = Backbone.Collection.extend( {
-            model : Model
-        } );
-        var collection = new Collection( [ { id : 1 } ] );
-        collection.invoke( 'method', 1, 2, 3 );
-    } );
-
     QUnit.test( '#3662 - triggering change without model will not error', function( assert ){
         assert.expect( 1 );
         var collection = new Backbone.Collection( [ { id : 1 } ] );
@@ -1937,5 +1880,62 @@ QUnit.test( "#1939 - `parse` is passed `options`", function( assert ){
         assert.equal( coll.findLastIndex( { b : 1 } ), 3 );
         assert.equal( coll.findLastIndex( { b : 9 } ), -1 );
     } );
+
+    QUnit.test( "#1655 - groupBy can be used with a string argument.", function( assert ){
+        assert.expect( 3 );
+        var collection = new (Backbone.Model.defaults( { x : 0 } ).Collection)( [ { x : 1 }, { x : 2 } ] );
+        var grouped    = collection.groupBy( 'x' );
+        assert.strictEqual( _.keys( grouped ).length, 2 );
+        assert.strictEqual( grouped[ 1 ][ 0 ].get( 'x' ), 1 );
+        assert.strictEqual( grouped[ 2 ][ 0 ].get( 'x' ), 2 );
+    } );
+
+    QUnit.test( "#1655 - sortBy can be used with a string argument.", function( assert ){
+        assert.expect( 1 );
+        var M = Backbone.Model.defaults({ x : 0 });
+        var collection = new M.Collection( [ { x : 3 }, { x : 1 }, { x : 2 } ] );
+        var values     = _.map( collection.sortBy( 'x' ), function( model ){
+            return model.get( 'x' );
+        } );
+        assert.deepEqual( values, [ 1, 2, 3 ] );
+    } );
+
+    QUnit.test( "#3610 - invoke collects arguments", function( assert ){
+        assert.expect( 3 );
+        var Model      = Backbone.Model.extend( {
+            method : function( a, b, c ){
+                assert.equal( a, 1 );
+                assert.equal( b, 2 );
+                assert.equal( c, 3 );
+            }
+        } );
+        var Collection = Backbone.Collection.extend( {
+            model : Model
+        } );
+        var collection = new Collection( [ { id : 1 } ] );
+        collection.invoke( 'method', 1, 2, 3 );
+    } );
+
+    QUnit.test( "where and findWhere", function( assert ){
+        assert.expect( 8 );
+        var M = Backbone.Model.defaults( { a : 1, b : null } );
+        var model = new M( { a : 1, b : null } );
+        var coll  = new M.Collection( [
+            model,
+            { a : 1 },
+            { a : 1, b : 2 },
+            { a : 2, b : 2 },
+            { a : 3 }
+        ] );
+        assert.equal( coll.where( { a : 1 } ).length, 3 );
+        assert.equal( coll.where( { a : 2 } ).length, 1 );
+        assert.equal( coll.where( { a : 3 } ).length, 1 );
+        assert.equal( coll.where( { b : 1 } ).length, 0 );
+        assert.equal( coll.where( { b : 2 } ).length, 2 );
+        assert.equal( coll.where( { a : 1, b : 2 } ).length, 1 );
+        assert.equal( coll.findWhere( { a : 1 } ), model );
+        assert.equal( coll.findWhere( { a : 4 } ), void 0 );
+    } );
+
 
 })();

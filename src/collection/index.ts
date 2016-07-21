@@ -50,13 +50,13 @@ export class Collection extends Transactional implements CollectionCore {
             case 'function' :
                 if( x.length === 1 ){
                     this._comparator = ( a, b ) => {
-                        const aa = (<any>x)( a ), bb = (<any>x)( b );
+                        const aa = (<any>x).call( this, a ), bb = (<any>x).call( this, b );
                         if( aa === bb ) return 0;
                         return aa < bb ? -1 : + 1;
                     }
                 }
                 else{
-                    this._comparator = <Comparator> x;
+                    this._comparator = ( a, b ) => (<any>x).call( this, a, b );
                 }
                 break;
                 
@@ -279,16 +279,21 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     // Remove a model from the beginning of the collection.
-    shift(options) {
+    shift( options? : CollectionOptions ) : Record {
       var model = this.at(0);
-      this.remove(model, options);
+      this.remove( model, options );
       return model;
     }
 
     // Slice out a sub-array of models from the collection.
-    slice() {
+    slice() : Record[] {
       return slice.apply(this.models, arguments);
-    } 
+    }
+
+    indexOf( modelOrId : any ) : number {
+        const record = this.get( modelOrId );
+        return this.models.indexOf( record );
+    }  
 }
 
 const slice = Array.prototype.slice;

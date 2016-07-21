@@ -2048,6 +2048,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Object.defineProperty(Collection.prototype, "comparator", {
 	        get: function () { return this._comparator; },
 	        set: function (x) {
+	            var _this = this;
 	            var compare;
 	            switch (typeof x) {
 	                case 'string':
@@ -2061,14 +2062,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	                case 'function':
 	                    if (x.length === 1) {
 	                        this._comparator = function (a, b) {
-	                            var aa = x(a), bb = x(b);
+	                            var aa = x.call(_this, a), bb = x.call(_this, b);
 	                            if (aa === bb)
 	                                return 0;
 	                            return aa < bb ? -1 : +1;
 	                        };
 	                    }
 	                    else {
-	                        this._comparator = x;
+	                        this._comparator = function (a, b) { return x.call(_this, a, b); };
 	                    }
 	                    break;
 	                default:
@@ -2228,6 +2229,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Collection.prototype.slice = function () {
 	        return slice.apply(this.models, arguments);
 	    };
+	    Collection.prototype.indexOf = function (modelOrId) {
+	        var record = this.get(modelOrId);
+	        return this.models.indexOf(record);
+	    };
 	    Collection._attribute = index_ts_2.TransactionalType;
 	    Collection = __decorate([
 	        index_ts_1.define({
@@ -2293,7 +2298,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function sortElements(collection, options) {
 	    var _comparator = collection._comparator;
 	    if (_comparator && options.sort !== false) {
-	        collection.models.sort(function (a, b) { return _comparator.call(collection, a, b); });
+	        collection.models.sort(_comparator);
 	        return true;
 	    }
 	    return false;

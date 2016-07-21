@@ -72,7 +72,7 @@ export function freeAll( collection : CollectionCore, children : Record[] ) : Re
 export function sortElements( collection : CollectionCore, options : CollectionOptions ) : boolean {
     let { _comparator } = collection;
     if( _comparator && options.sort !== false ){
-        collection.models.sort( ( a, b ) => _comparator.call( collection, a, b ) )
+        collection.models.sort( _comparator );
         return true;
     }
 
