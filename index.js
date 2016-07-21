@@ -2142,8 +2142,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Collection.prototype.toJSON = function () {
 	        return this.models.map(function (model) { return model.toJSON(); });
 	    };
-	    Collection.prototype.set = function (elements, options) {
+	    Collection.prototype.set = function (a_elements, options) {
+	        if (a_elements === void 0) { a_elements = []; }
 	        if (options === void 0) { options = {}; }
+	        var elements = Array.isArray(a_elements) ? a_elements : [a_elements];
 	        if (options.reset) {
 	            this.reset(elements, options);
 	        }
@@ -2157,7 +2159,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (options === void 0) { options = {}; }
 	        var previousModels = commons_ts_1.dispose(this);
 	        if (a_elements) {
-	            var elements = options.parse ? this.parse(a_elements) : a_elements;
+	            var elements = Array.isArray(a_elements) ? a_elements : [a_elements];
+	            if (options.parse)
+	                elements = this.parse(elements);
 	            set_ts_1.emptySetTransaction(this, elements, options, true);
 	        }
 	        options.silent || index_ts_1.trigger2(this, 'reset', this, index_ts_1.defaults({ previousModels: previousModels }, options));
@@ -2232,7 +2236,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Collection = __decorate([
 	        index_ts_1.define({
 	            cidPrefix: 'c',
-	            model: index_ts_2.Record
+	            model: index_ts_2.Record,
+	            _changeEventName: 'changes'
 	        })
 	    ], Collection);
 	    return Collection;
@@ -2536,12 +2541,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var isRoot = transactions_ts_1.begin(collection);
 	        _reallocate(collection, removed.length);
 	        if (transactions_ts_1.markAsDirty(collection, options)) {
-	            var transaction = new commons_ts_1.CollectionTransaction(collection, isRoot, null, removed, null, false);
+	            var transaction = new commons_ts_1.CollectionTransaction(collection, isRoot, [], removed, [], false);
 	            transaction.commit();
 	        }
-	        isRoot && transactions_ts_1.commit(collection);
-	        return removed;
+	        else {
+	            isRoot && transactions_ts_1.commit(collection);
+	        }
 	    }
+	    return removed;
 	}
 	exports.removeMany = removeMany;
 	;

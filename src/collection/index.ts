@@ -22,7 +22,8 @@ interface CollectionOptions extends TransactionOptions {
 @define({
     // Default client id prefix 
     cidPrefix : 'c',
-    model : Record
+    model : Record,
+    _changeEventName : 'changes' 
 })
 export class Collection extends Transactional implements CollectionCore {
     static predefine() : typeof Collection { return this; }
@@ -167,7 +168,9 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     // Apply bulk in-place object update in scope of ad-hoc transaction 
-    set( elements : ( {} | Record )[], options : TransactionOptions = {} ) : this {
+    set( a_elements : Object[] | Object = [], options : TransactionOptions = {} ) : this {
+        const elements = Array.isArray( a_elements ) ? a_elements : [ a_elements ];
+        
         // Handle reset option here - no way it will be populated from the top as nested transaction. 
         if( options.reset ){
             this.reset( elements, options )
@@ -185,7 +188,9 @@ export class Collection extends Transactional implements CollectionCore {
 
         // Make all changes required, but be silent.
         if( a_elements ){
-            const elements : Elements = options.parse ? this.parse( a_elements ) : a_elements;
+            let elements : Elements = Array.isArray( a_elements ) ? a_elements : [ a_elements ];
+            if( options.parse ) elements = this.parse( elements );
+            
             emptySetTransaction( this, elements, options, true );
         }
 

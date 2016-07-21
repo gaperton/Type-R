@@ -56,15 +56,16 @@ export function removeMany( collection : CollectionCore, toRemove : any[], optio
         _reallocate( collection, removed.length );
 
         if( markAsDirty( collection, options ) ){
-            const transaction = new CollectionTransaction( collection, isRoot, null, removed, null, false );
+            const transaction = new CollectionTransaction( collection, isRoot, [], removed, [], false );
             transaction.commit();
         }
-
-        // Commit transaction.
-        isRoot && commit( collection );
-
-        return removed;
+        else{
+            // Commit transaction.
+            isRoot && commit( collection );
+        }
     }
+
+    return removed;
 };
 
 // remove models from the index...

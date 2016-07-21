@@ -11,7 +11,7 @@ export type TransactionalConstructor = ExtendableConstructor< Transactional >;
 
 // Transactional object interface
 @define({
-    _changeEventName : 'change'
+    _changeEventName : 'change' // TODO: move to record.
 })
 export abstract class Transactional extends Messenger implements Validatable, Traversable {
     // Unique version token replaced on change

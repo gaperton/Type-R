@@ -441,7 +441,9 @@
         var counter = 0;
         var dj      = new M();
         var emcees  = new M.Collection( [ dj ] );
-        emcees.on( 'change', function(){ counter++; } );
+        emcees.on( 'change', function(){
+            counter++;
+        } );
         dj.set( { name : 'Kool' } );
         assert.equal( counter, 1 );
         emcees.reset( [] );
@@ -549,77 +551,6 @@
         assert.equal( coll.findWhere( { a : 4 } ), void 0 );
     } );
 
-    QUnit.test( "Underscore methods", function( assert ){
-        assert.expect( 21 );
-        assert.equal( col.map( function( model ){ return model.get( 'label' ); } ).join( ' ' ), 'a b c d' );
-        assert.equal( col.some( function( model ){ return model.id === 100; } ), false );
-        assert.equal( col.some( function( model ){ return model.id === 0; } ), true );
-        assert.equal( col.reduce( function( a, b ){return a.id > b.id ? a : b} ).id, 3 );
-        assert.equal( col.reduceRight( function( a, b ){return a.id > b.id ? a : b} ).id, 3 );
-        assert.equal( col.indexOf( b ), 1 );
-        assert.equal( col.size(), 4 );
-        assert.equal( col.rest().length, 3 );
-        assert.ok( !_.includes( col.rest(), a ) );
-        assert.ok( _.includes( col.rest(), d ) );
-        assert.ok( !col.isEmpty() );
-        assert.ok( !_.includes( col.without( d ), d ) );
-
-        var wrapped = col.chain();
-        assert.equal( wrapped.map( 'id' ).max().value(), 3 );
-        assert.equal( wrapped.map( 'id' ).min().value(), 0 );
-        assert.deepEqual( wrapped
-            .filter( function( o ){ return o.id % 2 === 0; } )
-            .map( function( o ){ return o.id * 2; } )
-            .value(),
-            [ 4, 0 ] );
-        assert.deepEqual( col.difference( [ c, d ] ), [ a, b ] );
-        assert.ok( col.includes( col.sample() ) );
-        var first = col.first();
-        assert.deepEqual( col.groupBy( function( model ){ return model.id; } )[ first.id ], [ first ] );
-        assert.deepEqual( col.countBy( function( model ){ return model.id; } ), { 0 : 1, 1 : 1, 2 : 1, 3 : 1 } );
-        assert.deepEqual( col.sortBy( function( model ){ return model.id; } )[ 0 ], col.at( 3 ) );
-        assert.ok( col.indexBy( 'id' )[ first.id ] === first );
-    } );
-
-    QUnit.test( "Underscore methods with object-style and property-style iteratee", function( assert ){
-        assert.expect( 26 );
-
-        var M = Backbone.Model.defaults( { a : 1, b : undefined, e: undefined, c: undefined } );
-
-        var model = new M( { a : 4, b : 1, e : 3 } );
-        var coll  = new M.Collection( [
-            { a : 1, b : 1 },
-            { a : 2, b : 1, c : 1 },
-            { a : 3, b : 1 },
-            model
-        ] );
-        assert.equal( coll.find( { a : 0 } ), undefined );
-        assert.deepEqual( coll.find( { a : 4 } ), model );
-        assert.equal( coll.find( 'd' ), undefined );
-        assert.deepEqual( coll.find( 'e' ), model );
-        assert.equal( coll.filter( { a : 0 } ), false );
-        assert.deepEqual( coll.filter( { a : 4 } ), [ model ] );
-        assert.equal( coll.some( { a : 0 } ), false );
-        assert.equal( coll.some( { a : 1 } ), true );
-        assert.equal( coll.reject( { a : 0 } ).length, 4 );
-        assert.deepEqual( coll.reject( { a : 4 } ), _.without( coll.models, model ) );
-        assert.equal( coll.every( { a : 0 } ), false );
-        assert.equal( coll.every( { b : 1 } ), true );
-        assert.deepEqual( coll.partition( { a : 0 } )[ 0 ], [] );
-        assert.deepEqual( coll.partition( { a : 0 } )[ 1 ], coll.models );
-        assert.deepEqual( coll.partition( { a : 4 } )[ 0 ], [ model ] );
-        assert.deepEqual( coll.partition( { a : 4 } )[ 1 ], _.without( coll.models, model ) );
-        assert.deepEqual( coll.map( { a : 2 } ), [ false, true, false, false ] );
-        assert.deepEqual( coll.map( 'a' ), [ 1, 2, 3, 4 ] );
-        assert.deepEqual( coll.sortBy( 'a' )[ 3 ], model );
-        assert.deepEqual( coll.sortBy( 'e' )[ 0 ], model );
-        assert.deepEqual( coll.countBy( { a : 4 } ), { 'false' : 3, 'true' : 1 } );
-        assert.deepEqual( coll.countBy( 'd' ), { 'undefined' : 4 } );
-        assert.equal( coll.findIndex( { b : 1 } ), 0 );
-        assert.equal( coll.findIndex( { b : 9 } ), -1 );
-        assert.equal( coll.findLastIndex( { b : 1 } ), 3 );
-        assert.equal( coll.findLastIndex( { b : 9 } ), -1 );
-    } );
 
     QUnit.test( "reset", function( assert ){
         assert.expect( 16 );
@@ -1908,4 +1839,90 @@ QUnit.test( "#1939 - `parse` is passed `options`", function( assert ){
         } );
         collection.add( {}, { at : 0 } );
     } );
+
+    QUnit.module( "Backbone.Collection.Underscore", {
+
+        beforeEach : function( assert ){
+            a        = new M( { id : 3, label : 'a' } );
+            b        = new M( { id : 2, label : 'b' } );
+            c        = new M( { id : 1, label : 'c' } );
+            d        = new M( { id : 0, label : 'd' } );
+            e        = null;
+            col      = new M.Collection( [ a, b, c, d ] );
+            otherCol = new M.Collection();
+        }
+    } );
+
+    QUnit.test( "Underscore methods", function( assert ){
+        assert.expect( 21 );
+        assert.equal( col.map( function( model ){ return model.get( 'label' ); } ).join( ' ' ), 'a b c d' );
+        assert.equal( col.some( function( model ){ return model.id === 100; } ), false );
+        assert.equal( col.some( function( model ){ return model.id === 0; } ), true );
+        assert.equal( col.reduce( function( a, b ){return a.id > b.id ? a : b} ).id, 3 );
+        assert.equal( col.reduceRight( function( a, b ){return a.id > b.id ? a : b} ).id, 3 );
+        assert.equal( col.indexOf( b ), 1 );
+        assert.equal( col.size(), 4 );
+        assert.equal( col.rest().length, 3 );
+        assert.ok( !_.includes( col.rest(), a ) );
+        assert.ok( _.includes( col.rest(), d ) );
+        assert.ok( !col.isEmpty() );
+        assert.ok( !_.includes( col.without( d ), d ) );
+
+        var wrapped = col.chain();
+        assert.equal( wrapped.map( 'id' ).max().value(), 3 );
+        assert.equal( wrapped.map( 'id' ).min().value(), 0 );
+        assert.deepEqual( wrapped
+            .filter( function( o ){ return o.id % 2 === 0; } )
+            .map( function( o ){ return o.id * 2; } )
+            .value(),
+            [ 4, 0 ] );
+        assert.deepEqual( col.difference( [ c, d ] ), [ a, b ] );
+        assert.ok( col.includes( col.sample() ) );
+        var first = col.first();
+        assert.deepEqual( col.groupBy( function( model ){ return model.id; } )[ first.id ], [ first ] );
+        assert.deepEqual( col.countBy( function( model ){ return model.id; } ), { 0 : 1, 1 : 1, 2 : 1, 3 : 1 } );
+        assert.deepEqual( col.sortBy( function( model ){ return model.id; } )[ 0 ], col.at( 3 ) );
+        assert.ok( col.indexBy( 'id' )[ first.id ] === first );
+    } );
+
+    QUnit.test( "Underscore methods with object-style and property-style iteratee", function( assert ){
+        assert.expect( 26 );
+
+        var M = Backbone.Model.defaults( { a : 1, b : undefined, e: undefined, c: undefined } );
+
+        var model = new M( { a : 4, b : 1, e : 3 } );
+        var coll  = new M.Collection( [
+            { a : 1, b : 1 },
+            { a : 2, b : 1, c : 1 },
+            { a : 3, b : 1 },
+            model
+        ] );
+        assert.equal( coll.find( { a : 0 } ), undefined );
+        assert.deepEqual( coll.find( { a : 4 } ), model );
+        assert.equal( coll.find( 'd' ), undefined );
+        assert.deepEqual( coll.find( 'e' ), model );
+        assert.equal( coll.filter( { a : 0 } ), false );
+        assert.deepEqual( coll.filter( { a : 4 } ), [ model ] );
+        assert.equal( coll.some( { a : 0 } ), false );
+        assert.equal( coll.some( { a : 1 } ), true );
+        assert.equal( coll.reject( { a : 0 } ).length, 4 );
+        assert.deepEqual( coll.reject( { a : 4 } ), _.without( coll.models, model ) );
+        assert.equal( coll.every( { a : 0 } ), false );
+        assert.equal( coll.every( { b : 1 } ), true );
+        assert.deepEqual( coll.partition( { a : 0 } )[ 0 ], [] );
+        assert.deepEqual( coll.partition( { a : 0 } )[ 1 ], coll.models );
+        assert.deepEqual( coll.partition( { a : 4 } )[ 0 ], [ model ] );
+        assert.deepEqual( coll.partition( { a : 4 } )[ 1 ], _.without( coll.models, model ) );
+        assert.deepEqual( coll.map( { a : 2 } ), [ false, true, false, false ] );
+        assert.deepEqual( coll.map( 'a' ), [ 1, 2, 3, 4 ] );
+        assert.deepEqual( coll.sortBy( 'a' )[ 3 ], model );
+        assert.deepEqual( coll.sortBy( 'e' )[ 0 ], model );
+        assert.deepEqual( coll.countBy( { a : 4 } ), { 'false' : 3, 'true' : 1 } );
+        assert.deepEqual( coll.countBy( 'd' ), { 'undefined' : 4 } );
+        assert.equal( coll.findIndex( { b : 1 } ), 0 );
+        assert.equal( coll.findIndex( { b : 9 } ), -1 );
+        assert.equal( coll.findLastIndex( { b : 1 } ), 3 );
+        assert.equal( coll.findLastIndex( { b : 9 } ), -1 );
+    } );
+
 })();
