@@ -127,8 +127,14 @@
 
     QUnit.test( "update index when id changes", function( assert ){
         assert.expect( 4 );
-        var Model = Backbone.Model.defaults( {
-            name : String
+        var Model = Backbone.Model.extend( {
+            attributes : {
+                name : String
+            },
+
+            collection : {
+                bubbleEvents : [ 'change:name' ]
+            }
         } );
 
         var col = new Model.Collection();
@@ -138,7 +144,9 @@
         ] );
         var one = col.get( 0 );
         assert.equal( one.get( 'name' ), 'one' );
-        col.on( 'change:name', function( model ){ assert.ok( this.get( model ) ); } );
+        col.on( 'change:name', function( model ){
+            assert.ok( this.get( model ) );
+        } );
         one.set( { name : 'dalmatians', id : 101 } );
         assert.equal( col.get( 0 ), null );
         assert.equal( col.get( 101 ).get( 'name' ), 'dalmatians' );

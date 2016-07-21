@@ -2094,16 +2094,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Collection.prototype.get = function (objOrId) {
 	        if (objOrId == null)
 	            return null;
-	        var id;
 	        if (typeof objOrId === 'object') {
-	            id = objOrId[this.idAttribute];
-	            if (id === void 0)
-	                id = objOrId.cid;
+	            var id = objOrId[this.idAttribute];
+	            return (id !== void 0 && this._byId[id]) || this._byId[objOrId.cid];
 	        }
 	        else {
-	            id = objOrId;
+	            return this._byId[objOrId];
 	        }
-	        return this._byId[id];
 	    };
 	    Collection.prototype.each = function (iteratee, context) {
 	        var fun = arguments.length === 2 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, models = this.models;
@@ -2429,7 +2426,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        else {
 	            model = commons_ts_1.toModel(collection, item, a_options);
 	            models.push(model);
-	            transactions_ts_1.aquire(collection, model);
+	            commons_ts_1.aquire(collection, model);
 	            commons_ts_1.addIndex(_byId, model);
 	        }
 	    }
@@ -2479,7 +2476,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var record = previous_1[_i];
 	        if (!_byId[record.cid]) {
 	            removed.push(record);
-	            transactions_ts_1.free(collection, record);
+	            commons_ts_1.free(collection, record);
 	        }
 	    }
 	    return removed;
@@ -2503,7 +2500,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        else {
 	            model = commons_ts_1.toModel(collection, item, options);
-	            transactions_ts_1.aquire(collection, model);
+	            commons_ts_1.aquire(collection, model);
 	            toAdd.push(model);
 	        }
 	        models[j++] = model;
@@ -2522,7 +2519,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            continue;
 	        }
 	        var model = commons_ts_1.toModel(self, src, options);
-	        transactions_ts_1.aquire(self, model);
+	        commons_ts_1.aquire(self, model);
 	        models[j++] = model;
 	        commons_ts_1.addIndex(_byId, model);
 	    }
@@ -2550,7 +2547,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (notify) {
 	            index_ts_1.trigger3(collection, 'remove', model, collection, options);
 	        }
-	        transactions_ts_1.free(collection, model);
+	        commons_ts_1.free(collection, model);
 	        notify && index_ts_1.trigger2(collection, 'update', collection, options);
 	        isRoot && transactions_ts_1.commit(collection);
 	        return model;
@@ -2582,7 +2579,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (model) {
 	            removed[j++] = model;
 	            commons_ts_1.removeIndex(_byId, model);
-	            transactions_ts_1.free(collection, model);
+	            commons_ts_1.free(collection, model);
 	        }
 	    }
 	    removed.length = j;

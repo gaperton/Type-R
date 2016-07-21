@@ -89,17 +89,13 @@ export class Collection extends Transactional implements CollectionCore {
     get( objOrId : string | Record | Object ) : Record {
         if( objOrId == null ) return null;
 
-        let id : string;
-
         if( typeof objOrId === 'object' ){
-            id = objOrId[ this.idAttribute ];
-            if( id === void 0 ) id = (<Record>objOrId).cid;
+            const id = objOrId[ this.idAttribute ];
+            return ( id !== void 0 && this._byId[ id ] ) || this._byId[ (<Record>objOrId).cid ];
         }
         else{
-            id = objOrId;
-        }
-
-        return this._byId[ id ];
+            return this._byId[ objOrId ];
+        }        
     }
 
     each( iteratee : ( val : Record, key : number ) => void, context? : any ){

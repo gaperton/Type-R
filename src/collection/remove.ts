@@ -9,9 +9,9 @@
  */
 
 import { Record } from '../record/index.ts'
-import { CollectionCore, CollectionTransaction, removeIndex } from './commons.ts'
+import { free, CollectionCore, CollectionTransaction, removeIndex } from './commons.ts'
 import { trigger2, trigger3 } from '../objectplus/index.ts'
-import { free, TransactionOptions, markAsDirty, begin, commit } from '../transactions.ts' 
+import { TransactionOptions, markAsDirty, begin, commit } from '../transactions.ts' 
 
 export function removeOne( collection : CollectionCore, el : Record | {} | string, options : TransactionOptions ) : Record {
     var model : Record = collection.get( el );

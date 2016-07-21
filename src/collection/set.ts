@@ -1,5 +1,5 @@
-import { Transaction, begin, commit, markAsDirty, aquire, free } from '../transactions.ts'
-import { CollectionTransaction, IdIndex, sortElements, CollectionOptions, toModel, addIndex, CollectionCore, Elements, freeAll } from './commons.ts'
+import { Transaction, begin, commit, markAsDirty } from '../transactions.ts'
+import { CollectionTransaction, IdIndex, aquire, free, sortElements, CollectionOptions, toModel, addIndex, CollectionCore, Elements, freeAll } from './commons.ts'
 import { Record } from '../record/index.ts'
 
 /*******
