@@ -1,4 +1,4 @@
-import { define, assign, Class, ClassDefinition, defaults, trigger2 } from '../objectplus/index.ts'
+import { define, log, assign, Class, ClassDefinition, defaults, trigger2 } from '../objectplus/index.ts'
 import { begin, commit, markAsDirty, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 import { Record, TransactionalType } from '../record/index.ts'
 
@@ -173,7 +173,11 @@ export class Collection extends Transactional implements CollectionCore {
 
     // Apply bulk in-place object update in scope of ad-hoc transaction 
     set( elements : ElementsArg = [], options : TransactionOptions = {} ) : this {
-        // Handle reset option here - no way it will be populated from the top as nested transaction. 
+        if( (<any>options).add !== void 0 ){
+            log.error("Collection.set doesn't support 'add' option, behaving as if options.add === true.");
+        }
+
+        // Handle reset option here - no way it will be populated from the top as nested transaction.
         if( options.reset ){
             this.reset( elements, options )
         }

@@ -1284,14 +1284,6 @@
         assert.equal( c.models.length, 1 );
     } );
 
-    QUnit.test( '#3020: #set with {add: false} should not throw.', function( assert ){
-        assert.expect( 2 );
-        var collection = new Backbone.Collection;
-        collection.set( [ { id : 1 } ], { add : false } );
-        assert.strictEqual( collection.length, 0 );
-        assert.strictEqual( collection.models.length, 0 );
-    } );
-
     QUnit.test( "modelId", function( assert ){
         var Stooge           = Backbone.Model.extend();
         var StoogeCollection = Backbone.Collection.extend( { model : Stooge } );

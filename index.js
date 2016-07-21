@@ -2174,6 +2174,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Collection.prototype.set = function (elements, options) {
 	        if (elements === void 0) { elements = []; }
 	        if (options === void 0) { options = {}; }
+	        if (options.add !== void 0) {
+	            index_ts_1.log.error("Collection.set doesn't support 'add' option, behaving as if options.add === true.");
+	        }
 	        if (options.reset) {
 	            this.reset(elements, options);
 	        }
