@@ -87,7 +87,7 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     get( objOrId : string | Record | Object ) : Record {
-        if( objOrId == null ) return null;
+        if( objOrId == null ) return;
 
         if( typeof objOrId === 'object' ){
             const id = objOrId[ this.idAttribute ];

@@ -2099,7 +2099,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Collection.prototype.get = function (objOrId) {
 	        if (objOrId == null)
-	            return null;
+	            return;
 	        if (typeof objOrId === 'object') {
 	            var id = objOrId[this.idAttribute];
 	            return (id !== void 0 && this._byId[id]) || this._byId[objOrId.cid];
