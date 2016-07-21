@@ -17,7 +17,8 @@ export function emptySetTransaction( collection : CollectionCore, items : Elemen
         const needSort = sortElements( collection, options );
 
         if( markAsDirty( collection, silent ? silentOptions : options ) ){
-            return new CollectionTransaction( collection, isRoot, added, [], [], needSort );
+            // 'added' is the reference to this.models. Need to copy it.
+            return new CollectionTransaction( collection, isRoot, added.slice(), [], [], needSort );
         }
     }
 
@@ -42,7 +43,7 @@ export function setTransaction( collection, items, options ){
           needSort = addedOrChanged && sortElements( collection, options );
 
     if( addedOrChanged || removed.length ){
-        if( markAsDirty( collection, options ) ){
+        if( markAsDirty( collection, options ) ){ 
             return new CollectionTransaction( collection, isRoot, added, removed, nested, needSort );
         }
     }

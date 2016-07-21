@@ -2463,7 +2463,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (added.length) {
 	        var needSort = commons_ts_1.sortElements(collection, options);
 	        if (transactions_ts_1.markAsDirty(collection, silent ? silentOptions : options)) {
-	            return new commons_ts_1.CollectionTransaction(collection, isRoot, added, [], [], needSort);
+	            return new commons_ts_1.CollectionTransaction(collection, isRoot, added.slice(), [], [], needSort);
 	        }
 	    }
 	    isRoot && transactions_ts_1.commit(collection);
