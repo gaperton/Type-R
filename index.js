@@ -2038,7 +2038,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this._byId = {};
 	        this.model = options.model || this.model;
 	        this.idAttribute = this.model.prototype.idAttribute;
-	        if (options.comparator) {
+	        if (options.comparator !== void 0) {
 	            this.comparator = options.comparator;
 	        }
 	        else {
