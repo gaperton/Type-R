@@ -40,11 +40,11 @@ export function setTransaction( collection, items, options ){
                     ) : [];                    
     
     const addedOrChanged = nested.length || added.length,
-          needSort = addedOrChanged && sortElements( collection, options );
+          sorted = ( addedOrChanged && sortElements( collection, options ) ) || options.sorted;
 
-    if( addedOrChanged || removed.length ){
+    if( addedOrChanged || removed.length || sorted ){
         if( markAsDirty( collection, options ) ){ 
-            return new CollectionTransaction( collection, isRoot, added, removed, nested, needSort );
+            return new CollectionTransaction( collection, isRoot, added, removed, nested, sorted );
         }
     }
 
@@ -69,13 +69,15 @@ function _garbageCollect( collection : CollectionCore, previous : Record[] ) : R
 }
 
 // reallocate model and index
-function _reallocate( collection : CollectionCore, source, nested : Transaction[], options ){
+function _reallocate( collection : CollectionCore, source : any[], nested : Transaction[], options ){
     var models      = Array( source.length ),
         _byId : IdIndex = {},
         merge       = options.merge == null ? true : options.merge,
         _prevById   = collection._byId,
+        prevModels  = collection.models, 
         idAttribute = collection.model.prototype.idAttribute,
-        toAdd       = [];
+        toAdd       = [],
+        orderKept   = true;
 
     // for each item in source set...
     for( var i = 0, j = 0; i < source.length; i++ ){
@@ -93,6 +95,8 @@ function _reallocate( collection : CollectionCore, source, nested : Transaction[
 
         if( model ){
             if( merge && item !== model ){
+                if( orderKept && prevModels[ j ] !== model ) orderKept = false;
+
                 var attrs = item.attributes || item;
                 const transaction = model._createTransaction( attrs, options );
                 transaction && nested.push( transaction );
@@ -111,6 +115,8 @@ function _reallocate( collection : CollectionCore, source, nested : Transaction[
     models.length = j;
     collection.models   = models;
     collection._byId    = _byId;
+
+    if( !orderKept ) options.sorted = true;
 
     return toAdd;
 }

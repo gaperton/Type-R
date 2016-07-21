@@ -35,3 +35,4 @@ Because we can.
 - model `change:attr` events are not bubbled up by collection by default. Manual `bubbleEvents` spec is required. Performance reasons.
 - Collection doesn't have `_addReference` and `_removeReference` callbacks. Impossible to implement efficiently. Use 'add' and 'remove' events instead.
 - Collection's `add` options is not supported. Period.
+- Collection doesn't set options.at options when firing `add` event. No way, dude.

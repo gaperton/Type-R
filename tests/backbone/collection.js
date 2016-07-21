@@ -1349,15 +1349,6 @@
         assert.ok( Abstract.create );
     } );
 
-    QUnit.test( "#3039: adding at index fires with correct at", function( assert ){
-        assert.expect( 3 );
-        var col = new (Backbone.Model.defaults({ at : 0 }).Collection)( [ { at : 0 }, { at : 4 } ] );
-        col.on( 'add', function( model, col, options ){
-            assert.equal( model.get( 'at' ), options.index );
-        } );
-        col.add( [ { at : 1 }, { at : 2 }, { at : 3 } ], { at : 1 } );
-    } );
-
     QUnit.test( "#3039: index is not sent when at is not specified", function( assert ){
         assert.expect( 2 );
         var col = new Backbone.Collection( [ { at : 0 } ] );
@@ -1368,7 +1359,7 @@
     } );
 
     QUnit.test( '#3199 - Order changing should trigger a sort', function( assert ){
-        assert.expect( 1 );
+        assert.expect( 2 );
         var one        = new Backbone.Model( { id : 1 } );
         var two        = new Backbone.Model( { id : 2 } );
         var three      = new Backbone.Model( { id : 3 } );
@@ -1377,6 +1368,9 @@
             assert.ok( true );
         } );
         collection.set( [ { id : 3 }, { id : 2 }, { id : 1 } ] );
+        collection.set( [ { id : 3 }, { id : 2 }, { id : 1 } ] );
+        collection.set( [ { id : 3 }, { id : 1 }, { id : 2 } ] );
+        collection.set( [ { id : 3 }, { id : 1 }, { id : 2 } ] );
     } );
 
     QUnit.test( '#3199 - Adding a model should trigger a sort', function( assert ){

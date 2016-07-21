@@ -2499,10 +2499,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var previous = collection.models, added = _reallocate(collection, items, nested, options);
 	    var reusedCount = collection.models.length - added.length, removed = reusedCount < previous.length ? (reusedCount ? _garbageCollect(collection, previous) :
 	        commons_ts_1.freeAll(collection, previous)) : [];
-	    var addedOrChanged = nested.length || added.length, needSort = addedOrChanged && commons_ts_1.sortElements(collection, options);
-	    if (addedOrChanged || removed.length) {
+	    var addedOrChanged = nested.length || added.length, sorted = (addedOrChanged && commons_ts_1.sortElements(collection, options)) || options.sorted;
+	    if (addedOrChanged || removed.length || sorted) {
 	        if (transactions_ts_1.markAsDirty(collection, options)) {
-	            return new commons_ts_1.CollectionTransaction(collection, isRoot, added, removed, nested, needSort);
+	            return new commons_ts_1.CollectionTransaction(collection, isRoot, added, removed, nested, sorted);
 	        }
 	    }
 	    isRoot && transactions_ts_1.commit(collection);
@@ -2521,7 +2521,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return removed;
 	}
 	function _reallocate(collection, source, nested, options) {
-	    var models = Array(source.length), _byId = {}, merge = options.merge == null ? true : options.merge, _prevById = collection._byId, idAttribute = collection.model.prototype.idAttribute, toAdd = [];
+	    var models = Array(source.length), _byId = {}, merge = options.merge == null ? true : options.merge, _prevById = collection._byId, prevModels = collection.models, idAttribute = collection.model.prototype.idAttribute, toAdd = [], orderKept = true;
 	    for (var i = 0, j = 0; i < source.length; i++) {
 	        var item = source[i], model = null;
 	        if (item) {
@@ -2532,6 +2532,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        if (model) {
 	            if (merge && item !== model) {
+	                if (orderKept && prevModels[j] !== model)
+	                    orderKept = false;
 	                var attrs = item.attributes || item;
 	                var transaction = model._createTransaction(attrs, options);
 	                transaction && nested.push(transaction);
@@ -2548,6 +2550,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    models.length = j;
 	    collection.models = models;
 	    collection._byId = _byId;
+	    if (!orderKept)
+	        options.sorted = true;
 	    return toAdd;
 	}
 	function _reallocateEmpty(self, source, options) {
