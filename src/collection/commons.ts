@@ -8,6 +8,7 @@ export interface CollectionCore extends Transactional, Owner {
     _byId : IdIndex
     models : Record[]
     model : typeof Record
+    idAttribute : string // TODO: Refactor inconsistent idAttribute usage
     _comparator : Comparator
     get( objOrId : string | Record | Object ) : Record    
     bubbleEvents? : string[]

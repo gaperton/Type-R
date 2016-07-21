@@ -1345,7 +1345,7 @@
         assert.equal( collection.length, 1 );
         assert.ok( collection.at( 0 ) instanceof A );
         assert.equal( collection.at( 0 ), collection.get( '1' ) );
-        assert.ok( !( B.create ) );
+        assert.ok( B.create() instanceof B );
         assert.ok( Abstract.create );
     } );
 

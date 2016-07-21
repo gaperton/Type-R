@@ -378,8 +378,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	transaction_ts_1.Record._attribute = nestedTypes_ts_1.TransactionalType;
 	function getAttributes(_a) {
-	    var defaults = _a.defaults, attributes = _a.attributes;
-	    return typeof defaults === 'function' ? defaults() : attributes || defaults;
+	    var defaults = _a.defaults, attributes = _a.attributes, idAttribute = _a.idAttribute;
+	    var definition = typeof defaults === 'function' ? defaults() : attributes || defaults || {};
+	    if (idAttribute && !(idAttribute in definition)) {
+	        definition[idAttribute] = void 0;
+	    }
+	    return definition;
 	}
 	function defineCollection(collection) {
 	    var BaseCollection = index_ts_1.getBaseClass(this).Collection;

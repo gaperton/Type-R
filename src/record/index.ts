@@ -41,8 +41,15 @@ Record.predefine = function(){
 
 Record._attribute = TransactionalType;
 
-function getAttributes({ defaults, attributes } : RecordDefinition ) : AttributeDescriptorMap {
-    return typeof defaults === 'function' ? (<any>defaults)() : attributes || defaults;
+function getAttributes({ defaults, attributes, idAttribute } : RecordDefinition ) : AttributeDescriptorMap {
+    const definition = typeof defaults === 'function' ? (<any>defaults)() : attributes || defaults || {};
+    
+    // If there is an undeclared idAttribute, add its definition as untyped generic attribute.
+    if( idAttribute && !( idAttribute in definition ) ){
+        definition[ idAttribute ] = void 0;
+    }
+
+    return definition;
 }
 
 export { Record, ChainableAttributeSpec, TransactionalType }
