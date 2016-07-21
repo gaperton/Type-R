@@ -511,32 +511,6 @@
         assert.equal( counter, 2 );
     } );
 
-    QUnit.test( "model destroy removes from all collections", function( assert ){
-        assert.expect( 3 );
-        var e    = new Backbone.Model( { id : 5, title : 'Othello' } );
-        e.sync   = function( method, model, options ){ options.success(); };
-        var colE = new Backbone.Collection( [ e ] );
-        var colF = new Backbone.Collection( [ e ] );
-        e.destroy();
-        assert.ok( colE.length === 0 );
-        assert.ok( colF.length === 0 );
-        assert.equal( undefined, e.collection );
-    } );
-
-    QUnit.test( "Collection: non-persisted model destroy removes from all collections", function( assert ){
-        assert.expect( 3 );
-        var e    = new Backbone.Model( { title : 'Othello' } );
-        e.sync   = function( method, model, options ){ throw "should not be called"; };
-        var colE = new Backbone.Collection( [ e ] );
-        var colF = new Backbone.Collection( [ e ] );
-        e.destroy();
-        assert.ok( colE.length === 0 );
-        assert.ok( colF.length === 0 );
-        assert.equal( undefined, e.collection );
-    } );
-
-    
-
     QUnit.test( "initialize", function( assert ){
         assert.expect( 1 );
         var Collection = Backbone.Collection.extend( {
@@ -869,15 +843,6 @@
             return model.get( 'x' );
         } );
         assert.deepEqual( values, [ 1, 2, 3 ] );
-    } );
-
-    QUnit.test( "#1604 - Removal during iteration.", function( assert ){
-        assert.expect( 0 );
-        var collection = new Backbone.Collection( [ {}, {} ] );
-        collection.on( 'add', function(){
-            collection.at( 0 ).destroy();
-        } );
-        collection.add( {}, { at : 0 } );
     } );
 
     QUnit.test( "#1638 - `sort` during `add` triggers correctly.", function( assert ){
@@ -1911,6 +1876,36 @@ QUnit.test( "#1939 - `parse` is passed `options`", function( assert ){
         collection.create( model, { wait : true } );
     } );
 
+    QUnit.test( "model destroy removes from all collections", function( assert ){
+        assert.expect( 3 );
+        var e    = new Backbone.Model( { id : 5, title : 'Othello' } );
+        e.sync   = function( method, model, options ){ options.success(); };
+        var colE = new Backbone.Collection( [ e ] );
+        var colF = new Backbone.Collection( [ e ] );
+        e.destroy();
+        assert.ok( colE.length === 0 );
+        assert.ok( colF.length === 0 );
+        assert.equal( undefined, e.collection );
+    } );
 
+    QUnit.test( "Collection: non-persisted model destroy removes from all collections", function( assert ){
+        assert.expect( 3 );
+        var e    = new Backbone.Model( { title : 'Othello' } );
+        e.sync   = function( method, model, options ){ throw "should not be called"; };
+        var colE = new Backbone.Collection( [ e ] );
+        var colF = new Backbone.Collection( [ e ] );
+        e.destroy();
+        assert.ok( colE.length === 0 );
+        assert.ok( colF.length === 0 );
+        assert.equal( undefined, e.collection );
+    } );
 
+    QUnit.test( "#1604 - Removal during iteration.", function( assert ){
+        assert.expect( 0 );
+        var collection = new Backbone.Collection( [ {}, {} ] );
+        collection.on( 'add', function(){
+            collection.at( 0 ).destroy();
+        } );
+        collection.add( {}, { at : 0 } );
+    } );
 })();
