@@ -1221,7 +1221,7 @@
         assert.equal( job.items.get( 2 ).subItems.get( 3 ).get( 'subName' ), 'NewThree' );
     } );
 
-    QUnit.test( '_addReference binds all collection events & adds to the lookup hashes', function( assert ){
+    QUnit.test( 'add and remove binds all collection events & adds to the lookup hashes', function( assert ){
         assert.expect( 9 );
 
         var calls = { add : 0, remove : 0 };
@@ -1249,6 +1249,22 @@
         } );
 
         var collection = new Collection();
+
+        collection.on( 'add', function( model ){
+            calls.add++;
+            assert.equal( model, collection._byId[ model.id ] );
+            assert.equal( model, collection._byId[ model.cid ] );
+            assert.equal( model._events.dummy.length, 1 );
+        });
+
+        collection.on( 'remove', function( model ){
+            calls.remove++;
+            assert.equal( collection._byId[ model.id ], void 0 );
+            assert.equal( collection._byId[ model.cid ], void 0 );
+            assert.equal( model.collection, void 0 );
+            assert.equal( model._events, void 0 );
+        });
+
         var model      = collection.add( { id : 1 } );
         collection.remove( model );
 

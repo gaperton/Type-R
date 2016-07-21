@@ -29,7 +29,8 @@ Because we can.
 
 ## Compatibility notes
 
-- `model.initialize( attrs, options, owner )` uses thrird parameter to set owner, `options.collection` is ignored.
-- default model cid prefix is `m`
-- model.set `unset` option is deprecated.
-- model `change:attr` events are not bubbled up by collection by default. Manual `bubbleEvents` spec is required.
+- `model.initialize( attrs, options, owner )` uses third parameter to set owner, `options.collection` is ignored.
+- default model cid prefix is `m`.
+- model.set `unset` option is deprecated. In Type-R, model os no hash. Just assign attributes with void 0 instead.
+- model `change:attr` events are not bubbled up by collection by default. Manual `bubbleEvents` spec is required. Performance reasons.
+- Collection doesn't have `_addReference` and `_removeReference` callbacks. Impossible to implement efficiently. Use 'add' and 'remove' events instead.
