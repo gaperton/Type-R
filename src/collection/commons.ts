@@ -38,7 +38,7 @@ export function aquire( owner : CollectionCore, child : Record ) : void {
 
     if( owner.bubbleEvents ){
         for( let event of owner.bubbleEvents ){
-            owner.listenTo( child, event, bounceEvent( event ) );
+            owner.triggerEventFrom( child, event );
         }
     }
 }
@@ -47,17 +47,6 @@ export function free( owner : CollectionCore, child : Record ) : void {
     _free( owner, child );
 
     owner.bubbleEvents && owner.stopListening( child );
-}
-
-function bounceEvent( name : string ){
-    return function() : void {
-        const args = [ name ];
-        for( let i = 0; i < arguments.length; i++ ){
-            args.push( arguments[ i ] );
-        }
-
-        this.trigger.apply( this, args );
-    }
 }
 
 export function freeAll( collection : CollectionCore, children : Record[] ) : Record[] {

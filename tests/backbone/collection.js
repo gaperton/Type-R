@@ -1114,7 +1114,7 @@
     QUnit.test( "Attach options to collection.", function( assert ){
         assert.expect( 2 );
         var Model      = Backbone.Model;
-        var comparator = function(){};
+        var comparator = function( a, b ){ return "It's me"; };
 
         var collection = new Backbone.Collection( [], {
             model      : Model,
@@ -1122,7 +1122,7 @@
         } );
 
         assert.ok( collection.model === Model );
-        assert.ok( collection.comparator === comparator );
+        assert.ok( collection.comparator( 1, 2 ) === comparator( 1, 2 ) );
     } );
 
     QUnit.test( "Pass falsey for `models` for empty Col with `options`", function( assert ){
@@ -1227,13 +1227,14 @@
         var calls = { add : 0, remove : 0 };
 
         var Collection = Backbone.Collection.extend( {
+            bubbleEvents : [ 'dummy' ],
 
             _addReference : function( model ){
                 Backbone.Collection.prototype._addReference.apply( this, arguments );
                 calls.add++;
                 assert.equal( model, this._byId[ model.id ] );
                 assert.equal( model, this._byId[ model.cid ] );
-                assert.equal( model._events.all.length, 1 );
+                assert.equal( model._events.dummy.length, 1 );
             },
 
             _removeReference : function( model ){

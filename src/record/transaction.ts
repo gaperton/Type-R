@@ -93,7 +93,8 @@ let _cidCounter : number = 0;
     cidPrefix : 'm',
 
     // Default id attribute name
-    idAttribute : 'id'
+    idAttribute : 'id',
+    _keys : [ 'id' ]
 })
 export class Record extends Transactional implements Owner {
     // Implemented at the index.ts to avoid circular dependency. Here we have just proper singature.

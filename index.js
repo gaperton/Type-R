@@ -654,7 +654,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Record = __decorate([
 	        index_ts_1.define({
 	            cidPrefix: 'm',
-	            idAttribute: 'id'
+	            idAttribute: 'id',
+	            _keys: ['id']
 	        })
 	    ], Record);
 	    return Record;
@@ -1042,6 +1043,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this._listeningTo = void 0;
 	        this.cid = this.cidPrefix + cid;
 	    }
+	    Messenger.prototype.triggerEventFrom = function (source, event) {
+	        this.listenTo(source, event, function (a, b, c) {
+	            switch (arguments.length) {
+	                case 0:
+	                    trigger0(this, event);
+	                    break;
+	                case 1:
+	                    trigger1(this, event, a);
+	                    break;
+	                case 2:
+	                    trigger2(this, event, a, b);
+	                    break;
+	                case 3:
+	                    trigger3(this, event, a, b, c);
+	                    break;
+	                default:
+	                    var args = [event, a, b, c];
+	                    for (var i = 3; i < arguments.length; i++) {
+	                        args.push(arguments[i]);
+	                    }
+	                    this.trigger.apply(this, args);
+	            }
+	        });
+	    };
 	    Messenger.prototype.on = function (name, callback, context) {
 	        return internalOn(this, name, callback, context);
 	    };
@@ -2277,7 +2302,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (owner.bubbleEvents) {
 	        for (var _i = 0, _a = owner.bubbleEvents; _i < _a.length; _i++) {
 	            var event_1 = _a[_i];
-	            owner.listenTo(child, event_1, bounceEvent(event_1));
+	            owner.triggerEventFrom(child, event_1);
 	        }
 	    }
 	}
@@ -2287,15 +2312,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    owner.bubbleEvents && owner.stopListening(child);
 	}
 	exports.free = free;
-	function bounceEvent(name) {
-	    return function () {
-	        var args = [name];
-	        for (var i = 0; i < arguments.length; i++) {
-	            args.push(arguments[i]);
-	        }
-	        this.trigger.apply(this, args);
-	    };
-	}
 	function freeAll(collection, children) {
 	    for (var _i = 0, children_1 = children; _i < children_1.length; _i++) {
 	        var child = children_1[_i];

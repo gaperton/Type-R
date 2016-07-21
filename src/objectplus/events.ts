@@ -137,6 +137,26 @@ export abstract class Messenger implements Class {
         this.cid = this.cidPrefix + cid;
     }
 
+    triggerEventFrom( source : Messenger, event : string ){
+        this.listenTo( source, event, function( a, b, c ){
+            switch( arguments.length ){
+                // Forward call to monomorphic fast-path functions.
+                case 0 : trigger0( this, event ); break;
+                case 1 : trigger1( this, event, a ); break;
+                case 2 : trigger2( this, event, a, b ); break;
+                case 3 : trigger3( this, event, a, b, c ); break;
+                default :
+                    const args = [ event, a, b, c ];
+
+                    for( let i = 3; i < arguments.length; i++ ){
+                        args.push( arguments[ i ] );
+                    }
+
+                    this.trigger.apply( this, args );
+            }
+        });
+    }
+
     // Bind an event to a `callback` function. Passing `"all"` will bind
     // the callback to all events fired.
     on(name, callback, context) {
