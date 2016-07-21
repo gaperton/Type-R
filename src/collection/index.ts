@@ -140,7 +140,7 @@ export class Collection extends Transactional implements CollectionCore {
 
         if( records ){
             const elements : Elements = options.parse ? this.parse( records ) : records,
-                  transaction = emptySetTransaction( this, records, options, true );
+                  transaction = emptySetTransaction( this, elements, options, true );
         }
 
         this.initialize.apply( this, arguments );
@@ -158,7 +158,8 @@ export class Collection extends Transactional implements CollectionCore {
 
     // Deeply clone collection, optionally setting new owner.
     clone( owner? : any ) : this {
-        return new (<any>this.constructor)( this.models, { clone : true }, owner );
+        var models = this.map( model => model.clone() );
+        return new (<any>this.constructor)( models, { model : this.model, comparator : this.comparator }, owner );
     }
 
     toJSON() : Object[] {
@@ -258,6 +259,37 @@ export class Collection extends Transactional implements CollectionCore {
 
         return this;
     }
+
+    // Add a model to the end of the collection.
+    push(model, options) {
+      return this.add(model, assign({at: this.length}, options));
+    }
+
+    // Remove a model from the end of the collection.
+    pop(options) {
+      var model = this.at(this.length - 1);
+      this.remove(model, options);
+      return model;
+    }
+
+    // Add a model to the beginning of the collection.
+    unshift(model, options) {
+      return this.add(model, assign({at: 0}, options));
+    }
+
+    // Remove a model from the beginning of the collection.
+    shift(options) {
+      var model = this.at(0);
+      this.remove(model, options);
+      return model;
+    }
+
+    // Slice out a sub-array of models from the collection.
+    slice() {
+      return slice.apply(this.models, arguments);
+    } 
 }
+
+const slice = Array.prototype.slice;
 
 Record.Collection = <any>Collection;

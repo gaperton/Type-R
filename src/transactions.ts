@@ -205,7 +205,7 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
 }
 
 // Owner must accept children update events. It's an only way children communicates with an owner.
-export interface Owner extends Traversable {
+export interface Owner extends Traversable, Messenger {
     _onChildrenChange( child : Transactional, options : TransactionOptions ) : void;
     getOwner() : Owner
     getStore() : Transactional
@@ -321,4 +321,6 @@ export function free( owner : Owner, child : Transactional ) : void {
         child._owner = void 0;
         child._ownerKey = void 0;
     }
+
+    owner.stopListening( child );
 }

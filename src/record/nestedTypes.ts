@@ -1,6 +1,6 @@
 import { Record } from './transaction.ts' 
 import { GenericAttribute } from './attribute.ts'
-import { Owner, Transactional, TransactionOptions, TransactionalConstructor } from '../transactions.ts' 
+import { Owner, free, aquire, Transactional, TransactionOptions, TransactionalConstructor } from '../transactions.ts' 
 
 export class TransactionalType extends GenericAttribute {
     type : TransactionalConstructor
@@ -20,16 +20,8 @@ export class TransactionalType extends GenericAttribute {
     }
 
     handleChange( next : Transactional, prev : Transactional, record : Record ){
-        // Remove reference to self
-        if( prev && prev._owner === record ){
-            prev._ownerKey = prev._owner = null;
-        } 
-
-        // Take ownership if possible
-        if( next && !next._owner ){
-            next._owner = record;
-            next._ownerKey = this.name;
-        }
+        prev && free( record, prev );
+        next && aquire( record, next );
     }
 }
 

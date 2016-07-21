@@ -1438,6 +1438,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        child._owner = void 0;
 	        child._ownerKey = void 0;
 	    }
+	    owner.stopListening(child);
 	}
 	exports.free = free;
 
@@ -1885,6 +1886,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var transaction_ts_1 = __webpack_require__(3);
 	var attribute_ts_1 = __webpack_require__(11);
+	var transactions_ts_1 = __webpack_require__(7);
 	var TransactionalType = (function (_super) {
 	    __extends(TransactionalType, _super);
 	    function TransactionalType() {
@@ -1900,13 +1902,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return new this.type();
 	    };
 	    TransactionalType.prototype.handleChange = function (next, prev, record) {
-	        if (prev && prev._owner === record) {
-	            prev._ownerKey = prev._owner = null;
-	        }
-	        if (next && !next._owner) {
-	            next._owner = record;
-	            next._ownerKey = this.name;
-	        }
+	        prev && transactions_ts_1.free(record, prev);
+	        next && transactions_ts_1.aquire(record, next);
 	    };
 	    return TransactionalType;
 	}(attribute_ts_1.GenericAttribute));
@@ -2044,7 +2041,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.idAttribute = this.model.prototype.idAttribute;
 	        this.comparator = options.comparator;
 	        if (records) {
-	            var elements = options.parse ? this.parse(records) : records, transaction = set_ts_1.emptySetTransaction(this, records, options, true);
+	            var elements = options.parse ? this.parse(records) : records, transaction = set_ts_1.emptySetTransaction(this, elements, options, true);
 	        }
 	        this.initialize.apply(this, arguments);
 	    }
@@ -2139,7 +2136,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this.models[index];
 	    };
 	    Collection.prototype.clone = function (owner) {
-	        return new this.constructor(this.models, { clone: true }, owner);
+	        var models = this.map(function (model) { return model.clone(); });
+	        return new this.constructor(models, { model: this.model, comparator: this.comparator }, owner);
 	    };
 	    Collection.prototype.toJSON = function () {
 	        return this.models.map(function (model) { return model.toJSON(); });
@@ -2211,6 +2209,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return this;
 	    };
+	    Collection.prototype.push = function (model, options) {
+	        return this.add(model, index_ts_1.assign({ at: this.length }, options));
+	    };
+	    Collection.prototype.pop = function (options) {
+	        var model = this.at(this.length - 1);
+	        this.remove(model, options);
+	        return model;
+	    };
+	    Collection.prototype.unshift = function (model, options) {
+	        return this.add(model, index_ts_1.assign({ at: 0 }, options));
+	    };
+	    Collection.prototype.shift = function (options) {
+	        var model = this.at(0);
+	        this.remove(model, options);
+	        return model;
+	    };
+	    Collection.prototype.slice = function () {
+	        return slice.apply(this.models, arguments);
+	    };
 	    Collection._attribute = index_ts_2.TransactionalType;
 	    Collection = __decorate([
 	        index_ts_1.define({
@@ -2221,6 +2238,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return Collection;
 	}(transactions_ts_1.Transactional));
 	exports.Collection = Collection;
+	var slice = Array.prototype.slice;
 	index_ts_2.Record.Collection = Collection;
 
 
