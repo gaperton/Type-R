@@ -2400,8 +2400,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	function sortOrMoveElements(collection, added, options) {
 	    var at = options.at;
 	    if (at != null) {
-	        var length_1 = collection.models.length;
-	        at = +at;
+	        var length_1 = collection.models.length - added.length;
+	        at = Number(at);
 	        if (at < 0)
 	            at += length_1 + 1;
 	        if (at < 0)

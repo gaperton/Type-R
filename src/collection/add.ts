@@ -26,14 +26,19 @@ export function addTransaction( collection : CollectionCore, items, options : Ad
 // Handle sort or insert at options for add operation. Reurns true if sort happened. 
 function sortOrMoveElements( collection : CollectionCore, added : Record[], options : AddOptions ) : boolean {
     let at = options.at;
+
+    // if `at` option is given, it overrides sorting option...
     if( at != null ){
-        // if at is given, it overrides sorting option...
-        const { length } = collection.models;
-        at = +at;
+        // Take an original collection's length. 
+        const length = collection.models.length - added.length;
+
+        // Crazy Backbone rules about `at` index. I don't know what that guys smoke.
+        at = Number( at );
         if( at < 0 ) at += length + 1;
         if( at < 0 ) at = 0;
         if( at > length ) at = length;
 
+        // Move added elements to desired position. In place.
         moveElements( collection.models, at, added );
         return false;
     }
