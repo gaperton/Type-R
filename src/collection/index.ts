@@ -144,8 +144,8 @@ export class Collection extends Transactional implements CollectionCore {
         }
 
         if( records ){
-            const elements : Elements = options.parse ? this.parse( records ) : records,
-                  transaction = emptySetTransaction( this, elements, options, true );
+            const elements = toElements( this, records, options );
+            emptySetTransaction( this, elements, options, true );
         }
 
         this.initialize.apply( this, arguments );

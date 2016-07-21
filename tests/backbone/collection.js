@@ -921,7 +921,11 @@
         var m2  = { _id : 2 };
         var col = Backbone.Collection.extend( {
             model : Backbone.Model.extend( {
-                idAttribute : '_id'
+                idAttribute : '_id',
+
+                attributes : {
+                    _id : void 0
+                }
             } )
         } );
         var c   = new col;

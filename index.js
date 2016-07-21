@@ -2045,7 +2045,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this._comparator = this._comparator;
 	        }
 	        if (records) {
-	            var elements = options.parse ? this.parse(records) : records, transaction = set_ts_1.emptySetTransaction(this, elements, options, true);
+	            var elements = toElements(this, records, options);
+	            set_ts_1.emptySetTransaction(this, elements, options, true);
 	        }
 	        this.initialize.apply(this, arguments);
 	    }
