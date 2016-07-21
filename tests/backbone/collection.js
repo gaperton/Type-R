@@ -85,7 +85,7 @@
         collection.add( { id : 2 } );
         assert.ok( collection.at( 0 ) instanceof Model );
         assert.ok( collection.at( 1 ) instanceof Model );
-        assert.strictEqual( collection.comparator, comparator );
+        assert.strictEqual( collection.comparator( 1, 2 ), collection.comparator( 1, 2 ) );
     } );
 
     QUnit.test( "get", function( assert ){
@@ -964,7 +964,8 @@
     QUnit.test( "set + merge with default values defined", function( assert ){
         var Model = Backbone.Model.extend( {
             defaults : {
-                key : 'value'
+                key : 'value',
+                other : ''
             }
         } );
         var m     = new Model( { id : 1 } );
@@ -981,6 +982,10 @@
 
     QUnit.test( 'merge without mutation', function( assert ){
         var Model      = Backbone.Model.extend( {
+            attributes : {
+                child : void 0
+            },
+
             initialize : function( attrs, options ){
                 if( attrs.child ){
                     this.set( 'child', new Model( attrs.child, options ), options );
