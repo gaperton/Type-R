@@ -2346,23 +2346,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.sorted = sorted;
 	    }
 	    CollectionTransaction.prototype.commit = function (isNested) {
-	        var _a = this, nested = _a.nested, object = _a.object;
+	        var _a = this, nested = _a.nested, object = _a.object, _isDirty = object._isDirty;
 	        for (var _i = 0, nested_1 = nested; _i < nested_1.length; _i++) {
 	            var transaction = nested_1[_i];
 	            transaction.commit(true);
 	        }
-	        var _b = this, added = _b.added, removed = _b.removed, _isDirty = object._isDirty;
-	        for (var _c = 0, added_1 = added; _c < added_1.length; _c++) {
-	            var record = added_1[_c];
+	        for (var _b = 0, nested_2 = nested; _b < nested_2.length; _b++) {
+	            var transaction = nested_2[_b];
+	            index_ts_1.trigger2(object, 'change', transaction.object, _isDirty);
+	        }
+	        var _c = this, added = _c.added, removed = _c.removed;
+	        for (var _d = 0, added_1 = added; _d < added_1.length; _d++) {
+	            var record = added_1[_d];
+	            index_ts_1.trigger3(record, 'add', record, object, _isDirty);
 	            index_ts_1.trigger3(object, 'add', record, object, _isDirty);
 	        }
-	        for (var _d = 0, removed_1 = removed; _d < removed_1.length; _d++) {
-	            var record = removed_1[_d];
+	        for (var _e = 0, removed_1 = removed; _e < removed_1.length; _e++) {
+	            var record = removed_1[_e];
+	            index_ts_1.trigger3(record, 'remove', record, object, _isDirty);
 	            index_ts_1.trigger3(object, 'remove', record, object, _isDirty);
-	        }
-	        for (var _e = 0, nested_2 = nested; _e < nested_2.length; _e++) {
-	            var transaction = nested_2[_e];
-	            index_ts_1.trigger2(object, 'change', transaction.object, _isDirty);
 	        }
 	        if (this.sorted) {
 	            index_ts_1.trigger2(object, 'sort', object, _isDirty);
@@ -2555,6 +2557,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        commons_ts_1.removeIndex(collection._byId, model);
 	        var notify = transactions_ts_1.markAsDirty(collection, options);
 	        if (notify) {
+	            index_ts_1.trigger3(model, 'remove', model, collection, options);
 	            index_ts_1.trigger3(collection, 'remove', model, collection, options);
 	        }
 	        commons_ts_1.free(collection, model);

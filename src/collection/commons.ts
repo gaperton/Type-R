@@ -146,27 +146,33 @@ export class CollectionTransaction implements Transaction {
 
     // commit transaction
     commit( isNested? : boolean ){
-        const { nested, object } = this;
+        const { nested, object } = this,
+              { _isDirty } = object;
 
         // Commit all nested transactions...
         for( let transaction of nested ){
             transaction.commit( true );
         }
 
-        // Notify listeners on attribute changes...
-        const { added, removed } = this,
-              { _isDirty } = object;
+        // Just trigger 'change' on collection, it must be already triggered for models during nested commits.
+        // ??? TODO: do it in nested transactions loop? This way appears to be more correct. 
+        for( let transaction of nested ){
+            trigger2( object, 'change', transaction.object, _isDirty );
+        }
 
+        // Notify listeners on attribute changes...
+        const { added, removed } = this;
+
+        // Trigger `add` events for both model and collection.
         for( let record of added ){
+            trigger3( record, 'add', record, object, _isDirty );
             trigger3( object, 'add', record, object, _isDirty );
         }
 
+        // Trigger `remove` events for both model and collection.
         for( let record of removed ){
+            trigger3( record, 'remove', record, object, _isDirty );
             trigger3( object, 'remove', record, object, _isDirty );
-        }
-
-        for( let transaction of nested ){
-            trigger2( object, 'change', transaction.object, _isDirty );
         }
 
         if( this.sorted ){

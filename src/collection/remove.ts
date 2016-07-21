@@ -29,6 +29,7 @@ export function removeOne( collection : CollectionCore, el : Record | {} | strin
 
         // Send out events.
         if( notify ){
+            trigger3( model, 'remove', model, collection, options );
             trigger3( collection, 'remove', model, collection, options );
         } 
 
