@@ -40,7 +40,7 @@ export function setTransaction( collection, items, options ){
                     ) : [];                    
     
     const addedOrChanged = nested.length || added.length,
-          sorted = ( addedOrChanged && sortElements( collection, options ) ) || options.sorted;
+          sorted = ( addedOrChanged && sortElements( collection, options ) ) || added.length || options.sorted;
 
     if( addedOrChanged || removed.length || sorted ){
         if( markAsDirty( collection, options ) ){ 

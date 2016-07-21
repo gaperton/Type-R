@@ -18,7 +18,9 @@ Because we can.
 - [x] New integral performance tests shows 2-3 times performance improvement in complex structure updates. Good enough to go further.
 - [ ] Launching backbone Model/Collection regression to implement missing core functionality. That's gonna be tough.
     - [x] Model regression passes.
-    - [ ] Collection regression passes.
+    - [x] Collection regression passes.
+    - [ ] Underscore/Lodash mixin for Model and Collection
+    - [ ] Backbone Persistence API
 - [ ] Implement relations.
 - [ ] Implement NestedTypes compatibility layer.
 - [ ] Test it with NestedReact examples.

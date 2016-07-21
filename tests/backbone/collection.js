@@ -1453,9 +1453,9 @@
         var collection = new Backbone.Collection( [ { id : 1 } ] );
         var model      = collection.first();
         collection.on( 'change', function( model ){
-            assert.equal( model, undefined );
+            assert.ok( model.id );
         } );
-        model.trigger( 'change' );
+        model.forceAttributeChange( 'id' );
     } );
 
     QUnit.module( "Backbone.Collection.IO", {
