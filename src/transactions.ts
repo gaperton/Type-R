@@ -321,6 +321,4 @@ export function free( owner : Owner, child : Transactional ) : void {
         child._owner = void 0;
         child._ownerKey = void 0;
     }
-
-    owner.stopListening( child );
 }

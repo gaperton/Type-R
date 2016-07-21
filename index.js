@@ -1438,7 +1438,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        child._owner = void 0;
 	        child._ownerKey = void 0;
 	    }
-	    owner.stopListening(child);
 	}
 	exports.free = free;
 
@@ -2262,10 +2261,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return models;
 	}
 	exports.dispose = dispose;
+	function aquire(owner, child) {
+	    transactions_ts_1.aquire(owner, child);
+	    if (owner.bubbleEvents) {
+	        for (var _i = 0, _a = owner.bubbleEvents; _i < _a.length; _i++) {
+	            var event_1 = _a[_i];
+	            owner.listenTo(child, event_1, bounceEvent(event_1));
+	        }
+	    }
+	}
+	exports.aquire = aquire;
+	function free(owner, child) {
+	    transactions_ts_1.free(owner, child);
+	    owner.bubbleEvents && owner.stopListening(child);
+	}
+	exports.free = free;
+	function bounceEvent(name) {
+	    return function () {
+	        var args = [name];
+	        for (var i = 0; i < arguments.length; i++) {
+	            args.push(arguments[i]);
+	        }
+	        this.trigger.apply(this, args);
+	    };
+	}
 	function freeAll(collection, children) {
 	    for (var _i = 0, children_1 = children; _i < children_1.length; _i++) {
 	        var child = children_1[_i];
-	        transactions_ts_1.free(collection, child);
+	        free(collection, child);
 	    }
 	    return children;
 	}
@@ -2302,7 +2325,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.toModel = toModel;
 	function convertAndAquire(collection, attrs, options) {
 	    var model = collection.model, record = attrs instanceof model ? attrs : model.create(attrs, options, collection);
-	    transactions_ts_1.aquire(collection, record);
+	    aquire(collection, record);
 	    return record;
 	}
 	exports.convertAndAquire = convertAndAquire;

@@ -1,5 +1,5 @@
 import { Record } from '../record/index.ts'
-import { Owner, aquire, free, Transaction, markAsDirty,
+import { Owner, aquire as _aquire, free as _free, Transaction, markAsDirty,
         TransactionOptions, Transactional, commit } from '../transactions.ts'
 
 import { trigger2, trigger3 } from '../objectplus/index.ts'        
@@ -10,6 +10,7 @@ export interface CollectionCore extends Transactional, Owner {
     model : typeof Record
     _comparator : Comparator
     get( objOrId : string | Record | Object ) : Record    
+    bubbleEvents? : string[]
 }
 
 // Collection's manipulation methods elements
@@ -29,6 +30,34 @@ export function dispose( collection : CollectionCore ) : Record[]{
 
     freeAll( collection, models );
     return models;
+}
+
+
+export function aquire( owner : CollectionCore, child : Record ) : void {
+    _aquire( owner, child );
+
+    if( owner.bubbleEvents ){
+        for( let event of owner.bubbleEvents ){
+            owner.listenTo( child, event, bounceEvent( event ) );
+        }
+    }
+}
+
+export function free( owner : CollectionCore, child : Record ) : void {
+    _free( owner, child );
+
+    owner.bubbleEvents && owner.stopListening( child );
+}
+
+function bounceEvent( name : string ){
+    return function() : void {
+        const args = [ name ];
+        for( let i = 0; i < arguments.length; i++ ){
+            args.push( arguments[ i ] );
+        }
+
+        this.trigger.apply( this, args );
+    }
 }
 
 export function freeAll( collection : CollectionCore, children : Record[] ) : Record[] {
