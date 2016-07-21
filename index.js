@@ -2090,7 +2090,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (record.hasChanged(idAttribute)) {
 	            var _byId = this._byId;
 	            delete _byId[record.previous(idAttribute)];
-	            _byId[record[idAttribute]] = record;
+	            var id = record.id;
+	            id == null || (_byId[id] = record);
 	        }
 	        if (transactions_ts_1.markAsDirty(this, options)) {
 	            index_ts_1.trigger2(this, 'change', record, options);
