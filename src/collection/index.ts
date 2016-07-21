@@ -204,7 +204,7 @@ export class Collection extends Transactional implements CollectionCore {
     // Add elements to collection.
     add( something : Elements | {} | Record , options : TransactionOptions = {} ){
         const parsed : Elements = options.parse ? this.parse( something ) : something,
-              elements : Elements = Array.isArray( parsed ) ? parsed : [ parsed ],
+              elements : Elements =  Array.isArray( parsed ) ? parsed : [ parsed ],
               transaction = this.models.length ?
                     addTransaction( this, elements, options ) :
                     emptySetTransaction( this, elements, options );
@@ -212,9 +212,7 @@ export class Collection extends Transactional implements CollectionCore {
         if( transaction ){
             transaction.commit();
             return transaction.added;
-        }
-
-        return []; 
+        } 
     }
 
     // Remove elements. 
@@ -299,7 +297,11 @@ export class Collection extends Transactional implements CollectionCore {
     indexOf( modelOrId : any ) : number {
         const record = this.get( modelOrId );
         return this.models.indexOf( record );
-    }  
+    }
+
+    modelId( attrs : {} ) : any {
+        return attrs[ this.model.prototype.idAttribute ];
+    }
 }
 
 const slice = Array.prototype.slice;

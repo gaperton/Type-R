@@ -2178,7 +2178,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            transaction.commit();
 	            return transaction.added;
 	        }
-	        return [];
 	    };
 	    Collection.prototype.remove = function (recordsOrIds, options) {
 	        if (options === void 0) { options = {}; }
@@ -2237,6 +2236,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Collection.prototype.indexOf = function (modelOrId) {
 	        var record = this.get(modelOrId);
 	        return this.models.indexOf(record);
+	    };
+	    Collection.prototype.modelId = function (attrs) {
+	        return attrs[this.model.prototype.idAttribute];
 	    };
 	    Collection._attribute = index_ts_2.TransactionalType;
 	    Collection = __decorate([
