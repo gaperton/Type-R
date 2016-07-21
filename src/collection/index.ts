@@ -133,7 +133,13 @@ export class Collection extends Transactional implements CollectionCore {
         this._byId = {};
         this.model      = options.model || this.model;
         this.idAttribute = this.model.prototype.idAttribute;
-        this.comparator = options.comparator;
+        if( options.comparator ){
+            this.comparator = options.comparator;
+        }
+        else{
+            // Make sure this property is initialized, to keep the same hidden class.
+            this._comparator = this._comparator;
+        }
 
         if( records ){
             const elements : Elements = options.parse ? this.parse( records ) : records,

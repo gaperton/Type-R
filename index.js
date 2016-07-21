@@ -2038,7 +2038,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this._byId = {};
 	        this.model = options.model || this.model;
 	        this.idAttribute = this.model.prototype.idAttribute;
-	        this.comparator = options.comparator;
+	        if (options.comparator) {
+	            this.comparator = options.comparator;
+	        }
+	        else {
+	            this._comparator = this._comparator;
+	        }
 	        if (records) {
 	            var elements = options.parse ? this.parse(records) : records, transaction = set_ts_1.emptySetTransaction(this, elements, options, true);
 	        }
