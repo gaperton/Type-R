@@ -535,144 +535,7 @@
         assert.equal( undefined, e.collection );
     } );
 
-    QUnit.test( "fetch", function( assert ){
-        assert.expect( 4 );
-        var collection = new Backbone.Collection;
-        collection.url = '/test';
-        collection.fetch();
-        assert.equal( this.syncArgs.method, 'read' );
-        assert.equal( this.syncArgs.model, collection );
-        assert.equal( this.syncArgs.options.parse, true );
-
-        collection.fetch( { parse : false } );
-        assert.equal( this.syncArgs.options.parse, false );
-    } );
-
-    QUnit.test( "fetch with an error response triggers an error event", function( assert ){
-        assert.expect( 1 );
-        var collection = new Backbone.Collection();
-        collection.on( 'error', function(){
-            assert.ok( true );
-        } );
-        collection.sync = function( method, model, options ){ options.error(); };
-        collection.fetch();
-    } );
-
-    QUnit.test( "#3283 - fetch with an error response calls error with context", function( assert ){
-        assert.expect( 1 );
-        var collection  = new Backbone.Collection();
-        var obj         = {};
-        var options     = {
-            context : obj,
-            error   : function(){
-                assert.equal( this, obj );
-            }
-        };
-        collection.sync = function( method, model, options ){
-            options.error.call( options.context );
-            return {};
-        };
-        collection.fetch( options );
-    } );
-
-    QUnit.test( "ensure fetch only parses once", function( assert ){
-        assert.expect( 1 );
-        var collection   = new Backbone.Collection;
-        var counter      = 0;
-        collection.parse = function( models ){
-            counter++;
-            return models;
-        };
-        collection.url   = '/test';
-        collection.fetch();
-        this.syncArgs.options.success( [] );
-        assert.equal( counter, 1 );
-    } );
-
-    QUnit.test( "create", function( assert ){
-        assert.expect( 4 );
-        var collection = new (Backbone.Model.defaults({ label : '' }).Collection );
-        collection.url = '/test';
-        var model      = collection.create( { label : 'f' }, { wait : true } );
-        assert.equal( this.syncArgs.method, 'create' );
-        assert.equal( this.syncArgs.model, model );
-        assert.equal( model.get( 'label' ), 'f' );
-        assert.equal( model.collection, collection );
-    } );
-
-    QUnit.test( "create with validate:true enforces validation", function( assert ){
-        assert.expect( 2 );
-        var ValidatingModel      = Backbone.Model.extend( {
-            validate : function( attrs ){
-                return "fail";
-            }
-        } );
-        var ValidatingCollection = Backbone.Collection.extend( {
-            model : ValidatingModel
-        } );
-        var col                  = new ValidatingCollection();
-        col.on( 'invalid', function( collection, error, options ){
-            assert.equal( error.error, "fail" );
-            assert.equal( options.validationError.error, 'fail' );
-        } );
-        col.create( { "foo" : "bar" }, { validate : true } );
-    } );
-
-    QUnit.test( "create will pass extra options to success callback", function( assert ){
-        assert.expect( 1 );
-        var Model = Backbone.Model.extend( {
-            sync : function( method, model, options ){
-                _.extend( options, { specialSync : true } );
-                return Backbone.Model.prototype.sync.call( this, method, model, options );
-            }
-        } );
-
-        var Collection = Backbone.Collection.extend( {
-            model : Model,
-            url   : '/test'
-        } );
-
-        var collection = new Collection;
-
-        var success = function( model, response, options ){
-            assert.ok( options.specialSync, "Options were passed correctly to callback" );
-        };
-
-        collection.create( {}, { success : success } );
-        this.ajaxSettings.success();
-    } );
-
-    QUnit.test( "create with wait:true should not call collection.parse", function( assert ){
-        assert.expect( 0 );
-        var Model = Backbone.Model.extend( {
-            collection : {
-                url   : '/test',
-                parse : function(){
-                    assert.ok( false );
-                }
-            }
-        } );
-
-        var collection = new Model.Collection;
-
-        collection.create( {}, { wait : true } );
-        this.ajaxSettings.success();
-    } );
-
-    QUnit.test( "a failing create returns model with errors", function( assert ){
-        var ValidatingModel      = Backbone.Model.extend( {
-            validate : function( attrs ){
-                return "fail";
-            }
-        } );
-        var ValidatingCollection = Backbone.Collection.extend( {
-            model : ValidatingModel
-        } );
-        var col                  = new ValidatingCollection();
-        var m                    = col.create( { "foo" : "bar" } );
-        assert.equal( m.validationError.error, 'fail' );
-        assert.equal( col.length, 1 );
-    } );
+    
 
     QUnit.test( "initialize", function( assert ){
         assert.expect( 1 );
@@ -873,24 +736,6 @@
         assert.ok( attrs === models[ 0 ] );
     } );
 
-    QUnit.test( "#714: access `model.collection` in a brand new model.", function( assert ){
-        assert.expect( 2 );
-        var collection   = new Backbone.Collection;
-        collection.url   = '/test';
-        var Model        = Backbone.Model.extend( {
-            defaults : {
-               prop : ''
-            },
-            initialize : function(){
-                assert.equal( this.prop, 'value' );
-                assert.equal( this.collection, collection );
-                return this;
-            }
-        } );
-        collection.model = Model;
-        collection.create( { prop : 'value' } );
-    } );
-
     QUnit.test( "#574, remove its own reference to the .models array.", function( assert ){
         assert.expect( 2 );
         var col = new Backbone.Collection( [
@@ -992,78 +837,9 @@
         assert.ok( colUndefined.comparator );
     } );
 
-    QUnit.test( "#1355 - `options` is passed to success callbacks", function( assert ){
-        assert.expect( 2 );
-        var M = Backbone.Model.defaults( { x : 1 } );
-        var m    = new M( { x : 1 } );
-        var col  = new M.Collection();
-        var opts = {
-            opts    : true,
-            success : function( collection, resp, options ){
-                assert.ok( options.opts );
-            }
-        };
-        col.sync = m.sync = function( method, collection, options ){
-            options.success( {} );
-        };
-        col.fetch( opts );
-        col.create( m, opts );
-    } );
+    
 
-    QUnit.test( "#1412 - Trigger 'request' and 'sync' events.", function( assert ){
-        assert.expect( 4 );
-        var collection = new Backbone.Collection;
-        collection.url = '/test';
-        Backbone.ajax  = function( settings ){ settings.success(); };
-
-        collection.on( 'request', function( obj, xhr, options ){
-            assert.ok( obj === collection, "collection has correct 'request' event after fetching" );
-        } );
-        collection.on( 'sync', function( obj, response, options ){
-            assert.ok( obj === collection, "collection has correct 'sync' event after fetching" );
-        } );
-        collection.fetch();
-        collection.off();
-
-        collection.on( 'request', function( obj, xhr, options ){
-            assert.ok( obj === collection.get( 1 ),
-                "collection has correct 'request' event after one of its models save" );
-        } );
-        collection.on( 'sync', function( obj, response, options ){
-            assert.ok( obj === collection.get( 1 ),
-                "collection has correct 'sync' event after one of its models save" );
-        } );
-        collection.create( { id : 1 } );
-        collection.off();
-    } );
-
-    QUnit.test( "#3283 - fetch, create calls success with context", function( assert ){
-        assert.expect( 2 );
-        var collection = new Backbone.Collection;
-        collection.url = '/test';
-        Backbone.ajax  = function( settings ){
-            settings.success.call( settings.context );
-        };
-        var obj        = {};
-        var options    = {
-            context : obj,
-            success : function(){
-                assert.equal( this, obj );
-            }
-        };
-
-        collection.fetch( options );
-        collection.create( { id : 1 }, options );
-    } );
-
-    QUnit.test( "#1447 - create with wait adds model.", function( assert ){
-        assert.expect( 1 );
-        var collection = new Backbone.Collection;
-        var model      = new Backbone.Model;
-        model.sync     = function( method, model, options ){ options.success(); };
-        collection.on( 'add', function(){ assert.ok( true ); } );
-        collection.create( model, { wait : true } );
-    } );
+   
 
     QUnit.test( "#1448 - add sorts collection after merge.", function( assert ){
         assert.expect( 1 );
@@ -1117,21 +893,7 @@
         assert.deepEqual( added, [ 1, 2 ] );
     } );
 
-    QUnit.test( "fetch parses models by default", function( assert ){
-        assert.expect( 1 );
-        var model      = {};
-        var Collection = Backbone.Collection.extend( {
-            url   : 'test',
-            model : Backbone.Model.extend( {
-                parse : function( resp ){
-                    assert.strictEqual( resp, model );
-                }
-            } )
-        } );
-        new Collection().fetch();
-        this.ajaxSettings.success( [ model ] );
-    } );
-
+    
     QUnit.test( "`sort` shouldn't always fire on `add`", function( assert ){
         assert.expect( 1 );
         var c  = new Backbone.Collection( [ { id : 1 }, { id : 2 }, { id : 3 } ], {
@@ -1430,46 +1192,7 @@
         collection.set( res, { parse : true } );
     } );
 
-    QUnit.test( "#1939 - `parse` is passed `options`", function( assert ){
-        var done = assert.async();
-        assert.expect( 1 );
-        var collection = new (Backbone.Collection.extend( {
-            url   : '/',
-            parse : function( data, options ){
-                assert.strictEqual( options.xhr.someHeader, 'headerValue' );
-                return data;
-            }
-        } ));
-        var ajax       = Backbone.ajax;
-        Backbone.ajax  = function( params ){
-            _.defer( params.success, [] );
-            return { someHeader : 'headerValue' };
-        };
-        collection.fetch( {
-            success : function(){ done(); }
-        } );
-        Backbone.ajax = ajax;
-    } );
-
-    QUnit.test( "fetch will pass extra options to success callback", function( assert ){
-        assert.expect( 1 );
-        var SpecialSyncCollection = Backbone.Collection.extend( {
-            url  : '/test',
-            sync : function( method, collection, options ){
-                _.extend( options, { specialSync : true } );
-                return Backbone.Collection.prototype.sync.call( this, method, collection, options );
-            }
-        } );
-
-        var collection = new SpecialSyncCollection();
-
-        var onSuccess = function( collection, resp, options ){
-            assert.ok( options.specialSync, "Options were passed correctly to callback" );
-        };
-
-        collection.fetch( { success : onSuccess } );
-        this.ajaxSettings.success();
-    } );
+    
 
     QUnit.test( "`add` only `sort`s when necessary", function( assert ){
         assert.expect( 2 );
@@ -1540,18 +1263,6 @@
         } );
         collection.set( { id : 1 } );
         assert.equal( collection.length, 2 );
-    } );
-
-    QUnit.test( "#2606 - Collection#create, success arguments", function( assert ){
-        assert.expect( 1 );
-        var collection = new Backbone.Collection;
-        collection.url = 'test';
-        collection.create( {}, {
-            success : function( model, resp, options ){
-                assert.strictEqual( resp, 'response' );
-            }
-        } );
-        this.ajaxSettings.success( 'response' );
     } );
 
     QUnit.test( "#2612 - nested `parse` works with `Collection#set`", function( assert ){
@@ -1677,16 +1388,6 @@
         collection.set( [ { id : 1 } ], { add : false } );
         assert.strictEqual( collection.length, 0 );
         assert.strictEqual( collection.models.length, 0 );
-    } );
-
-    QUnit.test( "create with wait, model instance, #3028", function( assert ){
-        assert.expect( 1 );
-        var collection = new Backbone.Collection();
-        var model      = new Backbone.Model( { id : 1 } );
-        model.sync     = function(){
-            assert.equal( this.collection, collection );
-        };
-        collection.create( model, { wait : true } );
     } );
 
     QUnit.test( "modelId", function( assert ){
@@ -1884,5 +1585,332 @@
         } );
         model.trigger( 'change' );
     } );
+
+    QUnit.module( "Backbone.Collection.IO", {
+
+        beforeEach : function( assert ){
+            a        = new M( { id : 3, label : 'a' } );
+            b        = new M( { id : 2, label : 'b' } );
+            c        = new M( { id : 1, label : 'c' } );
+            d        = new M( { id : 0, label : 'd' } );
+            e        = null;
+            col      = new M.Collection( [ a, b, c, d ] );
+            otherCol = new M.Collection();
+        }
+    } );
+
+    /*********************************************
+     * IO related tests
+     */
+
+    QUnit.test( "fetch", function( assert ){
+        assert.expect( 4 );
+        var collection = new Backbone.Collection;
+        collection.url = '/test';
+        collection.fetch();
+        assert.equal( this.syncArgs.method, 'read' );
+        assert.equal( this.syncArgs.model, collection );
+        assert.equal( this.syncArgs.options.parse, true );
+
+        collection.fetch( { parse : false } );
+        assert.equal( this.syncArgs.options.parse, false );
+    } );
+
+    QUnit.test( "fetch with an error response triggers an error event", function( assert ){
+        assert.expect( 1 );
+        var collection = new Backbone.Collection();
+        collection.on( 'error', function(){
+            assert.ok( true );
+        } );
+        collection.sync = function( method, model, options ){ options.error(); };
+        collection.fetch();
+    } );
+
+    QUnit.test( "#3283 - fetch with an error response calls error with context", function( assert ){
+        assert.expect( 1 );
+        var collection  = new Backbone.Collection();
+        var obj         = {};
+        var options     = {
+            context : obj,
+            error   : function(){
+                assert.equal( this, obj );
+            }
+        };
+        collection.sync = function( method, model, options ){
+            options.error.call( options.context );
+            return {};
+        };
+        collection.fetch( options );
+    } );
+
+    QUnit.test( "ensure fetch only parses once", function( assert ){
+        assert.expect( 1 );
+        var collection   = new Backbone.Collection;
+        var counter      = 0;
+        collection.parse = function( models ){
+            counter++;
+            return models;
+        };
+        collection.url   = '/test';
+        collection.fetch();
+        this.syncArgs.options.success( [] );
+        assert.equal( counter, 1 );
+    } );
+
+    QUnit.test( "create", function( assert ){
+        assert.expect( 4 );
+        var collection = new (Backbone.Model.defaults({ label : '' }).Collection );
+        collection.url = '/test';
+        var model      = collection.create( { label : 'f' }, { wait : true } );
+        assert.equal( this.syncArgs.method, 'create' );
+        assert.equal( this.syncArgs.model, model );
+        assert.equal( model.get( 'label' ), 'f' );
+        assert.equal( model.collection, collection );
+    } );
+
+    QUnit.test( "create with validate:true enforces validation", function( assert ){
+        assert.expect( 2 );
+        var ValidatingModel      = Backbone.Model.extend( {
+            validate : function( attrs ){
+                return "fail";
+            }
+        } );
+        var ValidatingCollection = Backbone.Collection.extend( {
+            model : ValidatingModel
+        } );
+        var col                  = new ValidatingCollection();
+        col.on( 'invalid', function( collection, error, options ){
+            assert.equal( error.error, "fail" );
+            assert.equal( options.validationError.error, 'fail' );
+        } );
+        col.create( { "foo" : "bar" }, { validate : true } );
+    } );
+
+    QUnit.test( "create will pass extra options to success callback", function( assert ){
+        assert.expect( 1 );
+        var Model = Backbone.Model.extend( {
+            sync : function( method, model, options ){
+                _.extend( options, { specialSync : true } );
+                return Backbone.Model.prototype.sync.call( this, method, model, options );
+            }
+        } );
+
+        var Collection = Backbone.Collection.extend( {
+            model : Model,
+            url   : '/test'
+        } );
+
+        var collection = new Collection;
+
+        var success = function( model, response, options ){
+            assert.ok( options.specialSync, "Options were passed correctly to callback" );
+        };
+
+        collection.create( {}, { success : success } );
+        this.ajaxSettings.success();
+    } );
+
+    QUnit.test( "create with wait:true should not call collection.parse", function( assert ){
+        assert.expect( 0 );
+        var Model = Backbone.Model.extend( {
+            collection : {
+                url   : '/test',
+                parse : function(){
+                    assert.ok( false );
+                }
+            }
+        } );
+
+        var collection = new Model.Collection;
+
+        collection.create( {}, { wait : true } );
+        this.ajaxSettings.success();
+    } );
+
+    QUnit.test( "a failing create returns model with errors", function( assert ){
+        var ValidatingModel      = Backbone.Model.extend( {
+            validate : function( attrs ){
+                return "fail";
+            }
+        } );
+        var ValidatingCollection = Backbone.Collection.extend( {
+            model : ValidatingModel
+        } );
+        var col                  = new ValidatingCollection();
+        var m                    = col.create( { "foo" : "bar" } );
+        assert.equal( m.validationError.error, 'fail' );
+        assert.equal( col.length, 1 );
+    } );
+
+QUnit.test( "#1355 - `options` is passed to success callbacks", function( assert ){
+        assert.expect( 2 );
+        var M = Backbone.Model.defaults( { x : 1 } );
+        var m    = new M( { x : 1 } );
+        var col  = new M.Collection();
+        var opts = {
+            opts    : true,
+            success : function( collection, resp, options ){
+                assert.ok( options.opts );
+            }
+        };
+        col.sync = m.sync = function( method, collection, options ){
+            options.success( {} );
+        };
+        col.fetch( opts );
+        col.create( m, opts );
+    } );
+
+    QUnit.test( "#1412 - Trigger 'request' and 'sync' events.", function( assert ){
+        assert.expect( 4 );
+        var collection = new Backbone.Collection;
+        collection.url = '/test';
+        Backbone.ajax  = function( settings ){ settings.success(); };
+
+        collection.on( 'request', function( obj, xhr, options ){
+            assert.ok( obj === collection, "collection has correct 'request' event after fetching" );
+        } );
+        collection.on( 'sync', function( obj, response, options ){
+            assert.ok( obj === collection, "collection has correct 'sync' event after fetching" );
+        } );
+        collection.fetch();
+        collection.off();
+
+        collection.on( 'request', function( obj, xhr, options ){
+            assert.ok( obj === collection.get( 1 ),
+                "collection has correct 'request' event after one of its models save" );
+        } );
+        collection.on( 'sync', function( obj, response, options ){
+            assert.ok( obj === collection.get( 1 ),
+                "collection has correct 'sync' event after one of its models save" );
+        } );
+        collection.create( { id : 1 } );
+        collection.off();
+    } );
+
+    QUnit.test( "#3283 - fetch, create calls success with context", function( assert ){
+        assert.expect( 2 );
+        var collection = new Backbone.Collection;
+        collection.url = '/test';
+        Backbone.ajax  = function( settings ){
+            settings.success.call( settings.context );
+        };
+        var obj        = {};
+        var options    = {
+            context : obj,
+            success : function(){
+                assert.equal( this, obj );
+            }
+        };
+
+        collection.fetch( options );
+        collection.create( { id : 1 }, options );
+    } );
+
+    QUnit.test( "fetch parses models by default", function( assert ){
+        assert.expect( 1 );
+        var model      = {};
+        var Collection = Backbone.Collection.extend( {
+            url   : 'test',
+            model : Backbone.Model.extend( {
+                parse : function( resp ){
+                    assert.strictEqual( resp, model );
+                }
+            } )
+        } );
+        new Collection().fetch();
+        this.ajaxSettings.success( [ model ] );
+    } );
+
+QUnit.test( "#1939 - `parse` is passed `options`", function( assert ){
+        var done = assert.async();
+        assert.expect( 1 );
+        var collection = new (Backbone.Collection.extend( {
+            url   : '/',
+            parse : function( data, options ){
+                assert.strictEqual( options.xhr.someHeader, 'headerValue' );
+                return data;
+            }
+        } ));
+        var ajax       = Backbone.ajax;
+        Backbone.ajax  = function( params ){
+            _.defer( params.success, [] );
+            return { someHeader : 'headerValue' };
+        };
+        collection.fetch( {
+            success : function(){ done(); }
+        } );
+        Backbone.ajax = ajax;
+    } );
+
+    QUnit.test( "fetch will pass extra options to success callback", function( assert ){
+        assert.expect( 1 );
+        var SpecialSyncCollection = Backbone.Collection.extend( {
+            url  : '/test',
+            sync : function( method, collection, options ){
+                _.extend( options, { specialSync : true } );
+                return Backbone.Collection.prototype.sync.call( this, method, collection, options );
+            }
+        } );
+
+        var collection = new SpecialSyncCollection();
+
+        var onSuccess = function( collection, resp, options ){
+            assert.ok( options.specialSync, "Options were passed correctly to callback" );
+        };
+
+        collection.fetch( { success : onSuccess } );
+        this.ajaxSettings.success();
+    } );
+
+    QUnit.test( "#714: access `model.collection` in a brand new model.", function( assert ){
+        assert.expect( 2 );
+        var collection   = new Backbone.Collection;
+        collection.url   = '/test';
+        var Model        = Backbone.Model.extend( {
+            defaults : {
+               prop : ''
+            },
+            initialize : function(){
+                assert.equal( this.prop, 'value' );
+                assert.equal( this.collection, collection );
+                return this;
+            }
+        } );
+        collection.model = Model;
+        collection.create( { prop : 'value' } );
+    } );
+
+    QUnit.test( "#1447 - create with wait adds model.", function( assert ){
+        assert.expect( 1 );
+        var collection = new Backbone.Collection;
+        var model      = new Backbone.Model;
+        model.sync     = function( method, model, options ){ options.success(); };
+        collection.on( 'add', function(){ assert.ok( true ); } );
+        collection.create( model, { wait : true } );
+    } );
+
+    QUnit.test( "#2606 - Collection#create, success arguments", function( assert ){
+        assert.expect( 1 );
+        var collection = new Backbone.Collection;
+        collection.url = 'test';
+        collection.create( {}, {
+            success : function( model, resp, options ){
+                assert.strictEqual( resp, 'response' );
+            }
+        } );
+        this.ajaxSettings.success( 'response' );
+    } );
+
+    QUnit.test( "create with wait, model instance, #3028", function( assert ){
+        assert.expect( 1 );
+        var collection = new Backbone.Collection();
+        var model      = new Backbone.Model( { id : 1 } );
+        model.sync     = function(){
+            assert.equal( this.collection, collection );
+        };
+        collection.create( model, { wait : true } );
+    } );
+
+
 
 })();

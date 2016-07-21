@@ -73,8 +73,8 @@ export class Collection extends Transactional implements CollectionCore {
 
         if( record.hasChanged( idAttribute ) ){
             const { _byId } = this;
-            removeIndex( _byId, record.previous( idAttribute ) );
-            addIndex( _byId, record[ idAttribute ] );
+            delete _byId[ record.previous( idAttribute ) ];
+            _byId[ record[ idAttribute ] ] = record;
         }
 
         if( markAsDirty( this, options ) ){

@@ -60,7 +60,7 @@ function appendElements( collection : CollectionCore, a_items, nested : Transact
         idAttribute = collection.model.prototype.idAttribute,
         prevLength = models.length;
 
-    for( const item of a_items.length ){
+    for( const item of a_items ){
         let model = item ? _byId[ item[ idAttribute ] ] || _byId[ item.cid ] : null;
 
         if( model ){

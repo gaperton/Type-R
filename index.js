@@ -2087,8 +2087,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var isRoot = transactions_ts_1.begin(this), idAttribute = this.idAttribute;
 	        if (record.hasChanged(idAttribute)) {
 	            var _byId = this._byId;
-	            commons_ts_1.removeIndex(_byId, record.previous(idAttribute));
-	            commons_ts_1.addIndex(_byId, record[idAttribute]);
+	            delete _byId[record.previous(idAttribute)];
+	            _byId[record[idAttribute]] = record;
 	        }
 	        if (transactions_ts_1.markAsDirty(this, options)) {
 	            index_ts_1.trigger2(this, 'change', record, options);
@@ -2370,8 +2370,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	function appendElements(collection, a_items, nested, a_options) {
 	    var models = collection.models, _byId = collection._byId, merge = a_options.merge, parse = a_options.parse, idAttribute = collection.model.prototype.idAttribute, prevLength = models.length;
-	    for (var _i = 0, _a = a_items.length; _i < _a.length; _i++) {
-	        var item = _a[_i];
+	    for (var _i = 0, a_items_1 = a_items; _i < a_items_1.length; _i++) {
+	        var item = a_items_1[_i];
 	        var model = item ? _byId[item[idAttribute]] || _byId[item.cid] : null;
 	        if (model) {
 	            if (merge && item !== model) {
