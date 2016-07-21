@@ -662,11 +662,24 @@
 
     QUnit.test( "Invalid models are discarded with validate:true.", function( assert ){
         assert.expect( 5 );
-        var collection = new Backbone.Collection;
-        collection.on( 'test', function(){ assert.ok( true ); } );
-        collection.model = Backbone.Model.extend( {
+
+        const M = Backbone.Model.extend( {
+            attributes : {
+                valid : Boolean
+            },
+
+            collection : {
+                bubbleEvents : [ 'test' ]
+            },
+
             validate : function( attrs ){ if( !attrs.valid ) return 'invalid'; }
         } );
+
+        var collection = new M.Collection;
+        collection.on( 'test', function(){
+            assert.ok( true );
+         } );
+
         var model        = new collection.model( { id : 1, valid : true } );
         collection.add( [ model, { id : 2 } ], { validate : true } );
         model.trigger( 'test' );
