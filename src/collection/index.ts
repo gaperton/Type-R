@@ -1,4 +1,4 @@
-import { define, log, assign, Class, ClassDefinition, defaults, trigger2 } from '../objectplus/index.ts'
+import { define, log, assign, Mixable, ClassDefinition, defaults } from '../objectplus/index.ts'
 import { begin, commit, markAsDirty, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 import { Record, TransactionalType } from '../record/index.ts'
 
@@ -6,6 +6,8 @@ import { IdIndex, sortElements, dispose, Elements, CollectionCore, addIndex, rem
 import { addTransaction } from './add.ts'
 import { setTransaction, emptySetTransaction } from './set.ts'
 import { removeOne, removeMany } from './remove.ts'
+
+const { trigger2 } = Transactional;
 
 let _count = 0;
 

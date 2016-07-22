@@ -1,5 +1,5 @@
 import { Record, RecordDefinition, AttributeDescriptorMap } from './transaction.ts'
-import { assign, defaults, omit, Class, ClassDefinition, getBaseClass } from '../objectplus/index.ts'
+import { assign, defaults, omit, Mixable, ClassDefinition, getBaseClass } from '../objectplus/index.ts'
 import { compile, AttributesSpec } from './define.ts'
 import { ChainableAttributeSpec } from './typespec.ts'
 
@@ -23,7 +23,7 @@ Record.define = function( protoProps : RecordDefinition, staticProps ){
 
         // Merge in definition.
         defaults( definition, omit( protoProps, 'attributes', 'collection' ) );            
-        Class.define.call( this, definition, staticProps );
+        Mixable.define.call( this, definition, staticProps );
         defineCollection.call( this, protoProps && protoProps.collection );
     }
 
@@ -31,7 +31,7 @@ Record.define = function( protoProps : RecordDefinition, staticProps ){
 }
 
 Record.predefine = function(){
-    Class.predefine.call( this );
+    Mixable.predefine.call( this );
 
     this.Collection = getBaseClass( this ).Collection.extend();
     this.Collection.prototype.model = this;

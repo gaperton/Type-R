@@ -1,13 +1,15 @@
-import { Messenger, trigger2, trigger3, assign, define, Constructor, ExtendableConstructor } from './objectplus/index.ts'
+import { Messenger, assign, define, Constructor, MixableConstructor } from './objectplus/index.ts'
 import { ValidationError, Validatable, ChildrenErrors } from './validation.ts'
 import { Traversable, resolveReference } from './references.ts'
+
+const { trigger2, trigger3 } = Messenger;
 /***
  * Abstract class implementing ownership tree, tho-phase transactions, and validation. 
  * 1. createTransaction() - apply changes to an object tree, and if there are some events to send, transaction object is created.
  * 2. transaction.commit() - send and process all change events, and close transaction.
  */
 
-export type TransactionalConstructor = ExtendableConstructor< Transactional >;
+export type TransactionalConstructor = MixableConstructor< Transactional >;
 
 // Transactional object interface
 @define({

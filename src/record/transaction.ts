@@ -3,10 +3,12 @@
  * The root of all definitions. 
  */
 
-import { assign, isEmpty, EventHandlers, Class, ClassDefinition, Constructor, trigger3, log, define } from '../objectplus/index.ts'
+import { assign, isEmpty, EventHandlers, Mixable, ClassDefinition, Constructor, log, define } from '../objectplus/index.ts'
 
 import { begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 import { ChildrenErrors } from '../validation.ts'
+
+const { trigger3 } = Transactional;
 
 /***************************************************************
  * Record Definition as accepted by Record.define( definition )

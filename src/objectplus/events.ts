@@ -3,58 +3,6 @@ import Tools = require( './tools.ts' );
 
 const { mixins, define, extendable } = Mixins;
 const { once, isEmpty, keys } = Tools;
-/************
- * JIT-Optimized monomorphic functions to trigger single event 
- */
-export function trigger0( self : Messenger, name : string ) : void {
-    const { _events } = self;
-    if( _events ){
-        const { all } = _events;
-        _fireEvent0( _events[ name ] );
-        _fireEvent1( all, name );
-    }
-};
-
-export function trigger1( self : Messenger, name : string, a : any ) : void {
-    const { _events } = self;
-    if( _events ){
-        const { all } = _events;
-        _fireEvent1( _events[ name ], a );
-        _fireEvent2( all, name, a );
-    }
-};
-
-export function trigger2( self : Messenger, name : string, a, b ) : void {
-    const { _events } = self;
-    if( _events ){
-        const { all } = _events;
-        _fireEvent2( _events[ name ], a, b );
-        _fireEvent3( all, name, a, b );
-    }
-};
-
-export function trigger3( self : Messenger, name : string, a, b, c ) : void{
-    const { _events } = self;
-    if( _events ){
-        const { all } = _events;
-        _fireEvent3( _events[ name ], a, b, c );
-        _fireEvent4( all, name, a, b, c );
-    }
-};
-
-// Backbone.Events
-// ---------------
-
-// A module that can be mixed in to *any object* in order to provide it with
-// a custom event channel. You may bind a callback to an event with `on` or
-// remove with `off`; `trigger`-ing an event fires all callbacks in
-// succession.
-//
-//     var object = {};
-//     _.extend(object, Backbone.Events);
-//     object.on('expand', function(){ alert('expanded'); });
-//     object.trigger('expand');
-//
 
 // Regular expression used to split event strings.
 const eventSplitter = /\s+/;
@@ -75,8 +23,11 @@ function uniqueId(){
     cidPrefix : 'l'
 })
 @extendable
-export abstract class Messenger implements Mixins.Class {
-    bindAll : ( ...names : string [] ) => void
+export abstract class Messenger implements Mixins.Mixable {
+    static trigger0 = trigger0
+    static trigger1 = trigger1
+    static trigger2 = trigger2
+    static trigger3 = trigger3
 
     _events : EventsMap = void 0;
     _listeners : Listeners = void 0;
@@ -396,6 +347,45 @@ function onceMap(map, name, callback, offer) {
         _once._callback = callback;
     }
     return map;
+};
+
+/************
+ * JIT-Optimized monomorphic functions to trigger single event 
+ */
+function trigger0( self : Messenger, name : string ) : void {
+    const { _events } = self;
+    if( _events ){
+        const { all } = _events;
+        _fireEvent0( _events[ name ] );
+        _fireEvent1( all, name );
+    }
+};
+
+function trigger1( self : Messenger, name : string, a : any ) : void {
+    const { _events } = self;
+    if( _events ){
+        const { all } = _events;
+        _fireEvent1( _events[ name ], a );
+        _fireEvent2( all, name, a );
+    }
+};
+
+function trigger2( self : Messenger, name : string, a, b ) : void {
+    const { _events } = self;
+    if( _events ){
+        const { all } = _events;
+        _fireEvent2( _events[ name ], a, b );
+        _fireEvent3( all, name, a, b );
+    }
+};
+
+function trigger3( self : Messenger, name : string, a, b, c ) : void{
+    const { _events } = self;
+    if( _events ){
+        const { all } = _events;
+        _fireEvent3( _events[ name ], a, b, c );
+        _fireEvent4( all, name, a, b, c );
+    }
 };
 
 // Specialized functions with events triggering loops.

@@ -2,7 +2,7 @@ import { Record } from '../record/index.ts'
 import { Owner, aquire as _aquire, free as _free, Transaction, markAsDirty,
         TransactionOptions, Transactional, commit } from '../transactions.ts'
 
-import { trigger2, trigger3 } from '../objectplus/index.ts'        
+const { trigger2, trigger3 } = Transactional;        
 
 export interface CollectionCore extends Transactional, Owner {
     _byId : IdIndex

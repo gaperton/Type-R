@@ -69,6 +69,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.Collection = index_ts_3.Collection;
 	__export(__webpack_require__(5));
 	__export(__webpack_require__(6));
+	var mixins_ts_2 = __webpack_require__(5);
+	exports.Class = mixins_ts_2.Mixable;
 	function value(x) {
 	    return new index_ts_1.ChainableAttributeSpec({ value: x });
 	}
@@ -369,13 +371,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        index_ts_1.assign(definition.properties, protoProps.properties || {});
 	        index_ts_1.defaults(definition, index_ts_1.omit(protoProps, 'attributes', 'collection'));
-	        index_ts_1.Class.define.call(this, definition, staticProps);
+	        index_ts_1.Mixable.define.call(this, definition, staticProps);
 	        defineCollection.call(this, protoProps && protoProps.collection);
 	    }
 	    return this;
 	};
 	transaction_ts_1.Record.predefine = function () {
-	    index_ts_1.Class.predefine.call(this);
+	    index_ts_1.Mixable.predefine.call(this);
 	    this.Collection = index_ts_1.getBaseClass(this).Collection.extend();
 	    this.Collection.prototype.model = this;
 	    return this;
@@ -426,6 +428,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var index_ts_1 = __webpack_require__(4);
 	var transactions_ts_1 = __webpack_require__(7);
+	var trigger3 = transactions_ts_1.Transactional.trigger3;
 	var _cidCounter = 0;
 	var Record = (function (_super) {
 	    __extends(Record, _super);
@@ -639,7 +642,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (options === void 0) { options = {}; }
 	        var isRoot = begin(this);
 	        if (markAsDirty(this, options)) {
-	            index_ts_1.trigger3(this, 'change:' + key, this, this.attributes[key], options);
+	            trigger3(this, 'change:' + key, this, this.attributes[key], options);
 	        }
 	        isRoot && transactions_ts_1.commit(this);
 	    };
@@ -698,7 +701,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (nestedTransaction) {
 	            nestedTransaction.commit(true);
 	            markAsDirty(record, options);
-	            index_ts_1.trigger3(record, 'change:' + name, record, prev, options);
+	            trigger3(record, 'change:' + name, record, prev, options);
 	        }
 	    }
 	    else {
@@ -707,7 +710,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (spec.isChanged(next, prev)) {
 	            spec.handleChange(next, prev, record);
 	            markAsDirty(record, options);
-	            index_ts_1.trigger3(record, 'change:' + name, record, next, options);
+	            trigger3(record, 'change:' + name, record, next, options);
 	        }
 	    }
 	    isRoot && transactions_ts_1.commit(record);
@@ -729,7 +732,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var attributes = object.attributes, _isDirty = object._isDirty;
 	        for (var _b = 0, changes_1 = changes; _b < changes_1.length; _b++) {
 	            var key = changes_1[_b];
-	            index_ts_1.trigger3(object, 'change:' + key, object, attributes[key], _isDirty);
+	            trigger3(object, 'change:' + key, object, attributes[key], _isDirty);
 	        }
 	        this.isRoot && transactions_ts_1.commit(object, isNested);
 	    };
@@ -761,22 +764,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var tools_ts_1 = __webpack_require__(1);
-	var Class = (function () {
-	    function Class() {
+	var Mixable = (function () {
+	    function Mixable() {
 	    }
-	    Class.create = function (a, b, c) {
+	    Mixable.create = function (a, b, c) {
 	        return new this(a, b, c);
 	    };
-	    Class.mixins = function () {
+	    Mixable.mixins = function () {
 	        var mixins = [];
 	        for (var _i = 0; _i < arguments.length; _i++) {
 	            mixins[_i - 0] = arguments[_i];
 	        }
 	        var proto = this.prototype, mergeRules = this._mixinRules || {};
-	        for (var i = mixins.length - 1; i >= 0; i--) {
-	            var mixin = mixins[i];
+	        for (var _a = 0, mixins_1 = mixins; _a < mixins_1.length; _a++) {
+	            var mixin = mixins_1[_a];
 	            if (mixin instanceof Array) {
-	                Class.mixins.apply(this, mixin);
+	                Mixable.mixins.apply(this, mixin);
 	            }
 	            else if (typeof mixin === 'function') {
 	                tools_ts_1.defaults(this, mixin);
@@ -788,18 +791,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return this;
 	    };
-	    Class.mixTo = function () {
+	    Mixable.mixTo = function () {
 	        var args = [];
 	        for (var _i = 0; _i < arguments.length; _i++) {
 	            args[_i - 0] = arguments[_i];
 	        }
 	        for (var _a = 0, args_1 = args; _a < args_1.length; _a++) {
 	            var Ctor = args_1[_a];
-	            Class.mixins.call(Ctor, this);
+	            Mixable.mixins.call(Ctor, this);
 	        }
 	        return this;
 	    };
-	    Class.mixinRules = function (mixinRules) {
+	    Mixable.mixinRules = function (mixinRules) {
 	        var Base = Object.getPrototypeOf(this.prototype).constructor;
 	        if (Base._mixinRules) {
 	            mergeProps(mixinRules, Base._mixinRules);
@@ -807,13 +810,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this._mixinRules = mixinRules;
 	        return this;
 	    };
-	    Class.prototype.bindAll = function () {
-	        for (var i = 0; i < arguments.length; i++) {
-	            var name_1 = arguments[i];
-	            this[name_1] = this[name_1].bind(this);
-	        }
-	    };
-	    Class.define = function (definition, staticProps) {
+	    Mixable.define = function (definition, staticProps) {
 	        if (definition === void 0) { definition = {}; }
 	        if (!this.define) {
 	            tools_ts_1.log.error("[Class.define] Class must have class extensions to use @define decorator. Use '@extendable' before @define, or extend the base class with class extensions.", definition);
@@ -829,7 +826,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        mixins && this.mixins(mixins);
 	        return this;
 	    };
-	    Class.extend = function (spec, statics) {
+	    Mixable.extend = function (spec, statics) {
 	        var Subclass;
 	        if (spec && spec.hasOwnProperty('constructor')) {
 	            Subclass = spec.constructor;
@@ -846,17 +843,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return spec ? Subclass.define(spec, statics) : Subclass.predefine();
 	    };
-	    Class.predefine = function () {
+	    Mixable.predefine = function () {
 	        var BaseClass = tools_ts_1.getBaseClass(this);
 	        if (BaseClass.create === this.create) {
-	            this.create = Class.create;
+	            this.create = Mixable.create;
 	        }
 	        return this;
 	    };
-	    Class._mixinRules = { properties: 'merge' };
-	    return Class;
+	    Mixable._mixinRules = { properties: 'merge' };
+	    return Mixable;
 	}());
-	exports.Class = Class;
+	exports.Mixable = Mixable;
 	function toPropertyDescriptor(x) {
 	    if (x) {
 	        return typeof x === 'function' ? { get: x } : x;
@@ -875,7 +872,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	exports.mixins = mixins;
 	function extendable(Type) {
-	    Class.mixTo(Type);
+	    Mixable.mixTo(Type);
 	}
 	exports.extendable = extendable;
 	function predefine(Constructor) {
@@ -892,7 +889,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            Ctor[name](spec);
 	        }
 	        else {
-	            Class[name].call(Ctor, spec);
+	            Mixable[name].call(Ctor, spec);
 	        }
 	    };
 	}
@@ -932,19 +929,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	function mergeProps(target, source, rules) {
 	    if (rules === void 0) { rules = {}; }
 	    for (var _i = 0, _a = Object.keys(source); _i < _a.length; _i++) {
-	        var name_2 = _a[_i];
-	        var sourceProp = Object.getOwnPropertyDescriptor(source, name_2), destProp = tools_ts_1.getPropertyDescriptor(target, name_2);
+	        var name_1 = _a[_i];
+	        var sourceProp = Object.getOwnPropertyDescriptor(source, name_1), destProp = tools_ts_1.getPropertyDescriptor(target, name_1);
 	        if (destProp) {
-	            var rule = rules[name_2], value = destProp.value;
+	            var rule = rules[name_1], value = destProp.value;
 	            if (rule && value) {
-	                target[name_2] = typeof rule === 'object' ?
+	                target[name_1] = typeof rule === 'object' ?
 	                    mergeObjects(value, sourceProp.value, rule) : (rule === 'merge' ?
 	                    mergeObjects(value, sourceProp.value) :
 	                    mergeFunctions[rule](value, sourceProp.value));
 	            }
 	        }
 	        else {
-	            Object.defineProperty(target, name_2, sourceProp);
+	            Object.defineProperty(target, name_1, sourceProp);
 	        }
 	    }
 	    return target;
@@ -966,46 +963,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Tools = __webpack_require__(1);
 	var mixins = Mixins.mixins, define = Mixins.define, extendable = Mixins.extendable;
 	var once = Tools.once, isEmpty = Tools.isEmpty, keys = Tools.keys;
-	function trigger0(self, name) {
-	    var _events = self._events;
-	    if (_events) {
-	        var all = _events.all;
-	        _fireEvent0(_events[name]);
-	        _fireEvent1(all, name);
-	    }
-	}
-	exports.trigger0 = trigger0;
-	;
-	function trigger1(self, name, a) {
-	    var _events = self._events;
-	    if (_events) {
-	        var all = _events.all;
-	        _fireEvent1(_events[name], a);
-	        _fireEvent2(all, name, a);
-	    }
-	}
-	exports.trigger1 = trigger1;
-	;
-	function trigger2(self, name, a, b) {
-	    var _events = self._events;
-	    if (_events) {
-	        var all = _events.all;
-	        _fireEvent2(_events[name], a, b);
-	        _fireEvent3(all, name, a, b);
-	    }
-	}
-	exports.trigger2 = trigger2;
-	;
-	function trigger3(self, name, a, b, c) {
-	    var _events = self._events;
-	    if (_events) {
-	        var all = _events.all;
-	        _fireEvent3(_events[name], a, b, c);
-	        _fireEvent4(all, name, a, b, c);
-	    }
-	}
-	exports.trigger3 = trigger3;
-	;
 	var eventSplitter = /\s+/;
 	var _idCount = 0;
 	function uniqueId() {
@@ -1117,6 +1074,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.stopListening();
 	        this.off();
 	    };
+	    Messenger.trigger0 = trigger0;
+	    Messenger.trigger1 = trigger1;
+	    Messenger.trigger2 = trigger2;
+	    Messenger.trigger3 = trigger3;
 	    Messenger = __decorate([
 	        define({
 	            cidPrefix: 'l'
@@ -1255,6 +1216,42 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return map;
 	}
 	;
+	function trigger0(self, name) {
+	    var _events = self._events;
+	    if (_events) {
+	        var all = _events.all;
+	        _fireEvent0(_events[name]);
+	        _fireEvent1(all, name);
+	    }
+	}
+	;
+	function trigger1(self, name, a) {
+	    var _events = self._events;
+	    if (_events) {
+	        var all = _events.all;
+	        _fireEvent1(_events[name], a);
+	        _fireEvent2(all, name, a);
+	    }
+	}
+	;
+	function trigger2(self, name, a, b) {
+	    var _events = self._events;
+	    if (_events) {
+	        var all = _events.all;
+	        _fireEvent2(_events[name], a, b);
+	        _fireEvent3(all, name, a, b);
+	    }
+	}
+	;
+	function trigger3(self, name, a, b, c) {
+	    var _events = self._events;
+	    if (_events) {
+	        var all = _events.all;
+	        _fireEvent3(_events[name], a, b, c);
+	        _fireEvent4(all, name, a, b, c);
+	    }
+	}
+	;
 	function _fireEvent0(events) {
 	    if (events)
 	        for (var _i = 0, events_1 = events; _i < events_1.length; _i++) {
@@ -1318,6 +1315,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var index_ts_1 = __webpack_require__(4);
 	var validation_ts_1 = __webpack_require__(8);
 	var references_ts_1 = __webpack_require__(9);
+	var trigger2 = index_ts_1.Messenger.trigger2, trigger3 = index_ts_1.Messenger.trigger3;
 	var Transactional = (function (_super) {
 	    __extends(Transactional, _super);
 	    function Transactional(cid, owner, ownerKey) {
@@ -1442,7 +1440,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        while (object._isDirty) {
 	            var options = object._isDirty;
 	            object._isDirty = null;
-	            index_ts_1.trigger2(object, object._changeEventName, object, options);
+	            trigger2(object, object._changeEventName, object, options);
 	        }
 	        object._transaction = false;
 	        var _owner = object._owner;
@@ -2057,6 +2055,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var add_ts_1 = __webpack_require__(17);
 	var set_ts_1 = __webpack_require__(18);
 	var remove_ts_1 = __webpack_require__(19);
+	var trigger2 = transactions_ts_1.Transactional.trigger2;
 	var _count = 0;
 	var silentOptions = { silent: true };
 	var Collection = (function (_super) {
@@ -2125,7 +2124,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            id == null || (_byId[id] = record);
 	        }
 	        if (transactions_ts_1.markAsDirty(this, options)) {
-	            index_ts_1.trigger2(this, 'change', record, options);
+	            trigger2(this, 'change', record, options);
 	        }
 	        isRoot && transactions_ts_1.commit(this);
 	    };
@@ -2197,7 +2196,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (a_elements) {
 	            set_ts_1.emptySetTransaction(this, toElements(this, a_elements, options), options, true);
 	        }
-	        options.silent || index_ts_1.trigger2(this, 'reset', this, index_ts_1.defaults({ previousModels: previousModels }, options));
+	        options.silent || trigger2(this, 'reset', this, index_ts_1.defaults({ previousModels: previousModels }, options));
 	        return this.models;
 	    };
 	    Collection.prototype.add = function (a_elements, options) {
@@ -2239,7 +2238,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (commons_ts_1.sortElements(this, options)) {
 	            var isRoot = transactions_ts_1.begin(this);
 	            if (transactions_ts_1.markAsDirty(this, options)) {
-	                index_ts_1.trigger2(this, 'sort', this, options);
+	                trigger2(this, 'sort', this, options);
 	            }
 	            isRoot && transactions_ts_1.commit(this);
 	        }
@@ -2296,7 +2295,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	var transactions_ts_1 = __webpack_require__(7);
-	var index_ts_1 = __webpack_require__(4);
+	var trigger2 = transactions_ts_1.Transactional.trigger2, trigger3 = transactions_ts_1.Transactional.trigger3;
 	function dispose(collection) {
 	    var models = collection.models;
 	    collection.models = [];
@@ -2381,24 +2380,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        for (var _b = 0, nested_2 = nested; _b < nested_2.length; _b++) {
 	            var transaction = nested_2[_b];
-	            index_ts_1.trigger2(object, 'change', transaction.object, _isDirty);
+	            trigger2(object, 'change', transaction.object, _isDirty);
 	        }
 	        var _c = this, added = _c.added, removed = _c.removed;
 	        for (var _d = 0, added_1 = added; _d < added_1.length; _d++) {
 	            var record = added_1[_d];
-	            index_ts_1.trigger3(record, 'add', record, object, _isDirty);
-	            index_ts_1.trigger3(object, 'add', record, object, _isDirty);
+	            trigger3(record, 'add', record, object, _isDirty);
+	            trigger3(object, 'add', record, object, _isDirty);
 	        }
 	        for (var _e = 0, removed_1 = removed; _e < removed_1.length; _e++) {
 	            var record = removed_1[_e];
-	            index_ts_1.trigger3(record, 'remove', record, object, _isDirty);
-	            index_ts_1.trigger3(object, 'remove', record, object, _isDirty);
+	            trigger3(record, 'remove', record, object, _isDirty);
+	            trigger3(object, 'remove', record, object, _isDirty);
 	        }
 	        if (this.sorted) {
-	            index_ts_1.trigger2(object, 'sort', object, _isDirty);
+	            trigger2(object, 'sort', object, _isDirty);
 	        }
 	        if (added.length || removed.length) {
-	            index_ts_1.trigger2(object, 'update', object, _isDirty);
+	            trigger2(object, 'update', object, _isDirty);
 	        }
 	        this.isRoot && transactions_ts_1.commit(object, isNested);
 	    };
@@ -2581,6 +2580,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var commons_ts_1 = __webpack_require__(16);
 	var index_ts_1 = __webpack_require__(4);
 	var transactions_ts_1 = __webpack_require__(7);
+	var trigger2 = index_ts_1.Messenger.trigger2, trigger3 = index_ts_1.Messenger.trigger3;
 	function removeOne(collection, el, options) {
 	    var model = collection.get(el);
 	    if (model) {
@@ -2589,11 +2589,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        commons_ts_1.removeIndex(collection._byId, model);
 	        var notify = transactions_ts_1.markAsDirty(collection, options);
 	        if (notify) {
-	            index_ts_1.trigger3(model, 'remove', model, collection, options);
-	            index_ts_1.trigger3(collection, 'remove', model, collection, options);
+	            trigger3(model, 'remove', model, collection, options);
+	            trigger3(collection, 'remove', model, collection, options);
 	        }
 	        commons_ts_1.free(collection, model);
-	        notify && index_ts_1.trigger2(collection, 'update', collection, options);
+	        notify && trigger2(collection, 'update', collection, options);
 	        isRoot && transactions_ts_1.commit(collection);
 	        return model;
 	    }

@@ -5,10 +5,14 @@
  */
 import { log, assign, omit, getPropertyDescriptor, getBaseClass, defaults, transform } from './tools.ts'
 
-type MergeRule = 'merge' | 'pipe' | 'sequence' | 'reverse' | 'every' | 'some'
-
-interface IMixinRules {
-    [ propertyName : string ] : MergeRule | IMixinRules
+/**
+ * Class definition recognized by `define`
+ */
+export interface ClassDefinition {
+    properties? : PropertyMap | boolean
+    mixins? : Mixin[]
+    mixinRules? : MixinRules
+    [ name : string ] : any
 }
 
 interface PropertyMap {
@@ -17,59 +21,79 @@ interface PropertyMap {
 
 type Property = PropertyDescriptor | ( () => any )
 
-export interface ClassDefinition {
-    properties? : PropertyMap | boolean
-    mixins? : Array< Object >
-    mixinRules? : IMixinRules
-    [ name : string ] : any
+type Mixin = Constructor< any > | {}
+
+interface MixinRules {
+    [ propertyName : string ] : MergeRule | MixinRules
 }
+
+type MergeRule = 'merge' | 'pipe' | 'sequence' | 'reverse' | 'every' | 'some'
+
 
 declare function __extends( a, b )
 
+/**
+ *  Generic interface to reference constructor function type for any given T. 
+ */
 export interface Constructor< T >{
     new ( ...args : any[] ) : T
 }
 
-export interface ExtendableConstructor< T > extends Constructor< T >{
-    prototype : Class
-    create( a : any, b? : any, c? : any ) : Class
-    mixins( ...mixins : ( Constructor<any> | {} )[] ) : ExtendableConstructor< T >
-    mixinRules( mixinRules : IMixinRules ) : ExtendableConstructor< T >
-    mixTo( ...args : Constructor<any>[] ) : ExtendableConstructor< T >
-    define( definition : ClassDefinition, staticProps? : {} ) : ExtendableConstructor< T >
-    extend(spec? : ClassDefinition, statics? : {} ) : ExtendableConstructor< T >
-    predefine() : ExtendableConstructor< T >
+/**
+ * Generic interface to reference constructor function of any Mixable type T.
+ */
+export interface MixableConstructor< T > extends Constructor< T >{
+
+    prototype : Mixable
+    create( a : any, b? : any, c? : any ) : Mixable
+    mixins( ...mixins : ( Constructor<any> | {} )[] ) : MixableConstructor< T >
+    mixinRules( mixinRules : MixinRules ) : MixableConstructor< T >
+    mixTo( ...args : Constructor<any>[] ) : MixableConstructor< T >
+    define( definition : ClassDefinition, staticProps? : {} ) : MixableConstructor< T >
+    extend(spec? : ClassDefinition, statics? : {} ) : MixableConstructor< T >
+    predefine() : MixableConstructor< T >
 }
 
-type ClassConstructor = ExtendableConstructor< Class >
-
-// Base class, holding metaprogramming class extensions
-// Supports mixins, and Class.define metaprogramming method.
-export class Class {
+/**
+ * Base class, holding metaprogramming class extensions.
+ * Supports mixins, and Class.define metaprogramming method.
+ */ 
+export class Mixable {
 
     // Generic class factory. May be overridden for abstract classes. Not inherited.
-    static create( a : any, b? : any, c? : any ) : Class {
+    static create( a : any, b? : any, c? : any ) : Mixable {
         return new (<any>this)( a, b, c );
     }
 
-    protected static _mixinRules : IMixinRules = { properties : 'merge' };
+    protected static _mixinRules : MixinRules = { properties : 'merge' };
 
     /**
-     * Attach mixins to class prototype.
+     * Attach the sequence of mixins to the class prototype.
+     * 
+     * ```javascript
+     *    MyMixableClass.mixins( plainObjMixin, OtherConstructor, ... );
+     *    MyOtherClass.mixins([ plainObjMixin, OtherConstructor, ... ]); 
+     * ```
      */
-    static mixins( ...mixins : ( Function | {} )[] ) : typeof Class {
+    static mixins( ...mixins : ( Mixin | Mixin[] )[] ) : typeof Mixable {
         const proto      = this.prototype,
-              mergeRules : IMixinRules = this._mixinRules || {};
+              mergeRules : MixinRules = this._mixinRules || {};
 
-        for( var i = mixins.length - 1; i >= 0; i-- ) {
-            const mixin = mixins[ i ];
+        // Apply mixins in sequence...
+        for( let mixin of mixins ) {
+            // Mixins array should be flattened. 
             if( mixin instanceof Array ) {
-                Class.mixins.apply( this, mixin );
+                Mixable.mixins.apply( this, mixin );
             }
+            // For constructors, merge _both_ static and prototype members.
             else if( typeof mixin === 'function' ){
+                // Statics are merged by simple substitution.
                 defaults( this, mixin );
-                mergeProps( proto, (<Function>mixin).prototype, mergeRules );
+
+                // Prototypes are merged according with a rules.
+                mergeProps( proto, (<Constructor<any>>mixin).prototype, mergeRules );
             }
+            // Handle plain object mixins.
             else {
                 mergeProps( proto, mixin, mergeRules );
             }
@@ -79,9 +103,9 @@ export class Class {
     }
 
     // Inversion of control version of Class.mixin.
-    static mixTo< T >( ...args : Function[] ) : typeof Class {
+    static mixTo< T >( ...args : Function[] ) : typeof Mixable {
         for( let Ctor of args ) {
-            Class.mixins.call( Ctor, this );
+            Mixable.mixins.call( Ctor, this );
         }
 
         return this;
@@ -89,7 +113,7 @@ export class Class {
 
     // Members merging policy is controlled by MyClass.mixinRules property.
     // mixinRules are properly inherited and merged.
-    static mixinRules( mixinRules : IMixinRules ) : ExtendableConstructor< Class > {
+    static mixinRules( mixinRules : MixinRules ) : MixableConstructor< Mixable > {
         const Base = Object.getPrototypeOf( this.prototype ).constructor;
 
         if( Base._mixinRules ) {
@@ -100,16 +124,6 @@ export class Class {
         return this;
     }
 
-    // Autobinding helper to be used from constructors
-    bindAll( ...names : string [] ) : void
-    bindAll() {
-        for( var i = 0; i < arguments.length; i++ ) {
-            const name = arguments[ i ];
-
-            this[ name ] = this[ name ].bind( this );
-        }
-    }
-
     /**
      * Main metaprogramming method. May be overriden in subclasses to customize the behavior.   
      * - Merge definition to the prototype.
@@ -118,7 +132,7 @@ export class Class {
      * - Assign mixinRules static property, and merge it with parent.
      * - Adds mixins.
      */
-    static define( definition : ClassDefinition = {}, staticProps? : {} ) : typeof Class {
+    static define( definition : ClassDefinition = {}, staticProps? : {} ) : typeof Mixable {
         // That actually might happen when we're using @define decorator... 
         if( !this.define ){
             log.error( "[Class.define] Class must have class extensions to use @define decorator. Use '@extendable' before @define, or extend the base class with class extensions.", definition );
@@ -149,8 +163,8 @@ export class Class {
     }
 
     // Backbone-compatible extend method to be used in ES5 and for backward compatibility
-    static extend(spec? : ClassDefinition, statics? : {} ) : typeof Class {
-        let Subclass : typeof Class;
+    static extend(spec? : ClassDefinition, statics? : {} ) : typeof Mixable {
+        let Subclass : typeof Mixable;
 
         // 1. Create the subclass (ES5 compatibility shim).
         // If constructor function is given...
@@ -170,12 +184,12 @@ export class Class {
 
     // Do the magic necessary for forward declarations.
     // Must be written in the way that it's safe to call twice.
-    static predefine() : typeof Class {
-        const BaseClass : typeof Class = getBaseClass( this );
+    static predefine() : typeof Mixable {
+        const BaseClass : typeof Mixable = getBaseClass( this );
 
         // Make sure we don't inherit class factories.
         if( BaseClass.create === this.create ) {
-            this.create = Class.create;
+            this.create = Mixable.create;
         }
 
         return this;
@@ -189,7 +203,7 @@ function toPropertyDescriptor( x : Property ) : PropertyDescriptor {
 }
 
 // @mixinRules({ ... }) decorator
-export function mixinRules( rules : IMixinRules ) {
+export function mixinRules( rules : MixinRules ) {
     return createDecorator( 'mixinRules', rules );
 }
 
@@ -200,11 +214,11 @@ export function mixins( ...list : {}[] ) {
 
 // @extendable decorator. Convert class to be an ExtendableConstructor.
 export function extendable( Type : Function ) : void {
-    Class.mixTo( Type );
+    Mixable.mixTo( Type );
 }
 
 // @predefine decorator for forward definitions. 
-export function predefine( Constructor : ExtendableConstructor< any > ) : void {
+export function predefine( Constructor : MixableConstructor< any > ) : void {
     Constructor.predefine();
 }
 
@@ -221,7 +235,7 @@ function createDecorator( name : string, spec : {} ){
             Ctor[ name ]( spec );
         }
         else {
-            Class[ name ].call( Ctor, spec );
+            Mixable[ name ].call( Ctor, spec );
         }
     }
 }
@@ -229,7 +243,7 @@ function createDecorator( name : string, spec : {} ){
 /***********************
  * Mixins helpers
  */
-function mergeObjects( a : {}, b : {}, rules? : IMixinRules ) : {} {
+function mergeObjects( a : {}, b : {}, rules? : MixinRules ) : {} {
     const x = assign( {}, a );
     return mergeProps( x , b, rules );
 }
@@ -272,7 +286,7 @@ const mergeFunctions : IMergeFunctions = {
     }
 };
 
-function mergeProps< T extends {} >( target : T, source : {}, rules : IMixinRules = {}) : T {
+function mergeProps< T extends {} >( target : T, source : {}, rules : MixinRules = {}) : T {
     for( let name of Object.keys( source ) ) {
         const sourceProp = Object.getOwnPropertyDescriptor( source, name ),
               destProp   = getPropertyDescriptor( target, name ); // Shouldn't be own
