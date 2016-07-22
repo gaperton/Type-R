@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "mocha",
-    "build": "node_modules/.bin/webpack",
+    "build": "node_modules/.bin/webpack && typedoc -out docs/api ./src",
     "watch": "node_modules/.bin/webpack --watch"
   },
   "repository": {

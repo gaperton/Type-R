@@ -183,7 +183,11 @@ export const defaults = forAllArgs( ( dest, source ) => {
         }
     }
 } );
- 
+
+export function keys( o : any ) : string[]{
+    return o ? Object.keys( o ) : [];
+}
+
 export function once( func : Function ) : Function {
     var memo, first = true;
     return function() {

@@ -1,6 +1,8 @@
-import { once } from './tools.ts'
-import { Class, mixins, define, extendable } from './mixins.ts'
+import Mixins = require( './mixins.ts' )
+import Tools = require( './tools.ts' );
 
+const { mixins, define, extendable } = Mixins;
+const { once, isEmpty, keys } = Tools;
 /************
  * JIT-Optimized monomorphic functions to trigger single event 
  */
@@ -55,59 +57,12 @@ export function trigger3( self : Messenger, name : string, a, b, c ) : void{
 //
 
 // Regular expression used to split event strings.
-var eventSplitter = /\s+/;
-
-// Iterates over the standard `event, callback` (as well as the fancy multiple
-// space-separated events `"change blur", callback` and jQuery-style event
-// maps `{event: callback}`).
-var eventsApi = function(iteratee, events, name, callback, opts) {
-    var i = 0, names;
-    if (name && typeof name === 'object') {
-        // Handle event maps.
-        if (callback !== void 0 && 'context' in opts && opts.context === void 0) opts.context = callback;
-        for (names = keys(name); i < names.length ; i++) {
-            events = eventsApi(iteratee, events, names[i], name[names[i]], opts);
-        }
-    } else if (name && eventSplitter.test(name)) {
-        // Handle space separated event names by delegating them individually.
-        for (names = name.split(eventSplitter); i < names.length; i++) {
-            events = iteratee(events, names[i], callback, opts);
-        }
-    } else {
-        // Finally, standard events.
-        events = iteratee(events, name, callback, opts);
-    }
-    return events;
-};
-
-function isEmpty( obj : {} ) : boolean {
-    for( var i in obj ){
-        return false;
-    }
-
-    return true;
-}
+const eventSplitter = /\s+/;
 
 let _idCount = 0;
+
 function uniqueId(){
     return 'l' + _idCount++;
-}
-
-class ListeningTo {
-    count : number = 0
-    constructor( public obj, public objId, public id, public listeningTo ){}
-}
-
-interface ListeningToMap {
-    [ id : string ] : ListeningTo
-}
-
-interface Listeners {
-    [ id : string ] : Messenger
-}
-
-export interface EventHandlers {
-    [ events : string ] : Function | string
 }
 
 /*************************
@@ -120,7 +75,7 @@ export interface EventHandlers {
     cidPrefix : 'l'
 })
 @extendable
-export abstract class Messenger implements Class {
+export abstract class Messenger implements Mixins.Class {
     bindAll : ( ...names : string [] ) => void
 
     _events : EventsMap = void 0;
@@ -179,13 +134,13 @@ export abstract class Messenger implements Class {
     // Tell this object to stop listening to either specific events ... or
     // to every object it's currently listening to.
     stopListening( obj? : Messenger, name? : string, callback? : Function ) {
-        var listeningTo = this._listeningTo;
+        const listeningTo = this._listeningTo;
         if (!listeningTo) return this;
 
-        var ids = obj ? [obj.cid] : keys(listeningTo);
+        const ids = obj ? [obj.cid] : keys(listeningTo);
 
-        for (var i = 0; i < ids.length; i++) {
-            var listening = listeningTo[ids[i]];
+        for (let i = 0; i < ids.length; i++) {
+            const listening = listeningTo[ids[i]];
 
             // If listening doesn't exist, this object is not currently
             // listening to obj. Break out early.
@@ -202,20 +157,22 @@ export abstract class Messenger implements Class {
     // an event in another object... keeping track of what it's listening to
     // for easier unbinding later.
     listenTo(obj : Messenger, name, callback? ) {
-        if (!obj) return this;
-        var id = obj.cid || (obj.cid = uniqueId());
-        var listeningTo = this._listeningTo || (this._listeningTo = {});
-        var listening = listeningTo[id];
+        if( !obj ) return this;
+        
+        const id = obj.cid || (obj.cid = uniqueId()),
+              listeningTo = this._listeningTo || (this._listeningTo = {});
+
+        let listening = listeningTo[id];
 
         // This object is not listening to any other events on `obj` yet.
         // Setup the necessary references to track the listening callbacks.
         if (!listening) {
-            var thisId = this.cid || (this.cid = uniqueId());
+            const thisId = this.cid || (this.cid = uniqueId());
             listening = listeningTo[id] = new ListeningTo( obj, id, thisId, listeningTo );
         }
 
         // Bind callbacks on obj, and keep track of them on listening.
-        internalOn(obj, name, callback, this, listening);
+        internalOn( obj, name, callback, this, listening );
         return this;
     }
 
@@ -225,14 +182,14 @@ export abstract class Messenger implements Class {
     // once for each event, not once for a combination of all events.
     once(name, callback, context) {
         // Map the event into a `{event: once}` object.
-        var events = eventsApi(onceMap, {}, name, callback, this.off.bind( this ));
+        const events = eventsApi(onceMap, {}, name, callback, this.off.bind( this ));
         return this.on(events, void 0, context);
     }
 
     // Inversion-of-control versions of `once`.
     listenToOnce(obj : Messenger, name, callback) {
         // Map the event into a `{event: once}` object.
-        var events = eventsApi(onceMap, {}, name, callback, this.stopListening.bind( this, obj ) );
+        const events = eventsApi(onceMap, {}, name, callback, this.stopListening.bind( this, obj ) );
         return this.listenTo(obj, events);
     }
 
@@ -279,13 +236,53 @@ const slice = Array.prototype.slice;
 
 export const Events = Messenger.prototype;
 
+// Iterates over the standard `event, callback` (as well as the fancy multiple
+// space-separated events `"change blur", callback` and jQuery-style event
+// maps `{event: callback}`).
+function eventsApi(iteratee, events, name, callback, opts) {
+    let i = 0, names;
+    if (name && typeof name === 'object') {
+        // Handle event maps.
+        if (callback !== void 0 && 'context' in opts && opts.context === void 0) opts.context = callback;
+        for (names = keys(name); i < names.length ; i++) {
+            events = eventsApi(iteratee, events, names[i], name[names[i]], opts);
+        }
+    } else if (name && eventSplitter.test(name)) {
+        // Handle space separated event names by delegating them individually.
+        for (names = name.split(eventSplitter); i < names.length; i++) {
+            events = iteratee(events, names[i], callback, opts);
+        }
+    } else {
+        // Finally, standard events.
+        events = iteratee(events, name, callback, opts);
+    }
+    return events;
+};
+
+class ListeningTo {
+    count : number = 0
+    constructor( public obj, public objId, public id, public listeningTo ){}
+}
+
+interface ListeningToMap {
+    [ id : string ] : ListeningTo
+}
+
+interface Listeners {
+    [ id : string ] : Messenger
+}
+
+export interface EventHandlers {
+    [ events : string ] : Function | string
+}
+
 // Guard the `listening` argument from the public API.
-var internalOn = function(obj : Messenger, name, callback, context, listening? ) : Messenger {
+function internalOn(obj : Messenger, name, callback, context, listening? ) : Messenger {
     obj._events = eventsApi(onApi, obj._events || {}, name,
                             callback, new Handler( context, obj, listening));
 
     if (listening) {
-        var listeners = obj._listeners || (obj._listeners = {});
+        const listeners = obj._listeners || (obj._listeners = {});
         listeners[listening.id] = listening;
     }
 
@@ -313,10 +310,10 @@ interface EventsMap {
 }
 
 // The reducing API that adds a callback to the `events` object.
-var onApi = function(events : EventsMap, name : string, callback : Function, options) : EventsMap {
+function onApi(events : EventsMap, name : string, callback : Function, options) : EventsMap {
     if (callback) {
-        var handlers = events[name],
-            toAdd = [ options.clone( callback ) ];
+        const handlers = events[name],
+              toAdd = [ options.clone( callback ) ];
             
         events[name] = handlers ? handlers.concat( toAdd ) : toAdd;
     }
@@ -328,20 +325,16 @@ class OffOptions {
     constructor( public context, public listeners : Listeners ){}
 }
 
-function keys( o : any ) : string[]{
-    return o ? Object.keys( o ) : [];
-}
-
 // The reducing API that removes a callback from the `events` object.
-var offApi = function(events : EventsMap, name, callback, options : OffOptions ) {
+function offApi(events : EventsMap, name, callback, options : OffOptions ) {
     if (!events) return;
 
-    var i = 0, listening;
-    var context = options.context, listeners = options.listeners;
+    let i = 0, listening;
+    const context = options.context, listeners = options.listeners;
 
     // Delete all events listeners and "drop" events.
     if (!name && !callback && !context) {
-        var ids = keys(listeners);
+        const ids = keys(listeners);
         for (; i < ids.length; i++) {
             listening = listeners[ids[i]];
             delete listeners[listening.id];
@@ -350,18 +343,18 @@ var offApi = function(events : EventsMap, name, callback, options : OffOptions )
         return;
     }
 
-    var names = name ? [name] : keys(events);
+    const names = name ? [name] : keys(events);
     for (; i < names.length; i++) {
         name = names[i];
-        var handlers = events[name];
+        const handlers = events[name];
 
         // Bail out if there are no events stored.
         if (!handlers) break;
 
         // Replace events if there are any remaining.  Otherwise, clean up.
-        var remaining = [];
-        for (var j = 0; j < handlers.length; j++) {
-            var handler = handlers[j];
+        const remaining = [];
+        for (let j = 0; j < handlers.length; j++) {
+            const handler = handlers[j];
             if (
                 callback && callback !== handler.callback &&
                 callback !== handler.callback._callback ||
@@ -394,9 +387,9 @@ interface Once extends Function {
 
 // Reduces the event callbacks into a map of `{event: onceWrapper}`.
 // `offer` unbinds the `onceWrapper` after it has been called.
-var onceMap = function(map, name, callback, offer) {
+function onceMap(map, name, callback, offer) {
     if (callback) {
-        var _once : Once = map[name] = once(function() {
+        const _once : Once = map[name] = once(function() {
             offer(name, _once);
             callback.apply(this, arguments);
         });

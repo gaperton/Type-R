@@ -261,6 +261,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    }
 	});
+	function keys(o) {
+	    return o ? Object.keys(o) : [];
+	}
+	exports.keys = keys;
 	function once(func) {
 	    var memo, first = true;
 	    return function () {
@@ -958,8 +962,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
 	    return c > 3 && r && Object.defineProperty(target, key, r), r;
 	};
-	var tools_ts_1 = __webpack_require__(1);
-	var mixins_ts_1 = __webpack_require__(5);
+	var Mixins = __webpack_require__(5);
+	var Tools = __webpack_require__(1);
+	var mixins = Mixins.mixins, define = Mixins.define, extendable = Mixins.extendable;
+	var once = Tools.once, isEmpty = Tools.isEmpty, keys = Tools.keys;
 	function trigger0(self, name) {
 	    var _events = self._events;
 	    if (_events) {
@@ -1001,45 +1007,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.trigger3 = trigger3;
 	;
 	var eventSplitter = /\s+/;
-	var eventsApi = function (iteratee, events, name, callback, opts) {
-	    var i = 0, names;
-	    if (name && typeof name === 'object') {
-	        if (callback !== void 0 && 'context' in opts && opts.context === void 0)
-	            opts.context = callback;
-	        for (names = keys(name); i < names.length; i++) {
-	            events = eventsApi(iteratee, events, names[i], name[names[i]], opts);
-	        }
-	    }
-	    else if (name && eventSplitter.test(name)) {
-	        for (names = name.split(eventSplitter); i < names.length; i++) {
-	            events = iteratee(events, names[i], callback, opts);
-	        }
-	    }
-	    else {
-	        events = iteratee(events, name, callback, opts);
-	    }
-	    return events;
-	};
-	function isEmpty(obj) {
-	    for (var i in obj) {
-	        return false;
-	    }
-	    return true;
-	}
 	var _idCount = 0;
 	function uniqueId() {
 	    return 'l' + _idCount++;
 	}
-	var ListeningTo = (function () {
-	    function ListeningTo(obj, objId, id, listeningTo) {
-	        this.obj = obj;
-	        this.objId = objId;
-	        this.id = id;
-	        this.listeningTo = listeningTo;
-	        this.count = 0;
-	    }
-	    return ListeningTo;
-	}());
 	var Messenger = (function () {
 	    function Messenger(cid) {
 	        this._events = void 0;
@@ -1098,8 +1069,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Messenger.prototype.listenTo = function (obj, name, callback) {
 	        if (!obj)
 	            return this;
-	        var id = obj.cid || (obj.cid = uniqueId());
-	        var listeningTo = this._listeningTo || (this._listeningTo = {});
+	        var id = obj.cid || (obj.cid = uniqueId()), listeningTo = this._listeningTo || (this._listeningTo = {});
 	        var listening = listeningTo[id];
 	        if (!listening) {
 	            var thisId = this.cid || (this.cid = uniqueId());
@@ -1148,24 +1118,55 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.off();
 	    };
 	    Messenger = __decorate([
-	        mixins_ts_1.define({
+	        define({
 	            cidPrefix: 'l'
 	        }),
-	        mixins_ts_1.extendable
+	        extendable
 	    ], Messenger);
 	    return Messenger;
 	}());
 	exports.Messenger = Messenger;
 	var slice = Array.prototype.slice;
 	exports.Events = Messenger.prototype;
-	var internalOn = function (obj, name, callback, context, listening) {
+	function eventsApi(iteratee, events, name, callback, opts) {
+	    var i = 0, names;
+	    if (name && typeof name === 'object') {
+	        if (callback !== void 0 && 'context' in opts && opts.context === void 0)
+	            opts.context = callback;
+	        for (names = keys(name); i < names.length; i++) {
+	            events = eventsApi(iteratee, events, names[i], name[names[i]], opts);
+	        }
+	    }
+	    else if (name && eventSplitter.test(name)) {
+	        for (names = name.split(eventSplitter); i < names.length; i++) {
+	            events = iteratee(events, names[i], callback, opts);
+	        }
+	    }
+	    else {
+	        events = iteratee(events, name, callback, opts);
+	    }
+	    return events;
+	}
+	;
+	var ListeningTo = (function () {
+	    function ListeningTo(obj, objId, id, listeningTo) {
+	        this.obj = obj;
+	        this.objId = objId;
+	        this.id = id;
+	        this.listeningTo = listeningTo;
+	        this.count = 0;
+	    }
+	    return ListeningTo;
+	}());
+	function internalOn(obj, name, callback, context, listening) {
 	    obj._events = eventsApi(onApi, obj._events || {}, name, callback, new Handler(context, obj, listening));
 	    if (listening) {
 	        var listeners = obj._listeners || (obj._listeners = {});
 	        listeners[listening.id] = listening;
 	    }
 	    return obj;
-	};
+	}
+	;
 	var Handler = (function () {
 	    function Handler(context, ctx, listening, callback) {
 	        this.context = context;
@@ -1181,13 +1182,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    return Handler;
 	}());
-	var onApi = function (events, name, callback, options) {
+	function onApi(events, name, callback, options) {
 	    if (callback) {
 	        var handlers = events[name], toAdd = [options.clone(callback)];
 	        events[name] = handlers ? handlers.concat(toAdd) : toAdd;
 	    }
 	    return events;
-	};
+	}
+	;
 	var OffOptions = (function () {
 	    function OffOptions(context, listeners) {
 	        this.context = context;
@@ -1195,10 +1197,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    return OffOptions;
 	}());
-	function keys(o) {
-	    return o ? Object.keys(o) : [];
-	}
-	var offApi = function (events, name, callback, options) {
+	function offApi(events, name, callback, options) {
 	    if (!events)
 	        return;
 	    var i = 0, listening;
@@ -1243,17 +1242,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    if (!isEmpty(events))
 	        return events;
-	};
-	var onceMap = function (map, name, callback, offer) {
+	}
+	;
+	function onceMap(map, name, callback, offer) {
 	    if (callback) {
-	        var _once = map[name] = tools_ts_1.once(function () {
-	            offer(name, _once);
+	        var _once_1 = map[name] = once(function () {
+	            offer(name, _once_1);
 	            callback.apply(this, arguments);
 	        });
-	        _once._callback = callback;
+	        _once_1._callback = callback;
 	    }
 	    return map;
-	};
+	}
+	;
 	function _fireEvent0(events) {
 	    if (events)
 	        for (var _i = 0, events_1 = events; _i < events_1.length; _i++) {
