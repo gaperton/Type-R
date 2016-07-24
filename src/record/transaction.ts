@@ -3,7 +3,7 @@
  * The root of all definitions. 
  */
 
-import { assign, isEmpty, EventHandlers, Mixable, ClassDefinition, Constructor, log, define } from '../objectplus/index.ts'
+import { assign, isEmpty, Mixable, ClassDefinition, Constructor, log, define } from '../objectplus/index.ts'
 
 import { begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 import { ChildrenErrors } from '../validation.ts'
@@ -100,7 +100,10 @@ let _cidCounter : number = 0;
 })
 export class Record extends Transactional implements Owner {
     // Implemented at the index.ts to avoid circular dependency. Here we have just proper singature.
-    static define( protoProps : RecordDefinition, staticProps? ) : typeof Record { return <any>Transactional.define( protoProps, staticProps ); }
+    static define( protoProps : RecordDefinition, staticProps? ) : typeof Record {
+        return <any>Transactional.define( protoProps, staticProps );
+    }
+
     static predefine : () => typeof Record
     static Collection : typeof Transactional
 
@@ -278,9 +281,6 @@ export class Record extends Transactional implements Owner {
     // Create record default values, optionally augmenting given values.
     defaults( values? : {} ){ return {}; }
 
-    // Event map for change:attribute events. 
-    _listenToSelf : EventHandlers
-
     /***************************************************
      * Record construction
      */
@@ -304,7 +304,7 @@ export class Record extends Transactional implements Owner {
 
         this.initialize( a_values, a_options );
 
-        if( this._listenToSelf ) this.listenTo( this, this._listenToSelf );
+        if( this._localEvents ) this._localEvents.subscribe( this, this );
     }
 
     // Initialization callback, to be overriden by the subclasses 

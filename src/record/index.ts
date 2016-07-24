@@ -64,14 +64,9 @@ function defineCollection( collection : {} ){
         CollectionConstructor = collection;
     } 
     // Same when Collection is specified as static class member.  
-    else if( this.Collection !== BaseCollection ){
-        CollectionConstructor = this.Collection;
-        if( collection ) (<any>CollectionConstructor).mixins( collection );
-    } 
-    // Otherwise we need to create new Collection type...
     else{
-        // ...which must extend Collection of our base Record.
-        CollectionConstructor = <any> BaseCollection.extend( collection );
+        CollectionConstructor = this.Collection;
+        if( collection ) (<any>CollectionConstructor).define( collection );
     }
 
     // Link collection with the record

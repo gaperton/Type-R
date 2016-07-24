@@ -1,4 +1,4 @@
-import { define, log, assign, Mixable, ClassDefinition, defaults } from '../objectplus/index.ts'
+import { define, omit, log, assign, EventMap, EventsDefinition, Mixable, MessengerDefinition, defaults } from '../objectplus/index.ts'
 import { begin, commit, markAsDirty, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
 import { Record, TransactionalType } from '../record/index.ts'
 
@@ -21,6 +21,11 @@ interface CollectionOptions extends TransactionOptions {
     model? : typeof Record
 }
 
+interface CollectionDefinition extends MessengerDefinition {
+    elementsEvents? : EventsDefinition
+    _elementsEvents? : EventMap
+}
+
 @define({
     // Default client id prefix 
     cidPrefix : 'c',
@@ -29,6 +34,21 @@ interface CollectionOptions extends TransactionOptions {
 })
 export class Collection extends Transactional implements CollectionCore {
     static predefine() : typeof Collection { return this; }
+    
+    static define( protoProps? : CollectionDefinition, staticProps? ){
+        const spec : CollectionDefinition = omit( protoProps, 'elementsEvents', 'localEvents' );
+
+        if( protoProps.elementsEvents ){
+            const eventsMap = new EventMap( this.prototype._elementsEvents );
+            eventsMap.addEventsMap( protoProps.elementsEvents );
+            spec._elementsEvents = eventsMap; 
+        }
+
+        return Transactional.define.call( this, spec, staticProps );
+    }
+    
+    _elementsEvents : EventMap
+
     /***********************************
      * Core Members
      */
@@ -151,6 +171,7 @@ export class Collection extends Transactional implements CollectionCore {
         }
 
         this.initialize.apply( this, arguments );
+        if( this._localEvents ) this._localEvents.subscribe( this, this );
     }
 
     initialize(){}

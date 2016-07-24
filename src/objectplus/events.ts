@@ -1,8 +1,11 @@
 import Mixins = require( './mixins.ts' )
 import Tools = require( './tools.ts' );
+import EventMaps = require( './eventmaps.ts' );
+import { EventMap, EventsDefinition } from './eventmaps.ts'
 
 const { mixins, define, extendable } = Mixins;
-const { once, isEmpty, keys } = Tools;
+const { omit, once, isEmpty, keys } = Tools;
+const { EventHandler, trigger0, trigger1, trigger2, trigger3 } = EventMaps;
 
 // Regular expression used to split event strings.
 const eventSplitter = /\s+/;
@@ -17,6 +20,12 @@ function uniqueId(){
  * Messenger is extendable class with capabilities of sending and receiving messages.
  * This class itself can serve as both mixin and base class
  */
+export { EventMap, EventsDefinition }
+
+export interface MessengerDefinition extends Mixins.ClassDefinition {
+    _localEvents? : EventMap
+    localEvents? : EventsDefinition
+}
 
 // Attach default cid prefix to the prototype.
 @define({
@@ -24,45 +33,46 @@ function uniqueId(){
 })
 @extendable
 export abstract class Messenger implements Mixins.Mixable {
-    static trigger0 = trigger0
-    static trigger1 = trigger1
-    static trigger2 = trigger2
-    static trigger3 = trigger3
+    // High-performance API to be used in the library core.
+    static trigger0 = EventMaps.trigger0
+    static trigger1 = EventMaps.trigger1
+    static trigger2 = EventMaps.trigger2
+    static trigger3 = EventMaps.trigger3
+    static on = EventMaps.on
+    static off = EventMaps.off
 
-    _events : EventsMap = void 0;
-    _listeners : Listeners = void 0;
-    _listeningTo : ListeningToMap = void 0;
+    _events : EventMaps.SubscribedEvents = {};
+    _listeners : Listeners
+    _listeningTo : ListeningToMap
     cidPrefix : string
     cid : string
 
     static create : ( a : any, b? : any, c? : any ) => Messenger
-    static define : ( a : any, b? : any ) => typeof Messenger
     static extend : ( a? : any, b? : any ) => typeof Messenger
+
+    // Prototype-only property to manage automatic local events subscription.
+    _localEvents : EventMaps.EventMap
+
+    static define( protoProps? : MessengerDefinition , staticProps? ){
+        const spec : MessengerDefinition = omit( protoProps || {}, 'localEvents' );
+
+        if( protoProps ){
+            const { localEvents, _localEvents } = protoProps;
+            if( localEvents || _localEvents ){
+                const eventsMap = new EventMap( this.prototype._localEvents );
+                localEvents && eventsMap.addEventsMap( localEvents );
+                _localEvents && eventsMap.merge( _localEvents );
+                spec._localEvents = eventsMap;
+            }
+        }
+
+        return Mixins.Mixable.define.call( this, spec, staticProps );
+    }
 
     constructor( cid : string | number ){
         this.cid = this.cidPrefix + cid;
     }
-
-    triggerEventFrom( source : Messenger, event : string ){
-        this.listenTo( source, event, function( a, b, c ){
-            switch( arguments.length ){
-                // Forward call to monomorphic fast-path functions.
-                case 0 : trigger0( this, event ); break;
-                case 1 : trigger1( this, event, a ); break;
-                case 2 : trigger2( this, event, a, b ); break;
-                case 3 : trigger3( this, event, a, b, c ); break;
-                default :
-                    const args = [ event, a, b, c ];
-
-                    for( let i = 3; i < arguments.length; i++ ){
-                        args.push( arguments[ i ] );
-                    }
-
-                    this.trigger.apply( this, args );
-            }
-        });
-    }
-
+    
     // Bind an event to a `callback` function. Passing `"all"` will bind
     // the callback to all events fired.
     on(name, callback, context) {
@@ -149,6 +159,8 @@ export abstract class Messenger implements Mixins.Mixable {
     // (unless you're listening on `"all"`, which will cause your callback to
     // receive the true name of the event as the first argument).
     trigger(name : string, a?, b?, c? ) : this {
+        if( !this._events ) return this;
+
         switch( arguments.length ){
             // Forward call to monomorphic fast-path functions.
             case 1 : trigger0( this, name ); break;
@@ -167,11 +179,10 @@ export abstract class Messenger implements Mixins.Mixable {
 
                 // Send events.
                 const { _events } = this;
+                let queue = _events[ name ];
 
-                if( _events ){
-                    _fireEventAll( _events[ name ], allArgs.splice( 0, 1 ) );
-                    _fireEventAll( _events.all, allArgs );
-                }                      
+                if( queue ) _fireEventAll( queue, allArgs.splice( 0, 1 ) );
+                if( queue = _events.all ) _fireEventAll( queue, allArgs );                      
         }
 
         return this;
@@ -223,14 +234,10 @@ interface Listeners {
     [ id : string ] : Messenger
 }
 
-export interface EventHandlers {
-    [ events : string ] : Function | string
-}
-
 // Guard the `listening` argument from the public API.
 function internalOn(obj : Messenger, name, callback, context, listening? ) : Messenger {
     obj._events = eventsApi(onApi, obj._events || {}, name,
-                            callback, new Handler( context, obj, listening));
+                            callback, new EventHandler( context, obj, listening));
 
     if (listening) {
         const listeners = obj._listeners || (obj._listeners = {});
@@ -240,28 +247,8 @@ function internalOn(obj : Messenger, name, callback, context, listening? ) : Mes
     return obj;
 };
 
-interface Callback extends Function{
-    _callback? : any
-}
-
-class Handler {
-    constructor( public context, public ctx, public listening : ListeningTo, public callback? : Callback ){
-    }
-
-    clone( callback ){
-        const { context, listening } = this;
-        if (listening) listening.count++;
-        return new Handler( context, context || this.ctx, listening, callback );
-    }
-}
-
-interface EventsMap {
-    all? : Handler[]
-    [ name : string ] : Handler[]
-}
-
 // The reducing API that adds a callback to the `events` object.
-function onApi(events : EventsMap, name : string, callback : Function, options) : EventsMap {
+function onApi(events : EventMaps.SubscribedEvents, name : string, callback : Function, options) : EventMaps.SubscribedEvents {
     if (callback) {
         const handlers = events[name],
               toAdd = [ options.clone( callback ) ];
@@ -277,7 +264,7 @@ class OffOptions {
 }
 
 // The reducing API that removes a callback from the `events` object.
-function offApi(events : EventsMap, name, callback, options : OffOptions ) {
+function offApi(events : EventMaps.SubscribedEvents, name, callback, options : OffOptions ) {
     if (!events) return;
 
     let i = 0, listening;
@@ -291,7 +278,7 @@ function offApi(events : EventsMap, name, callback, options : OffOptions ) {
             delete listeners[listening.id];
             delete listening.listeningTo[listening.objId];
         }
-        return;
+        return {};
     }
 
     const names = name ? [name] : keys(events);
@@ -328,19 +315,14 @@ function offApi(events : EventsMap, name, callback, options : OffOptions ) {
             delete events[name];
         }
     }
-    if (!isEmpty(events)) return events;
+    return events;
 };
-
-
-interface Once extends Function {
-    _callback? : Function
-}
 
 // Reduces the event callbacks into a map of `{event: onceWrapper}`.
 // `offer` unbinds the `onceWrapper` after it has been called.
 function onceMap(map, name, callback, offer) {
     if (callback) {
-        const _once : Once = map[name] = once(function() {
+        const _once : EventMaps.Callback = map[name] = once(function() {
             offer(name, _once);
             callback.apply(this, arguments);
         });
@@ -349,79 +331,7 @@ function onceMap(map, name, callback, offer) {
     return map;
 };
 
-/************
- * JIT-Optimized monomorphic functions to trigger single event 
- */
-function trigger0( self : Messenger, name : string ) : void {
-    const { _events } = self;
-    if( _events ){
-        const { all } = _events;
-        _fireEvent0( _events[ name ] );
-        _fireEvent1( all, name );
-    }
-};
-
-function trigger1( self : Messenger, name : string, a : any ) : void {
-    const { _events } = self;
-    if( _events ){
-        const { all } = _events;
-        _fireEvent1( _events[ name ], a );
-        _fireEvent2( all, name, a );
-    }
-};
-
-function trigger2( self : Messenger, name : string, a, b ) : void {
-    const { _events } = self;
-    if( _events ){
-        const { all } = _events;
-        _fireEvent2( _events[ name ], a, b );
-        _fireEvent3( all, name, a, b );
-    }
-};
-
-function trigger3( self : Messenger, name : string, a, b, c ) : void{
-    const { _events } = self;
-    if( _events ){
-        const { all } = _events;
-        _fireEvent3( _events[ name ], a, b, c );
-        _fireEvent4( all, name, a, b, c );
-    }
-};
-
-// Specialized functions with events triggering loops.
-// JS JIT loves these small functions and code duplication.
-function _fireEvent0( events : Handler[] ) : void {
-    if( events )
-        for( let ev of events )
-            ev.callback.call( ev.ctx );
-}
-
-function _fireEvent1( events : Handler[], a ) : void {
-    if( events )
-        for( let ev of events )
-            ev.callback.call( ev.ctx, a );
-}
-
-function _fireEvent2( events : Handler[], a, b ) : void {
-    if( events )
-        for( let ev of events )
-            ev.callback.call( ev.ctx, a, b );
-}
-
-function _fireEvent3( events : Handler[], a, b, c ) : void {
-    if( events )
-        for( let ev of events )
-            ev.callback.call( ev.ctx, a, b, c );
-}
-
-function _fireEvent4( events : Handler[], a, b, c, d ) : void {
-    if( events )
-        for( let ev of events )
-            ev.callback.call( ev.ctx, a, b, c, d );
-}
-
-function _fireEventAll( events : Handler[], args : any[] ) : void {
-    if( events )
-        for( let ev of events )
-            ev.callback.apply( ev.ctx, args );
+function _fireEventAll( events : EventMaps.EventHandler[], a ) : void {
+    for( let ev of events )
+        ev.callback.call( ev.ctx, a );
 }

@@ -1,9 +1,9 @@
 import { GenericAttribute } from './attribute.ts';
 import { Attribute, AttributesValues, AttributeDescriptorMap, CloneAttributesCtor } from './transaction.ts'
-import { defaults, isValidJSON, transform, log, EventHandlers } from '../objectplus/index.ts'
+import { defaults, isValidJSON, transform, log, EventMap } from '../objectplus/index.ts'
 import { toAttributeDescriptor } from './typespec.ts'
 
-import { CompiledReference } from '../references.ts'
+import { CompiledReference } from '../objectplus/traversable.ts'
 
 export interface DynamicMixin {
     _attributes : AttributesSpec
@@ -13,7 +13,7 @@ export interface DynamicMixin {
     defaults : Defaults
     _toJSON : ToJSON
     _parse? : Parse
-    _listenToSelf : EventHandlers
+    _localEvents : EventMap
     _keys : string[]
 }
 
@@ -38,7 +38,7 @@ export function compile( rawSpecs : AttributeDescriptorMap, baseAttributes : Att
             properties : transform( <PropertyDescriptorMap>{}, myAttributes, x => x.createPropertyDescriptor() ),
             defaults : createDefaults( allAttributes ),
             _toJSON : createToJSON( allAttributes ), // <- TODO: profile and check if there is any real benefit. I doubt it. 
-            _listenToSelf : createEventMap( allAttributes ),
+            _localEvents : createEventMap( myAttributes ),
             _keys : Object.keys( allAttributes )
          };
 
@@ -61,20 +61,20 @@ function createAttribute( spec, name ){
 }
 
 // Build events map for attribute change events.
-function createEventMap( attrSpecs : AttributesSpec ) : EventHandlers {
-    var events : EventHandlers = null;
+function createEventMap( attrSpecs : AttributesSpec ) : EventMap {
+    let events : EventMap;
 
     for( var key in attrSpecs ){
         const attribute = attrSpecs[ key ],
             { _onChange } = attribute.options; 
 
         if( _onChange ){
-            events || ( events = {} );
+            events || ( events = new EventMap() );
 
-            events[ 'change:' + key ] =
+            events.addEvent( 'change:' + key,
                 typeof _onChange === 'string' ?
                     createWatcherFromRef( _onChange, key ) : 
-                    wrapWatcher( _onChange, key );
+                    wrapWatcher( _onChange, key ) );
         }
     }
 

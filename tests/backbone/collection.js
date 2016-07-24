@@ -133,7 +133,9 @@
             },
 
             collection : {
-                bubbleEvents : [ 'change:name' ]
+                elementsEvents : {
+                    'change:name' : true
+                }
             }
         } );
 
@@ -669,7 +671,7 @@
             },
 
             collection : {
-                bubbleEvents : [ 'test' ]
+                elementsEvents : { test : true }
             },
 
             validate : function( attrs ){ if( !attrs.valid ) return 'invalid'; }
@@ -1227,7 +1229,7 @@
         var calls = { add : 0, remove : 0 };
 
         var Collection = Backbone.Collection.extend( {
-            bubbleEvents : [ 'dummy' ],
+            elementsEvents : { dummy : true },
 
             _addReference : function( model ){
                 Backbone.Collection.prototype._addReference.apply( this, arguments );
@@ -1243,7 +1245,7 @@
                 assert.equal( this._byId[ model.id ], void 0 );
                 assert.equal( this._byId[ model.cid ], void 0 );
                 assert.equal( model.collection, void 0 );
-                assert.equal( model._events, void 0 );
+                assert.equal( model._events, {} );
             }
 
         } );
@@ -1262,7 +1264,7 @@
             assert.equal( collection._byId[ model.id ], void 0 );
             assert.equal( collection._byId[ model.cid ], void 0 );
             assert.equal( model.collection, void 0 );
-            assert.equal( model._events, void 0 );
+            assert.deepEqual( model._events, { dummy : void 0 });
         });
 
         var model      = collection.add( { id : 1 } );

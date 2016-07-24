@@ -65,7 +65,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.Model = index_ts_2.Record;
 	var events_ts_1 = __webpack_require__(6);
 	exports.on = events_ts_1.Events.on, exports.off = events_ts_1.Events.off, exports.trigger = events_ts_1.Events.trigger, exports.once = events_ts_1.Events.once, exports.listenTo = events_ts_1.Events.listenTo, exports.stopListening = events_ts_1.Events.stopListening, exports.listenToOnce = events_ts_1.Events.listenToOnce;
-	var index_ts_3 = __webpack_require__(15);
+	var index_ts_3 = __webpack_require__(16);
 	exports.Collection = index_ts_3.Collection;
 	__export(__webpack_require__(5));
 	__export(__webpack_require__(6));
@@ -356,12 +356,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	var transaction_ts_1 = __webpack_require__(3);
 	exports.Record = transaction_ts_1.Record;
 	var index_ts_1 = __webpack_require__(4);
-	var define_ts_1 = __webpack_require__(10);
-	var typespec_ts_1 = __webpack_require__(12);
+	var define_ts_1 = __webpack_require__(11);
+	var typespec_ts_1 = __webpack_require__(13);
 	exports.ChainableAttributeSpec = typespec_ts_1.ChainableAttributeSpec;
-	var nestedTypes_ts_1 = __webpack_require__(13);
+	var nestedTypes_ts_1 = __webpack_require__(14);
 	exports.TransactionalType = nestedTypes_ts_1.TransactionalType;
-	__webpack_require__(14);
+	__webpack_require__(15);
 	transaction_ts_1.Record.define = function (protoProps, staticProps) {
 	    var BaseConstructor = index_ts_1.getBaseClass(this), baseProto = BaseConstructor.prototype;
 	    if (protoProps) {
@@ -397,13 +397,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (typeof collection === 'function') {
 	        CollectionConstructor = collection;
 	    }
-	    else if (this.Collection !== BaseCollection) {
+	    else {
 	        CollectionConstructor = this.Collection;
 	        if (collection)
-	            CollectionConstructor.mixins(collection);
-	    }
-	    else {
-	        CollectionConstructor = BaseCollection.extend(collection);
+	            CollectionConstructor.define(collection);
 	    }
 	    CollectionConstructor.prototype.model = this;
 	    this.Collection = CollectionConstructor;
@@ -427,7 +424,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return c > 3 && r && Object.defineProperty(target, key, r), r;
 	};
 	var index_ts_1 = __webpack_require__(4);
-	var transactions_ts_1 = __webpack_require__(7);
+	var transactions_ts_1 = __webpack_require__(9);
 	var trigger3 = transactions_ts_1.Transactional.trigger3;
 	var _cidCounter = 0;
 	var Record = (function (_super) {
@@ -443,10 +440,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        });
 	        this.attributes = this._previousAttributes = attributes;
 	        this.initialize(a_values, a_options);
-	        if (this._listenToSelf)
-	            this.listenTo(this, this._listenToSelf);
+	        if (this._localEvents)
+	            this._localEvents.subscribe(this, this);
 	    }
-	    Record.define = function (protoProps, staticProps) { return transactions_ts_1.Transactional.define(protoProps, staticProps); };
+	    Record.define = function (protoProps, staticProps) {
+	        return transactions_ts_1.Transactional.define(protoProps, staticProps);
+	    };
 	    Record.defaults = function (attrs) {
 	        return this.extend({ attributes: attrs });
 	    };
@@ -961,8 +960,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var Mixins = __webpack_require__(5);
 	var Tools = __webpack_require__(1);
+	var EventMaps = __webpack_require__(7);
+	var eventmaps_ts_1 = __webpack_require__(7);
+	exports.EventMap = eventmaps_ts_1.EventMap;
 	var mixins = Mixins.mixins, define = Mixins.define, extendable = Mixins.extendable;
-	var once = Tools.once, isEmpty = Tools.isEmpty, keys = Tools.keys;
+	var omit = Tools.omit, once = Tools.once, isEmpty = Tools.isEmpty, keys = Tools.keys;
+	var EventHandler = EventMaps.EventHandler, trigger0 = EventMaps.trigger0, trigger1 = EventMaps.trigger1, trigger2 = EventMaps.trigger2, trigger3 = EventMaps.trigger3;
 	var eventSplitter = /\s+/;
 	var _idCount = 0;
 	function uniqueId() {
@@ -970,34 +973,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	var Messenger = (function () {
 	    function Messenger(cid) {
-	        this._events = void 0;
-	        this._listeners = void 0;
-	        this._listeningTo = void 0;
+	        this._events = {};
 	        this.cid = this.cidPrefix + cid;
 	    }
-	    Messenger.prototype.triggerEventFrom = function (source, event) {
-	        this.listenTo(source, event, function (a, b, c) {
-	            switch (arguments.length) {
-	                case 0:
-	                    trigger0(this, event);
-	                    break;
-	                case 1:
-	                    trigger1(this, event, a);
-	                    break;
-	                case 2:
-	                    trigger2(this, event, a, b);
-	                    break;
-	                case 3:
-	                    trigger3(this, event, a, b, c);
-	                    break;
-	                default:
-	                    var args = [event, a, b, c];
-	                    for (var i = 3; i < arguments.length; i++) {
-	                        args.push(arguments[i]);
-	                    }
-	                    this.trigger.apply(this, args);
+	    Messenger.define = function (protoProps, staticProps) {
+	        var spec = omit(protoProps || {}, 'localEvents');
+	        if (protoProps) {
+	            var localEvents = protoProps.localEvents, _localEvents = protoProps._localEvents;
+	            if (localEvents || _localEvents) {
+	                var eventsMap = new eventmaps_ts_1.EventMap(this.prototype._localEvents);
+	                localEvents && eventsMap.addEventsMap(localEvents);
+	                _localEvents && eventsMap.merge(_localEvents);
+	                spec._localEvents = eventsMap;
 	            }
-	        });
+	        }
+	        return Mixins.Mixable.define.call(this, spec, staticProps);
 	    };
 	    Messenger.prototype.on = function (name, callback, context) {
 	        return internalOn(this, name, callback, context);
@@ -1044,6 +1034,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this.listenTo(obj, events);
 	    };
 	    Messenger.prototype.trigger = function (name, a, b, c) {
+	        if (!this._events)
+	            return this;
 	        switch (arguments.length) {
 	            case 1:
 	                trigger0(this, name);
@@ -1063,10 +1055,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    allArgs[i] = arguments[i];
 	                }
 	                var _events = this._events;
-	                if (_events) {
-	                    _fireEventAll(_events[name], allArgs.splice(0, 1));
-	                    _fireEventAll(_events.all, allArgs);
-	                }
+	                var queue = _events[name];
+	                if (queue)
+	                    _fireEventAll(queue, allArgs.splice(0, 1));
+	                if (queue = _events.all)
+	                    _fireEventAll(queue, allArgs);
 	        }
 	        return this;
 	    };
@@ -1074,10 +1067,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.stopListening();
 	        this.off();
 	    };
-	    Messenger.trigger0 = trigger0;
-	    Messenger.trigger1 = trigger1;
-	    Messenger.trigger2 = trigger2;
-	    Messenger.trigger3 = trigger3;
+	    Messenger.trigger0 = EventMaps.trigger0;
+	    Messenger.trigger1 = EventMaps.trigger1;
+	    Messenger.trigger2 = EventMaps.trigger2;
+	    Messenger.trigger3 = EventMaps.trigger3;
+	    Messenger.on = EventMaps.on;
+	    Messenger.off = EventMaps.off;
 	    Messenger = __decorate([
 	        define({
 	            cidPrefix: 'l'
@@ -1120,7 +1115,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ListeningTo;
 	}());
 	function internalOn(obj, name, callback, context, listening) {
-	    obj._events = eventsApi(onApi, obj._events || {}, name, callback, new Handler(context, obj, listening));
+	    obj._events = eventsApi(onApi, obj._events || {}, name, callback, new EventHandler(context, obj, listening));
 	    if (listening) {
 	        var listeners = obj._listeners || (obj._listeners = {});
 	        listeners[listening.id] = listening;
@@ -1128,21 +1123,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return obj;
 	}
 	;
-	var Handler = (function () {
-	    function Handler(context, ctx, listening, callback) {
-	        this.context = context;
-	        this.ctx = ctx;
-	        this.listening = listening;
-	        this.callback = callback;
-	    }
-	    Handler.prototype.clone = function (callback) {
-	        var _a = this, context = _a.context, listening = _a.listening;
-	        if (listening)
-	            listening.count++;
-	        return new Handler(context, context || this.ctx, listening, callback);
-	    };
-	    return Handler;
-	}());
 	function onApi(events, name, callback, options) {
 	    if (callback) {
 	        var handlers = events[name], toAdd = [options.clone(callback)];
@@ -1170,7 +1150,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            delete listeners[listening.id];
 	            delete listening.listeningTo[listening.objId];
 	        }
-	        return;
+	        return {};
 	    }
 	    var names = name ? [name] : keys(events);
 	    for (; i < names.length; i++) {
@@ -1201,8 +1181,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            delete events[name];
 	        }
 	    }
-	    if (!isEmpty(events))
-	        return events;
+	    return events;
 	}
 	;
 	function onceMap(map, name, callback, offer) {
@@ -1216,88 +1195,294 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return map;
 	}
 	;
-	function trigger0(self, name) {
-	    var _events = self._events;
-	    if (_events) {
-	        var all = _events.all;
-	        _fireEvent0(_events[name]);
-	        _fireEvent1(all, name);
+	function _fireEventAll(events, a) {
+	    for (var _i = 0, events_1 = events; _i < events_1.length; _i++) {
+	        var ev = events_1[_i];
+	        ev.callback.call(ev.ctx, a);
 	    }
-	}
-	;
-	function trigger1(self, name, a) {
-	    var _events = self._events;
-	    if (_events) {
-	        var all = _events.all;
-	        _fireEvent1(_events[name], a);
-	        _fireEvent2(all, name, a);
-	    }
-	}
-	;
-	function trigger2(self, name, a, b) {
-	    var _events = self._events;
-	    if (_events) {
-	        var all = _events.all;
-	        _fireEvent2(_events[name], a, b);
-	        _fireEvent3(all, name, a, b);
-	    }
-	}
-	;
-	function trigger3(self, name, a, b, c) {
-	    var _events = self._events;
-	    if (_events) {
-	        var all = _events.all;
-	        _fireEvent3(_events[name], a, b, c);
-	        _fireEvent4(all, name, a, b, c);
-	    }
-	}
-	;
-	function _fireEvent0(events) {
-	    if (events)
-	        for (var _i = 0, events_1 = events; _i < events_1.length; _i++) {
-	            var ev = events_1[_i];
-	            ev.callback.call(ev.ctx);
-	        }
-	}
-	function _fireEvent1(events, a) {
-	    if (events)
-	        for (var _i = 0, events_2 = events; _i < events_2.length; _i++) {
-	            var ev = events_2[_i];
-	            ev.callback.call(ev.ctx, a);
-	        }
-	}
-	function _fireEvent2(events, a, b) {
-	    if (events)
-	        for (var _i = 0, events_3 = events; _i < events_3.length; _i++) {
-	            var ev = events_3[_i];
-	            ev.callback.call(ev.ctx, a, b);
-	        }
-	}
-	function _fireEvent3(events, a, b, c) {
-	    if (events)
-	        for (var _i = 0, events_4 = events; _i < events_4.length; _i++) {
-	            var ev = events_4[_i];
-	            ev.callback.call(ev.ctx, a, b, c);
-	        }
-	}
-	function _fireEvent4(events, a, b, c, d) {
-	    if (events)
-	        for (var _i = 0, events_5 = events; _i < events_5.length; _i++) {
-	            var ev = events_5[_i];
-	            ev.callback.call(ev.ctx, a, b, c, d);
-	        }
-	}
-	function _fireEventAll(events, args) {
-	    if (events)
-	        for (var _i = 0, events_6 = events; _i < events_6.length; _i++) {
-	            var ev = events_6[_i];
-	            ev.callback.apply(ev.ctx, args);
-	        }
 	}
 
 
 /***/ },
 /* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var traversable_ts_1 = __webpack_require__(8);
+	exports.eventSplitter = /\s+/;
+	var EventHandler = (function () {
+	    function EventHandler(context, ctx, listening, callback) {
+	        this.context = context;
+	        this.ctx = ctx;
+	        this.listening = listening;
+	        this.callback = callback;
+	    }
+	    EventHandler.prototype.clone = function (callback) {
+	        var _a = this, context = _a.context, listening = _a.listening;
+	        if (listening)
+	            listening.count++;
+	        return new EventHandler(context, context || this.ctx, listening, callback);
+	    };
+	    return EventHandler;
+	}());
+	exports.EventHandler = EventHandler;
+	var EventMap = (function () {
+	    function EventMap(map) {
+	        this.handlers = [];
+	        if (map) {
+	            if (map instanceof EventMap) {
+	                this.handlers = map.handlers.slice();
+	            }
+	            else {
+	                map && this.addEventsMap(map);
+	            }
+	        }
+	    }
+	    EventMap.prototype.merge = function (map) {
+	        this.handlers = this.handlers.concat(map.handlers);
+	    };
+	    EventMap.prototype.addEventsMap = function (map) {
+	        for (var names in map) {
+	            this.addEvent(names, map[names]);
+	        }
+	    };
+	    EventMap.prototype.bubbleEvents = function (names) {
+	        for (var _i = 0, _a = names.split(exports.eventSplitter); _i < _a.length; _i++) {
+	            var name_1 = _a[_i];
+	            this.addEvent(name_1, getBubblingHandler(name_1));
+	        }
+	    };
+	    EventMap.prototype.addEvent = function (names, callback) {
+	        var handlers = this.handlers;
+	        for (var _i = 0, _a = names.split(exports.eventSplitter); _i < _a.length; _i++) {
+	            var name_2 = _a[_i];
+	            handlers.push(new EventDescriptor(name_2, callback));
+	        }
+	    };
+	    EventMap.prototype.subscribe = function (target, source) {
+	        var _events = source._events;
+	        for (var _i = 0, _a = this.handlers; _i < _a.length; _i++) {
+	            var event_1 = _a[_i];
+	            _on(_events, event_1.name, event_1.callback, target);
+	        }
+	    };
+	    EventMap.prototype.unsubscribe = function (target, source) {
+	        var _events = source._events;
+	        for (var _i = 0, _a = this.handlers; _i < _a.length; _i++) {
+	            var event_2 = _a[_i];
+	            _off(_events, event_2.name, event_2.callback, target);
+	        }
+	    };
+	    return EventMap;
+	}());
+	exports.EventMap = EventMap;
+	var EventDescriptor = (function () {
+	    function EventDescriptor(name, callback) {
+	        this.name = name;
+	        if (callback === true) {
+	            this.callback = getBubblingHandler(name);
+	        }
+	        else if (typeof callback === 'string') {
+	            var _a = new traversable_ts_1.CompiledReference(callback, true), local = _a.local, resolve_1 = _a.resolve, tail_1 = _a.tail;
+	            this.callback = local ? (function localCallback() {
+	                var handler = this[tail_1];
+	                handler && handler.apply(this, arguments);
+	            }) : (function referenceCallback() {
+	                var context = resolve_1(this);
+	                if (context) {
+	                    var handler = context[tail_1];
+	                    if (handler) {
+	                        handler.apply(context, arguments);
+	                    }
+	                }
+	            });
+	        }
+	        else {
+	            this.callback = callback;
+	        }
+	    }
+	    return EventDescriptor;
+	}());
+	function on(self, name, callback, context) {
+	    _on(self._events, name, callback, context);
+	}
+	exports.on = on;
+	function off(self, name, callback, context) {
+	    _off(self._events, name, callback, context);
+	}
+	exports.off = off;
+	function trigger0(self, name) {
+	    var _events = self._events, queue = _events[name], all = _events.all;
+	    if (queue)
+	        _fireEvent0(queue);
+	    if (all)
+	        _fireEvent1(all, name);
+	}
+	exports.trigger0 = trigger0;
+	;
+	function trigger1(self, name, a) {
+	    var _events = self._events, queue = _events[name], all = _events.all;
+	    if (queue)
+	        _fireEvent1(queue, a);
+	    if (all)
+	        _fireEvent2(all, name, a);
+	}
+	exports.trigger1 = trigger1;
+	;
+	function trigger2(self, name, a, b) {
+	    var _events = self._events, queue = _events[name], all = _events.all;
+	    if (queue)
+	        _fireEvent2(queue, a, b);
+	    if (all)
+	        _fireEvent3(all, name, a, b);
+	}
+	exports.trigger2 = trigger2;
+	;
+	function trigger3(self, name, a, b, c) {
+	    var _events = self._events, queue = _events[name], all = _events.all;
+	    if (queue)
+	        _fireEvent3(queue, a, b, c);
+	    if (all)
+	        _fireEvent4(all, name, a, b, c);
+	}
+	exports.trigger3 = trigger3;
+	;
+	function _fireEvent0(events) {
+	    for (var _i = 0, events_1 = events; _i < events_1.length; _i++) {
+	        var ev = events_1[_i];
+	        ev.callback.call(ev.ctx);
+	    }
+	}
+	function _fireEvent1(events, a) {
+	    for (var _i = 0, events_2 = events; _i < events_2.length; _i++) {
+	        var ev = events_2[_i];
+	        ev.callback.call(ev.ctx, a);
+	    }
+	}
+	function _fireEvent2(events, a, b) {
+	    for (var _i = 0, events_3 = events; _i < events_3.length; _i++) {
+	        var ev = events_3[_i];
+	        ev.callback.call(ev.ctx, a, b);
+	    }
+	}
+	function _fireEvent3(events, a, b, c) {
+	    for (var _i = 0, events_4 = events; _i < events_4.length; _i++) {
+	        var ev = events_4[_i];
+	        ev.callback.call(ev.ctx, a, b, c);
+	    }
+	}
+	function _fireEvent4(events, a, b, c, d) {
+	    for (var _i = 0, events_5 = events; _i < events_5.length; _i++) {
+	        var ev = events_5[_i];
+	        ev.callback.call(ev.ctx, a, b, c, d);
+	    }
+	}
+	function _on(_events, name, callback, context, ctx) {
+	    var events = _events[name], handler = new EventHandler(context, ctx || context, null, callback);
+	    if (events) {
+	        events.push(handler);
+	    }
+	    else {
+	        _events[name] = [handler];
+	    }
+	}
+	;
+	function _off(_events, name, callback, context) {
+	    var events = _events[name];
+	    if (events) {
+	        var retain = [];
+	        for (var _i = 0, events_6 = events; _i < events_6.length; _i++) {
+	            var ev = events_6[_i];
+	            if ((callback && callback !== ev.callback) || context !== ev.context) {
+	                retain.push(ev);
+	            }
+	        }
+	        _events[name] = retain.length ? retain : void 0;
+	    }
+	}
+	;
+	var _bubblingHandlers = {};
+	function getBubblingHandler(event) {
+	    return _bubblingHandlers[event] || (_bubblingHandlers[event] = function (a, b, c) {
+	        switch (arguments.length) {
+	            case 0:
+	                trigger0(this, event);
+	                break;
+	            case 1:
+	                trigger1(this, event, a);
+	                break;
+	            case 2:
+	                trigger2(this, event, a, b);
+	                break;
+	            case 3:
+	                trigger3(this, event, a, b, c);
+	                break;
+	            default:
+	                var args = [event, a, b, c];
+	                for (var i = 3; i < arguments.length; i++) {
+	                    args.push(arguments[i]);
+	                }
+	                this.trigger.apply(this, args);
+	        }
+	    });
+	}
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var referenceMask = /\~|\^|([^.]+)/g;
+	var CompiledReference = (function () {
+	    function CompiledReference(reference, splitTail) {
+	        if (splitTail === void 0) { splitTail = false; }
+	        var path = reference
+	            .match(referenceMask)
+	            .map(function (key) { return key === '~' ? 'getStore()' : (key === '^' ? 'getOwner()' : key); });
+	        this.tail = splitTail && path.pop();
+	        this.local = !path.length;
+	        path.unshift('self');
+	        this.resolve = new Function('self', "return " + path + ";");
+	    }
+	    return CompiledReference;
+	}());
+	exports.CompiledReference = CompiledReference;
+	function resolveReference(root, reference, action) {
+	    var path = reference.match(referenceMask), skip = path.length - 1;
+	    var self = root;
+	    for (var i = 0; i < skip; i++) {
+	        var key = path[i];
+	        switch (key) {
+	            case '~':
+	                self = self.getStore();
+	                break;
+	            case '^':
+	                self = self.getOwner();
+	                break;
+	            default: self = self.get(key);
+	        }
+	        if (!self)
+	            return;
+	    }
+	    action(self, path[skip]);
+	    return self;
+	}
+	exports.resolveReference = resolveReference;
+	function referenceToObject(reference, value) {
+	    var path = reference.split('.'), root = {}, last = path.length - 1;
+	    var current = root;
+	    for (var i = 0; i < last; i++) {
+	        current = current[path[i]] = {};
+	    }
+	    current[path[last]] = value;
+	    return root;
+	}
+	exports.referenceToObject = referenceToObject;
+
+
+/***/ },
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1313,8 +1498,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return c > 3 && r && Object.defineProperty(target, key, r), r;
 	};
 	var index_ts_1 = __webpack_require__(4);
-	var validation_ts_1 = __webpack_require__(8);
-	var references_ts_1 = __webpack_require__(9);
+	var validation_ts_1 = __webpack_require__(10);
+	var traversable_ts_1 = __webpack_require__(8);
 	var trigger2 = index_ts_1.Messenger.trigger2, trigger3 = index_ts_1.Messenger.trigger3;
 	var Transactional = (function (_super) {
 	    __extends(Transactional, _super);
@@ -1347,7 +1532,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Transactional.prototype.parse = function (data) { return data; };
 	    Transactional.prototype.deepGet = function (reference) {
-	        return references_ts_1.resolveReference(this, reference, function (object, key) { return object.get(key); });
+	        return traversable_ts_1.resolveReference(this, reference, function (object, key) { return object.get(key); });
 	    };
 	    Transactional.prototype.getOwner = function () {
 	        return this._owner;
@@ -1404,7 +1589,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return (key ? error && error.nested[key] : error) || null;
 	    };
 	    Transactional.prototype.deepValidationError = function (reference) {
-	        return references_ts_1.resolveReference(this, reference, function (object, key) { return object.getValidationError(key); });
+	        return traversable_ts_1.resolveReference(this, reference, function (object, key) { return object.getValidationError(key); });
 	    };
 	    Transactional.prototype.eachValidationError = function (iteratee) {
 	        var validationError = this.validationError;
@@ -1471,7 +1656,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 8 */
+/* 10 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1506,67 +1691,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 9 */
-/***/ function(module, exports) {
-
-	"use strict";
-	var referenceMask = /\~|\^|([^.]+)/g;
-	var CompiledReference = (function () {
-	    function CompiledReference(reference, splitTail) {
-	        if (splitTail === void 0) { splitTail = false; }
-	        var path = reference
-	            .match(referenceMask)
-	            .map(function (key) { return key === '~' ? 'getStore()' : (key === '^' ? 'getOwner()' : key); });
-	        this.tail = splitTail && path.pop();
-	        this.local = !path.length;
-	        path.unshift('self');
-	        this.resolve = new Function('self', "return " + path + ";");
-	    }
-	    return CompiledReference;
-	}());
-	exports.CompiledReference = CompiledReference;
-	function resolveReference(root, reference, action) {
-	    var path = reference.match(referenceMask), skip = path.length - 1;
-	    var self = root;
-	    for (var i = 0; i < skip; i++) {
-	        var key = path[i];
-	        switch (key) {
-	            case '~':
-	                self = self.getStore();
-	                break;
-	            case '^':
-	                self = self.getOwner();
-	                break;
-	            default: self = self.get(key);
-	        }
-	        if (!self)
-	            return;
-	    }
-	    action(self, path[skip]);
-	    return self;
-	}
-	exports.resolveReference = resolveReference;
-	function referenceToObject(reference, value) {
-	    var path = reference.split('.'), root = {}, last = path.length - 1;
-	    var current = root;
-	    for (var i = 0; i < last; i++) {
-	        current = current[path[i]] = {};
-	    }
-	    current[path[last]] = value;
-	    return root;
-	}
-	exports.referenceToObject = referenceToObject;
-
-
-/***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var attribute_ts_1 = __webpack_require__(11);
+	var attribute_ts_1 = __webpack_require__(12);
 	var index_ts_1 = __webpack_require__(4);
-	var typespec_ts_1 = __webpack_require__(12);
-	var references_ts_1 = __webpack_require__(9);
+	var typespec_ts_1 = __webpack_require__(13);
+	var traversable_ts_1 = __webpack_require__(8);
 	function compile(rawSpecs, baseAttributes) {
 	    var myAttributes = index_ts_1.transform({}, rawSpecs, createAttribute), allAttributes = index_ts_1.defaults({}, myAttributes, baseAttributes), Attributes = createCloneCtor(allAttributes), mixin = {
 	        Attributes: Attributes,
@@ -1574,7 +1706,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        properties: index_ts_1.transform({}, myAttributes, function (x) { return x.createPropertyDescriptor(); }),
 	        defaults: createDefaults(allAttributes),
 	        _toJSON: createToJSON(allAttributes),
-	        _listenToSelf: createEventMap(allAttributes),
+	        _localEvents: createEventMap(myAttributes),
 	        _keys: Object.keys(allAttributes)
 	    };
 	    var _parse = createParse(myAttributes, allAttributes);
@@ -1591,15 +1723,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return attribute_ts_1.GenericAttribute.create(typespec_ts_1.toAttributeDescriptor(spec), name);
 	}
 	function createEventMap(attrSpecs) {
-	    var events = null;
+	    var events;
 	    for (var key in attrSpecs) {
 	        var attribute = attrSpecs[key], _onChange = attribute.options._onChange;
 	        if (_onChange) {
-	            events || (events = {});
-	            events['change:' + key] =
-	                typeof _onChange === 'string' ?
-	                    createWatcherFromRef(_onChange, key) :
-	                    wrapWatcher(_onChange, key);
+	            events || (events = new index_ts_1.EventMap());
+	            events.addEvent('change:' + key, typeof _onChange === 'string' ?
+	                createWatcherFromRef(_onChange, key) :
+	                wrapWatcher(_onChange, key));
 	        }
 	    }
 	    return events;
@@ -1610,7 +1741,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	}
 	function createWatcherFromRef(ref, key) {
-	    var _a = new references_ts_1.CompiledReference(ref, true), local = _a.local, resolve = _a.resolve, tail = _a.tail;
+	    var _a = new traversable_ts_1.CompiledReference(ref, true), local = _a.local, resolve = _a.resolve, tail = _a.tail;
 	    return local ?
 	        function (record, value) {
 	            record[tail](value, key);
@@ -1696,7 +1827,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1804,7 +1935,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1845,9 +1976,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this;
 	    };
 	    ChainableAttributeSpec.prototype.events = function (map) {
+	        var eventMap = new index_ts_1.EventMap(map);
 	        this.options.changeHandlers.push(function (next, prev, record) {
-	            prev && record.stopListening(prev);
-	            next && record.listenTo(next, map);
+	            prev && eventMap.unsubscribe(record, prev);
+	            next && eventMap.subscribe(record, next);
 	        });
 	        return this;
 	    };
@@ -1902,7 +2034,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1912,8 +2044,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var transaction_ts_1 = __webpack_require__(3);
-	var attribute_ts_1 = __webpack_require__(11);
-	var transactions_ts_1 = __webpack_require__(7);
+	var attribute_ts_1 = __webpack_require__(12);
+	var transactions_ts_1 = __webpack_require__(9);
 	var TransactionalType = (function (_super) {
 	    __extends(TransactionalType, _super);
 	    function TransactionalType() {
@@ -1939,7 +2071,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1948,7 +2080,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var attribute_ts_1 = __webpack_require__(11);
+	var attribute_ts_1 = __webpack_require__(12);
 	var index_ts_1 = __webpack_require__(4);
 	var ConstructorType = (function (_super) {
 	    __extends(ConstructorType, _super);
@@ -2033,7 +2165,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 15 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2049,12 +2181,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return c > 3 && r && Object.defineProperty(target, key, r), r;
 	};
 	var index_ts_1 = __webpack_require__(4);
-	var transactions_ts_1 = __webpack_require__(7);
+	var transactions_ts_1 = __webpack_require__(9);
 	var index_ts_2 = __webpack_require__(2);
-	var commons_ts_1 = __webpack_require__(16);
-	var add_ts_1 = __webpack_require__(17);
-	var set_ts_1 = __webpack_require__(18);
-	var remove_ts_1 = __webpack_require__(19);
+	var commons_ts_1 = __webpack_require__(17);
+	var add_ts_1 = __webpack_require__(18);
+	var set_ts_1 = __webpack_require__(19);
+	var remove_ts_1 = __webpack_require__(20);
 	var trigger2 = transactions_ts_1.Transactional.trigger2;
 	var _count = 0;
 	var silentOptions = { silent: true };
@@ -2078,8 +2210,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	            set_ts_1.emptySetTransaction(this, elements, options, true);
 	        }
 	        this.initialize.apply(this, arguments);
+	        if (this._localEvents)
+	            this._localEvents.subscribe(this, this);
 	    }
 	    Collection.predefine = function () { return this; };
+	    Collection.define = function (protoProps, staticProps) {
+	        var spec = index_ts_1.omit(protoProps, 'elementsEvents', 'localEvents');
+	        if (protoProps.elementsEvents) {
+	            var eventsMap = new index_ts_1.EventMap(this.prototype._elementsEvents);
+	            eventsMap.addEventsMap(protoProps.elementsEvents);
+	            spec._elementsEvents = eventsMap;
+	        }
+	        return transactions_ts_1.Transactional.define.call(this, spec, staticProps);
+	    };
 	    Object.defineProperty(Collection.prototype, "comparator", {
 	        get: function () { return this._comparator; },
 	        set: function (x) {
@@ -2290,11 +2433,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var transactions_ts_1 = __webpack_require__(7);
+	var transactions_ts_1 = __webpack_require__(9);
 	var trigger2 = transactions_ts_1.Transactional.trigger2, trigger3 = transactions_ts_1.Transactional.trigger3;
 	function dispose(collection) {
 	    var models = collection.models;
@@ -2306,17 +2449,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.dispose = dispose;
 	function aquire(owner, child) {
 	    transactions_ts_1.aquire(owner, child);
-	    if (owner.bubbleEvents) {
-	        for (var _i = 0, _a = owner.bubbleEvents; _i < _a.length; _i++) {
-	            var event_1 = _a[_i];
-	            owner.triggerEventFrom(child, event_1);
-	        }
-	    }
+	    var _elementsEvents = owner._elementsEvents;
+	    _elementsEvents && _elementsEvents.subscribe(owner, child);
 	}
 	exports.aquire = aquire;
 	function free(owner, child) {
 	    transactions_ts_1.free(owner, child);
-	    owner.bubbleEvents && owner.stopListening(child);
+	    var _elementsEvents = owner._elementsEvents;
+	    _elementsEvents && _elementsEvents.unsubscribe(owner, child);
 	}
 	exports.free = free;
 	function freeAll(collection, children) {
@@ -2407,12 +2547,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var transactions_ts_1 = __webpack_require__(7);
-	var commons_ts_1 = __webpack_require__(16);
+	var transactions_ts_1 = __webpack_require__(9);
+	var commons_ts_1 = __webpack_require__(17);
 	function addTransaction(collection, items, options) {
 	    var isRoot = transactions_ts_1.begin(collection), nested = [];
 	    var added = appendElements(collection, items, nested, options);
@@ -2474,12 +2614,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var transactions_ts_1 = __webpack_require__(7);
-	var commons_ts_1 = __webpack_require__(16);
+	var transactions_ts_1 = __webpack_require__(9);
+	var commons_ts_1 = __webpack_require__(17);
 	var silentOptions = { silent: true };
 	function emptySetTransaction(collection, items, options, silent) {
 	    var isRoot = transactions_ts_1.begin(collection);
@@ -2573,13 +2713,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var commons_ts_1 = __webpack_require__(16);
+	var commons_ts_1 = __webpack_require__(17);
 	var index_ts_1 = __webpack_require__(4);
-	var transactions_ts_1 = __webpack_require__(7);
+	var transactions_ts_1 = __webpack_require__(9);
 	var trigger2 = index_ts_1.Messenger.trigger2, trigger3 = index_ts_1.Messenger.trigger3;
 	function removeOne(collection, el, options) {
 	    var model = collection.get(el);

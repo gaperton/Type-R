@@ -5,7 +5,7 @@
 
 import { ChangeAttrHandler } from './attribute.ts'
 import { AttributeDescriptor, Record } from './transaction.ts'
-import { assign, EventHandlers, Constructor } from '../objectplus/index.ts'
+import { assign, EventMap, EventsDefinition, Constructor } from '../objectplus/index.ts'
 
 export class ChainableAttributeSpec {
     options : AttributeDescriptor;
@@ -57,11 +57,13 @@ export class ChainableAttributeSpec {
     }
 
     // Subsribe to events from an attribute.
-    events( map : EventHandlers ) : this {
-        this.options.changeHandlers.push( function( next, prev, record : Record ){
-                prev && record.stopListening( prev );
+    events( map : EventsDefinition ) : this {
+        const eventMap = new EventMap( map );
 
-                next && record.listenTo( next, map );
+        this.options.changeHandlers.push( function( next, prev, record : Record ){
+                prev && eventMap.unsubscribe( record, prev );
+
+                next && eventMap.subscribe( record, next );
             });
 
         return this;

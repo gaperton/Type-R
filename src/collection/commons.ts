@@ -2,6 +2,8 @@ import { Record } from '../record/index.ts'
 import { Owner, aquire as _aquire, free as _free, Transaction, markAsDirty,
         TransactionOptions, Transactional, commit } from '../transactions.ts'
 
+import { EventMap } from '../objectplus/index.ts'
+
 const { trigger2, trigger3 } = Transactional;        
 
 export interface CollectionCore extends Transactional, Owner {
@@ -11,7 +13,7 @@ export interface CollectionCore extends Transactional, Owner {
     idAttribute : string // TODO: Refactor inconsistent idAttribute usage
     _comparator : Comparator
     get( objOrId : string | Record | Object ) : Record    
-    bubbleEvents? : string[]
+    _elementsEvents? : EventMap
 }
 
 // Collection's manipulation methods elements
@@ -37,17 +39,15 @@ export function dispose( collection : CollectionCore ) : Record[]{
 export function aquire( owner : CollectionCore, child : Record ) : void {
     _aquire( owner, child );
 
-    if( owner.bubbleEvents ){
-        for( let event of owner.bubbleEvents ){
-            owner.triggerEventFrom( child, event );
-        }
-    }
+    const { _elementsEvents } = owner;
+    _elementsEvents && _elementsEvents.subscribe( owner, child );
 }
 
 export function free( owner : CollectionCore, child : Record ) : void {
     _free( owner, child );
 
-    owner.bubbleEvents && owner.stopListening( child );
+    const { _elementsEvents } = owner;
+    _elementsEvents && _elementsEvents.unsubscribe( owner, child );
 }
 
 export function freeAll( collection : CollectionCore, children : Record[] ) : Record[] {
