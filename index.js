@@ -424,7 +424,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return c > 3 && r && Object.defineProperty(target, key, r), r;
 	};
 	var index_ts_1 = __webpack_require__(4);
-	var transactions_ts_1 = __webpack_require__(9);
+	var transactions_ts_1 = __webpack_require__(8);
 	var trigger3 = transactions_ts_1.Transactional.trigger3;
 	var _cidCounter = 0;
 	var Record = (function (_super) {
@@ -1205,10 +1205,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 7 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	"use strict";
-	var traversable_ts_1 = __webpack_require__(8);
 	exports.eventSplitter = /\s+/;
 	var EventHandler = (function () {
 	    function EventHandler(context, ctx, listening, callback) {
@@ -1283,19 +1282,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.callback = getBubblingHandler(name);
 	        }
 	        else if (typeof callback === 'string') {
-	            var _a = new traversable_ts_1.CompiledReference(callback, true), local = _a.local, resolve_1 = _a.resolve, tail_1 = _a.tail;
-	            this.callback = local ? (function localCallback() {
-	                var handler = this[tail_1];
-	                handler && handler.apply(this, arguments);
-	            }) : (function referenceCallback() {
-	                var context = resolve_1(this);
-	                if (context) {
-	                    var handler = context[tail_1];
-	                    if (handler) {
-	                        handler.apply(context, arguments);
-	                    }
-	                }
-	            });
+	            this.callback =
+	                function localCallback() {
+	                    var handler = this[callback];
+	                    handler && handler.apply(this, arguments);
+	                };
 	        }
 	        else {
 	            this.callback = callback;
@@ -1430,59 +1421,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 8 */
-/***/ function(module, exports) {
-
-	"use strict";
-	var referenceMask = /\~|\^|([^.]+)/g;
-	var CompiledReference = (function () {
-	    function CompiledReference(reference, splitTail) {
-	        if (splitTail === void 0) { splitTail = false; }
-	        var path = reference
-	            .match(referenceMask)
-	            .map(function (key) { return key === '~' ? 'getStore()' : (key === '^' ? 'getOwner()' : key); });
-	        this.tail = splitTail && path.pop();
-	        this.local = !path.length;
-	        path.unshift('self');
-	        this.resolve = new Function('self', "return " + path + ";");
-	    }
-	    return CompiledReference;
-	}());
-	exports.CompiledReference = CompiledReference;
-	function resolveReference(root, reference, action) {
-	    var path = reference.match(referenceMask), skip = path.length - 1;
-	    var self = root;
-	    for (var i = 0; i < skip; i++) {
-	        var key = path[i];
-	        switch (key) {
-	            case '~':
-	                self = self.getStore();
-	                break;
-	            case '^':
-	                self = self.getOwner();
-	                break;
-	            default: self = self.get(key);
-	        }
-	        if (!self)
-	            return;
-	    }
-	    action(self, path[skip]);
-	    return self;
-	}
-	exports.resolveReference = resolveReference;
-	function referenceToObject(reference, value) {
-	    var path = reference.split('.'), root = {}, last = path.length - 1;
-	    var current = root;
-	    for (var i = 0; i < last; i++) {
-	        current = current[path[i]] = {};
-	    }
-	    current[path[last]] = value;
-	    return root;
-	}
-	exports.referenceToObject = referenceToObject;
-
-
-/***/ },
-/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1498,8 +1436,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return c > 3 && r && Object.defineProperty(target, key, r), r;
 	};
 	var index_ts_1 = __webpack_require__(4);
-	var validation_ts_1 = __webpack_require__(10);
-	var traversable_ts_1 = __webpack_require__(8);
+	var validation_ts_1 = __webpack_require__(9);
+	var traversable_ts_1 = __webpack_require__(10);
 	var trigger2 = index_ts_1.Messenger.trigger2, trigger3 = index_ts_1.Messenger.trigger3;
 	var Transactional = (function (_super) {
 	    __extends(Transactional, _super);
@@ -1656,7 +1594,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 10 */
+/* 9 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1691,6 +1629,59 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var referenceMask = /\~|\^|([^.]+)/g;
+	var CompiledReference = (function () {
+	    function CompiledReference(reference, splitTail) {
+	        if (splitTail === void 0) { splitTail = false; }
+	        var path = reference
+	            .match(referenceMask)
+	            .map(function (key) { return key === '~' ? 'getStore()' : (key === '^' ? 'getOwner()' : key); });
+	        this.tail = splitTail && path.pop();
+	        this.local = !path.length;
+	        path.unshift('self');
+	        this.resolve = new Function('self', "return " + path + ";");
+	    }
+	    return CompiledReference;
+	}());
+	exports.CompiledReference = CompiledReference;
+	function resolveReference(root, reference, action) {
+	    var path = reference.match(referenceMask), skip = path.length - 1;
+	    var self = root;
+	    for (var i = 0; i < skip; i++) {
+	        var key = path[i];
+	        switch (key) {
+	            case '~':
+	                self = self.getStore();
+	                break;
+	            case '^':
+	                self = self.getOwner();
+	                break;
+	            default: self = self.get(key);
+	        }
+	        if (!self)
+	            return;
+	    }
+	    action(self, path[skip]);
+	    return self;
+	}
+	exports.resolveReference = resolveReference;
+	function referenceToObject(reference, value) {
+	    var path = reference.split('.'), root = {}, last = path.length - 1;
+	    var current = root;
+	    for (var i = 0; i < last; i++) {
+	        current = current[path[i]] = {};
+	    }
+	    current[path[last]] = value;
+	    return root;
+	}
+	exports.referenceToObject = referenceToObject;
+
+
+/***/ },
 /* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -1698,7 +1689,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var attribute_ts_1 = __webpack_require__(12);
 	var index_ts_1 = __webpack_require__(4);
 	var typespec_ts_1 = __webpack_require__(13);
-	var traversable_ts_1 = __webpack_require__(8);
+	var traversable_ts_1 = __webpack_require__(10);
 	function compile(rawSpecs, baseAttributes) {
 	    var myAttributes = index_ts_1.transform({}, rawSpecs, createAttribute), allAttributes = index_ts_1.defaults({}, myAttributes, baseAttributes), Attributes = createCloneCtor(allAttributes), mixin = {
 	        Attributes: Attributes,
@@ -2045,7 +2036,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var transaction_ts_1 = __webpack_require__(3);
 	var attribute_ts_1 = __webpack_require__(12);
-	var transactions_ts_1 = __webpack_require__(9);
+	var transactions_ts_1 = __webpack_require__(8);
 	var TransactionalType = (function (_super) {
 	    __extends(TransactionalType, _super);
 	    function TransactionalType() {
@@ -2181,7 +2172,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return c > 3 && r && Object.defineProperty(target, key, r), r;
 	};
 	var index_ts_1 = __webpack_require__(4);
-	var transactions_ts_1 = __webpack_require__(9);
+	var transactions_ts_1 = __webpack_require__(8);
 	var index_ts_2 = __webpack_require__(2);
 	var commons_ts_1 = __webpack_require__(17);
 	var add_ts_1 = __webpack_require__(18);
@@ -2437,7 +2428,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var transactions_ts_1 = __webpack_require__(9);
+	var transactions_ts_1 = __webpack_require__(8);
 	var trigger2 = transactions_ts_1.Transactional.trigger2, trigger3 = transactions_ts_1.Transactional.trigger3;
 	function dispose(collection) {
 	    var models = collection.models;
@@ -2551,7 +2542,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var transactions_ts_1 = __webpack_require__(9);
+	var transactions_ts_1 = __webpack_require__(8);
 	var commons_ts_1 = __webpack_require__(17);
 	function addTransaction(collection, items, options) {
 	    var isRoot = transactions_ts_1.begin(collection), nested = [];
@@ -2618,7 +2609,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var transactions_ts_1 = __webpack_require__(9);
+	var transactions_ts_1 = __webpack_require__(8);
 	var commons_ts_1 = __webpack_require__(17);
 	var silentOptions = { silent: true };
 	function emptySetTransaction(collection, items, options, silent) {
@@ -2719,7 +2710,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	var commons_ts_1 = __webpack_require__(17);
 	var index_ts_1 = __webpack_require__(4);
-	var transactions_ts_1 = __webpack_require__(9);
+	var transactions_ts_1 = __webpack_require__(8);
 	var trigger2 = index_ts_1.Messenger.trigger2, trigger3 = index_ts_1.Messenger.trigger3;
 	function removeOne(collection, el, options) {
 	    var model = collection.get(el);

@@ -1,5 +1,3 @@
-import { Traversable, CompiledReference } from './traversable.ts'
-
 export const eventSplitter = /\s+/;
 
 export interface EventsCore {
@@ -82,14 +80,14 @@ export class EventMap {
         }        
     }
 
-    subscribe( target : Traversable, source : EventsCore ){
+    subscribe( target : {}, source : EventsCore ){
         const { _events } = source;
         for( let event of this.handlers ){
             _on( _events, event.name, event.callback, target );
         }
     }
 
-    unsubscribe( target : Traversable, source : EventsCore ){
+    unsubscribe( target : {}, source : EventsCore ){
         const { _events } = source;
         for( let event of this.handlers ){
             _off( _events, event.name, event.callback, target );
@@ -108,23 +106,11 @@ class EventDescriptor {
             this.callback = getBubblingHandler( name );
         }
         else if( typeof callback === 'string' ){
-            const { local, resolve, tail } = new CompiledReference( callback, true );
-            this.callback = local ? (
+            this.callback = 
                 function localCallback(){
-                    const handler = this[ tail ]; 
+                    const handler = this[ callback ]; 
                     handler && handler.apply( this, arguments );
-                }
-            ) : (
-                function referenceCallback(){
-                    const context = resolve( this );
-                    if( context ){
-                        const handler = context[ tail ];
-                        if( handler ){
-                            handler.apply( context, arguments );
-                        } 
-                    }
-                }
-            );
+                };
         }
         else{
             this.callback = <Function>callback;
