@@ -71,6 +71,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	__export(__webpack_require__(6));
 	var mixins_ts_2 = __webpack_require__(5);
 	exports.Class = mixins_ts_2.Mixable;
+	var relations_ts_1 = __webpack_require__(21);
+	index_ts_2.Record.from = relations_ts_1.from;
 	function value(x) {
 	    return new index_ts_1.ChainableAttributeSpec({ value: x });
 	}
@@ -1837,7 +1839,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        transforms.unshift(this.convert);
 	        if (this.get)
 	            getHooks.unshift(this.get);
-	        this.initialize.apply(this, arguments);
+	        this.initialize.call(this, options);
 	        if (getHooks.length) {
 	            this.getHook = getHooks.reduce(chainGetHooks);
 	        }
@@ -1849,7 +1851,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    }
 	    GenericAttribute.create = function (options, name) {
-	        var type = options.type, AttributeCtor = type ? type._attribute : GenericAttribute;
+	        var type = options.type, AttributeCtor = options._attribute || (type ? type._attribute : GenericAttribute);
 	        return new AttributeCtor(name, options);
 	    };
 	    GenericAttribute.prototype.canBeUpdated = function (prev, next) {
@@ -2771,6 +2773,75 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    models.length = j;
 	}
+
+
+/***/ },
+/* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var attribute_ts_1 = __webpack_require__(12);
+	var traversable_ts_1 = __webpack_require__(10);
+	var typespec_ts_1 = __webpack_require__(13);
+	var RecordRefAttribute = (function (_super) {
+	    __extends(RecordRefAttribute, _super);
+	    function RecordRefAttribute() {
+	        _super.apply(this, arguments);
+	    }
+	    RecordRefAttribute.prototype.toJSON = function (value) {
+	        return value && typeof value === 'object' ? value.id : value;
+	    };
+	    RecordRefAttribute.prototype.clone = function (value) {
+	        return value && typeof value === 'object' ? value.id : value;
+	    };
+	    RecordRefAttribute.prototype.isChanged = function (a, b) {
+	        var aId = a && (a.id == null ? a : a.id), bId = b && (b.id == null ? b : b.id);
+	        return aId !== bId;
+	    };
+	    RecordRefAttribute.prototype.validate = function (model, value, name) { };
+	    return RecordRefAttribute;
+	}(attribute_ts_1.GenericAttribute));
+	function parseReference(collectionRef) {
+	    switch (typeof collectionRef) {
+	        case 'function':
+	            return function (root) { return collectionRef.call(root); };
+	        case 'object':
+	            return function () { return collectionRef; };
+	        case 'string':
+	            var resolve = (new traversable_ts_1.CompiledReference(collectionRef)).resolve;
+	            return resolve;
+	    }
+	}
+	function from(masterCollection) {
+	    var getMasterCollection = parseReference(masterCollection);
+	    var typeSpec = new typespec_ts_1.ChainableAttributeSpec({
+	        value: null,
+	        _attribute: RecordRefAttribute
+	    });
+	    typeSpec
+	        .get(function (objOrId, name) {
+	        if (typeof objOrId !== 'object') {
+	            var collection = getMasterCollection(this);
+	            if (collection && collection.length) {
+	                var record = collection.get(objOrId) || null;
+	                this.attributes[name] = record;
+	                this._attributes[name].handleChange(record, null, this);
+	            }
+	            else {
+	                objOrId = null;
+	            }
+	        }
+	        return objOrId;
+	    });
+	    return typeSpec;
+	}
+	exports.from = from;
+	;
 
 
 /***/ }

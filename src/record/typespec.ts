@@ -3,8 +3,8 @@
  * and returns object with spec.
  */
 
-import { ChangeAttrHandler } from './attribute.ts'
-import { AttributeDescriptor, Record } from './transaction.ts'
+import { ChangeAttrHandler, AttributeDescriptor } from './attribute.ts'
+import { Record } from './transaction.ts'
 import { assign, EventMap, EventsDefinition, Constructor } from '../objectplus/index.ts'
 
 export class ChainableAttributeSpec {

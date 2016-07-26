@@ -12,12 +12,15 @@ declare global {
     }
 }
 
+type ExtendedAttributeDescriptor = AttributeDescriptor & { _attribute? : typeof GenericAttribute } 
+export { ExtendedAttributeDescriptor as AttributeDescriptor }
+
 // TODO: interface differs from options, do something obout it
 export class GenericAttribute implements Attribute {
     // Factory method to create attribute from options 
-    static create( options : AttributeDescriptor, name : string ) : GenericAttribute {
+    static create( options : ExtendedAttributeDescriptor, name : string ) : GenericAttribute {
         const type = options.type,
-              AttributeCtor = type ? type._attribute : GenericAttribute;
+              AttributeCtor = options._attribute || ( type ? type._attribute : GenericAttribute );
 
         return new AttributeCtor( name, options );
     }
@@ -141,7 +144,7 @@ export class GenericAttribute implements Attribute {
         if( this.get ) getHooks.unshift( this.get );
 
         // let subclasses configure the pipeline...
-        this.initialize.apply( this, arguments );
+        this.initialize.call( this, options );
 
         // let attribute spec configure the pipeline...
         if( getHooks.length ){

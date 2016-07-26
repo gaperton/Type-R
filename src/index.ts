@@ -16,6 +16,8 @@ export * from './objectplus/events.ts'
 
 import { Mixable as Class } from './objectplus/mixins.ts'
 
+import { from /* subsetOf */ } from './relations.ts'
+
 export {
     tools,
     Model,
@@ -24,6 +26,8 @@ export {
     transaction,
     value
 }; 
+
+Model.from = from;
 
 function value( x ){
     return new ChainableAttributeSpec({ value : x });

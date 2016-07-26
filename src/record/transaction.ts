@@ -107,6 +107,8 @@ export class Record extends Transactional implements Owner {
     static predefine : () => typeof Record
     static Collection : typeof Transactional
 
+    static from : ( collectionReference : any ) => any;
+    
     static defaults( attrs : AttributeDescriptorMap ){
         return this.extend({ attributes : attrs });
     }

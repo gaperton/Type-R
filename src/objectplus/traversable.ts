@@ -15,9 +15,10 @@ export interface Traversable {
 const referenceMask =  /\~|\^|([^.]+)/g;
 
 // Compile reference to function
+export type ResolveReference = ( root : Traversable ) => any;  
 
 export class CompiledReference {
-    resolve : ( root : Traversable ) => any
+    resolve : ResolveReference
     tail : string
     local : boolean
 

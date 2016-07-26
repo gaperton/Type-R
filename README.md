@@ -21,13 +21,20 @@ Because we can.
     - [x] Collection regression passes.
     - [ ] Underscore/Lodash mixin for Model and Collection
     - [ ] Backbone Persistence API
-- [ ] Implement relations.
+- [~] Implement relations.
 - [ ] Implement NestedTypes compatibility layer.
 - [ ] Test it with NestedReact examples.
 - [ ] Release ObjectPlus as separate package.
 - [ ] Implement classes support in NestedReact.
 - [ ] Deploy NestedReact and NestedTypes 2.0 RC to Volicon Observer product.
 - [ ] Release NestedTypes 2.0 and NestedReact 1.0
+
+## To do later
+
+- [ ] Fix silent option semantic. Now it's wrong (as in NestedTypes 1.3). Update should be propagated upper, just events must be supressed.
+- [ ] Fix new event maps semantic in case of inheritance. There might be the problem with inherited models.
+- [ ] Fix TypeDoc. It doesn't work.
+- [ ] Tune-up the performance.  
 
 ## Compatibility notes
 
