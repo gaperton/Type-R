@@ -31,10 +31,10 @@ Because we can.
 
 ## To do later
 
-- [ ] Fix silent option semantic. Now it's wrong (as in NestedTypes 1.3). Update should be propagated upper, just events must be supressed.
+- [-] Fix silent option semantic. Now it's wrong (as in NestedTypes 1.3). Update should be propagated upper, just events must be supressed.
 - [ ] Fix new event maps semantic in case of inheritance. There might be the problem with inherited models.
 - [ ] Fix TypeDoc. It doesn't work.
-- [ ] Tune-up the performance.  
+- [-] Tune-up the performance (seems to be fine).  
 
 ## Compatibility notes
 
