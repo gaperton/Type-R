@@ -102,6 +102,13 @@ export class Collection extends Transactional implements CollectionCore {
         }
     }
     
+    // TODO: Improve typing
+    getStore() : Transactional {
+        return this._store || ( this._store = this._owner ? this._owner.getStore() : this._defaultStore );
+    }
+
+    _store : Transactional
+
     get comparator(){ return this._comparator; }
     _comparator : ( a : Record, b : Record ) => number
 

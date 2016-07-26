@@ -1663,7 +1663,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.tail = splitTail && path.pop();
 	        this.local = !path.length;
 	        path.unshift('self');
-	        this.resolve = new Function('self', "return " + path + ";");
+	        this.resolve = new Function('self', "return " + path.join('.') + ";");
 	    }
 	    return CompiledReference;
 	}());
@@ -2304,6 +2304,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        enumerable: true,
 	        configurable: true
 	    });
+	    Collection.prototype.getStore = function () {
+	        return this._store || (this._store = this._owner ? this._owner.getStore() : this._defaultStore);
+	    };
 	    Collection.prototype._onChildrenChange = function (record, options) {
 	        if (options === void 0) { options = {}; }
 	        var isRoot = transactions_ts_1.begin(this), idAttribute = this.idAttribute;

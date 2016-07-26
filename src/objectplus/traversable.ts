@@ -32,7 +32,7 @@ export class CompiledReference {
 
         path.unshift( 'self' );
         
-        this.resolve = <any> new Function( 'self', `return ${ path };` );
+        this.resolve = <any> new Function( 'self', `return ${ path.join('.') };` );
     }
 }
 
