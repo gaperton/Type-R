@@ -1,6 +1,7 @@
 import { Record } from './transaction.ts' 
 import { GenericAttribute } from './attribute.ts'
-import { Owner, free, aquire, Transactional, TransactionOptions, TransactionalConstructor } from '../transactions.ts' 
+import { Owner, free, aquire, Transactional, TransactionOptions, TransactionalConstructor } from '../transactions.ts'
+import { log } from '../objectplus/index.ts' 
 
 export class TransactionalType extends GenericAttribute {
     type : TransactionalConstructor
@@ -30,7 +31,10 @@ export class TransactionalType extends GenericAttribute {
 
     _handleChange( next : Transactional, prev : Transactional, record : Record ){
         prev && free( record, prev );
-        next && aquire( record, next, this.name );
+        
+        if( next && !aquire( record, next, this.name ) ){
+            log.error( '[Aggregation error] Assigned value already has an owner. Use shared attribute type.' );
+        }
     }
 }
 

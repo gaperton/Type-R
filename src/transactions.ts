@@ -312,11 +312,14 @@ export function commit( object : Transactional, isNested? : boolean ){
  */
 
 // Add reference to the record.
-export function aquire( owner : Owner, child : Transactional, key? : string ) : void {
+export function aquire( owner : Owner, child : Transactional, key? : string ) : boolean {
     if( !child._owner ){
         child._owner = owner;
         child._ownerKey = key;
+        return true;
     }
+
+    return false;
 }
 
 // Remove reference to the record.

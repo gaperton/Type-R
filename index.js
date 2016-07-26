@@ -1601,7 +1601,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (!child._owner) {
 	        child._owner = owner;
 	        child._ownerKey = key;
+	        return true;
 	    }
+	    return false;
 	}
 	exports.aquire = aquire;
 	function free(owner, child) {
@@ -2078,6 +2080,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var transaction_ts_1 = __webpack_require__(7);
 	var attribute_ts_1 = __webpack_require__(12);
 	var transactions_ts_1 = __webpack_require__(8);
+	var index_ts_1 = __webpack_require__(1);
 	var TransactionalType = (function (_super) {
 	    __extends(TransactionalType, _super);
 	    function TransactionalType() {
@@ -2102,7 +2105,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    TransactionalType.prototype._handleChange = function (next, prev, record) {
 	        prev && transactions_ts_1.free(record, prev);
-	        next && transactions_ts_1.aquire(record, next, this.name);
+	        if (next && !transactions_ts_1.aquire(record, next, this.name)) {
+	            index_ts_1.log.error('[Aggregation error] Assigned value already has an owner. Use shared attribute type.');
+	        }
 	    };
 	    return TransactionalType;
 	}(attribute_ts_1.GenericAttribute));
