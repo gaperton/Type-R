@@ -96,7 +96,7 @@ export class Collection extends Transactional implements CollectionCore {
     }
     
     get comparator(){ return this._comparator; }
-    _comparator : ( a : Record, b : Record ) => number = null
+    _comparator : ( a : Record, b : Record ) => number
 
     _onChildrenChange( record : Record, options : TransactionOptions = {} ){
         const isRoot = begin( this ),
@@ -165,6 +165,7 @@ export class Collection extends Transactional implements CollectionCore {
         this._byId = {};
         this.model      = options.model || this.model;
         this.idAttribute = this.model.prototype.idAttribute;
+        
         if( options.comparator !== void 0 ){
             this.comparator = options.comparator;
         }

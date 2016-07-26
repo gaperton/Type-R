@@ -2225,7 +2225,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function Collection(records, options) {
 	        if (options === void 0) { options = {}; }
 	        _super.call(this, _count++);
-	        this._comparator = null;
 	        this.models = [];
 	        this._byId = {};
 	        this.model = options.model || this.model;
