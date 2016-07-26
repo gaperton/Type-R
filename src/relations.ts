@@ -88,4 +88,14 @@ export function from( masterCollection : CollectionReference ) : ChainableAttrib
 
 /********************************
  * Collection.subsetOf
+ * 
+ * Todo: we need special collection type which do not attempt to take ownership on its members.
+ * It can't be serialized. It must not do deep updates. It must listen to members changes in regular way.
+ * 
+ * It needs to be dynamic mixin/subclass of the particular collection.
+ * 
+ * SubsetOf will extend this collection, and turn off change events counting toward changes event.
+ * It must add serialization and master collection.
+ * 
+ * May be, it will be the same type. 
  */
