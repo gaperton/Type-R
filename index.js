@@ -2825,18 +2825,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	    typeSpec
 	        .get(function (objOrId, name) {
-	        if (typeof objOrId !== 'object') {
-	            var collection = getMasterCollection(this);
-	            if (collection && collection.length) {
-	                var record = collection.get(objOrId) || null;
-	                this.attributes[name] = record;
-	                this._attributes[name].handleChange(record, null, this);
-	            }
-	            else {
-	                objOrId = null;
-	            }
+	        if (typeof objOrId === 'object')
+	            return objOrId;
+	        var collection = getMasterCollection(this);
+	        var record = null;
+	        if (collection && collection.length) {
+	            record = collection.get(objOrId) || null;
+	            this.attributes[name] = record;
+	            record && this._attributes[name].handleChange(record, null, this);
 	        }
-	        return objOrId;
+	        return record;
 	    });
 	    return typeSpec;
 	}

@@ -62,25 +62,23 @@ export function from( masterCollection : CollectionReference ) : ChainableAttrib
     
     typeSpec
         .get( function( objOrId : RecordRefValue, name : string ) : Record {
-            if( typeof objOrId !== 'object' ){
-                // So, we're dealing with an id reference. Resolve it.
-                const collection = getMasterCollection( this );
+            if( typeof objOrId === 'object' ) return objOrId;
 
-                // If master collection exists and is not empty...
-                if( collection && collection.length ){
-                    // Silently update attribute with record from this collection.
-                    const record = collection.get( objOrId ) || null;
-                    this.attributes[ name ] = record;
+            // So, we're dealing with an id reference. Resolve it.
+            const collection = getMasterCollection( this );
+            let   record : Record = null;
 
-                    // Subscribe for events manually. delegateEvents won't be invoked.
-                    record && this._attributes[ name ].handleChange( record, null, this );
-                }
-                else{
-                    objOrId = null;
-                }
+            // If master collection exists and is not empty...
+            if( collection && collection.length ){
+                // Silently update attribute with record from this collection.
+                record = collection.get( objOrId ) || null;
+                this.attributes[ name ] = record;
+
+                // Subscribe for events manually. delegateEvents won't be invoked.
+                record && this._attributes[ name ].handleChange( record, null, this );
             }
 
-            return <Record>objOrId;
+            return record;
         });
 
     return typeSpec;
