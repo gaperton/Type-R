@@ -21,7 +21,7 @@ Because we can.
     - [x] Collection regression passes.
     - [ ] Underscore/Lodash mixin for Model and Collection
     - [ ] Backbone Persistence API
-- [~] Implement relations.
+- [x] Implement relations.
 - [ ] Implement NestedTypes compatibility layer.
 - [ ] Test it with NestedReact examples.
 - [ ] Release ObjectPlus as separate package.
@@ -49,4 +49,5 @@ Because we can.
     - `.justOne( x )` method is deprecated. Use `.set([ x ])` instead.
     - `.removeAll()` method is deprecated. Use `.reset()` instead.
 - experimental NestedTypes features not supported:
-    - has.proxy
+    - has.proxy - too complex and was never needed.
+- Types of models and collection default valus are now inferred to shared types.
