@@ -73,7 +73,7 @@ export function from( masterCollection : CollectionReference ) : ChainableAttrib
                     this.attributes[ name ] = record;
 
                     // Subscribe for events manually. delegateEvents won't be invoked.
-                    this._attributes[ name ].handleChange( record, null, this );
+                    record && this._attributes[ name ].handleChange( record, null, this );
                 }
                 else{
                     objOrId = null;
