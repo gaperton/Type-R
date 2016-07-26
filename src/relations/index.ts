@@ -1,2 +1,4 @@
-export { from } from './from.ts'
-export { subsetOf } from './subsetOf.ts'
+import './from.ts'
+import './subsetOf.ts'
+
+export { Store } from './store.ts'

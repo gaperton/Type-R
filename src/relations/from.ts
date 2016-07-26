@@ -38,7 +38,7 @@ class RecordRefAttribute extends GenericAttribute {
     validate( model, value, name ){}
 }
 
-export function from( masterCollection : CollectionReference ) : ChainableAttributeSpec {
+Record.from = function from( masterCollection : CollectionReference ) : ChainableAttributeSpec {
     const getMasterCollection = parseReference( masterCollection );
 
     const typeSpec = new ChainableAttributeSpec({

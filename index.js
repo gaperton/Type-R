@@ -58,7 +58,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function __export(m) {
 	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 	}
-	var tools = __webpack_require__(1);
+	var tools = __webpack_require__(4);
 	exports.tools = tools;
 	var index_ts_1 = __webpack_require__(2);
 	var index_ts_2 = __webpack_require__(2);
@@ -72,8 +72,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var mixins_ts_2 = __webpack_require__(5);
 	exports.Class = mixins_ts_2.Mixable;
 	var index_ts_4 = __webpack_require__(22);
-	index_ts_2.Record.from = index_ts_4.from;
-	index_ts_3.Collection.subsetOf = index_ts_4.subsetOf;
+	exports.Store = index_ts_4.Store;
 	function value(x) {
 	    return new index_ts_1.ChainableAttributeSpec({ value: x });
 	}
@@ -2837,10 +2836,10 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var from_ts_1 = __webpack_require__(23);
-	exports.from = from_ts_1.from;
-	var subsetOf_ts_1 = __webpack_require__(25);
-	exports.subsetOf = subsetOf_ts_1.subsetOf;
+	__webpack_require__(23);
+	__webpack_require__(25);
+	var store_ts_1 = __webpack_require__(26);
+	exports.Store = store_ts_1.Store;
 
 
 /***/ },
@@ -2855,6 +2854,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var attribute_ts_1 = __webpack_require__(12);
 	var commons_ts_1 = __webpack_require__(24);
+	var index_ts_1 = __webpack_require__(2);
 	var typespec_ts_1 = __webpack_require__(13);
 	var RecordRefAttribute = (function (_super) {
 	    __extends(RecordRefAttribute, _super);
@@ -2874,7 +2874,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    RecordRefAttribute.prototype.validate = function (model, value, name) { };
 	    return RecordRefAttribute;
 	}(attribute_ts_1.GenericAttribute));
-	function from(masterCollection) {
+	index_ts_1.Record.from = function from(masterCollection) {
 	    var getMasterCollection = commons_ts_1.parseReference(masterCollection);
 	    var typeSpec = new typespec_ts_1.ChainableAttributeSpec({
 	        value: null,
@@ -2894,9 +2894,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return record;
 	    });
 	    return typeSpec;
-	}
-	exports.from = from;
-	;
+	};
 
 
 /***/ },
@@ -2929,10 +2927,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var index_ts_1 = __webpack_require__(4);
+	var index_ts_1 = __webpack_require__(16);
+	var index_ts_2 = __webpack_require__(4);
 	var commons_ts_1 = __webpack_require__(24);
-	var index_ts_2 = __webpack_require__(2);
-	function subsetOf(masterCollection) {
+	var index_ts_3 = __webpack_require__(2);
+	index_ts_1.Collection.subsetOf = function subsetOf(masterCollection) {
 	    var CollectionConstructor = this, SubsetOf = this._SubsetOf || ((function (_super) {
 	        __extends(SubsetOfCollection, _super);
 	        function SubsetOfCollection(recordsOrIds, options) {
@@ -2997,7 +2996,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return SubsetOfCollection;
 	    }(CollectionConstructor)));
 	    var getMasterCollection = commons_ts_1.parseReference(masterCollection);
-	    var typeSpec = new index_ts_2.ChainableAttributeSpec({
+	    var typeSpec = new index_ts_3.ChainableAttributeSpec({
 	        type: SubsetOf,
 	        validate: function (model, value, name) { },
 	    });
@@ -3006,15 +3005,55 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return refs;
 	    });
 	    return typeSpec;
-	}
-	exports.subsetOf = subsetOf;
-	;
+	};
 	function subsetOptions(options) {
 	    var subsetOptions = { parse: true, merge: false };
 	    if (options)
-	        index_ts_1.fastDefaults(subsetOptions, options);
+	        index_ts_2.fastDefaults(subsetOptions, options);
 	    return subsetOptions;
 	}
+
+
+/***/ },
+/* 26 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var index_ts_1 = __webpack_require__(2);
+	var transactions_ts_1 = __webpack_require__(8);
+	var _store = null;
+	var Store = (function (_super) {
+	    __extends(Store, _super);
+	    function Store() {
+	        _super.apply(this, arguments);
+	    }
+	    Store.prototype.getStore = function () { return this; };
+	    Store.prototype.get = function (name) {
+	        var local = this[name];
+	        if (local || this === _store)
+	            return local;
+	        return this._owner ? this._owner.get(name) : _store[name];
+	    };
+	    Object.defineProperty(Store, "global", {
+	        get: function () { return _store; },
+	        set: function (store) {
+	            if (_store) {
+	                _store.dispose();
+	            }
+	            transactions_ts_1.Transactional.prototype._defaultStore = _store = store;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    return Store;
+	}(index_ts_1.Record));
+	exports.Store = Store;
+	Store.global = new Store();
 
 
 /***/ }

@@ -6,7 +6,7 @@ import { ChainableAttributeSpec } from '../record/index.ts'
 
 type RecordsIds = ( string | number )[];
 
-export function subsetOf( masterCollection : CollectionReference ) : ChainableAttributeSpec {
+Collection.subsetOf = function subsetOf( masterCollection : CollectionReference ) : ChainableAttributeSpec {
     const CollectionConstructor : typeof Collection = this,
           SubsetOf  = this._SubsetOf || (
               class SubsetOfCollection extends CollectionConstructor {

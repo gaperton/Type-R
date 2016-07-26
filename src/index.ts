@@ -2,7 +2,7 @@
  * Main module
  */
 
-import * as tools from './objectplus/tools.ts'
+import * as tools from './objectplus/index.ts'
 import { ChainableAttributeSpec } from './record/index.ts'
 import { Record as Model } from './record/index.ts' 
 
@@ -16,7 +16,7 @@ export * from './objectplus/events.ts'
 
 import { Mixable as Class } from './objectplus/mixins.ts'
 
-import { from, subsetOf } from './relations/index.ts'
+export { Store } from './relations/index.ts'
 
 export {
     tools,
@@ -26,9 +26,6 @@ export {
     transaction,
     value
 }; 
-
-Model.from = from;
-Collection.subsetOf = subsetOf;
 
 function value( x ){
     return new ChainableAttributeSpec({ value : x });
