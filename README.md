@@ -45,3 +45,6 @@ Because we can.
 - Collection doesn't have `_addReference` and `_removeReference` callbacks. Impossible to implement efficiently. Use 'add' and 'remove' events instead.
 - Collection's `add` options is not supported. Period.
 - Collection doesn't set options.at options when firing `add` event. No way, dude.
+- Collection.subsetOf:
+    - `.justOne( x )` method is deprecated. Use `.set([ x ])` instead.
+    - `.removeAll()` method is deprecated. Use `.reset()` instead.

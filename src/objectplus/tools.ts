@@ -143,18 +143,22 @@ export function transform< A, B >( dest : { [ key : string ] : A }, source : { [
     return dest;
 }
 
-export function fastAssign( dest : {}, source : {} ) : void {
+export function fastAssign< A, B >( dest : A, source : B ) : A & B {
     for( var name in source ) {
         dest[ name ] = source[ name ];
     }
+
+    return <A & B >dest;
 }
 
-export function fastDefaults( dest : {}, source : {} ) : void {
+export function fastDefaults<A, B>( dest : A, source : B ) : A & B {
     for( var name in source ) {
         if( dest[ name ] === void 0 ){
             dest[ name ] = source[ name ];
         }
     }
+
+    return <A & B >dest;
 }
 
 function forAllArgs( fun ) {

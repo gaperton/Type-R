@@ -1,9 +1,9 @@
-import { GenericAttribute, AttributeDescriptor } from './record/attribute.ts'
-import { CompiledReference, ResolveReference } from './objectplus/traversable.ts'
-import { Collection } from './collection/index.ts'
-import { Record } from './record/index.ts'
+import { GenericAttribute, AttributeDescriptor } from '../record/attribute.ts'
+import { parseReference, CollectionReference } from './commons.ts'
+import { Collection } from '../collection/index.ts'
+import { Record } from '../record/index.ts'
 
-import { ChainableAttributeSpec } from './record/typespec.ts'
+import { ChainableAttributeSpec } from '../record/typespec.ts'
 
 /********
  * Reference to model by id.
@@ -36,20 +36,6 @@ class RecordRefAttribute extends GenericAttribute {
 
     // Refs are always valid.
     validate( model, value, name ){}
-}
-
-type CollectionReference = ( () => Collection ) | Collection | string; 
-
-function parseReference( collectionRef : CollectionReference ) : ( root : Record ) => Collection {
-    switch( typeof collectionRef ){
-        case 'function' :
-            return root => (<any>collectionRef).call( root );
-        case 'object'   :
-            return () => <Collection>collectionRef;
-        case 'string'   :
-            const { resolve } = new CompiledReference( <string>collectionRef );
-            return resolve;
-    }
 }
 
 export function from( masterCollection : CollectionReference ) : ChainableAttributeSpec {

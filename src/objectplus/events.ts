@@ -49,6 +49,7 @@ export abstract class Messenger implements Mixins.Mixable {
 
     static create : ( a : any, b? : any, c? : any ) => Messenger
     static extend : ( a? : any, b? : any ) => typeof Messenger
+    static predefine : () => typeof Messenger
 
     // Prototype-only property to manage automatic local events subscription.
     _localEvents : EventMaps.EventMap

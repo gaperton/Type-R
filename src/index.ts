@@ -16,7 +16,7 @@ export * from './objectplus/events.ts'
 
 import { Mixable as Class } from './objectplus/mixins.ts'
 
-import { from /* subsetOf */ } from './relations.ts'
+import { from, subsetOf } from './relations/index.ts'
 
 export {
     tools,
@@ -28,6 +28,7 @@ export {
 }; 
 
 Model.from = from;
+Collection.subsetOf = subsetOf;
 
 function value( x ){
     return new ChainableAttributeSpec({ value : x });

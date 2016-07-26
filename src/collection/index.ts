@@ -16,7 +16,7 @@ const silentOptions = { silent : true };
 export type GenericComparator = string | ( ( x : Record ) => number ) | ( ( a : Record, b : Record ) => number ); 
 
 
-interface CollectionOptions extends TransactionOptions {
+export interface CollectionOptions extends TransactionOptions {
     comparator? : GenericComparator
     model? : typeof Record
 }
@@ -33,7 +33,13 @@ interface CollectionDefinition extends MessengerDefinition {
     _changeEventName : 'changes' 
 })
 export class Collection extends Transactional implements CollectionCore {
-    static predefine() : typeof Collection { return this; }
+    static _SubsetOf : typeof Collection
+    
+    static predefine() : any {
+        this._SubsetOf = null;
+        Transactional.predefine();
+        return this;
+    }
     
     static define( protoProps? : CollectionDefinition, staticProps? ){
         const spec : CollectionDefinition = omit( protoProps, 'elementsEvents', 'localEvents' );
@@ -46,6 +52,8 @@ export class Collection extends Transactional implements CollectionCore {
 
         return Transactional.define.call( this, spec, staticProps );
     }
+
+    static subsetOf : ( collectionReference : any ) => any;
     
     _elementsEvents : EventMap
 
@@ -88,7 +96,7 @@ export class Collection extends Transactional implements CollectionCore {
     }
     
     get comparator(){ return this._comparator; }
-    _comparator : ( a : Record, b : Record ) => number
+    _comparator : ( a : Record, b : Record ) => number = null
 
     _onChildrenChange( record : Record, options : TransactionOptions = {} ){
         const isRoot = begin( this ),
@@ -159,10 +167,6 @@ export class Collection extends Transactional implements CollectionCore {
         this.idAttribute = this.model.prototype.idAttribute;
         if( options.comparator !== void 0 ){
             this.comparator = options.comparator;
-        }
-        else{
-            // Make sure this property is initialized, to keep the same hidden class.
-            this._comparator = this._comparator;
         }
 
         if( records ){
@@ -324,6 +328,23 @@ export class Collection extends Transactional implements CollectionCore {
 
     modelId( attrs : {} ) : any {
         return attrs[ this.model.prototype.idAttribute ];
+    }
+
+    // Toggle model in collection.
+    toggle( model : Record, a_next? : boolean ) : boolean {
+        var prev = Boolean( this.get( model ) ),
+            next = a_next === void 0 ? !prev : Boolean( a_next );
+
+        if( prev !== next ){
+            if( prev ){
+                this.remove( model );
+            }
+            else{
+                this.add( model );
+            }
+        }
+
+        return next;
     }
 }
 

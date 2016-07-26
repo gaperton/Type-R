@@ -15,6 +15,11 @@ export class TransactionalType extends GenericAttribute {
         return value == null || value instanceof this.type ? value : this.type.create( value, options, record );
     }
 
+    validate( record : Record, value : Transactional ){
+        var error = value && value.validationError;
+        if( error ) return error;
+    }
+
     create() : Transactional {
         return new (<any>this.type)(); // this the subclass of Transactional here.
     }

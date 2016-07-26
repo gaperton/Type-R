@@ -12,7 +12,11 @@ declare global {
     }
 }
 
-type ExtendedAttributeDescriptor = AttributeDescriptor & { _attribute? : typeof GenericAttribute } 
+interface ExtendedAttributeDescriptor extends AttributeDescriptor {
+    _attribute? : typeof GenericAttribute
+    validate? : ( record : Record, value : any, key : string ) => any
+} 
+
 export { ExtendedAttributeDescriptor as AttributeDescriptor }
 
 // TODO: interface differs from options, do something obout it
@@ -119,12 +123,13 @@ export class GenericAttribute implements Attribute {
 
     initialize( name : string, options ){}
 
-    constructor( public name : string, public options : AttributeDescriptor ) {
+    constructor( public name : string, public options : ExtendedAttributeDescriptor ) {
         const {
                   value, type, parse, toJSON,
                   getHooks = [],
                   transforms = [],
-                  changeHandlers = []
+                  changeHandlers = [],
+                  validate
               } = options;
 
         this.value = value;
@@ -132,6 +137,8 @@ export class GenericAttribute implements Attribute {
 
         this.parse  = parse;
         this.toJSON = toJSON === void 0 ? this.toJSON : toJSON;
+
+        this.validate = validate || this.validate; 
 
         /**
          * Assemble pipelines...

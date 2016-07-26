@@ -7,12 +7,35 @@ import { ChangeAttrHandler, AttributeDescriptor } from './attribute.ts'
 import { Record } from './transaction.ts'
 import { assign, EventMap, EventsDefinition, Constructor } from '../objectplus/index.ts'
 
+export interface AttributeCheck {
+    ( value : any, key : string ) : boolean
+    error? : any
+}
+
 export class ChainableAttributeSpec {
     options : AttributeDescriptor;
 
     constructor( options : AttributeDescriptor = {} ) {
         this.options = { getHooks : [], transforms : [], changeHandlers : []};
         assign( this.options, options );
+    }
+
+    check( check : AttributeCheck, error : any ) : this {
+        function validate( model, value, name ){
+            if( !check.call( model, value, name ) ){
+                return error || check.error || name + ' is not valid';
+            }
+        }
+
+        const prev = this.options.validate;
+
+        this.options.validate = prev ? (
+            function( model, value, name ){
+                return prev( model, value, name ) || validate( model, value, name );
+            }
+        ) : validate;
+
+        return this;
     }
 
     triggerWhenChanged( events ) : this {

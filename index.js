@@ -71,8 +71,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	__export(__webpack_require__(6));
 	var mixins_ts_2 = __webpack_require__(5);
 	exports.Class = mixins_ts_2.Mixable;
-	var relations_ts_1 = __webpack_require__(21);
-	index_ts_2.Record.from = relations_ts_1.from;
+	var index_ts_4 = __webpack_require__(22);
+	index_ts_2.Record.from = index_ts_4.from;
+	index_ts_3.Collection.subsetOf = index_ts_4.subsetOf;
 	function value(x) {
 	    return new index_ts_1.ChainableAttributeSpec({ value: x });
 	}
@@ -228,6 +229,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    for (var name in source) {
 	        dest[name] = source[name];
 	    }
+	    return dest;
 	}
 	exports.fastAssign = fastAssign;
 	function fastDefaults(dest, source) {
@@ -236,6 +238,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            dest[name] = source[name];
 	        }
 	    }
+	    return dest;
 	}
 	exports.fastDefaults = fastDefaults;
 	function forAllArgs(fun) {
@@ -1847,11 +1850,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.name = name;
 	        this.options = options;
 	        this.getHook = null;
-	        var value = options.value, type = options.type, parse = options.parse, toJSON = options.toJSON, _a = options.getHooks, getHooks = _a === void 0 ? [] : _a, _b = options.transforms, transforms = _b === void 0 ? [] : _b, _c = options.changeHandlers, changeHandlers = _c === void 0 ? [] : _c;
+	        var value = options.value, type = options.type, parse = options.parse, toJSON = options.toJSON, _a = options.getHooks, getHooks = _a === void 0 ? [] : _a, _b = options.transforms, transforms = _b === void 0 ? [] : _b, _c = options.changeHandlers, changeHandlers = _c === void 0 ? [] : _c, validate = options.validate;
 	        this.value = value;
 	        this.type = type;
 	        this.parse = parse;
 	        this.toJSON = toJSON === void 0 ? this.toJSON : toJSON;
+	        this.validate = validate || this.validate;
 	        transforms.unshift(this.convert);
 	        if (this.get)
 	            getHooks.unshift(this.get);
@@ -1955,6 +1959,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.options = { getHooks: [], transforms: [], changeHandlers: [] };
 	        index_ts_1.assign(this.options, options);
 	    }
+	    ChainableAttributeSpec.prototype.check = function (check, error) {
+	        function validate(model, value, name) {
+	            if (!check.call(model, value, name)) {
+	                return error || check.error || name + ' is not valid';
+	            }
+	        }
+	        var prev = this.options.validate;
+	        this.options.validate = prev ? (function (model, value, name) {
+	            return prev(model, value, name) || validate(model, value, name);
+	        }) : validate;
+	        return this;
+	    };
 	    ChainableAttributeSpec.prototype.triggerWhenChanged = function (events) {
 	        return this;
 	    };
@@ -2065,6 +2081,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    TransactionalType.prototype.convert = function (value, options, record) {
 	        return value == null || value instanceof this.type ? value : this.type.create(value, options, record);
+	    };
+	    TransactionalType.prototype.validate = function (record, value) {
+	        var error = value && value.validationError;
+	        if (error)
+	            return error;
 	    };
 	    TransactionalType.prototype.create = function () {
 	        return new this.type();
@@ -2204,15 +2225,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function Collection(records, options) {
 	        if (options === void 0) { options = {}; }
 	        _super.call(this, _count++);
+	        this._comparator = null;
 	        this.models = [];
 	        this._byId = {};
 	        this.model = options.model || this.model;
 	        this.idAttribute = this.model.prototype.idAttribute;
 	        if (options.comparator !== void 0) {
 	            this.comparator = options.comparator;
-	        }
-	        else {
-	            this._comparator = this._comparator;
 	        }
 	        if (records) {
 	            var elements = toElements(this, records, options);
@@ -2222,7 +2241,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (this._localEvents)
 	            this._localEvents.subscribe(this, this);
 	    }
-	    Collection.predefine = function () { return this; };
+	    Collection.predefine = function () {
+	        this._SubsetOf = null;
+	        transactions_ts_1.Transactional.predefine();
+	        return this;
+	    };
 	    Collection.define = function (protoProps, staticProps) {
 	        var spec = index_ts_1.omit(protoProps, 'elementsEvents', 'localEvents');
 	        if (protoProps.elementsEvents) {
@@ -2421,6 +2444,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Collection.prototype.modelId = function (attrs) {
 	        return attrs[this.model.prototype.idAttribute];
+	    };
+	    Collection.prototype.toggle = function (model, a_next) {
+	        var prev = Boolean(this.get(model)), next = a_next === void 0 ? !prev : Boolean(a_next);
+	        if (prev !== next) {
+	            if (prev) {
+	                this.remove(model);
+	            }
+	            else {
+	                this.add(model);
+	            }
+	        }
+	        return next;
 	    };
 	    Collection._attribute = index_ts_2.TransactionalType;
 	    Collection = __decorate([
@@ -2792,7 +2827,19 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 21 */
+/* 21 */,
+/* 22 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var from_ts_1 = __webpack_require__(23);
+	exports.from = from_ts_1.from;
+	var subsetOf_ts_1 = __webpack_require__(25);
+	exports.subsetOf = subsetOf_ts_1.subsetOf;
+
+
+/***/ },
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2802,7 +2849,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var attribute_ts_1 = __webpack_require__(12);
-	var traversable_ts_1 = __webpack_require__(10);
+	var commons_ts_1 = __webpack_require__(24);
 	var typespec_ts_1 = __webpack_require__(13);
 	var RecordRefAttribute = (function (_super) {
 	    __extends(RecordRefAttribute, _super);
@@ -2822,19 +2869,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    RecordRefAttribute.prototype.validate = function (model, value, name) { };
 	    return RecordRefAttribute;
 	}(attribute_ts_1.GenericAttribute));
-	function parseReference(collectionRef) {
-	    switch (typeof collectionRef) {
-	        case 'function':
-	            return function (root) { return collectionRef.call(root); };
-	        case 'object':
-	            return function () { return collectionRef; };
-	        case 'string':
-	            var resolve = (new traversable_ts_1.CompiledReference(collectionRef)).resolve;
-	            return resolve;
-	    }
-	}
 	function from(masterCollection) {
-	    var getMasterCollection = parseReference(masterCollection);
+	    var getMasterCollection = commons_ts_1.parseReference(masterCollection);
 	    var typeSpec = new typespec_ts_1.ChainableAttributeSpec({
 	        value: null,
 	        _attribute: RecordRefAttribute
@@ -2856,6 +2892,124 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	exports.from = from;
 	;
+
+
+/***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var traversable_ts_1 = __webpack_require__(10);
+	function parseReference(collectionRef) {
+	    switch (typeof collectionRef) {
+	        case 'function':
+	            return function (root) { return collectionRef.call(root); };
+	        case 'object':
+	            return function () { return collectionRef; };
+	        case 'string':
+	            var resolve = (new traversable_ts_1.CompiledReference(collectionRef)).resolve;
+	            return resolve;
+	    }
+	}
+	exports.parseReference = parseReference;
+
+
+/***/ },
+/* 25 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var index_ts_1 = __webpack_require__(4);
+	var commons_ts_1 = __webpack_require__(24);
+	var index_ts_2 = __webpack_require__(2);
+	function subsetOf(masterCollection) {
+	    var CollectionConstructor = this, SubsetOf = this._SubsetOf || ((function (_super) {
+	        __extends(SubsetOfCollection, _super);
+	        function SubsetOfCollection(recordsOrIds, options) {
+	            _super.call(this, recordsOrIds, subsetOptions(options));
+	            this.resolvedWith = null;
+	        }
+	        SubsetOfCollection.prototype.add = function (elements, options) {
+	            return _super.prototype.add.call(this, elements, subsetOptions(options));
+	        };
+	        SubsetOfCollection.prototype.reset = function (elements, options) {
+	            return _super.prototype.add.call(this, elements, subsetOptions(options));
+	        };
+	        SubsetOfCollection.prototype._createTransaction = function (elements, options) {
+	            return _super.prototype._createTransaction.call(this, elements, subsetOptions(options));
+	        };
+	        SubsetOfCollection.prototype.toJSON = function () {
+	            return this.refs ?
+	                this.refs.map(function (objOrId) { return objOrId.id || objOrId; }) :
+	                this.models.map(function (model) { return model.id; });
+	        };
+	        SubsetOfCollection.prototype.clone = function (owner) {
+	            var copy = new this.constructor(this.models, { model: this.model, comparator: this.comparator }, owner);
+	            copy.resolvedWith = this.resolvedWith;
+	            copy.refs = this.refs;
+	            return copy;
+	        };
+	        SubsetOfCollection.prototype.parse = function (raw) {
+	            var resolvedWith = this.resolvedWith, elements = Array.isArray(raw) ? raw : [raw], records = [];
+	            if (resolvedWith) {
+	                for (var _i = 0, elements_1 = elements; _i < elements_1.length; _i++) {
+	                    var element = elements_1[_i];
+	                    var record = resolvedWith.get(element);
+	                    if (record)
+	                        records.push(record);
+	                }
+	            }
+	            else {
+	                this.refs = raw;
+	            }
+	            return records;
+	        };
+	        SubsetOfCollection.prototype.resolve = function (collection) {
+	            if (collection && collection.length) {
+	                this.resolvedWith = collection;
+	                if (this.refs) {
+	                    this.reset(this.refs, { silent: true });
+	                    this.refs = null;
+	                }
+	            }
+	            return this;
+	        };
+	        SubsetOfCollection.prototype.getModelIds = function () { return this.toJSON(); };
+	        SubsetOfCollection.prototype.toggle = function (modelOrId, val) {
+	            return _super.prototype.toggle.call(this, this.resolvedWith.get(modelOrId), val);
+	        };
+	        SubsetOfCollection.prototype.addAll = function () {
+	            return this.reset(this.resolvedWith.models);
+	        };
+	        SubsetOfCollection.prototype.toggleAll = function () {
+	            return this.length ? this.reset() : this.addAll();
+	        };
+	        return SubsetOfCollection;
+	    }(CollectionConstructor)));
+	    var getMasterCollection = commons_ts_1.parseReference(masterCollection);
+	    var typeSpec = new index_ts_2.ChainableAttributeSpec({
+	        type: SubsetOf,
+	        validate: function (model, value, name) { },
+	    });
+	    typeSpec.get(function (refs) {
+	        !refs || refs.resolvedWith || refs.resolve(getMasterCollection(this));
+	        return refs;
+	    });
+	    return typeSpec;
+	}
+	exports.subsetOf = subsetOf;
+	;
+	function subsetOptions(options) {
+	    var subsetOptions = { parse: true, merge: false };
+	    if (options)
+	        index_ts_1.fastDefaults(subsetOptions, options);
+	    return subsetOptions;
+	}
 
 
 /***/ }
