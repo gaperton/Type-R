@@ -35,6 +35,13 @@ interface CollectionDefinition extends MessengerDefinition {
 export class Collection extends Transactional implements CollectionCore {
     static _SubsetOf : typeof Collection
     
+    createSubset( models, options ){
+        var SubsetOf = (<any>this.constructor).subsetOf( this ).options.type;
+        var subset   = new SubsetOf( models, options );
+        subset.resolve( this );
+        return subset;
+    }
+
     static predefine() : any {
         this._SubsetOf = null;
         Transactional.predefine();

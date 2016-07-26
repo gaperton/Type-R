@@ -48,3 +48,5 @@ Because we can.
 - Collection.subsetOf:
     - `.justOne( x )` method is deprecated. Use `.set([ x ])` instead.
     - `.removeAll()` method is deprecated. Use `.reset()` instead.
+- experimental NestedTypes features not supported:
+    - has.proxy

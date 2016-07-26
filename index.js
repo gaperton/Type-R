@@ -2240,6 +2240,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (this._localEvents)
 	            this._localEvents.subscribe(this, this);
 	    }
+	    Collection.prototype.createSubset = function (models, options) {
+	        var SubsetOf = this.constructor.subsetOf(this).options.type;
+	        var subset = new SubsetOf(models, options);
+	        subset.resolve(this);
+	        return subset;
+	    };
 	    Collection.predefine = function () {
 	        this._SubsetOf = null;
 	        transactions_ts_1.Transactional.predefine();
