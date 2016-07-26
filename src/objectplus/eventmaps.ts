@@ -81,7 +81,7 @@ export class EventMap {
     }
 
     subscribe( target : {}, source : EventsCore ){
-        const { _events } = source;
+        const  _events = source._events || ( source._events = {} );
         for( let event of this.handlers ){
             _on( _events, event.name, event.callback, target );
         }
@@ -89,8 +89,10 @@ export class EventMap {
 
     unsubscribe( target : {}, source : EventsCore ){
         const { _events } = source;
-        for( let event of this.handlers ){
-            _off( _events, event.name, event.callback, target );
+        if( _events ){
+            for( let event of this.handlers ){
+                _off( _events, event.name, event.callback, target );
+            }
         }
     }
 }
@@ -123,50 +125,60 @@ class EventDescriptor {
  */
 
 export function on( self : EventsCore, name : string, callback : Function, context? ){
-    _on( self._events, name, callback, context );
+    const _events = self._events || ( self._events = {} );
+    _on( _events, name, callback, context );
 }
 
 export function off( self : EventsCore, name : string, callback : Function, context : {} ){
-    _off( self._events, name, callback, context );
+    const { _events } = self;
+    _events && _off( _events, name, callback, context );
 }
 
 /*********************************
  * Event-triggering API 
  */
 export function trigger0( self : EventsCore, name : string ) : void {
-    const { _events } = self,
-          queue = _events[ name ],
-          { all } = _events;
+    const { _events } = self;
+    if( _events ){
+        const queue = _events[ name ],
+            { all } = _events;
 
-    if( queue ) _fireEvent0( queue );
-    if( all ) _fireEvent1( all, name );
+        if( queue ) _fireEvent0( queue );
+        if( all ) _fireEvent1( all, name );
+    }
 };
 
 export function trigger1( self : EventsCore, name : string, a : any ) : void {
-    const { _events } = self,
-            queue = _events[ name ],
-          { all } = _events;
+    const { _events } = self;
+    if( _events ){
+        const queue = _events[ name ],
+            { all } = _events;
 
-    if( queue ) _fireEvent1( queue, a );
-    if( all ) _fireEvent2( all, name, a );
+        if( queue ) _fireEvent1( queue, a );
+        if( all ) _fireEvent2( all, name, a );
+    }
 };
 
 export function trigger2( self : EventsCore, name : string, a, b ) : void {
-    const { _events } = self,
-            queue = _events[ name ],
-          { all } = _events;
+    const { _events } = self;
+    if( _events ){
+        const queue = _events[ name ],
+            { all } = _events;
 
-    if( queue ) _fireEvent2( queue, a, b );
-    if( all ) _fireEvent3( all, name, a, b );
+        if( queue ) _fireEvent2( queue, a, b );
+        if( all ) _fireEvent3( all, name, a, b );
+    }
 };
 
 export function trigger3( self : EventsCore, name : string, a, b, c ) : void{
-    const { _events } = self,
-            queue = _events[ name ],
-          { all } = _events;
+    const { _events } = self;
+    if( _events ){
+        const queue = _events[ name ],
+            { all } = _events;
 
-    if( queue ) _fireEvent3( queue, a, b, c );
-    if( all ) _fireEvent4( all, name, a, b, c );
+        if( queue ) _fireEvent3( queue, a, b, c );
+        if( all ) _fireEvent4( all, name, a, b, c );
+    }
 };
 
 // Specialized functions with events triggering loops.

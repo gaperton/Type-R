@@ -975,7 +975,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	var Messenger = (function () {
 	    function Messenger(cid) {
-	        this._events = {};
+	        this._events = void 0;
 	        this.cid = this.cidPrefix + cid;
 	    }
 	    Messenger.define = function (protoProps, staticProps) {
@@ -1261,7 +1261,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    };
 	    EventMap.prototype.subscribe = function (target, source) {
-	        var _events = source._events;
+	        var _events = source._events || (source._events = {});
 	        for (var _i = 0, _a = this.handlers; _i < _a.length; _i++) {
 	            var event_1 = _a[_i];
 	            _on(_events, event_1.name, event_1.callback, target);
@@ -1269,9 +1269,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    EventMap.prototype.unsubscribe = function (target, source) {
 	        var _events = source._events;
-	        for (var _i = 0, _a = this.handlers; _i < _a.length; _i++) {
-	            var event_2 = _a[_i];
-	            _off(_events, event_2.name, event_2.callback, target);
+	        if (_events) {
+	            for (var _i = 0, _a = this.handlers; _i < _a.length; _i++) {
+	                var event_2 = _a[_i];
+	                _off(_events, event_2.name, event_2.callback, target);
+	            }
 	        }
 	    };
 	    return EventMap;
@@ -1297,46 +1299,60 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return EventDescriptor;
 	}());
 	function on(self, name, callback, context) {
-	    _on(self._events, name, callback, context);
+	    var _events = self._events || (self._events = {});
+	    _on(_events, name, callback, context);
 	}
 	exports.on = on;
 	function off(self, name, callback, context) {
-	    _off(self._events, name, callback, context);
+	    var _events = self._events;
+	    _events && _off(_events, name, callback, context);
 	}
 	exports.off = off;
 	function trigger0(self, name) {
-	    var _events = self._events, queue = _events[name], all = _events.all;
-	    if (queue)
-	        _fireEvent0(queue);
-	    if (all)
-	        _fireEvent1(all, name);
+	    var _events = self._events;
+	    if (_events) {
+	        var queue = _events[name], all = _events.all;
+	        if (queue)
+	            _fireEvent0(queue);
+	        if (all)
+	            _fireEvent1(all, name);
+	    }
 	}
 	exports.trigger0 = trigger0;
 	;
 	function trigger1(self, name, a) {
-	    var _events = self._events, queue = _events[name], all = _events.all;
-	    if (queue)
-	        _fireEvent1(queue, a);
-	    if (all)
-	        _fireEvent2(all, name, a);
+	    var _events = self._events;
+	    if (_events) {
+	        var queue = _events[name], all = _events.all;
+	        if (queue)
+	            _fireEvent1(queue, a);
+	        if (all)
+	            _fireEvent2(all, name, a);
+	    }
 	}
 	exports.trigger1 = trigger1;
 	;
 	function trigger2(self, name, a, b) {
-	    var _events = self._events, queue = _events[name], all = _events.all;
-	    if (queue)
-	        _fireEvent2(queue, a, b);
-	    if (all)
-	        _fireEvent3(all, name, a, b);
+	    var _events = self._events;
+	    if (_events) {
+	        var queue = _events[name], all = _events.all;
+	        if (queue)
+	            _fireEvent2(queue, a, b);
+	        if (all)
+	            _fireEvent3(all, name, a, b);
+	    }
 	}
 	exports.trigger2 = trigger2;
 	;
 	function trigger3(self, name, a, b, c) {
-	    var _events = self._events, queue = _events[name], all = _events.all;
-	    if (queue)
-	        _fireEvent3(queue, a, b, c);
-	    if (all)
-	        _fireEvent4(all, name, a, b, c);
+	    var _events = self._events;
+	    if (_events) {
+	        var queue = _events[name], all = _events.all;
+	        if (queue)
+	            _fireEvent3(queue, a, b, c);
+	        if (all)
+	            _fireEvent4(all, name, a, b, c);
+	    }
 	}
 	exports.trigger3 = trigger3;
 	;

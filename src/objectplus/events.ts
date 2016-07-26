@@ -41,7 +41,7 @@ export abstract class Messenger implements Mixins.Mixable {
     static on = EventMaps.on
     static off = EventMaps.off
 
-    _events : EventMaps.SubscribedEvents = {};
+    _events : EventMaps.SubscribedEvents = void 0;
     _listeners : Listeners
     _listeningTo : ListeningToMap
     cidPrefix : string
