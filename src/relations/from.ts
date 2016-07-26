@@ -69,24 +69,3 @@ Record.from = function from( masterCollection : CollectionReference ) : Chainabl
 
     return typeSpec;
 };
-
-/********************************
- * Collection.subsetOf
- * 
- * Todo: we need special collection type which do not attempt to take ownership on its members.
- * It can't be serialized. It must not do deep updates. It must listen to members changes in regular way.
- * 
- * It needs to be dynamic mixin/subclass of the particular collection.
- * 
- * SubsetOf will extend this collection, and turn off change events counting toward changes event.
- * It must add serialization and master collection.
- * 
- * May be, it will be the same type.
- * 
- * Same problem with shared Model attribute - it will behave _really_ strange now. At first, it won't get updates.
- * Well, what we can do, is that if Model/Collection can't get ownership,
- * it will subscribe for 'change' event instead (and put the deprecation warning in the console).
- * Serialization might be turned off in this case.
- * 
- * Model.ref and Collection.refs won't take ownership, won't be serialized, but will listen to the changes. 
- */

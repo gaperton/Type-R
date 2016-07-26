@@ -2,7 +2,7 @@
  * Type spec engine. Declare attributes using chainable syntax,
  * and returns object with spec.
  */
-
+import { Transactional } from '../transactions.ts'
 import { ChangeAttrHandler, AttributeDescriptor } from './attribute.ts'
 import { Record } from './transaction.ts'
 import { assign, EventMap, EventsDefinition, Constructor } from '../objectplus/index.ts'
@@ -135,18 +135,29 @@ Object.defineProperty( Function.prototype, 'has', {
 } );
 
 export function toAttributeDescriptor( spec : any ) : AttributeDescriptor {
-    if( typeof spec === 'function' ) {
-        return { type : <any> spec };
-    }
+    let attrSpec : ChainableAttributeSpec;
 
-    if( spec && spec instanceof ChainableAttributeSpec ) {
-        return spec.options;
+    if( typeof spec === 'function' ) {
+        attrSpec = new ChainableAttributeSpec({ type : <any> spec });
+    }
+    else if( spec && spec instanceof ChainableAttributeSpec ) {
+        attrSpec = spec;
+    }
+    else{
+        // Infer type from value.
+        const type = inferType( spec );
+
+        // Transactional types inferred from values must have shared type. 
+        if( type && type.prototype instanceof Transactional ){
+            attrSpec = (<any>type).shared.value( spec );
+        }
+        // All others will be created in regular way.
+        else{
+            attrSpec = new ChainableAttributeSpec({ type : type, value : spec });
+        }
     }
  
-    return {
-        type : inferType( spec ),
-        value : spec
-    }
+    return attrSpec.options;
 }
 
 function inferType( value : {} ) : Constructor<any> {

@@ -16,6 +16,8 @@ export type TransactionalConstructor = MixableConstructor< Transactional >;
     _changeEventName : 'change' // TODO: move to record.
 })
 export abstract class Transactional extends Messenger implements Validatable, Traversable {
+    static shared : any;
+
     // Unique version token replaced on change
     _changeToken : {} = {}
 

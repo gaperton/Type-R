@@ -1951,6 +1951,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	var transactions_ts_1 = __webpack_require__(8);
 	var index_ts_1 = __webpack_require__(4);
 	var ChainableAttributeSpec = (function () {
 	    function ChainableAttributeSpec(options) {
@@ -2029,16 +2030,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	    set: function (value) { this._has = value; }
 	});
 	function toAttributeDescriptor(spec) {
+	    var attrSpec;
 	    if (typeof spec === 'function') {
-	        return { type: spec };
+	        attrSpec = new ChainableAttributeSpec({ type: spec });
 	    }
-	    if (spec && spec instanceof ChainableAttributeSpec) {
-	        return spec.options;
+	    else if (spec && spec instanceof ChainableAttributeSpec) {
+	        attrSpec = spec;
 	    }
-	    return {
-	        type: inferType(spec),
-	        value: spec
-	    };
+	    else {
+	        var type = inferType(spec);
+	        if (type && type.prototype instanceof transactions_ts_1.Transactional) {
+	            attrSpec = type.shared.value(spec);
+	        }
+	        else {
+	            attrSpec = new ChainableAttributeSpec({ type: type, value: spec });
+	        }
+	    }
+	    return attrSpec.options;
 	}
 	exports.toAttributeDescriptor = toAttributeDescriptor;
 	function inferType(value) {
@@ -2089,7 +2097,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    TransactionalType.prototype.create = function () {
 	        return new this.type();
 	    };
-	    TransactionalType.prototype.handleChange = function (next, prev, record) {
+	    TransactionalType.prototype.initialize = function (options) {
+	        options.changeHandlers.unshift(this._handleChange);
+	    };
+	    TransactionalType.prototype._handleChange = function (next, prev, record) {
 	        prev && transactions_ts_1.free(record, prev);
 	        next && transactions_ts_1.aquire(record, next, this.name);
 	    };
@@ -2838,6 +2849,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	__webpack_require__(23);
 	__webpack_require__(25);
+	__webpack_require__(27);
 	var store_ts_1 = __webpack_require__(26);
 	exports.Store = store_ts_1.Store;
 
@@ -3054,6 +3066,67 @@ return /******/ (function(modules) { // webpackBootstrap
 	}(index_ts_1.Record));
 	exports.Store = Store;
 	Store.global = new Store();
+
+
+/***/ },
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var index_ts_1 = __webpack_require__(2);
+	var index_ts_2 = __webpack_require__(16);
+	var attribute_ts_1 = __webpack_require__(12);
+	var transactions_ts_1 = __webpack_require__(8);
+	var index_ts_3 = __webpack_require__(4);
+	var SharedType = (function (_super) {
+	    __extends(SharedType, _super);
+	    function SharedType() {
+	        _super.apply(this, arguments);
+	    }
+	    SharedType.prototype.canBeUpdated = function (prev, next) {
+	        return false;
+	    };
+	    SharedType.prototype.convert = function (value, options, record) {
+	        if (value == null || value instanceof this.type)
+	            return value;
+	        index_ts_3.log.error("[Shared Attribute] Cannot assign value of incompatible type.", value, record);
+	        return null;
+	    };
+	    SharedType.prototype.validate = function (record, value) {
+	        var error = value && value.validationError;
+	        if (error)
+	            return error;
+	    };
+	    SharedType.prototype.create = function () {
+	        return null;
+	    };
+	    SharedType.prototype._handleChange = function (next, prev, record) {
+	        prev && transactions_ts_1.Transactional.off(prev, prev._changeEventName, record._onChildrenChange, record);
+	        next && transactions_ts_1.Transactional.on(next, next._changeEventName, record._onChildrenChange, record);
+	    };
+	    SharedType.prototype.initialize = function (options) {
+	        this.toJSON = null;
+	        options.changeHandlers.unshift(this._handleChange);
+	    };
+	    return SharedType;
+	}(attribute_ts_1.GenericAttribute));
+	exports.SharedType = SharedType;
+	var createSharedTypeSpec = {
+	    get: function () {
+	        return new index_ts_1.ChainableAttributeSpec({
+	            value: null,
+	            type: this,
+	            _attribute: SharedType
+	        });
+	    }
+	};
+	Object.defineProperty(index_ts_1.Record, 'shared', createSharedTypeSpec);
+	Object.defineProperty(index_ts_2.Collection, 'shared', createSharedTypeSpec);
 
 
 /***/ }

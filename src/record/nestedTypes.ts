@@ -24,7 +24,11 @@ export class TransactionalType extends GenericAttribute {
         return new (<any>this.type)(); // this the subclass of Transactional here.
     }
 
-    handleChange( next : Transactional, prev : Transactional, record : Record ){
+    initialize( options ){
+        options.changeHandlers.unshift( this._handleChange );
+    }
+
+    _handleChange( next : Transactional, prev : Transactional, record : Record ){
         prev && free( record, prev );
         next && aquire( record, next, this.name );
     }
