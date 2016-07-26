@@ -97,5 +97,12 @@ export function from( masterCollection : CollectionReference ) : ChainableAttrib
  * SubsetOf will extend this collection, and turn off change events counting toward changes event.
  * It must add serialization and master collection.
  * 
- * May be, it will be the same type. 
+ * May be, it will be the same type.
+ * 
+ * Same problem with shared Model attribute - it will behave _really_ strange now. At first, it won't get updates.
+ * Well, what we can do, is that if Model/Collection can't get ownership,
+ * it will subscribe for 'change' event instead (and put the deprecation warning in the console).
+ * Serialization might be turned off in this case.
+ * 
+ * Model.ref and Collection.refs won't take ownership, won't be serialized, but will listen to the changes. 
  */
