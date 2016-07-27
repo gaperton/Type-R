@@ -34,17 +34,32 @@ export interface MessengerDefinition extends Mixins.ClassDefinition {
 @extendable
 export abstract class Messenger implements Mixins.Mixable {
     // High-performance API to be used in the library core.
+    /** @private */
     static trigger0 = EventMaps.trigger0
+    /** @private */
     static trigger1 = EventMaps.trigger1
+    /** @private */
     static trigger2 = EventMaps.trigger2
+    /** @private */
     static trigger3 = EventMaps.trigger3
+    /** @private */
     static on = EventMaps.on
+    /** @private */
     static off = EventMaps.off
 
+    /** @private */ 
     _events : EventMaps.SubscribedEvents = void 0;
+
+    /** @private */
     _listeners : Listeners
+
+    /** @private */
     _listeningTo : ListeningToMap
+    
+    /** Prifix for cid. Usually the prototype-only assigned by subclasses with local counters. */
     cidPrefix : string
+
+    /** Unique client-only id. */
     cid : string
 
     static create : ( a : any, b? : any, c? : any ) => Messenger
@@ -52,8 +67,10 @@ export abstract class Messenger implements Mixins.Mixable {
     static predefine : () => typeof Messenger
 
     // Prototype-only property to manage automatic local events subscription.
+    /** @private */
     _localEvents : EventMaps.EventMap
 
+    /** @private */
     static define( protoProps? : MessengerDefinition , staticProps? ){
         const spec : MessengerDefinition = omit( protoProps || {}, 'localEvents' );
 
@@ -195,8 +212,10 @@ export abstract class Messenger implements Mixins.Mixable {
     }
 }
 
+
 const slice = Array.prototype.slice;
 
+/** @private */
 export const Events = Messenger.prototype;
 
 // Iterates over the standard `event, callback` (as well as the fancy multiple

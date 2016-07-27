@@ -1,14 +1,19 @@
+
+/** @private */
 export const eventSplitter = /\s+/;
 
+/** @private */
 export interface EventsCore {
     _events : SubscribedEvents
 }
 
+/** @private */
 export interface SubscribedEvents {
     all? : EventHandler[]
     [ name : string ] : EventHandler[]
 }
 
+/** @private */
 export class EventHandler {
     constructor(
         public context,
@@ -24,6 +29,7 @@ export class EventHandler {
     }
 }
 
+/** @private */
 export interface Callback extends Function{
     _callback? : any
 }
@@ -38,10 +44,12 @@ export interface Callback extends Function{
  *      'executedInNativeContext' : '^props.handler' 
  * })
  */
+/** @private */
 export interface EventsDefinition {
     [ events : string ] : Function | string | boolean
 }
 
+/** @private */
 export class EventMap {
     handlers : EventDescriptor[] = [];
 
@@ -124,11 +132,13 @@ class EventDescriptor {
  * Subscription API 
  */
 
+/** @private */
 export function on( self : EventsCore, name : string, callback : Function, context? ){
     const _events = self._events || ( self._events = {} );
     _on( _events, name, callback, context );
 }
 
+/** @private */
 export function off( self : EventsCore, name : string, callback : Function, context : {} ){
     const { _events } = self;
     _events && _off( _events, name, callback, context );
@@ -137,6 +147,7 @@ export function off( self : EventsCore, name : string, callback : Function, cont
 /*********************************
  * Event-triggering API 
  */
+/** @private */
 export function trigger0( self : EventsCore, name : string ) : void {
     const { _events } = self;
     if( _events ){
@@ -148,6 +159,7 @@ export function trigger0( self : EventsCore, name : string ) : void {
     }
 };
 
+/** @private */
 export function trigger1( self : EventsCore, name : string, a : any ) : void {
     const { _events } = self;
     if( _events ){
@@ -159,6 +171,7 @@ export function trigger1( self : EventsCore, name : string, a : any ) : void {
     }
 };
 
+/** @private */
 export function trigger2( self : EventsCore, name : string, a, b ) : void {
     const { _events } = self;
     if( _events ){
@@ -170,6 +183,7 @@ export function trigger2( self : EventsCore, name : string, a, b ) : void {
     }
 };
 
+/** @private */
 export function trigger3( self : EventsCore, name : string, a, b, c ) : void{
     const { _events } = self;
     if( _events ){
