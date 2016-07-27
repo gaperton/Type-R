@@ -38,6 +38,7 @@ export class ChainableAttributeSpec {
         return this;
     }
 
+    /** @private */
     triggerWhenChanged( events ) : this {
         // TODO: not clear
         return this;
