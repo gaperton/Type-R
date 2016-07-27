@@ -6,6 +6,7 @@ import { EventMap } from '../objectplus/index.ts'
 
 const { trigger2, trigger3 } = Transactional;        
 
+/** @private */
 export interface CollectionCore extends Transactional, Owner {
     _byId : IdIndex
     models : Record[]
@@ -25,6 +26,7 @@ export interface CollectionOptions extends TransactionOptions {
 
 export type Comparator = ( a : Record, b : Record ) => number;  
 
+/** @private */
 export function dispose( collection : CollectionCore ) : Record[]{
     const models = collection.models;
 
@@ -35,7 +37,7 @@ export function dispose( collection : CollectionCore ) : Record[]{
     return models;
 }
 
-
+/** @private */
 export function aquire( owner : CollectionCore, child : Record ) : void {
     _aquire( owner, child );
 
@@ -43,6 +45,7 @@ export function aquire( owner : CollectionCore, child : Record ) : void {
     _elementsEvents && _elementsEvents.subscribe( owner, child );
 }
 
+/** @private */
 export function free( owner : CollectionCore, child : Record ) : void {
     _free( owner, child );
 
@@ -50,6 +53,7 @@ export function free( owner : CollectionCore, child : Record ) : void {
     _elementsEvents && _elementsEvents.unsubscribe( owner, child );
 }
 
+/** @private */
 export function freeAll( collection : CollectionCore, children : Record[] ) : Record[] {
     for( let child of children ){
         free( collection, child );
@@ -58,7 +62,10 @@ export function freeAll( collection : CollectionCore, children : Record[] ) : Re
     return children;
 }
 
-// Silently sort collection, if its required. Returns true if sort happened.  
+/**
+ * Silently sort collection, if its required. Returns true if sort happened.
+ * @private
+ */   
 export function sortElements( collection : CollectionCore, options : CollectionOptions ) : boolean {
     let { _comparator } = collection;
     if( _comparator && options.sort !== false ){
@@ -70,15 +77,14 @@ export function sortElements( collection : CollectionCore, options : CollectionO
 }
 
 /**********************************
- * Collection Index 
+ * Collection Index
+ * @private 
  */
-
-// Index data structure
 export interface IdIndex {
     [ id : string ] : Record
 }
 
-// Add record
+/** @private Add record */ 
 export function addIndex( index : IdIndex, model : Record ) : void {
     index[ model.cid ] = model;
     var id             = model.id;
@@ -88,7 +94,7 @@ export function addIndex( index : IdIndex, model : Record ) : void {
     }
 }
 
-// Remove record
+/** @private Remove record */ 
 export function removeIndex( index : IdIndex, model : Record ) : void {
     delete index[ model.cid ];
     var id = model.id;
@@ -97,12 +103,13 @@ export function removeIndex( index : IdIndex, model : Record ) : void {
     }
 }
 
-// convert argument to model. Return false if fails.
+/** @private Convert argument to record. Return false if fails. */
 export function toModel( collection : CollectionCore, attrs, options ){
     const { model } = collection;
     return attrs instanceof model ? attrs : model.create( attrs, options, collection );
 }
 
+/** @private */
 export function convertAndAquire( collection : CollectionCore, attrs, options ){
     const { model } = collection,
     	  record = attrs instanceof model ? attrs : model.create( attrs, options, collection );
@@ -124,7 +131,8 @@ export function convertAndAquire( collection : CollectionCore, attrs, options ){
  */
 
 
-// Transaction class. Implements two-phase transactions on object's tree. 
+// Transaction class. Implements two-phase transactions on object's tree.
+/** @private */ 
 export class CollectionTransaction implements Transaction {
     // open transaction
     constructor(    public object : CollectionCore,

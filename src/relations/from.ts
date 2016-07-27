@@ -13,8 +13,11 @@ import { ChainableAttributeSpec } from '../record/typespec.ts'
  * 
  * No model changes are detected and counted as owner's change. That's intentional.
  */
+
+/** @private */
 type RecordRefValue = Record | string;
 
+/** @private */
 class RecordRefAttribute extends GenericAttribute {
     // It is always serialized as an id, whenever it's resolved or not. 
     toJSON( value : RecordRefValue ){

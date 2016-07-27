@@ -2,6 +2,7 @@ import { GenericAttribute } from './attribute.ts'
 import { parseDate } from '../objectplus/index.ts'
 
 // Default attribute type for all constructor functions...
+/** @private */
 class ConstructorType extends GenericAttribute {
     type : new ( value : any ) => {}
 
@@ -18,6 +19,7 @@ class ConstructorType extends GenericAttribute {
 Function.prototype._attribute = ConstructorType;
 
 // Date Attribute
+/** @private */
 class DateType extends GenericAttribute {
     convert( value ) {
         return value == null || value instanceof Date ? value :
@@ -38,6 +40,7 @@ class DateType extends GenericAttribute {
 Date._attribute = DateType;
 
 // Primitive Types.
+/** @private */
 export class PrimitiveType extends GenericAttribute {
     type : NumberConstructor | StringConstructor | BooleanConstructor
 
@@ -54,7 +57,8 @@ export class PrimitiveType extends GenericAttribute {
 
 Boolean._attribute = String._attribute = PrimitiveType;
 
-// Number type with special validation algothim. 
+// Number type with special validation algothim.
+/** @private */ 
 export class NumericType extends PrimitiveType {
     type : NumberConstructor
 
@@ -80,7 +84,10 @@ if( window ){
     window.Integer._attribute = NumericType;
 }
 
-// Compatibility wrapper for Array type.
+/**
+ * Compatibility wrapper for Array type.
+ * @private
+ */ 
 export class ArrayType extends GenericAttribute {
     toJSON( value ) { return value; }
 

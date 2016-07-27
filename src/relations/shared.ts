@@ -8,6 +8,7 @@ import { log } from '../objectplus/index.ts'
  * Model.shared and Collection.shared
  */
 
+/** @private */
 export class SharedType extends GenericAttribute {
     type : TransactionalConstructor
 
@@ -49,6 +50,7 @@ export class SharedType extends GenericAttribute {
     }
 }
 
+/** @private */
 const createSharedTypeSpec = {
     get(){
         return new ChainableAttributeSpec({

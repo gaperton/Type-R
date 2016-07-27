@@ -22,16 +22,14 @@ export {
     tools,
     Model,
     Collection,
-    Class,
-    transaction,
-    value
+    Class
 }; 
 
-function value( x ){
+export function value( x ){
     return new ChainableAttributeSpec({ value : x });
 }
 
-function transaction( method ){
+export function transaction( method ){
     return function( ...args ){
         let result;
         

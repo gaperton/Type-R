@@ -2,12 +2,10 @@ import { Transaction, begin, commit, markAsDirty } from '../transactions.ts'
 import { CollectionTransaction, IdIndex, aquire, free, sortElements, CollectionOptions, toModel, addIndex, CollectionCore, Elements, freeAll } from './commons.ts'
 import { Record } from '../record/index.ts'
 
-/*******
- * 
- */
-
+/** @private */
 const silentOptions = { silent : true };
 
+/** @private */
 export function emptySetTransaction( collection : CollectionCore, items : Elements, options : CollectionOptions, silent? : boolean ){
     const isRoot = begin( collection );
 
@@ -26,6 +24,7 @@ export function emptySetTransaction( collection : CollectionCore, items : Elemen
     isRoot && commit( collection );
 };
 
+/** @private */
 export function setTransaction( collection, items, options ){
     const isRoot = begin( collection ),
           nested = [];
@@ -53,6 +52,7 @@ export function setTransaction( collection, items, options ){
 
 // Remove references to all previous elements, which are not present in collection.
 // Returns an array with removed elements.
+/** @private */
 function _garbageCollect( collection : CollectionCore, previous : Record[] ) : Record[]{
     const { _byId }  = collection,
           removed = [];
@@ -69,6 +69,7 @@ function _garbageCollect( collection : CollectionCore, previous : Record[] ) : R
 }
 
 // reallocate model and index
+/** @private */
 function _reallocate( collection : CollectionCore, source : any[], nested : Transaction[], options ){
     var models      = Array( source.length ),
         _byId : IdIndex = {},
@@ -121,6 +122,7 @@ function _reallocate( collection : CollectionCore, source : any[], nested : Tran
     return toAdd;
 }
 
+/** @private */
 function _reallocateEmpty( self, source, options ){
     var len         = source ? source.length : 0,
         models      = Array( len ),

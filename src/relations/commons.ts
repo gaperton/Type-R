@@ -4,6 +4,7 @@ import { CompiledReference } from '../objectplus/traversable.ts'
 
 export type CollectionReference = ( () => Collection ) | Collection | string; 
 
+/** @private */
 export function parseReference( collectionRef : CollectionReference ) : ( root : Record ) => Collection {
     switch( typeof collectionRef ){
         case 'function' :

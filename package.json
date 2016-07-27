@@ -8,9 +8,9 @@
   },
   "scripts": {
     "test": "mocha",
-    "build": "node_modules/.bin/webpack",
+    "build": "node_modules/.bin/webpack && typedoc --options typedoc.json ./src/",
     "watch": "node_modules/.bin/webpack --watch",
-    "docs" : "typedoc --options typedoc.json ./src/ --excludeExternals"
+    "docs" : "typedoc --options typedoc.json ./src/"
   },
   "repository": {
     "type": "git",

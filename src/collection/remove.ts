@@ -15,6 +15,7 @@ import { TransactionOptions, markAsDirty, begin, commit } from '../transactions.
 
 const { trigger2, trigger3 } = Messenger;
 
+/** @private */
 export function removeOne( collection : CollectionCore, el : Record | {} | string, options : TransactionOptions ) : Record {
     var model : Record = collection.get( el );
 
@@ -51,6 +52,8 @@ export function removeOne( collection : CollectionCore, el : Record | {} | strin
  * 2. Create new models array matching index
  * 3. Send notifications and remove references
  */
+
+/** @private */
 export function removeMany( collection : CollectionCore, toRemove : any[], options ){
     const removed = _removeFromIndex( collection, toRemove );
     if( removed.length ){
@@ -72,6 +75,7 @@ export function removeMany( collection : CollectionCore, toRemove : any[], optio
 };
 
 // remove models from the index...
+/** @private */
 function _removeFromIndex( collection, toRemove ){
     var removed = Array( toRemove.length ),
         _byId   = collection._byId;
@@ -91,6 +95,7 @@ function _removeFromIndex( collection, toRemove ){
 }
 
 // Allocate new models array removing models not present in the index.
+/** @private */
 function _reallocate( collection, removed ){
     var prev   = collection.models,
         models = collection.models = Array( prev.length - removed ),

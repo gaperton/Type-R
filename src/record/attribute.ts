@@ -20,6 +20,7 @@ interface ExtendedAttributeDescriptor extends AttributeDescriptor {
 export { ExtendedAttributeDescriptor as AttributeDescriptor }
 
 // TODO: interface differs from options, do something obout it
+/** @private */
 export class GenericAttribute implements Attribute {
     // Factory method to create attribute from options 
     static create( options : ExtendedAttributeDescriptor, name : string ) : GenericAttribute {
@@ -174,6 +175,7 @@ export class GenericAttribute implements Attribute {
 Record.prototype._attributes = { id : GenericAttribute.create({ value : void 0 }, 'id' )};
 Record.prototype.defaults = function( attrs : { id? : string } = {} ){ return { id : attrs.id } };
 
+/** @private */
 function chainChangeHandlers( prevHandler : ChangeHandler, nextHandler : ChangeHandler ) : ChangeHandler {
     return function( next, prev, model ) {
         prevHandler.call( this, next, prev, model );
@@ -181,12 +183,14 @@ function chainChangeHandlers( prevHandler : ChangeHandler, nextHandler : ChangeH
     }
 }
 
+/** @private */
 function chainGetHooks( prevHook : GetHook, nextHook : GetHook ) : GetHook {
     return function( value, name ) {
         return nextHook.call( prevHook.call( value, name ), name );
     }
 }
 
+/** @private */
 function chainTransforms( prevTransform : Transform, nextTransform : Transform ) : Transform {
     return function( value, options, prev, model ) {
         return nextTransform.call( this, prevTransform.call( this, value, options, prev, model ), options, prev, model );

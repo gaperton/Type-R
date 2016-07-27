@@ -9,6 +9,7 @@ const { trigger2, trigger3 } = Messenger;
  * 2. transaction.commit() - send and process all change events, and close transaction.
  */
 
+/** @private */
 export type TransactionalConstructor = MixableConstructor< Transactional >;
 
 // Transactional object interface
@@ -19,22 +20,28 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     static shared : any;
 
     // Unique version token replaced on change
+    /** @private */
     _changeToken : {} = {}
 
     // true while inside of the transaction
+    /** @private */
     _transaction : boolean = false;
 
     // Holds current transaction's options, when in the middle of transaction and there're changes but is an unsent change event
+    /** @private */
     _isDirty  : TransactionOptions = null;
 
     // Backreference set by owner (Record, Collection, or other object)
+    /** @private */
     _owner : Owner
 
     // Key supplied by owner. Used by record to identify attribute key.
-    // Only collections doesn't set the key, which is used to distinguish collections.  
+    // Only collections doesn't set the key, which is used to distinguish collections.
+    /** @private */  
     _ownerKey : string
 
     // Name of the change event
+    /** @private */
     _changeEventName : string
 
     constructor( cid : string | number, owner? : Owner, ownerKey? : string ){
@@ -75,7 +82,8 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
 
     // Apply bulk object update without any notifications, and return open transaction.
     // Used internally to implement two-phase commit.
-    // Returns null if there are no any changes.  
+    // Returns null if there are no any changes.
+    /** @private */  
     abstract _createTransaction( values : any, options? : TransactionOptions ) : Transaction
     
     // Parse function applied when 'parse' option is set for transaction.
@@ -104,6 +112,7 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     }
 
     // Store used when owner chain store lookup failed. Static value in the prototype. 
+    /** @private */
     _defaultStore : Transactional
 
     // Locate the closest store. Store object stops traversal by overriding this method. 
@@ -163,6 +172,7 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
      */
 
     // Lazily evaluated validation error
+    /** @private */
     _validationError : ValidationError = void 0
 
     // Validate ownership tree and return valudation error 
@@ -171,6 +181,7 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
         return error.length ? error : null; 
     }
 
+    /** @private */
     _invalidate( options : { validate? : boolean } ) : boolean {
         var error;
         if( options.validate && ( error = this.validationError ) ){
@@ -180,6 +191,7 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     }
 
     // Validate nested members. Returns errors count.
+    /** @private */
     abstract _validateNested( errors : ChildrenErrors ) : number
 
     // Object-level validator. Returns validation error.
@@ -209,6 +221,7 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
 }
 
 // Owner must accept children update events. It's an only way children communicates with an owner.
+/** @private */
 export interface Owner extends Traversable, Messenger {
     _onChildrenChange( child : Transactional, options : TransactionOptions ) : void;
     getOwner() : Owner
@@ -217,7 +230,8 @@ export interface Owner extends Traversable, Messenger {
 
 // Transaction object used for two-phase commit protocol.
 // Must be implemented by subclasses.
-// Transaction must be created if there are actual changes and when markIsDirty returns true. 
+// Transaction must be created if there are actual changes and when markIsDirty returns true.
+/** @private */ 
 export interface Transaction {
     // Object transaction is being made on.
     object : Transactional
@@ -258,12 +272,14 @@ export interface TransactionOptions {
  */
 
 // Start transaction. Return true if it's the root one.
+/** @private */
 export function begin( object : Transactional ) : boolean {
     return object._transaction ? false : ( object._transaction = true );  
 }
 
 // Mark object having changes inside of the current transaction.
 // Returns true whenever there notifications are required.
+/** @private */
 export function markAsDirty( object : Transactional, options : TransactionOptions ) : boolean {
     // If silent option is in effect, don't set isDirty flag.
     const dirty = !options.silent;
@@ -280,6 +296,7 @@ export function markAsDirty( object : Transactional, options : TransactionOption
 
 // Commit transaction. Send out change event and notify owner. Returns true if there were changes.
 // Must be executed for the root transaction only.
+/** @private */
 export function commit( object : Transactional, isNested? : boolean ){
     let originalOptions = object._isDirty;
 
@@ -312,6 +329,7 @@ export function commit( object : Transactional, isNested? : boolean ){
  */
 
 // Add reference to the record.
+/** @private */
 export function aquire( owner : Owner, child : Transactional, key? : string ) : boolean {
     if( !child._owner ){
         child._owner = owner;
@@ -323,6 +341,7 @@ export function aquire( owner : Owner, child : Transactional, key? : string ) : 
 }
 
 // Remove reference to the record.
+/** @private */
 export function free( owner : Owner, child : Transactional ) : void {
     if( owner === child._owner ){
         child._owner = void 0;

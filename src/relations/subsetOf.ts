@@ -109,6 +109,7 @@ Collection.subsetOf = function subsetOf( masterCollection : CollectionReference 
     return typeSpec;
 };
 
+/** @private */
 function subsetOptions( options? : CollectionOptions ){
     const subsetOptions = { parse : true, merge : false };
     if( options ) fastDefaults( subsetOptions, options );

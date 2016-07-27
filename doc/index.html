@@ -1,0 +1,843 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>type-r</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+	<script src="assets/js/modernizr.js"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">type-r</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1> type-r</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<h1 id="transactionaljs">TransactionalJS</h1>
+				<p>Transactional, reactive, and serializable state management core written with TypeScript.</p>
+				<p>Properly implemented two-phase update transactions on object ownership tree, dude. Change events, with updates in the scope of current transaction. All serializable. All dynamically type safe. Just what the doctors prescribe for the modern data layer.</p>
+				<p>Mostly compatible by API with your backbonejs, but 10 times faster in all browsers and capable of way more than your old plugins are, dude. :) </p>
+				<p>Will be the basis of NestedTypes 2.0 version. Does to your React app the same thing as mobx does, but adds serialization. And to be fair, we started earler, so it&#39;s appropriate to say that they do the part of tricks we&#39;re doing for two years.</p>
+				<h2 id="rationale">Rationale</h2>
+				<p>Because we can.</p>
+				<h2 id="current-state">Current state</h2>
+				<ul>
+					<li>[x] Basic regression tests passes. Transactional core seems to work.</li>
+					<li>[x] New integral performance tests shows 2-3 times performance improvement in complex structure updates. Good enough to go further.</li>
+					<li>[ ] Launching backbone Model/Collection regression to implement missing core functionality. That&#39;s gonna be tough.<ul>
+							<li>[x] Model regression passes.</li>
+							<li>[x] Collection regression passes.</li>
+							<li>[ ] Underscore/Lodash mixin for Model and Collection</li>
+							<li>[ ] Backbone Persistence API</li>
+						</ul>
+					</li>
+					<li>[x] Implement relations.</li>
+					<li>[ ] Implement NestedTypes compatibility layer.</li>
+					<li>[ ] Test it with NestedReact examples.</li>
+					<li>[ ] Release ObjectPlus as separate package.</li>
+					<li>[ ] Implement classes support in NestedReact.</li>
+					<li>[ ] Deploy NestedReact and NestedTypes 2.0 RC to Volicon Observer product.</li>
+					<li>[ ] Release NestedTypes 2.0 and NestedReact 1.0</li>
+				</ul>
+				<h2 id="to-do-later">To do later</h2>
+				<ul>
+					<li>[-] Fix silent option semantic. Now it&#39;s wrong (as in NestedTypes 1.3). Update should be propagated upper, just events must be supressed.</li>
+					<li>[ ] Fix new event maps semantic in case of inheritance. There might be the problem with inherited models.</li>
+					<li>[ ] Fix TypeDoc. It doesn&#39;t work.</li>
+					<li>[-] Tune-up the performance (seems to be fine).  </li>
+				</ul>
+				<h2 id="compatibility-notes">Compatibility notes</h2>
+				<ul>
+					<li><code>model.initialize( attrs, options, owner )</code> uses third parameter to set owner, <code>options.collection</code> is ignored.</li>
+					<li>default model cid prefix is <code>m</code>.</li>
+					<li>model.set <code>unset</code> option is deprecated. In Type-R, model os no hash. Just assign attributes with void 0 instead.</li>
+					<li>model <code>change:attr</code> events are not bubbled up by collection by default. Manual <code>bubbleEvents</code> spec is required. Performance reasons.</li>
+					<li>Collection doesn&#39;t have <code>_addReference</code> and <code>_removeReference</code> callbacks. Impossible to implement efficiently. Use &#39;add&#39; and &#39;remove&#39; events instead.</li>
+					<li>Collection&#39;s <code>add</code> options is not supported. Period.</li>
+					<li>Collection doesn&#39;t set options.at options when firing <code>add</code> event. No way, dude.</li>
+					<li>Collection.subsetOf:<ul>
+							<li><code>.justOne( x )</code> method is deprecated. Use <code>.set([ x ])</code> instead.</li>
+							<li><code>.removeAll()</code> method is deprecated. Use <code>.reset()</code> instead.</li>
+						</ul>
+					</li>
+					<li>experimental NestedTypes features not supported:<ul>
+							<li>has.proxy - too complex and was never needed.</li>
+						</ul>
+					</li>
+					<li>Types of models and collection default valus are now inferred to shared types.</li>
+				</ul>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+					<li class="label tsd-is-external">
+						<span>Externals</span>
+					</li>
+					<li class=" tsd-kind-module tsd-is-external tsd-is-not-exported">
+						<a href="modules/__global.html">__global</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-class tsd-is-private tsd-is-external">
+						<a href="classes/arraytype.html" class="tsd-kind-icon">Array<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-external">
+						<a href="classes/chainableattributespec.html" class="tsd-kind-icon">Chainable<wbr>Attribute<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-external">
+						<a href="classes/collection.html" class="tsd-kind-icon">Collection</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-private tsd-is-external">
+						<a href="classes/collectiontransaction.html" class="tsd-kind-icon">Collection<wbr>Transaction</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-external">
+						<a href="classes/compiledreference.html" class="tsd-kind-icon">Compiled<wbr>Reference</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="classes/constructortype.html" class="tsd-kind-icon">Constructor<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="classes/datetype.html" class="tsd-kind-icon">Date<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-external tsd-is-not-exported">
+						<a href="classes/eventdescriptor.html" class="tsd-kind-icon">Event<wbr>Descriptor</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-external">
+						<a href="classes/eventhandler.html" class="tsd-kind-icon">Event<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-external">
+						<a href="classes/eventmap.html" class="tsd-kind-icon">Event<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-private tsd-is-external">
+						<a href="classes/genericattribute.html" class="tsd-kind-icon">Generic<wbr>Attribute</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-external tsd-is-not-exported">
+						<a href="classes/listeningto.html" class="tsd-kind-icon">Listening<wbr>To</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-external tsd-is-not-exported">
+						<a href="classes/log.html" class="tsd-kind-icon">Log</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-external">
+						<a href="classes/messenger.html" class="tsd-kind-icon">Messenger</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-external">
+						<a href="classes/mixable.html" class="tsd-kind-icon">Mixable</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-private tsd-is-external">
+						<a href="classes/numerictype.html" class="tsd-kind-icon">Numeric<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-external tsd-is-not-exported">
+						<a href="classes/offoptions.html" class="tsd-kind-icon">Off<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-private tsd-is-external">
+						<a href="classes/primitivetype.html" class="tsd-kind-icon">Primitive<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-external">
+						<a href="classes/record.html" class="tsd-kind-icon">Record</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="classes/recordrefattribute.html" class="tsd-kind-icon">Record<wbr>Ref<wbr>Attribute</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-external tsd-is-not-exported">
+						<a href="classes/recordtransaction.html" class="tsd-kind-icon">Record<wbr>Transaction</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-private tsd-is-external">
+						<a href="classes/sharedtype.html" class="tsd-kind-icon">Shared<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-external">
+						<a href="classes/store.html" class="tsd-kind-icon">Store</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-external">
+						<a href="classes/transactional.html" class="tsd-kind-icon">Transactional</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-external">
+						<a href="classes/transactionaltype.html" class="tsd-kind-icon">Transactional<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-external">
+						<a href="classes/validationerror.html" class="tsd-kind-icon">Validation<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external tsd-is-not-exported">
+						<a href="interfaces/addoptions.html" class="tsd-kind-icon">Add<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/attribute.html" class="tsd-kind-icon">Attribute</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/attributecheck.html" class="tsd-kind-icon">Attribute<wbr>Check</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/attributedescriptor.html" class="tsd-kind-icon">Attribute<wbr>Descriptor</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/attributedescriptormap.html" class="tsd-kind-icon">Attribute<wbr>Descriptor<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/attributeserialization.html" class="tsd-kind-icon">Attribute<wbr>Serialization</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/attributeupdatepipeline.html" class="tsd-kind-icon">Attribute<wbr>Update<wbr>Pipeline</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-private tsd-is-external">
+						<a href="interfaces/attributesspec.html" class="tsd-kind-icon">Attributes<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/attributesvalues.html" class="tsd-kind-icon">Attributes<wbr>Values</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/callback.html" class="tsd-kind-icon">Callback</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/childrenerrors.html" class="tsd-kind-icon">Children<wbr>Errors</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/classdefinition.html" class="tsd-kind-icon">Class<wbr>Definition</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-private tsd-is-external">
+						<a href="interfaces/collectioncore.html" class="tsd-kind-icon">Collection<wbr>Core</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external tsd-is-not-exported">
+						<a href="interfaces/collectiondefinition.html" class="tsd-kind-icon">Collection<wbr>Definition</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/collectionoptions.html" class="tsd-kind-icon">Collection<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter tsd-is-external">
+						<a href="interfaces/constructor.html" class="tsd-kind-icon">Constructor</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external tsd-is-not-exported">
+						<a href="interfaces/constructoroptions.html" class="tsd-kind-icon">Constructor<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-private tsd-is-external">
+						<a href="interfaces/dynamicmixin.html" class="tsd-kind-icon">Dynamic<wbr>Mixin</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/eventscore.html" class="tsd-kind-icon">Events<wbr>Core</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/eventsdefinition.html" class="tsd-kind-icon">Events<wbr>Definition</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external tsd-is-not-exported">
+						<a href="interfaces/extendedattributedescriptor.html" class="tsd-kind-icon">Extended<wbr>Attribute<wbr>Descriptor</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external tsd-is-not-exported">
+						<a href="interfaces/imergefunctions.html" class="tsd-kind-icon">IMerge<wbr>Functions</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-private tsd-is-external">
+						<a href="interfaces/idindex.html" class="tsd-kind-icon">Id<wbr>Index</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external tsd-is-not-exported">
+						<a href="interfaces/listeners.html" class="tsd-kind-icon">Listeners</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external tsd-is-not-exported">
+						<a href="interfaces/listeningtomap.html" class="tsd-kind-icon">Listening<wbr>ToMap</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/messengerdefinition.html" class="tsd-kind-icon">Messenger<wbr>Definition</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter tsd-is-external">
+						<a href="interfaces/mixableconstructor.html" class="tsd-kind-icon">Mixable<wbr>Constructor</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external tsd-is-not-exported">
+						<a href="interfaces/mixinrules.html" class="tsd-kind-icon">Mixin<wbr>Rules</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-private tsd-is-external">
+						<a href="interfaces/owner.html" class="tsd-kind-icon">Owner</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external tsd-is-not-exported">
+						<a href="interfaces/propertymap.html" class="tsd-kind-icon">Property<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/recorddefinition.html" class="tsd-kind-icon">Record<wbr>Definition</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/subscribedevents.html" class="tsd-kind-icon">Subscribed<wbr>Events</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-private tsd-is-external">
+						<a href="interfaces/transaction.html" class="tsd-kind-icon">Transaction</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/transactionoptions.html" class="tsd-kind-icon">Transaction<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/traversable.html" class="tsd-kind-icon">Traversable</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/validatable.html" class="tsd-kind-icon">Validatable</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external">
+						<a href="globals.html#attributeparse" class="tsd-kind-icon">Attribute<wbr>Parse</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external">
+						<a href="globals.html#attributetojson" class="tsd-kind-icon">Attribute<wbr>ToJSON</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external">
+						<a href="globals.html#changeattrhandler" class="tsd-kind-icon">Change<wbr>Attr<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external">
+						<a href="globals.html#changehandler" class="tsd-kind-icon">Change<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external">
+						<a href="globals.html#cloneattributesctor" class="tsd-kind-icon">Clone<wbr>Attributes<wbr>Ctor</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external">
+						<a href="globals.html#collectionreference" class="tsd-kind-icon">Collection<wbr>Reference</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external">
+						<a href="globals.html#comparator" class="tsd-kind-icon">Comparator</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#defaults" class="tsd-kind-icon">Defaults</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external">
+						<a href="globals.html#elements" class="tsd-kind-icon">Elements</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#elementsarg" class="tsd-kind-icon">Elements<wbr>Arg</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#foreach" class="tsd-kind-icon">For<wbr>Each</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external">
+						<a href="globals.html#genericcomparator" class="tsd-kind-icon">Generic<wbr>Comparator</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external">
+						<a href="globals.html#gethook" class="tsd-kind-icon">Get<wbr>Hook</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#iteratee" class="tsd-kind-icon">Iteratee</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#mergerule" class="tsd-kind-icon">Merge<wbr>Rule</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#mixin" class="tsd-kind-icon">Mixin</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#parse" class="tsd-kind-icon">Parse</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#property" class="tsd-kind-icon">Property</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#recordrefvalue" class="tsd-kind-icon">Record<wbr>Ref<wbr>Value</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#recordsids" class="tsd-kind-icon">Records<wbr>Ids</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external">
+						<a href="globals.html#resolvereference" class="tsd-kind-icon">Resolve<wbr>Reference</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#tojson" class="tsd-kind-icon">ToJSON</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-private tsd-is-external">
+						<a href="globals.html#transactionalconstructor" class="tsd-kind-icon">Transactional<wbr>Constructor</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-is-external">
+						<a href="globals.html#transform" class="tsd-kind-icon">Transform</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#arrayproto" class="tsd-kind-icon">Array<wbr>Proto</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#dateproto" class="tsd-kind-icon">Date<wbr>Proto</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external">
+						<a href="globals.html#events" class="tsd-kind-icon">Events</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#objectproto" class="tsd-kind-icon">Object<wbr>Proto</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#_bubblinghandlers" class="tsd-kind-icon">_bubbling<wbr>Handlers</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#_cidcounter" class="tsd-kind-icon">_cid<wbr>Counter</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#_count" class="tsd-kind-icon">_count</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#_idcount" class="tsd-kind-icon">_id<wbr>Count</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#_store" class="tsd-kind-icon">_store</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external">
+						<a href="globals.html#assign" class="tsd-kind-icon">assign</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external">
+						<a href="globals.html#defaults" class="tsd-kind-icon">defaults</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external">
+						<a href="globals.html#eventsplitter" class="tsd-kind-icon">event<wbr>Splitter</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#isodatepattern" class="tsd-kind-icon">iso<wbr>Date<wbr>Pattern</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-not-exported">
+						<a href="globals.html#listento" class="tsd-kind-icon">listen<wbr>To</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-not-exported">
+						<a href="globals.html#listentoonce" class="tsd-kind-icon">listen<wbr>ToOnce</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external">
+						<a href="globals.html#log" class="tsd-kind-icon">log</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#msdatepattern" class="tsd-kind-icon">ms<wbr>Date<wbr>Pattern</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#numerickeys" class="tsd-kind-icon">numeric<wbr>Keys</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#referencemask" class="tsd-kind-icon">reference<wbr>Mask</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#slice" class="tsd-kind-icon">slice</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-not-exported">
+						<a href="globals.html#stoplistening" class="tsd-kind-icon">stop<wbr>Listening</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-not-exported">
+						<a href="globals.html#trigger" class="tsd-kind-icon">trigger</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#___extends" class="tsd-kind-icon">___extends</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#_fireevent0" class="tsd-kind-icon">_fire<wbr>Event0</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#_fireevent1" class="tsd-kind-icon">_fire<wbr>Event1</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#_fireevent2" class="tsd-kind-icon">_fire<wbr>Event2</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#_fireevent3" class="tsd-kind-icon">_fire<wbr>Event3</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#_fireevent4" class="tsd-kind-icon">_fire<wbr>Event4</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#_fireeventall" class="tsd-kind-icon">_fire<wbr>Event<wbr>All</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#_garbagecollect" class="tsd-kind-icon">_garbage<wbr>Collect</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#_off" class="tsd-kind-icon">_off</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#_on" class="tsd-kind-icon">_on</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#_reallocate" class="tsd-kind-icon">_reallocate</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#_reallocateempty" class="tsd-kind-icon">_reallocate<wbr>Empty</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#_removefromindex" class="tsd-kind-icon">_remove<wbr>From<wbr>Index</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#addindex" class="tsd-kind-icon">add<wbr>Index</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#addtransaction" class="tsd-kind-icon">add<wbr>Transaction</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#appendelements" class="tsd-kind-icon">append<wbr>Elements</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#aquire" class="tsd-kind-icon">aquire</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#arraysnotequal" class="tsd-kind-icon">arrays<wbr>Not<wbr>Equal</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#begin" class="tsd-kind-icon">begin</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#chainchangehandlers" class="tsd-kind-icon">chain<wbr>Change<wbr>Handlers</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#chaingethooks" class="tsd-kind-icon">chain<wbr>Get<wbr>Hooks</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#chaintransforms" class="tsd-kind-icon">chain<wbr>Transforms</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#cloneattributes" class="tsd-kind-icon">clone<wbr>Attributes</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#commit" class="tsd-kind-icon">commit</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#compile" class="tsd-kind-icon">compile</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#convertandaquire" class="tsd-kind-icon">convert<wbr>And<wbr>Aquire</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#createattribute" class="tsd-kind-icon">create<wbr>Attribute</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#createclonector" class="tsd-kind-icon">create<wbr>Clone<wbr>Ctor</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#createdecorator" class="tsd-kind-icon">create<wbr>Decorator</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#createdefaults" class="tsd-kind-icon">create<wbr>Defaults</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#createeventmap" class="tsd-kind-icon">create<wbr>Event<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#createforeach" class="tsd-kind-icon">create<wbr>For<wbr>Each</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#createparse" class="tsd-kind-icon">create<wbr>Parse</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#createtojson" class="tsd-kind-icon">create<wbr>ToJSON</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#createwatcherfromref" class="tsd-kind-icon">create<wbr>Watcher<wbr>From<wbr>Ref</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#define" class="tsd-kind-icon">define</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#definecollection" class="tsd-kind-icon">define<wbr>Collection</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#dispose" class="tsd-kind-icon">dispose</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#emptysettransaction" class="tsd-kind-icon">empty<wbr>Set<wbr>Transaction</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#eventsapi" class="tsd-kind-icon">events<wbr>Api</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#every" class="tsd-kind-icon">every</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#extendable" class="tsd-kind-icon">extendable</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter tsd-is-external">
+						<a href="globals.html#fastassign" class="tsd-kind-icon">fast<wbr>Assign</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter tsd-is-external">
+						<a href="globals.html#fastdefaults" class="tsd-kind-icon">fast<wbr>Defaults</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#forallargs" class="tsd-kind-icon">for<wbr>All<wbr>Args</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#free" class="tsd-kind-icon">free</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#freeall" class="tsd-kind-icon">free<wbr>All</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#getattributes" class="tsd-kind-icon">get<wbr>Attributes</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#getbaseclass" class="tsd-kind-icon">get<wbr>Base<wbr>Class</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#getbubblinghandler" class="tsd-kind-icon">get<wbr>Bubbling<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#getpropertydescriptor" class="tsd-kind-icon">get<wbr>Property<wbr>Descriptor</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#infertype" class="tsd-kind-icon">infer<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#internalon" class="tsd-kind-icon">internal<wbr>On</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#isempty" class="tsd-kind-icon">is<wbr>Empty</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#isvalidjson" class="tsd-kind-icon">is<wbr>ValidJSON</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#keys" class="tsd-kind-icon">keys</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#markasdirty" class="tsd-kind-icon">mark<wbr>AsDirty</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#mergeobjects" class="tsd-kind-icon">merge<wbr>Objects</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#mergeprops" class="tsd-kind-icon">merge<wbr>Props</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#mixinrules" class="tsd-kind-icon">mixin<wbr>Rules</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#mixins" class="tsd-kind-icon">mixins</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#moveelements" class="tsd-kind-icon">move<wbr>Elements</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#notequal" class="tsd-kind-icon">not<wbr>Equal</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#objectsnotequal" class="tsd-kind-icon">objects<wbr>Not<wbr>Equal</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#off" class="tsd-kind-icon">off</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#offapi" class="tsd-kind-icon">off<wbr>Api</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#omit" class="tsd-kind-icon">omit</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#on" class="tsd-kind-icon">on</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#onapi" class="tsd-kind-icon">on<wbr>Api</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#once" class="tsd-kind-icon">once</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#oncemap" class="tsd-kind-icon">once<wbr>Map</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#parsedate" class="tsd-kind-icon">parse<wbr>Date</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#parsereference" class="tsd-kind-icon">parse<wbr>Reference</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#predefine" class="tsd-kind-icon">predefine</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#referencetoobject" class="tsd-kind-icon">reference<wbr>ToObject</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#removeindex" class="tsd-kind-icon">remove<wbr>Index</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#removemany" class="tsd-kind-icon">remove<wbr>Many</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#removeone" class="tsd-kind-icon">remove<wbr>One</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#resolvereference" class="tsd-kind-icon">resolve<wbr>Reference</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#setattribute" class="tsd-kind-icon">set<wbr>Attribute</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#settransaction" class="tsd-kind-icon">set<wbr>Transaction</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#some" class="tsd-kind-icon">some</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#somearray" class="tsd-kind-icon">some<wbr>Array</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#someobject" class="tsd-kind-icon">some<wbr>Object</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#sortelements" class="tsd-kind-icon">sort<wbr>Elements</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#sortormoveelements" class="tsd-kind-icon">sort<wbr>OrMove<wbr>Elements</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#subsetoptions" class="tsd-kind-icon">subset<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#toattributedescriptor" class="tsd-kind-icon">to<wbr>Attribute<wbr>Descriptor</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#toelements" class="tsd-kind-icon">to<wbr>Elements</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external">
+						<a href="globals.html#tomodel" class="tsd-kind-icon">to<wbr>Model</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#topropertydescriptor" class="tsd-kind-icon">to<wbr>Property<wbr>Descriptor</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#transaction" class="tsd-kind-icon">transaction</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter tsd-is-external">
+						<a href="globals.html#transform" class="tsd-kind-icon">transform</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#trigger0" class="tsd-kind-icon">trigger0</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#trigger1" class="tsd-kind-icon">trigger1</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#trigger2" class="tsd-kind-icon">trigger2</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external">
+						<a href="globals.html#trigger3" class="tsd-kind-icon">trigger3</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#uniqueid" class="tsd-kind-icon">unique<wbr>Id</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#value" class="tsd-kind-icon">value</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#wrapwatcher" class="tsd-kind-icon">wrap<wbr>Watcher</a>
+					</li>
+					<li class=" tsd-kind-object-literal tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#createsharedtypespec" class="tsd-kind-icon">create<wbr>Shared<wbr>Type<wbr>Spec</a>
+					</li>
+					<li class=" tsd-kind-object-literal tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#mergefunctions" class="tsd-kind-icon">merge<wbr>Functions</a>
+					</li>
+					<li class=" tsd-kind-object-literal tsd-is-private tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#silentoptions" class="tsd-kind-icon">silent<wbr>Options</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.io" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>
