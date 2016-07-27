@@ -16,13 +16,13 @@ Because we can.
 
 - [x] Basic regression tests passes. Transactional core seems to work.
 - [x] New integral performance tests shows 2-3 times performance improvement in complex structure updates. Good enough to go further.
-- [ ] Launching backbone Model/Collection regression to implement missing core functionality. That's gonna be tough.
+- [x] Launching backbone Model/Collection regression to implement missing core functionality. That's gonna be tough.
     - [x] Model regression passes.
     - [x] Collection regression passes.
-    - [ ] Underscore/Lodash mixin for Model and Collection
-    - [ ] Backbone Persistence API
 - [x] Implement relations.
 - [ ] Implement NestedTypes compatibility layer.
+    - [ ] Underscore/Lodash mixin for Model and Collection
+    - [ ] Backbone Persistence API
 - [ ] Test it with NestedReact examples.
 - [ ] Release ObjectPlus as separate package.
 - [ ] Implement classes support in NestedReact.
@@ -33,7 +33,7 @@ Because we can.
 
 - [-] Fix silent option semantic. Now it's wrong (as in NestedTypes 1.3). Update should be propagated upper, just events must be supressed.
 - [ ] Fix new event maps semantic in case of inheritance. There might be the problem with inherited models.
-- [ ] Fix TypeDoc. It doesn't work.
+- [x] Fix TypeDoc. It doesn't work.
 - [-] Tune-up the performance (seems to be fine).  
 
 ## Compatibility notes
