@@ -8,10 +8,10 @@
  * Most frequent operation - single element remove. Thus, it have the fast-path.
  */
 
-import { Record } from '../record/index.ts'
-import { free, CollectionCore, CollectionTransaction, removeIndex } from './commons.ts'
-import { Messenger } from '../objectplus/index.ts'
-import { TransactionOptions, markAsDirty, begin, commit } from '../transactions.ts' 
+import { Record } from '../record'
+import { free, CollectionCore, CollectionTransaction, removeIndex } from './commons'
+import { Messenger } from '../objectplus'
+import { TransactionOptions, markAsDirty, begin, commit } from '../transactions' 
 
 const { trigger2, trigger3 } = Messenger;
 

@@ -3,10 +3,10 @@
  * The root of all definitions. 
  */
 
-import { assign, isEmpty, Mixable, ClassDefinition, Constructor, log, define } from '../objectplus/index.ts'
+import { assign, isEmpty, Mixable, ClassDefinition, Constructor, log, define } from '../objectplus'
 
-import { begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
-import { ChildrenErrors } from '../validation.ts'
+import { begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions'
+import { ChildrenErrors } from '../validation'
 
 const { trigger3 } = Transactional;
 

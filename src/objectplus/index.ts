@@ -1,3 +1,3 @@
-export * from './tools.ts'
-export * from './mixins.ts'
-export * from './events.ts'
+export * from './tools'
+export * from './mixins'
+export * from './events'

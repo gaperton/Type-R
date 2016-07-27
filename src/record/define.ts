@@ -1,9 +1,9 @@
-import { GenericAttribute } from './attribute.ts';
-import { Attribute, AttributesValues, AttributeDescriptorMap, CloneAttributesCtor } from './transaction.ts'
-import { defaults, isValidJSON, transform, log, EventMap } from '../objectplus/index.ts'
-import { toAttributeDescriptor } from './typespec.ts'
+import { GenericAttribute } from './attribute';
+import { Attribute, AttributesValues, AttributeDescriptorMap, CloneAttributesCtor } from './transaction'
+import { defaults, isValidJSON, transform, log, EventMap } from '../objectplus'
+import { toAttributeDescriptor } from './typespec'
 
-import { CompiledReference } from '../objectplus/traversable.ts'
+import { CompiledReference } from '../objectplus/traversable'
 
 /** @private */
 export interface DynamicMixin {

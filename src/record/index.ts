@@ -1,10 +1,10 @@
-import { Record, RecordDefinition, AttributeDescriptorMap } from './transaction.ts'
-import { assign, defaults, omit, Mixable, ClassDefinition, getBaseClass } from '../objectplus/index.ts'
-import { compile, AttributesSpec } from './define.ts'
-import { ChainableAttributeSpec } from './typespec.ts'
+import { Record, RecordDefinition, AttributeDescriptorMap } from './transaction'
+import { assign, defaults, omit, Mixable, ClassDefinition, getBaseClass } from '../objectplus'
+import { compile, AttributesSpec } from './define'
+import { ChainableAttributeSpec } from './typespec'
 
-import { TransactionalType } from './nestedTypes.ts'
-import './basicTypes.ts'
+import { TransactionalType } from './nestedTypes'
+import './basicTypes'
 
 Record.define = function( protoProps : RecordDefinition, staticProps ){
     const BaseConstructor : typeof Record = getBaseClass( this ),

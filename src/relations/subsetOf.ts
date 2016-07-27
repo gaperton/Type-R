@@ -1,8 +1,8 @@
-import { Collection, CollectionOptions } from '../collection/index.ts'
-import { fastDefaults } from '../objectplus/index.ts'
-import { Record } from '../record/index.ts'
-import { parseReference, CollectionReference } from './commons.ts'
-import { ChainableAttributeSpec } from '../record/index.ts'
+import { Collection, CollectionOptions } from '../collection'
+import { fastDefaults } from '../objectplus'
+import { Record } from '../record'
+import { parseReference, CollectionReference } from './commons'
+import { ChainableAttributeSpec } from '../record'
 
 type RecordsIds = ( string | number )[];
 

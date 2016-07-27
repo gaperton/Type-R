@@ -1,7 +1,7 @@
-import Mixins = require( './mixins.ts' )
-import Tools = require( './tools.ts' );
-import EventMaps = require( './eventmaps.ts' );
-import { EventMap, EventsDefinition } from './eventmaps.ts'
+import Mixins = require( './mixins' )
+import Tools = require( './tools' );
+import EventMaps = require( './eventmaps' );
+import { EventMap, EventsDefinition } from './eventmaps'
 
 const { mixins, define, extendable } = Mixins;
 const { omit, once, isEmpty, keys } = Tools;

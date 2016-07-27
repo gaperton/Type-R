@@ -1,6 +1,6 @@
-import { Transaction, begin, commit, markAsDirty } from '../transactions.ts'
-import { CollectionTransaction, IdIndex, aquire, free, sortElements, CollectionOptions, toModel, addIndex, CollectionCore, Elements, freeAll } from './commons.ts'
-import { Record } from '../record/index.ts'
+import { Transaction, begin, commit, markAsDirty } from '../transactions'
+import { CollectionTransaction, IdIndex, aquire, free, sortElements, CollectionOptions, toModel, addIndex, CollectionCore, Elements, freeAll } from './commons'
+import { Record } from '../record'
 
 /** @private */
 const silentOptions = { silent : true };

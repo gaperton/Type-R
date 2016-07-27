@@ -1,11 +1,11 @@
-import { define, omit, log, assign, EventMap, EventsDefinition, Mixable, MessengerDefinition, defaults } from '../objectplus/index.ts'
-import { begin, commit, markAsDirty, Transactional, Transaction, TransactionOptions, Owner } from '../transactions.ts'
-import { Record, TransactionalType } from '../record/index.ts'
+import { define, omit, log, assign, EventMap, EventsDefinition, Mixable, MessengerDefinition, defaults } from '../objectplus'
+import { begin, commit, markAsDirty, Transactional, Transaction, TransactionOptions, Owner } from '../transactions'
+import { Record, TransactionalType } from '../record'
 
-import { IdIndex, sortElements, dispose, Elements, CollectionCore, addIndex, removeIndex, Comparator, CollectionTransaction } from './commons.ts'
-import { addTransaction } from './add.ts'
-import { setTransaction, emptySetTransaction } from './set.ts'
-import { removeOne, removeMany } from './remove.ts'
+import { IdIndex, sortElements, dispose, Elements, CollectionCore, addIndex, removeIndex, Comparator, CollectionTransaction } from './commons'
+import { addTransaction } from './add'
+import { setTransaction, emptySetTransaction } from './set'
+import { removeOne, removeMany } from './remove'
 
 const { trigger2 } = Transactional;
 

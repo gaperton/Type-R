@@ -1,8 +1,8 @@
-import { Record, ChainableAttributeSpec } from '../record/index.ts'
-import { Collection } from '../collection/index.ts'
-import { GenericAttribute } from '../record/attribute.ts'
-import { Owner, free, aquire, Transactional, TransactionOptions, TransactionalConstructor } from '../transactions.ts' 
-import { log } from '../objectplus/index.ts'
+import { Record, ChainableAttributeSpec } from '../record'
+import { Collection } from '../collection'
+import { GenericAttribute } from '../record/attribute'
+import { Owner, free, aquire, Transactional, TransactionOptions, TransactionalConstructor } from '../transactions' 
+import { log } from '../objectplus'
 
 /************************
  * Model.shared and Collection.shared

@@ -2,10 +2,10 @@
  * Type spec engine. Declare attributes using chainable syntax,
  * and returns object with spec.
  */
-import { Transactional } from '../transactions.ts'
-import { ChangeAttrHandler, AttributeDescriptor } from './attribute.ts'
-import { Record } from './transaction.ts'
-import { assign, EventMap, EventsDefinition, Constructor } from '../objectplus/index.ts'
+import { Transactional } from '../transactions'
+import { ChangeAttrHandler, AttributeDescriptor } from './attribute'
+import { Record } from './transaction'
+import { assign, EventMap, EventsDefinition, Constructor } from '../objectplus'
 
 export interface AttributeCheck {
     ( value : any, key : string ) : boolean

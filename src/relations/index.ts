@@ -1,5 +1,5 @@
-import './from.ts'
-import './subsetOf.ts'
-import './shared.ts'
+import './from'
+import './subsetOf'
+import './shared'
 
-export { Store } from './store.ts'
+export { Store } from './store'

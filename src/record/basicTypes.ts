@@ -1,5 +1,5 @@
-import { GenericAttribute } from './attribute.ts'
-import { parseDate } from '../objectplus/index.ts'
+import { GenericAttribute } from './attribute'
+import { parseDate } from '../objectplus'
 
 // Default attribute type for all constructor functions...
 /** @private */

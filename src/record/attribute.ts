@@ -1,7 +1,7 @@
-import { setAttribute, Record, Attribute, Transform, ChangeHandler, AttributeDescriptor } from './transaction.ts'
-import { notEqual, assign, Constructor } from '../objectplus/index.ts'
+import { setAttribute, Record, Attribute, Transform, ChangeHandler, AttributeDescriptor } from './transaction'
+import { notEqual, assign, Constructor } from '../objectplus'
 
-import { Owner, Transactional, TransactionOptions } from '../transactions.ts'
+import { Owner, Transactional, TransactionOptions } from '../transactions'
 
 type GetHook = ( value : any, key : string ) => any;
 export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | string;

@@ -1,7 +1,7 @@
-import { Record } from './transaction.ts' 
-import { GenericAttribute } from './attribute.ts'
-import { Owner, free, aquire, Transactional, TransactionOptions, TransactionalConstructor } from '../transactions.ts'
-import { log } from '../objectplus/index.ts' 
+import { Record } from './transaction' 
+import { GenericAttribute } from './attribute'
+import { Owner, free, aquire, Transactional, TransactionOptions, TransactionalConstructor } from '../transactions'
+import { log } from '../objectplus' 
 
 export class TransactionalType extends GenericAttribute {
     type : TransactionalConstructor

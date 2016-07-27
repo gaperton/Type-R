@@ -1,5 +1,5 @@
-import { Record } from '../record/index.ts'
-import { Transactional } from '../transactions.ts'
+import { Record } from '../record'
+import { Transactional } from '../transactions'
 
 let _store : Store = null;
 

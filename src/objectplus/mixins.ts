@@ -3,7 +3,7 @@
  * 
  * Vlad Balin & Volicon, (c) 2016
  */
-import { log, assign, omit, getPropertyDescriptor, getBaseClass, defaults, transform } from './tools.ts'
+import { log, assign, omit, getPropertyDescriptor, getBaseClass, defaults, transform } from './tools'
 
 /**
  * Class definition recognized by `define`

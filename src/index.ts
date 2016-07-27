@@ -2,21 +2,21 @@
  * Main module
  */
 
-import * as tools from './objectplus/index.ts'
-import { ChainableAttributeSpec } from './record/index.ts'
-import { Record as Model } from './record/index.ts' 
+import * as tools from './objectplus'
+import { ChainableAttributeSpec } from './record'
+import { Record as Model } from './record' 
 
-import { Events } from './objectplus/events.ts'
+import { Events } from './objectplus/events'
 export const { on, off, trigger, once, listenTo, stopListening, listenToOnce } = Events;
 
-import { Collection } from './collection/index.ts'
+import { Collection } from './collection'
 
-export * from './objectplus/mixins.ts'
-export * from './objectplus/events.ts'
+export * from './objectplus/mixins'
+export * from './objectplus/events'
 
-import { Mixable as Class } from './objectplus/mixins.ts'
+import { Mixable as Class } from './objectplus/mixins'
 
-export { Store } from './relations/index.ts'
+export { Store } from './relations'
 
 export {
     tools,
