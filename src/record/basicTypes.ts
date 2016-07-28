@@ -18,12 +18,15 @@ class ConstructorType extends GenericAttribute {
 
 Function.prototype._attribute = ConstructorType;
 
+const DateProto = Date.prototype;
+
 // Date Attribute
 /** @private */
 class DateType extends GenericAttribute {
     convert( value ) {
-        return value == null || value instanceof Date ? value :
-               new Date( typeof value === 'string' ? parseDate( value ) : value );
+        return typeof value === 'string' ? new Date( parseDate( value ) ) : (
+            value == null || value instanceof Date ? value : new Date( value )
+        );
     }
 
     validate( model, value, name ) {

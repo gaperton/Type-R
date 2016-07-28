@@ -337,7 +337,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return false;
 	}
 	var numericKeys = [1, 4, 5, 6, 7, 10, 11], msDatePattern = /\/Date\(([0-9]+)\)\//, isoDatePattern = /^(\d{4}|[+\-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:(Z)|([+\-])(\d{2})(?::(\d{2}))?)?)?$/;
-	function parseDate(date) {
+	function safeParseDate(date) {
 	    var msDate, timestamp, struct, minutesOffset = 0;
 	    if (msDate = msDatePattern.exec(date)) {
 	        timestamp = Number(msDate[1]);
@@ -362,6 +362,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    return timestamp;
 	}
+	function fastParseDate(date) {
+	    var msDate = msDatePattern.exec(date);
+	    return msDate ? Number(msDate[1]) : Date.parse(date);
+	}
+	function supportsDate(date) {
+	    return !isNaN(Date.parse(date));
+	}
+	var parseDate = supportsDate('2011-11-29T15:52:30.5') &&
+	    supportsDate('2011-11-29T15:52:30.52') &&
+	    supportsDate('2011-11-29T15:52:18.867') &&
+	    supportsDate('2011-11-29T15:52:18.867Z') &&
+	    supportsDate('2011-11-29T15:52:18.867-03:30') ? fastParseDate : safeParseDate;
 	exports.parseDate = parseDate;
 
 
@@ -2141,14 +2153,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ConstructorType;
 	}(attribute_1.GenericAttribute));
 	Function.prototype._attribute = ConstructorType;
+	var DateProto = Date.prototype;
 	var DateType = (function (_super) {
 	    __extends(DateType, _super);
 	    function DateType() {
 	        _super.apply(this, arguments);
 	    }
 	    DateType.prototype.convert = function (value) {
-	        return value == null || value instanceof Date ? value :
-	            new Date(typeof value === 'string' ? objectplus_1.parseDate(value) : value);
+	        return typeof value === 'string' ? new Date(objectplus_1.parseDate(value)) : (value == null || value instanceof Date ? value : new Date(value));
 	    };
 	    DateType.prototype.validate = function (model, value, name) {
 	        if (isNaN(+value))

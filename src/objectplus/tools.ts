@@ -264,7 +264,7 @@ var numericKeys    = [ 1, 4, 5, 6, 7, 10, 11 ],
     msDatePattern  = /\/Date\(([0-9]+)\)\//,
     isoDatePattern = /^(\d{4}|[+\-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:(Z)|([+\-])(\d{2})(?::(\d{2}))?)?)?$/;
 
-export function parseDate( date ) {
+function safeParseDate( date : string ) : number {
     var msDate, timestamp, struct, minutesOffset = 0;
 
     if( msDate = msDatePattern.exec( date ) ) {
@@ -290,7 +290,7 @@ export function parseDate( date ) {
 
         timestamp =
             Date.UTC( struct[ 1 ], struct[ 2 ], struct[ 3 ], struct[ 4 ], struct[ 5 ] + minutesOffset, struct[ 6 ],
-                      struct[ 7 ] );
+                    struct[ 7 ] );
     }
     else {
         timestamp = Date.parse( date );
@@ -298,3 +298,22 @@ export function parseDate( date ) {
 
     return timestamp;
 }
+
+function fastParseDate( date : string ) : number {
+    const msDate = msDatePattern.exec( date );
+    return msDate ? Number( msDate[ 1 ] ) : Date.parse( date ); 
+}
+
+function supportsDate( date ){
+    return !isNaN( Date.parse( date ) );
+} 
+
+const parseDate = supportsDate('2011-11-29T15:52:30.5') && 
+                supportsDate('2011-11-29T15:52:30.52') &&
+                supportsDate('2011-11-29T15:52:18.867') &&
+                supportsDate('2011-11-29T15:52:18.867Z') &&
+                supportsDate('2011-11-29T15:52:18.867-03:30') ? fastParseDate : safeParseDate;
+
+//console.log( parseDate === fastParseDate );
+
+export { parseDate };
