@@ -29,8 +29,8 @@ define( function( require, exports, module ){
             largeData = [];
 
         for( var i = 0; i < 50000; i++ ){
-            smallData.push({ a : i });
-            largeData.push({
+            smallData.push({ id : i, a : i });
+            largeData.push({ id : i,
                 a0 : i, a1 : i, a2 : i, a3 : i, a4: i, a5 : i, a6: i, a7: i, a8: i, a9: i,
                 b0 : i, b1 : i, b2 : i, b3 : i, b4: i, b5 : i, b6: i, b7: i, b8: i, b9: i
             });
@@ -215,23 +215,24 @@ define( function( require, exports, module ){
             }
         });
 
-        function createTree( level ){
+        function createTree( level, id ){
             var l = level - 1;
             return {
+                id : id || 0,
                 time : new Date(),
                 author_id : level,
                 text : 'hjkfshdkhjfksdhkj fhsdjkhfsdjk hjfksdhjk hfjsdkhjk hfjdskhjkhj fdssdffsdn,m nm, nm, nv,xvcvcx',
                 replies : l ? [
-                    createTree( l ),
-                    createTree( l ),
-                    createTree( l ),
-                    createTree( l ),
-                    createTree( l ),
-                    createTree( l ),
-                    createTree( l ),
-                    createTree( l ),
-                    createTree( l ),
-                    createTree( l )
+                    createTree( l, 0 ),
+                    createTree( l, 1 ),
+                    createTree( l, 2 ),
+                    createTree( l, 3 ),
+                    createTree( l, 4 ),
+                    createTree( l, 5 ),
+                    createTree( l, 6 ),
+                    createTree( l, 7 ),
+                    createTree( l, 8 ),
+                    createTree( l, 9 )
                 ] : []
             }
         }
