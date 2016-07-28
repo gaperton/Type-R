@@ -22,8 +22,8 @@ export interface CollectionOptions extends TransactionOptions {
 }
 
 interface CollectionDefinition extends MessengerDefinition {
-    elementsEvents? : EventsDefinition
-    _elementsEvents? : EventMap
+    itemEvents? : EventsDefinition
+    _itemEvents? : EventMap
 }
 
 @define({
@@ -49,12 +49,12 @@ export class Collection extends Transactional implements CollectionCore {
     }
     
     static define( protoProps? : CollectionDefinition, staticProps? ){
-        const spec : CollectionDefinition = omit( protoProps, 'elementsEvents', 'localEvents' );
+        const spec : CollectionDefinition = omit( protoProps, 'itemEvents', 'localEvents' );
 
-        if( protoProps.elementsEvents ){
-            const eventsMap = new EventMap( this.prototype._elementsEvents );
-            eventsMap.addEventsMap( protoProps.elementsEvents );
-            spec._elementsEvents = eventsMap; 
+        if( protoProps.itemEvents ){
+            const eventsMap = new EventMap( this.prototype._itemEvents );
+            eventsMap.addEventsMap( protoProps.itemEvents );
+            spec._itemEvents = eventsMap; 
         }
 
         return Transactional.define.call( this, spec, staticProps );
@@ -62,7 +62,7 @@ export class Collection extends Transactional implements CollectionCore {
 
     static subsetOf : ( collectionReference : any ) => any;
     
-    _elementsEvents : EventMap
+    _itemEvents : EventMap
 
     /***********************************
      * Core Members

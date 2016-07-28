@@ -14,7 +14,7 @@ export interface CollectionCore extends Transactional, Owner {
     idAttribute : string // TODO: Refactor inconsistent idAttribute usage
     _comparator : Comparator
     get( objOrId : string | Record | Object ) : Record    
-    _elementsEvents? : EventMap
+    _itemEvents? : EventMap
 }
 
 // Collection's manipulation methods elements
@@ -41,16 +41,16 @@ export function dispose( collection : CollectionCore ) : Record[]{
 export function aquire( owner : CollectionCore, child : Record ) : void {
     _aquire( owner, child );
 
-    const { _elementsEvents } = owner;
-    _elementsEvents && _elementsEvents.subscribe( owner, child );
+    const { _itemEvents } = owner;
+    _itemEvents && _itemEvents.subscribe( owner, child );
 }
 
 /** @private */
 export function free( owner : CollectionCore, child : Record ) : void {
     _free( owner, child );
 
-    const { _elementsEvents } = owner;
-    _elementsEvents && _elementsEvents.unsubscribe( owner, child );
+    const { _itemEvents } = owner;
+    _itemEvents && _itemEvents.unsubscribe( owner, child );
 }
 
 /** @private */

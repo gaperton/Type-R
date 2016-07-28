@@ -133,7 +133,7 @@
             },
 
             collection : {
-                elementsEvents : {
+                itemEvents : {
                     'change:name' : true
                 }
             }
@@ -671,7 +671,7 @@
             },
 
             collection : {
-                elementsEvents : { test : true }
+                itemEvents : { test : true }
             },
 
             validate : function( attrs ){ if( !attrs.valid ) return 'invalid'; }
@@ -1229,7 +1229,7 @@
         var calls = { add : 0, remove : 0 };
 
         var Collection = Backbone.Collection.extend( {
-            elementsEvents : { dummy : true },
+            itemEvents : { dummy : true },
 
             _addReference : function( model ){
                 Backbone.Collection.prototype._addReference.apply( this, arguments );

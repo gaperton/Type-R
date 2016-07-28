@@ -2279,11 +2279,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this;
 	    };
 	    Collection.define = function (protoProps, staticProps) {
-	        var spec = object_plus_1.omit(protoProps, 'elementsEvents', 'localEvents');
-	        if (protoProps.elementsEvents) {
-	            var eventsMap = new object_plus_1.EventMap(this.prototype._elementsEvents);
-	            eventsMap.addEventsMap(protoProps.elementsEvents);
-	            spec._elementsEvents = eventsMap;
+	        var spec = object_plus_1.omit(protoProps, 'itemEvents', 'localEvents');
+	        if (protoProps.itemEvents) {
+	            var eventsMap = new object_plus_1.EventMap(this.prototype._itemEvents);
+	            eventsMap.addEventsMap(protoProps.itemEvents);
+	            spec._itemEvents = eventsMap;
 	        }
 	        return transactions_1.Transactional.define.call(this, spec, staticProps);
 	    };
@@ -2528,14 +2528,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.dispose = dispose;
 	function aquire(owner, child) {
 	    transactions_1.aquire(owner, child);
-	    var _elementsEvents = owner._elementsEvents;
-	    _elementsEvents && _elementsEvents.subscribe(owner, child);
+	    var _itemEvents = owner._itemEvents;
+	    _itemEvents && _itemEvents.subscribe(owner, child);
 	}
 	exports.aquire = aquire;
 	function free(owner, child) {
 	    transactions_1.free(owner, child);
-	    var _elementsEvents = owner._elementsEvents;
-	    _elementsEvents && _elementsEvents.unsubscribe(owner, child);
+	    var _itemEvents = owner._itemEvents;
+	    _itemEvents && _itemEvents.unsubscribe(owner, child);
 	}
 	exports.free = free;
 	function freeAll(collection, children) {
