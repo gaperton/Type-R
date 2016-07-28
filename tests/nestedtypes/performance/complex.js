@@ -6,7 +6,7 @@ define( function( require, exports, module ){
      * Model definitions
      */
     if( Nested.tools ){
-        Nested.tools.log.level = 0;
+        Nested.tools.log.level = 1;
     }
 
     describe( 'Collections of flat models', function(){

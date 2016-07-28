@@ -365,6 +365,7 @@ export class Collection extends Transactional implements CollectionCore {
 
 type ElementsArg = Object | Record | Object[] | Record[];
 
+// TODO: make is safe for parse to return null (?)
 function toElements( collection : Collection, elements : ElementsArg, options : CollectionOptions ) : Elements {
     const parsed = options.parse ? collection.parse( elements ) : elements; 
     return Array.isArray( parsed ) ? parsed : [ parsed ];
