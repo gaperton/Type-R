@@ -10,7 +10,7 @@
 
 import { Record } from '../record'
 import { free, CollectionCore, CollectionTransaction, removeIndex } from './commons'
-import { Messenger } from '../objectplus'
+import { Messenger } from '../object-plus'
 import { TransactionOptions, markAsDirty, begin, commit } from '../transactions' 
 
 const { trigger2, trigger3 } = Messenger;

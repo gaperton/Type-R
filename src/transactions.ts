@@ -1,6 +1,6 @@
-import { Messenger, assign, define, Constructor, MixableConstructor } from './objectplus'
+import { Messenger, assign, define, Constructor, MixableConstructor } from './object-plus'
 import { ValidationError, Validatable, ChildrenErrors } from './validation'
-import { Traversable, resolveReference } from './objectplus/traversable'
+import { Traversable, resolveReference } from './object-plus/traversable'
 
 const { trigger2, trigger3 } = Messenger;
 /***

@@ -2,7 +2,7 @@ import { Record } from '../record'
 import { Owner, aquire as _aquire, free as _free, Transaction, markAsDirty,
         TransactionOptions, Transactional, commit } from '../transactions'
 
-import { EventMap } from '../objectplus'
+import { EventMap } from '../object-plus'
 
 const { trigger2, trigger3 } = Transactional;        
 

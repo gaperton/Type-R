@@ -1,5 +1,5 @@
 import { GenericAttribute } from './attribute'
-import { parseDate } from '../objectplus'
+import { parseDate } from '../object-plus'
 
 // Default attribute type for all constructor functions...
 /** @private */

@@ -1,5 +1,5 @@
 import { Collection, CollectionOptions } from '../collection'
-import { fastDefaults } from '../objectplus'
+import { fastDefaults } from '../object-plus'
 import { Record } from '../record'
 import { parseReference, CollectionReference } from './commons'
 import { ChainableAttributeSpec } from '../record'

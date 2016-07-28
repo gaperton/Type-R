@@ -1067,7 +1067,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	var transaction_1 = __webpack_require__(7);
 	exports.Record = transaction_1.Record;
-	var objectplus_1 = __webpack_require__(1);
+	var object_plus_1 = __webpack_require__(1);
 	var define_1 = __webpack_require__(11);
 	var typespec_1 = __webpack_require__(13);
 	exports.ChainableAttributeSpec = typespec_1.ChainableAttributeSpec;
@@ -1075,22 +1075,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.TransactionalType = nestedTypes_1.TransactionalType;
 	__webpack_require__(15);
 	transaction_1.Record.define = function (protoProps, staticProps) {
-	    var BaseConstructor = objectplus_1.getBaseClass(this), baseProto = BaseConstructor.prototype;
+	    var BaseConstructor = object_plus_1.getBaseClass(this), baseProto = BaseConstructor.prototype;
 	    if (protoProps) {
 	        var definition = define_1.compile(getAttributes(protoProps), baseProto._attributes);
 	        if (protoProps.properties === false) {
 	            definition.properties = {};
 	        }
-	        objectplus_1.assign(definition.properties, protoProps.properties || {});
-	        objectplus_1.defaults(definition, objectplus_1.omit(protoProps, 'attributes', 'collection'));
-	        objectplus_1.Mixable.define.call(this, definition, staticProps);
+	        object_plus_1.assign(definition.properties, protoProps.properties || {});
+	        object_plus_1.defaults(definition, object_plus_1.omit(protoProps, 'attributes', 'collection'));
+	        object_plus_1.Mixable.define.call(this, definition, staticProps);
 	        defineCollection.call(this, protoProps && protoProps.collection);
 	    }
 	    return this;
 	};
 	transaction_1.Record.predefine = function () {
-	    objectplus_1.Mixable.predefine.call(this);
-	    this.Collection = objectplus_1.getBaseClass(this).Collection.extend();
+	    object_plus_1.Mixable.predefine.call(this);
+	    this.Collection = object_plus_1.getBaseClass(this).Collection.extend();
 	    this.Collection.prototype.model = this;
 	    return this;
 	};
@@ -1104,7 +1104,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return definition;
 	}
 	function defineCollection(collection) {
-	    var BaseCollection = objectplus_1.getBaseClass(this).Collection;
+	    var BaseCollection = object_plus_1.getBaseClass(this).Collection;
 	    var CollectionConstructor;
 	    if (typeof collection === 'function') {
 	        CollectionConstructor = collection;
@@ -1135,7 +1135,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
 	    return c > 3 && r && Object.defineProperty(target, key, r), r;
 	};
-	var objectplus_1 = __webpack_require__(1);
+	var object_plus_1 = __webpack_require__(1);
 	var transactions_1 = __webpack_require__(8);
 	var trigger3 = transactions_1.Transactional.trigger3;
 	var _cidCounter = 0;
@@ -1185,7 +1185,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	    Record.prototype.changedAttributes = function (diff) {
 	        if (!diff)
-	            return this.hasChanged() ? objectplus_1.assign({}, this.changed) : false;
+	            return this.hasChanged() ? object_plus_1.assign({}, this.changed) : false;
 	        var val, changed = false, old = this._transaction ? this._previousAttributes : this.attributes, attrSpecs = this._attributes;
 	        for (var attr in diff) {
 	            if (!attrSpecs[attr].isChanged(old[attr], (val = diff[attr])))
@@ -1200,7 +1200,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return false;
 	        return key ?
 	            this._attributes[key].isChanged(this.attributes[key], _previousAttributes[key]) :
-	            !objectplus_1.isEmpty(this.changed);
+	            !object_plus_1.isEmpty(this.changed);
 	    };
 	    Record.prototype.previous = function (key) {
 	        if (key) {
@@ -1245,7 +1245,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                iteratee(attrs[name_1], name_1, spec);
 	            }
 	            else {
-	                objectplus_1.log.warn('[Unknown Attribute]', this, 'Unknown record attribute "' + name_1 + '" is ignored:', attrs);
+	                object_plus_1.log.warn('[Unknown Attribute]', this, 'Unknown record attribute "' + name_1 + '" is ignored:', attrs);
 	            }
 	        }
 	    };
@@ -1339,7 +1339,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            });
 	        }
 	        else {
-	            objectplus_1.log.error('[Type Error]', this, 'Record update rejected (', values, '). Incompatible type.');
+	            object_plus_1.log.error('[Type Error]', this, 'Record update rejected (', values, '). Incompatible type.');
 	        }
 	        if ((nested.length || changes.length) && markAsDirty(this, options)) {
 	            return new RecordTransaction(this, isRoot, nested, changes);
@@ -1374,7 +1374,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _super.prototype.dispose.call(this);
 	    };
 	    Record = __decorate([
-	        objectplus_1.define({
+	        object_plus_1.define({
 	            cidPrefix: 'm',
 	            idAttribute: 'id',
 	            _keys: ['id']
@@ -1467,10 +1467,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
 	    return c > 3 && r && Object.defineProperty(target, key, r), r;
 	};
-	var objectplus_1 = __webpack_require__(1);
+	var object_plus_1 = __webpack_require__(1);
 	var validation_1 = __webpack_require__(9);
 	var traversable_1 = __webpack_require__(10);
-	var trigger2 = objectplus_1.Messenger.trigger2, trigger3 = objectplus_1.Messenger.trigger3;
+	var trigger2 = object_plus_1.Messenger.trigger2, trigger3 = object_plus_1.Messenger.trigger3;
 	var Transactional = (function (_super) {
 	    __extends(Transactional, _super);
 	    function Transactional(cid, owner, ownerKey) {
@@ -1549,7 +1549,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Transactional.prototype._invalidate = function (options) {
 	        var error;
 	        if (options.validate && (error = this.validationError)) {
-	            this.trigger('invalid', this, error, objectplus_1.assign({ validationError: error }, options));
+	            this.trigger('invalid', this, error, object_plus_1.assign({ validationError: error }, options));
 	            return true;
 	        }
 	    };
@@ -1569,12 +1569,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return !this.getValidationError(key);
 	    };
 	    Transactional = __decorate([
-	        objectplus_1.define({
+	        object_plus_1.define({
 	            _changeEventName: 'change'
 	        })
 	    ], Transactional);
 	    return Transactional;
-	}(objectplus_1.Messenger));
+	}(object_plus_1.Messenger));
 	exports.Transactional = Transactional;
 	function begin(object) {
 	    return object._transaction ? false : (object._transaction = true);
@@ -1721,14 +1721,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	var attribute_1 = __webpack_require__(12);
-	var objectplus_1 = __webpack_require__(1);
+	var object_plus_1 = __webpack_require__(1);
 	var typespec_1 = __webpack_require__(13);
 	var traversable_1 = __webpack_require__(10);
 	function compile(rawSpecs, baseAttributes) {
-	    var myAttributes = objectplus_1.transform({}, rawSpecs, createAttribute), allAttributes = objectplus_1.defaults({}, myAttributes, baseAttributes), Attributes = createCloneCtor(allAttributes), mixin = {
+	    var myAttributes = object_plus_1.transform({}, rawSpecs, createAttribute), allAttributes = object_plus_1.defaults({}, myAttributes, baseAttributes), Attributes = createCloneCtor(allAttributes), mixin = {
 	        Attributes: Attributes,
 	        _attributes: new Attributes(allAttributes),
-	        properties: objectplus_1.transform({}, myAttributes, function (x) { return x.createPropertyDescriptor(); }),
+	        properties: object_plus_1.transform({}, myAttributes, function (x) { return x.createPropertyDescriptor(); }),
 	        defaults: createDefaults(allAttributes),
 	        _toJSON: createToJSON(allAttributes),
 	        _localEvents: createEventMap(myAttributes),
@@ -1738,7 +1738,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (_parse) {
 	        mixin._parse = _parse;
 	    }
-	    if (!objectplus_1.log.level) {
+	    if (!object_plus_1.log.level) {
 	        mixin.forEachAttr = createForEach(allAttributes);
 	    }
 	    return mixin;
@@ -1752,7 +1752,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    for (var key in attrSpecs) {
 	        var attribute = attrSpecs[key], _onChange = attribute.options._onChange;
 	        if (_onChange) {
-	            events || (events = new objectplus_1.EventMap());
+	            events || (events = new object_plus_1.EventMap());
 	            events.addEvent('change:' + key, typeof _onChange === 'string' ?
 	                createWatcherFromRef(_onChange, key) :
 	                wrapWatcher(_onChange, key));
@@ -1805,7 +1805,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            appendExpr(name_3, "i." + name_3 + ".create()");
 	        }
 	        else {
-	            if (objectplus_1.isValidJSON(value)) {
+	            if (object_plus_1.isValidJSON(value)) {
 	                appendExpr(name_3, JSON.stringify(value));
 	            }
 	            else if (value === void 0) {
@@ -1857,7 +1857,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	var transaction_1 = __webpack_require__(7);
-	var objectplus_1 = __webpack_require__(1);
+	var object_plus_1 = __webpack_require__(1);
 	var GenericAttribute = (function () {
 	    function GenericAttribute(name, options) {
 	        this.name = name;
@@ -1893,7 +1893,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    GenericAttribute.prototype.transform = function (value, options, prev, model) { return value; };
 	    GenericAttribute.prototype.convert = function (value, options, model) { return value; };
 	    GenericAttribute.prototype.isChanged = function (a, b) {
-	        return objectplus_1.notEqual(a, b);
+	        return object_plus_1.notEqual(a, b);
 	    };
 	    GenericAttribute.prototype.handleChange = function (next, prev, model) { };
 	    GenericAttribute.prototype.create = function () { return new this.type(); };
@@ -1966,12 +1966,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	var transactions_1 = __webpack_require__(8);
-	var objectplus_1 = __webpack_require__(1);
+	var object_plus_1 = __webpack_require__(1);
 	var ChainableAttributeSpec = (function () {
 	    function ChainableAttributeSpec(options) {
 	        if (options === void 0) { options = {}; }
 	        this.options = { getHooks: [], transforms: [], changeHandlers: [] };
-	        objectplus_1.assign(this.options, options);
+	        object_plus_1.assign(this.options, options);
 	    }
 	    ChainableAttributeSpec.prototype.check = function (check, error) {
 	        function validate(model, value, name) {
@@ -2015,7 +2015,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this;
 	    };
 	    ChainableAttributeSpec.prototype.events = function (map) {
-	        var eventMap = new objectplus_1.EventMap(map);
+	        var eventMap = new object_plus_1.EventMap(map);
 	        this.options.changeHandlers.push(function (next, prev, record) {
 	            prev && eventMap.unsubscribe(record, prev);
 	            next && eventMap.subscribe(record, next);
@@ -2092,7 +2092,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var transaction_1 = __webpack_require__(7);
 	var attribute_1 = __webpack_require__(12);
 	var transactions_1 = __webpack_require__(8);
-	var objectplus_1 = __webpack_require__(1);
+	var object_plus_1 = __webpack_require__(1);
 	var TransactionalType = (function (_super) {
 	    __extends(TransactionalType, _super);
 	    function TransactionalType() {
@@ -2118,7 +2118,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    TransactionalType.prototype._handleChange = function (next, prev, record) {
 	        prev && transactions_1.free(record, prev);
 	        if (next && !transactions_1.aquire(record, next, this.name)) {
-	            objectplus_1.log.error('[Aggregation error] Assigned value already has an owner. Use shared attribute type.');
+	            object_plus_1.log.error('[Aggregation error] Assigned value already has an owner. Use shared attribute type.');
 	        }
 	    };
 	    return TransactionalType;
@@ -2138,7 +2138,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var attribute_1 = __webpack_require__(12);
-	var objectplus_1 = __webpack_require__(1);
+	var object_plus_1 = __webpack_require__(1);
 	var ConstructorType = (function (_super) {
 	    __extends(ConstructorType, _super);
 	    function ConstructorType() {
@@ -2160,7 +2160,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _super.apply(this, arguments);
 	    }
 	    DateType.prototype.convert = function (value) {
-	        return typeof value === 'string' ? new Date(objectplus_1.parseDate(value)) : (value == null || value instanceof Date ? value : new Date(value));
+	        return typeof value === 'string' ? new Date(object_plus_1.parseDate(value)) : (value == null || value instanceof Date ? value : new Date(value));
 	    };
 	    DateType.prototype.validate = function (model, value, name) {
 	        if (isNaN(+value))
@@ -2237,7 +2237,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
 	    return c > 3 && r && Object.defineProperty(target, key, r), r;
 	};
-	var objectplus_1 = __webpack_require__(1);
+	var object_plus_1 = __webpack_require__(1);
 	var transactions_1 = __webpack_require__(8);
 	var record_1 = __webpack_require__(6);
 	var commons_1 = __webpack_require__(17);
@@ -2279,9 +2279,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this;
 	    };
 	    Collection.define = function (protoProps, staticProps) {
-	        var spec = objectplus_1.omit(protoProps, 'elementsEvents', 'localEvents');
+	        var spec = object_plus_1.omit(protoProps, 'elementsEvents', 'localEvents');
 	        if (protoProps.elementsEvents) {
-	            var eventsMap = new objectplus_1.EventMap(this.prototype._elementsEvents);
+	            var eventsMap = new object_plus_1.EventMap(this.prototype._elementsEvents);
 	            eventsMap.addEventsMap(protoProps.elementsEvents);
 	            spec._elementsEvents = eventsMap;
 	        }
@@ -2389,7 +2389,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (elements === void 0) { elements = []; }
 	        if (options === void 0) { options = {}; }
 	        if (options.add !== void 0) {
-	            objectplus_1.log.error("Collection.set doesn't support 'add' option, behaving as if options.add === true.");
+	            object_plus_1.log.error("Collection.set doesn't support 'add' option, behaving as if options.add === true.");
 	        }
 	        if (options.reset) {
 	            this.reset(elements, options);
@@ -2406,7 +2406,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (a_elements) {
 	            set_1.emptySetTransaction(this, toElements(this, a_elements, options), options, true);
 	        }
-	        options.silent || trigger2(this, 'reset', this, objectplus_1.defaults({ previousModels: previousModels }, options));
+	        options.silent || trigger2(this, 'reset', this, object_plus_1.defaults({ previousModels: previousModels }, options));
 	        return this.models;
 	    };
 	    Collection.prototype.add = function (a_elements, options) {
@@ -2455,7 +2455,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this;
 	    };
 	    Collection.prototype.push = function (model, options) {
-	        return this.add(model, objectplus_1.assign({ at: this.length }, options));
+	        return this.add(model, object_plus_1.assign({ at: this.length }, options));
 	    };
 	    Collection.prototype.pop = function (options) {
 	        var model = this.at(this.length - 1);
@@ -2463,7 +2463,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return model;
 	    };
 	    Collection.prototype.unshift = function (model, options) {
-	        return this.add(model, objectplus_1.assign({ at: 0 }, options));
+	        return this.add(model, object_plus_1.assign({ at: 0 }, options));
 	    };
 	    Collection.prototype.shift = function (options) {
 	        var model = this.at(0);
@@ -2494,7 +2494,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Collection._attribute = record_1.TransactionalType;
 	    Collection = __decorate([
-	        objectplus_1.define({
+	        object_plus_1.define({
 	            cidPrefix: 'c',
 	            model: record_1.Record,
 	            _changeEventName: 'changes'
@@ -2797,9 +2797,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	var commons_1 = __webpack_require__(17);
-	var objectplus_1 = __webpack_require__(1);
+	var object_plus_1 = __webpack_require__(1);
 	var transactions_1 = __webpack_require__(8);
-	var trigger2 = objectplus_1.Messenger.trigger2, trigger3 = objectplus_1.Messenger.trigger3;
+	var trigger2 = object_plus_1.Messenger.trigger2, trigger3 = object_plus_1.Messenger.trigger3;
 	function removeOne(collection, el, options) {
 	    var model = collection.get(el);
 	    if (model) {
@@ -2959,7 +2959,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var collection_1 = __webpack_require__(16);
-	var objectplus_1 = __webpack_require__(1);
+	var object_plus_1 = __webpack_require__(1);
 	var commons_1 = __webpack_require__(23);
 	var record_1 = __webpack_require__(6);
 	collection_1.Collection.subsetOf = function subsetOf(masterCollection) {
@@ -3040,7 +3040,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function subsetOptions(options) {
 	    var subsetOptions = { parse: true, merge: false };
 	    if (options)
-	        objectplus_1.fastDefaults(subsetOptions, options);
+	        object_plus_1.fastDefaults(subsetOptions, options);
 	    return subsetOptions;
 	}
 
@@ -3059,7 +3059,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var collection_1 = __webpack_require__(16);
 	var attribute_1 = __webpack_require__(12);
 	var transactions_1 = __webpack_require__(8);
-	var objectplus_1 = __webpack_require__(1);
+	var object_plus_1 = __webpack_require__(1);
 	var SharedType = (function (_super) {
 	    __extends(SharedType, _super);
 	    function SharedType() {
@@ -3071,7 +3071,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    SharedType.prototype.convert = function (value, options, record) {
 	        if (value == null || value instanceof this.type)
 	            return value;
-	        objectplus_1.log.error("[Shared Attribute] Cannot assign value of incompatible type.", value, record);
+	        object_plus_1.log.error("[Shared Attribute] Cannot assign value of incompatible type.", value, record);
 	        return null;
 	    };
 	    SharedType.prototype.validate = function (record, value) {

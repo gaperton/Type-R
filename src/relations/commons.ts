@@ -1,6 +1,6 @@
 import { Collection } from '../collection'
 import { Record } from '../record'
-import { CompiledReference } from '../objectplus/traversable'
+import { CompiledReference } from '../object-plus/traversable'
 
 export type CollectionReference = ( () => Collection ) | Collection | string; 
 

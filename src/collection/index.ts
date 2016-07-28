@@ -1,4 +1,4 @@
-import { define, omit, log, assign, EventMap, EventsDefinition, Mixable, MessengerDefinition, defaults } from '../objectplus'
+import { define, omit, log, assign, EventMap, EventsDefinition, Mixable, MessengerDefinition, defaults } from '../object-plus'
 import { begin, commit, markAsDirty, Transactional, Transaction, TransactionOptions, Owner } from '../transactions'
 import { Record, TransactionalType } from '../record'
 

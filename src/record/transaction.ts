@@ -3,7 +3,7 @@
  * The root of all definitions. 
  */
 
-import { assign, isEmpty, Mixable, ClassDefinition, Constructor, log, define } from '../objectplus'
+import { assign, isEmpty, Mixable, ClassDefinition, Constructor, log, define } from '../object-plus'
 
 import { begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions'
 import { ChildrenErrors } from '../validation'

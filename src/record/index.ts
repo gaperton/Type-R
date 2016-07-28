@@ -1,5 +1,5 @@
 import { Record, RecordDefinition, AttributeDescriptorMap } from './transaction'
-import { assign, defaults, omit, Mixable, ClassDefinition, getBaseClass } from '../objectplus'
+import { assign, defaults, omit, Mixable, ClassDefinition, getBaseClass } from '../object-plus'
 import { compile, AttributesSpec } from './define'
 import { ChainableAttributeSpec } from './typespec'
 

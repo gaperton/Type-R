@@ -1,5 +1,5 @@
 import { setAttribute, Record, Attribute, Transform, ChangeHandler, AttributeDescriptor } from './transaction'
-import { notEqual, assign, Constructor } from '../objectplus'
+import { notEqual, assign, Constructor } from '../object-plus'
 
 import { Owner, Transactional, TransactionOptions } from '../transactions'
 

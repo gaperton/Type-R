@@ -1,7 +1,7 @@
 import { Record } from './transaction' 
 import { GenericAttribute } from './attribute'
 import { Owner, free, aquire, Transactional, TransactionOptions, TransactionalConstructor } from '../transactions'
-import { log } from '../objectplus' 
+import { log } from '../object-plus' 
 
 export class TransactionalType extends GenericAttribute {
     type : TransactionalConstructor

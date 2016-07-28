@@ -2,7 +2,7 @@ import { Record, ChainableAttributeSpec } from '../record'
 import { Collection } from '../collection'
 import { GenericAttribute } from '../record/attribute'
 import { Owner, free, aquire, Transactional, TransactionOptions, TransactionalConstructor } from '../transactions' 
-import { log } from '../objectplus'
+import { log } from '../object-plus'
 
 /************************
  * Model.shared and Collection.shared
