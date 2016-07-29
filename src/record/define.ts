@@ -1,9 +1,11 @@
 import { GenericAttribute } from './attribute';
 import { Attribute, AttributesValues, AttributeDescriptorMap, CloneAttributesCtor } from './transaction'
-import { defaults, isValidJSON, transform, log, EventMap } from '../object-plus'
+import { tools, eventsApi } from '../object-plus'
 import { toAttributeDescriptor } from './typespec'
+import { CompiledReference } from '../traversable'
 
-import { CompiledReference } from '../object-plus/traversable'
+const { defaults, isValidJSON, transform, log } = tools,
+      { EventMap } = eventsApi;
 
 /** @private */
 export interface DynamicMixin {
@@ -14,7 +16,7 @@ export interface DynamicMixin {
     defaults : Defaults
     _toJSON : ToJSON
     _parse? : Parse
-    _localEvents : EventMap
+    _localEvents : eventsApi.EventMap
     _keys : string[]
 }
 
@@ -66,8 +68,8 @@ function createAttribute( spec, name ){
 
 // Build events map for attribute change events.
 /** @private */
-function createEventMap( attrSpecs : AttributesSpec ) : EventMap {
-    let events : EventMap;
+function createEventMap( attrSpecs : AttributesSpec ) : eventsApi.EventMap {
+    let events : eventsApi.EventMap;
 
     for( var key in attrSpecs ){
         const attribute = attrSpecs[ key ],

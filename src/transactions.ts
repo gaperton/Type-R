@@ -1,4 +1,4 @@
-import { Messenger, MixinRules, MessengerDefinition, tools, extendable, mixins, eventsApi, define, Constructor, MixableConstructor } from './object-plus'
+import { Messenger, Listeners, ListeningToMap, MixinRules, MessengerDefinition, tools, extendable, mixins, eventsApi, define, Constructor, MixableConstructor } from './object-plus'
 import { ValidationError, Validatable, ChildrenErrors } from './validation'
 import { Traversable, resolveReference } from './traversable'
 
@@ -28,26 +28,26 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     static define : (spec? : TransactionalDefinition, statics? : {} ) => MixableConstructor< Transactional >
     static predefine : () => typeof Messenger
 
-    on : (name, callback, context) => any
-    off : (name? : string, callback? : Function, context? ) => any
-    stopListening : ( obj? : Messenger, name? : string, callback? : Function ) => any
-    listenTo : (obj : Messenger, name, callback? ) => any
-    once : (name, callback, context) => any  
-    listenToOnce : (obj : Messenger, name, callback) => any 
+    on : (name, callback, context) => this
+    off : (name? : string, callback? : Function, context? ) => this
+    stopListening : ( obj? : Messenger, name? : string, callback? : Function ) => this
+    listenTo : (obj : Messenger, name, callback? ) => this
+    once : (name, callback, context) => this 
+    listenToOnce : (obj : Messenger, name, callback) => this 
     trigger      : (name : string, a?, b?, c? ) => this
-    dispose(){}
+    dispose() : void {}
 
     /** @private */
     _events : eventsApi.EventsSubscription = void 0;
     
     /** @private */
-    _listeners : any
+    _listeners : Listeners
 
     /** @private */
-    _listeningTo : any
+    _listeningTo : ListeningToMap
 
     /** @private */
-    _localEvents : any
+    _localEvents : eventsApi.EventMap
 
     cid : string
     cidPrefix : string
@@ -92,17 +92,17 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     
     // Execute given function in the scope of ad-hoc transaction.
     transaction( fun : ( self : this ) => void, options : TransactionOptions = {} ) : void{
-        const isRoot = begin( this );
+        const isRoot = transactionApi.begin( this );
         fun.call( this, this );
-        isRoot && commit( this );
+        isRoot && transactionApi.commit( this );
     }
 
     // Loop through the members in the scope of transaction.
     // Transactional version of each()
     updateEach( iteratee : ( val : any, key : string ) => void, options? : TransactionOptions ){
-        const isRoot = begin( this );
+        const isRoot = transactionApi.begin( this );
         this.each( iteratee );
-        isRoot && commit( this );
+        isRoot && transactionApi.commit( this );
     }
 
     // Apply bulk in-place object update in scope of ad-hoc transaction 
@@ -308,80 +308,82 @@ export interface TransactionOptions {
  * commit( object, options, isNested ) 
  */
 
-// Start transaction. Return true if it's the root one.
-/** @private */
-export function begin( object : Transactional ) : boolean {
-    return object._transaction ? false : ( object._transaction = true );  
-}
+export const transactionApi = {
+    // Start transaction. Return true if it's the root one.
+    /** @private */
+    begin( object : Transactional ) : boolean {
+        return object._transaction ? false : ( object._transaction = true );  
+    },
 
-// Mark object having changes inside of the current transaction.
-// Returns true whenever there notifications are required.
-/** @private */
-export function markAsDirty( object : Transactional, options : TransactionOptions ) : boolean {
-    // If silent option is in effect, don't set isDirty flag.
-    const dirty = !options.silent;
-    if( dirty ) object._isDirty = options;
-    
-    // Reset version token.
-    object._changeToken = {};
-
-    // Object is changed, so validation must happen again. Clear the cache.
-    object._validationError = void 0;
-
-    return dirty;
-}
-
-// Commit transaction. Send out change event and notify owner. Returns true if there were changes.
-// Must be executed for the root transaction only.
-/** @private */
-export function commit( object : Transactional, isNested? : boolean ){
-    let originalOptions = object._isDirty;
-
-    if( originalOptions ){
-        // Send the sequence of change events, handling chained handlers.
-        while( object._isDirty ){
-            const options = object._isDirty;
-            object._isDirty = null; 
-            trigger2( object, object._changeEventName, object, options );
-        }
+    // Mark object having changes inside of the current transaction.
+    // Returns true whenever there notifications are required.
+    /** @private */
+    markAsDirty( object : Transactional, options : TransactionOptions ) : boolean {
+        // If silent option is in effect, don't set isDirty flag.
+        const dirty = !options.silent;
+        if( dirty ) object._isDirty = options;
         
-        // Mark transaction as closed.
-        object._transaction = false;
+        // Reset version token.
+        object._changeToken = {};
 
-        // Notify owner on changes out of transaction scope.
-        const { _owner } = object;  
-        if( _owner && !isNested ){ // If it's the nested transaction, owner is already aware there are some changes.
-            _owner._onChildrenChange( object, originalOptions );
+        // Object is changed, so validation must happen again. Clear the cache.
+        object._validationError = void 0;
+
+        return dirty;
+    },
+
+    // Commit transaction. Send out change event and notify owner. Returns true if there were changes.
+    // Must be executed for the root transaction only.
+    /** @private */
+    commit( object : Transactional, isNested? : boolean ){
+        let originalOptions = object._isDirty;
+
+        if( originalOptions ){
+            // Send the sequence of change events, handling chained handlers.
+            while( object._isDirty ){
+                const options = object._isDirty;
+                object._isDirty = null; 
+                trigger2( object, object._changeEventName, object, options );
+            }
+            
+            // Mark transaction as closed.
+            object._transaction = false;
+
+            // Notify owner on changes out of transaction scope.
+            const { _owner } = object;  
+            if( _owner && !isNested ){ // If it's the nested transaction, owner is already aware there are some changes.
+                _owner._onChildrenChange( object, originalOptions );
+            }
         }
-    }
-    else{
-        // No changes. Silently close transaction.
-        object._isDirty = null;
-        object._transaction = false;
-    }
-}
+        else{
+            // No changes. Silently close transaction.
+            object._isDirty = null;
+            object._transaction = false;
+        }
+    },
 
-/************************************
- * Ownership management
- */
+    /************************************
+     * Ownership management
+     */
 
-// Add reference to the record.
-/** @private */
-export function aquire( owner : Owner, child : Transactional, key? : string ) : boolean {
-    if( !child._owner ){
-        child._owner = owner;
-        child._ownerKey = key;
-        return true;
-    }
+    // Add reference to the record.
+    /** @private */
+    aquire( owner : Owner, child : Transactional, key? : string ) : boolean {
+        if( !child._owner ){
+            child._owner = owner;
+            child._ownerKey = key;
+            return true;
+        }
 
-    return false;
-}
+        return false;
+    },
 
-// Remove reference to the record.
-/** @private */
-export function free( owner : Owner, child : Transactional ) : void {
-    if( owner === child._owner ){
-        child._owner = void 0;
-        child._ownerKey = void 0;
+    // Remove reference to the record.
+    /** @private */
+    free( owner : Owner, child : Transactional ) : void {
+        if( owner === child._owner ){
+            child._owner = void 0;
+            child._ownerKey = void 0;
+        }
     }
 }

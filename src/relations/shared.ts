@@ -1,10 +1,11 @@
 import { Record, ChainableAttributeSpec } from '../record'
 import { Collection } from '../collection'
 import { GenericAttribute } from '../record'
-import { Owner, free, aquire, Transactional, TransactionOptions, TransactionalConstructor } from '../transactions' 
+import { Owner, transactionApi, Transactional, TransactionOptions, TransactionalConstructor } from '../transactions' 
 import { tools, eventsApi } from '../object-plus'
 
-const { on, off } = eventsApi;
+const { on, off } = eventsApi,
+    { free, aquire } = transactionApi;
 
 /************************
  * Model.shared and Collection.shared

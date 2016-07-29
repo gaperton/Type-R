@@ -77,14 +77,14 @@ export abstract class Messenger implements Mixins.Mixable {
     
     // Bind an event to a `callback` function. Passing `"all"` will bind
     // the callback to all events fired.
-    on(name, callback, context) {
-        return internalOn(this, name, callback, context);
+    on(name, callback, context) : this  {
+        return <this>internalOn(this, name, callback, context);
     }
     // Remove one or many callbacks. If `context` is null, removes all
     // callbacks with that function. If `callback` is null, removes all
     // callbacks for the event. If `name` is null, removes all bound
     // callbacks for all events.
-    off(name? : string, callback? : Function, context? ) {
+    off(name? : string, callback? : Function, context? )  : this {
         if (!this._events) return this;
         this._events = eventsApi(offApi, this._events, name, callback,
                                 new OffOptions(
@@ -96,7 +96,7 @@ export abstract class Messenger implements Mixins.Mixable {
 
     // Tell this object to stop listening to either specific events ... or
     // to every object it's currently listening to.
-    stopListening( obj? : Messenger, name? : string, callback? : Function ) {
+    stopListening( obj? : Messenger, name? : string, callback? : Function ) : this {
         const listeningTo = this._listeningTo;
         if (!listeningTo) return this;
 
@@ -119,7 +119,7 @@ export abstract class Messenger implements Mixins.Mixable {
     // Inversion-of-control versions of `on`. Tell *this* object to listen to
     // an event in another object... keeping track of what it's listening to
     // for easier unbinding later.
-    listenTo(obj : Messenger, name, callback? ) {
+    listenTo(obj : Messenger, name, callback? ) : this {
         if( !obj ) return this;
         
         const id = obj.cid || (obj.cid = uniqueId()),
@@ -143,14 +143,14 @@ export abstract class Messenger implements Mixins.Mixable {
     // the callback is invoked, its listener will be removed. If multiple events
     // are passed in using the space-separated syntax, the handler will fire
     // once for each event, not once for a combination of all events.
-    once(name, callback, context) {
+    once(name, callback, context)  : this {
         // Map the event into a `{event: once}` object.
         const events = eventsApi(onceMap, {}, name, callback, this.off.bind( this ));
         return this.on(events, void 0, context);
     }
 
     // Inversion-of-control versions of `once`.
-    listenToOnce(obj : Messenger, name, callback) {
+    listenToOnce(obj : Messenger, name, callback)  : this {
         // Map the event into a `{event: once}` object.
         const events = eventsApi(onceMap, {}, name, callback, this.stopListening.bind( this, obj ) );
         return this.listenTo(obj, events);
@@ -231,11 +231,11 @@ class ListeningTo {
     constructor( public obj, public objId, public id, public listeningTo ){}
 }
 
-interface ListeningToMap {
+export interface ListeningToMap {
     [ id : string ] : ListeningTo
 }
 
-interface Listeners {
+export interface Listeners {
     [ id : string ] : Messenger
 }
 
