@@ -36,6 +36,7 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     listenToOnce : (obj : Messenger, name, callback) => this 
     trigger      : (name : string, a?, b?, c? ) => this
     dispose() : void {}
+    initialize() : void{}
 
     /** @private */
     _events : eventsApi.EventsSubscription = void 0;

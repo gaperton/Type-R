@@ -71,9 +71,12 @@ export abstract class Messenger implements Mixins.Mixable {
         return Mixins.Mixable.define.call( this, spec, staticProps );
     }
 
-    constructor( cid? : string ){
-        this.cid = cid || uniqueId();
+    constructor(){
+        this.cid = uniqueId();
+        this.initialize.apply( this, arguments );
     }
+
+    initialize() : void {}
     
     // Bind an event to a `callback` function. Passing `"all"` will bind
     // the callback to all events fired.
@@ -201,7 +204,7 @@ const slice = Array.prototype.slice;
 /**
  * Backbone 1.2 API conformant Events mixin.
  */
-export const Events : Messenger = <Messenger> omit( Messenger.prototype, 'constructor' );
+export const Events : Messenger = <Messenger> omit( Messenger.prototype, 'constructor', 'initialize' );
 
 // Iterates over the standard `event, callback` (as well as the fancy multiple
 // space-separated events `"change blur", callback` and jQuery-style event

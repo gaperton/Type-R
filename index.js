@@ -597,11 +597,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return 'l' + _idCount++;
 	}
 	var Messenger = (function () {
-	    function Messenger(cid) {
+	    function Messenger() {
 	        this._events = void 0;
 	        this._listeners = void 0;
 	        this._listeningTo = void 0;
-	        this.cid = cid || uniqueId();
+	        this.cid = uniqueId();
+	        this.initialize.apply(this, arguments);
 	    }
 	    Messenger.define = function (protoProps, staticProps) {
 	        var spec = omit(protoProps || {}, 'localEvents');
@@ -616,6 +617,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return Mixins.Mixable.define.call(this, spec, staticProps);
 	    };
+	    Messenger.prototype.initialize = function () { };
 	    Messenger.prototype.on = function (name, callback, context) {
 	        return internalOn(this, name, callback, context);
 	    };
@@ -701,7 +703,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}());
 	exports.Messenger = Messenger;
 	var slice = Array.prototype.slice;
-	exports.Events = omit(Messenger.prototype, 'constructor');
+	exports.Events = omit(Messenger.prototype, 'constructor', 'initialize');
 	function eventsApi(iteratee, events, name, callback, opts) {
 	    var i = 0, names;
 	    if (name && typeof name === 'object') {
@@ -1370,6 +1372,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this._ownerKey = ownerKey;
 	    }
 	    Transactional.prototype.dispose = function () { };
+	    Transactional.prototype.initialize = function () { };
 	    Transactional.prototype.transaction = function (fun, options) {
 	        if (options === void 0) { options = {}; }
 	        var isRoot = exports.transactionApi.begin(this);

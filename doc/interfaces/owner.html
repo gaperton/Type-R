@@ -139,6 +139,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="owner.html#get" class="tsd-kind-icon">get</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite tsd-is-external"><a href="owner.html#getowner" class="tsd-kind-icon">get<wbr>Owner</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite tsd-is-external"><a href="owner.html#getstore" class="tsd-kind-icon">get<wbr>Store</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="owner.html#initialize" class="tsd-kind-icon">initialize</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="owner.html#listento" class="tsd-kind-icon">listen<wbr>To</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="owner.html#listentoonce" class="tsd-kind-icon">listen<wbr>ToOnce</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="owner.html#off" class="tsd-kind-icon">off</a></li>
@@ -158,7 +159,7 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Owner<span class="tsd-signature-symbol">(</span>cid<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="owner.html" class="tsd-signature-type">Owner</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Owner<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="owner.html" class="tsd-signature-type">Owner</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -168,12 +169,6 @@
 									<li>Defined in object-plus/messenger.ts:72</li>
 								</ul>
 							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> cid: <span class="tsd-signature-type">string</span></h5>
-								</li>
-							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="owner.html" class="tsd-signature-type">Owner</a></h4>
 						</li>
 					</ul>
@@ -459,7 +454,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in transactions.ts:263</li>
+									<li>Defined in transactions.ts:264</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -486,7 +481,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="../classes/messenger.html">Messenger</a>.<a href="../classes/messenger.html#dispose">dispose</a></p>
 								<ul>
-									<li>Defined in object-plus/messenger.ts:193</li>
+									<li>Defined in object-plus/messenger.ts:196</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -528,7 +523,7 @@
 							<aside class="tsd-sources">
 								<p>Overwrites <a href="traversable.html">Traversable</a>.<a href="traversable.html#getowner">getOwner</a></p>
 								<ul>
-									<li>Defined in transactions.ts:264</li>
+									<li>Defined in transactions.ts:265</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="owner.html" class="tsd-signature-type">Owner</a></h4>
@@ -546,10 +541,28 @@
 							<aside class="tsd-sources">
 								<p>Overwrites <a href="traversable.html">Traversable</a>.<a href="traversable.html#getstore">getStore</a></p>
 								<ul>
-									<li>Defined in transactions.ts:265</li>
+									<li>Defined in transactions.ts:266</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../classes/transactional.html" class="tsd-signature-type">Transactional</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
+					<a name="initialize" class="tsd-anchor"></a>
+					<h3>initialize</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
+						<li class="tsd-signature tsd-kind-icon">initialize<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="../classes/messenger.html">Messenger</a>.<a href="../classes/messenger.html#initialize">initialize</a></p>
+								<ul>
+									<li>Defined in object-plus/messenger.ts:79</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -564,7 +577,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="../classes/messenger.html">Messenger</a>.<a href="../classes/messenger.html#listento">listenTo</a></p>
 								<ul>
-									<li>Defined in object-plus/messenger.ts:122</li>
+									<li>Defined in object-plus/messenger.ts:125</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -593,7 +606,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="../classes/messenger.html">Messenger</a>.<a href="../classes/messenger.html#listentoonce">listenToOnce</a></p>
 								<ul>
-									<li>Defined in object-plus/messenger.ts:153</li>
+									<li>Defined in object-plus/messenger.ts:156</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -622,7 +635,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="../classes/messenger.html">Messenger</a>.<a href="../classes/messenger.html#off">off</a></p>
 								<ul>
-									<li>Defined in object-plus/messenger.ts:87</li>
+									<li>Defined in object-plus/messenger.ts:90</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -651,7 +664,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="../classes/messenger.html">Messenger</a>.<a href="../classes/messenger.html#on">on</a></p>
 								<ul>
-									<li>Defined in object-plus/messenger.ts:80</li>
+									<li>Defined in object-plus/messenger.ts:83</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -680,7 +693,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="../classes/messenger.html">Messenger</a>.<a href="../classes/messenger.html#once">once</a></p>
 								<ul>
-									<li>Defined in object-plus/messenger.ts:146</li>
+									<li>Defined in object-plus/messenger.ts:149</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -709,7 +722,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="../classes/messenger.html">Messenger</a>.<a href="../classes/messenger.html#stoplistening">stopListening</a></p>
 								<ul>
-									<li>Defined in object-plus/messenger.ts:99</li>
+									<li>Defined in object-plus/messenger.ts:102</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -738,7 +751,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="../classes/messenger.html">Messenger</a>.<a href="../classes/messenger.html#trigger">trigger</a></p>
 								<ul>
-									<li>Defined in object-plus/messenger.ts:163</li>
+									<li>Defined in object-plus/messenger.ts:166</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -855,6 +868,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-overwrite tsd-is-external">
 								<a href="owner.html#getstore" class="tsd-kind-icon">get<wbr>Store</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
+								<a href="owner.html#initialize" class="tsd-kind-icon">initialize</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
 								<a href="owner.html#listento" class="tsd-kind-icon">listen<wbr>To</a>
