@@ -51,4 +51,4 @@ Because we can.
 - experimental NestedTypes features not supported:
     - has.proxy - too complex and was never needed.
 - Types of models and collection default valus are now inferred to shared types.
-- Symbolic references - `store.x` syntax is deprecated, use `~x` instead.  
+- Symbolic references - `store.x` syntax is deprecated, use `~x` instead.
