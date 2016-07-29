@@ -1,11 +1,11 @@
 import Mixins = require( './mixins' )
-import Tools = require( './tools' );
-import EventMaps = require( './events-api' );
+import tools = require( './tools' );
+import _eventsApi = require( './events-api' );
 import { EventMap, EventsDefinition } from './events-api'
 
-const { mixins, define, extendable } = Mixins;
-const { omit, once, isEmpty, keys } = Tools;
-const { EventHandler, trigger0, trigger1, trigger2, trigger3 } = EventMaps;
+const { mixins, define, extendable } = Mixins,
+      { omit, once, isEmpty, keys } = tools,
+      { EventHandler, trigger0, trigger1, trigger2, trigger3 } = _eventsApi;
 
 // Regular expression used to split event strings.
 const eventSplitter = /\s+/;
@@ -32,14 +32,14 @@ export interface MessengerDefinition extends Mixins.ClassDefinition {
 export abstract class Messenger implements Mixins.Mixable {
     // Define extendable mixin static properties.
     static create : ( a : any, b? : any, c? : any ) => Messenger
-    static mixins : ( ...mixins : ( Mixins.Constructor<any> | {} )[] ) => typeof Messenger
-    static mixinRules : ( mixinRules : Mixins.MixinRules ) => typeof Messenger
-    static mixTo : ( ...args : Mixins.Constructor<any>[] ) => typeof Messenger
-    static extend : (spec? : MessengerDefinition, statics? : {} ) => typeof Messenger
-    static predefine : () => typeof Messenger
+    static mixins : ( ...mixins : ( Mixins.Constructor<any> | {} )[] ) => Mixins.MixableConstructor< Messenger >
+    static mixinRules : ( mixinRules : Mixins.MixinRules ) => Mixins.MixableConstructor< Messenger >
+    static mixTo : ( ...args : Mixins.Constructor<any>[] ) => Mixins.MixableConstructor< Messenger >
+    static extend : (spec? : MessengerDefinition, statics? : {} ) => Mixins.MixableConstructor< Messenger >
+    static predefine : () => Mixins.MixableConstructor< Messenger >
 
     /** @private */ 
-    _events : EventMaps.EventsSubscription = void 0;
+    _events : _eventsApi.EventsSubscription = void 0;
 
     /** @private */
     _listeners : Listeners = void 0
@@ -52,7 +52,7 @@ export abstract class Messenger implements Mixins.Mixable {
 
     // Prototype-only property to manage automatic local events subscription.
     /** @private */
-    _localEvents : EventMaps.EventMap
+    _localEvents : _eventsApi.EventMap
 
     /** @private */
     static define( protoProps? : MessengerDefinition , staticProps? ) : typeof Messenger {
@@ -253,7 +253,7 @@ function internalOn(obj : Messenger, name, callback, context, listening? ) : Mes
 };
 
 // The reducing API that adds a callback to the `events` object.
-function onApi(events : EventMaps.EventsSubscription, name : string, callback : Function, options) : EventMaps.EventsSubscription {
+function onApi(events : _eventsApi.EventsSubscription, name : string, callback : Function, options) : _eventsApi.EventsSubscription {
     if (callback) {
         const handlers = events[name],
               toAdd = [ options.clone( callback ) ];
@@ -269,7 +269,7 @@ class OffOptions {
 }
 
 // The reducing API that removes a callback from the `events` object.
-function offApi(events : EventMaps.EventsSubscription, name, callback, options : OffOptions ) {
+function offApi(events : _eventsApi.EventsSubscription, name, callback, options : OffOptions ) {
     if (!events) return;
 
     let i = 0, listening;
@@ -327,7 +327,7 @@ function offApi(events : EventMaps.EventsSubscription, name, callback, options :
 // `offer` unbinds the `onceWrapper` after it has been called.
 function onceMap(map, name, callback, offer) {
     if (callback) {
-        const _once : EventMaps.Callback = map[name] = once(function() {
+        const _once : _eventsApi.Callback = map[name] = once(function() {
             offer(name, _once);
             callback.apply(this, arguments);
         });
@@ -336,7 +336,7 @@ function onceMap(map, name, callback, offer) {
     return map;
 };
 
-function _fireEventAll( events : EventMaps.EventHandler[], a ) : void {
+function _fireEventAll( events : _eventsApi.EventHandler[], a ) : void {
     for( let ev of events )
         ev.callback.call( ev.ctx, a );
 }

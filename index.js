@@ -58,23 +58,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	function __export(m) {
 	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 	}
-	var tools = __webpack_require__(1);
-	exports.tools = tools;
-	var record_1 = __webpack_require__(6);
-	var record_2 = __webpack_require__(6);
+	__export(__webpack_require__(1));
+	__export(__webpack_require__(6));
+	__export(__webpack_require__(21));
+	__export(__webpack_require__(10));
+	var _1 = __webpack_require__(1);
+	exports.on = _1.Events.on, exports.off = _1.Events.off, exports.trigger = _1.Events.trigger, exports.once = _1.Events.once, exports.listenTo = _1.Events.listenTo, exports.stopListening = _1.Events.stopListening, exports.listenToOnce = _1.Events.listenToOnce;
+	var record_2 = __webpack_require__(10);
 	exports.Model = record_2.Record;
-	var events_1 = __webpack_require__(4);
-	exports.on = events_1.Events.on, exports.off = events_1.Events.off, exports.trigger = events_1.Events.trigger, exports.once = events_1.Events.once, exports.listenTo = events_1.Events.listenTo, exports.stopListening = events_1.Events.stopListening, exports.listenToOnce = events_1.Events.listenToOnce;
-	var collection_1 = __webpack_require__(16);
-	exports.Collection = collection_1.Collection;
-	__export(__webpack_require__(3));
-	__export(__webpack_require__(4));
-	var mixins_2 = __webpack_require__(3);
-	exports.Class = mixins_2.Mixable;
-	var relations_1 = __webpack_require__(21);
-	exports.Store = relations_1.Store;
+	var _2 = __webpack_require__(1);
+	exports.Class = _2.Mixable;
+	var record_3 = __webpack_require__(10);
 	function value(x) {
-	    return new record_1.ChainableAttributeSpec({ value: x });
+	    return new record_3.ChainableAttributeSpec({ value: x });
 	}
 	exports.value = value;
 	function transaction(method) {
@@ -102,9 +98,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	function __export(m) {
 	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 	}
-	__export(__webpack_require__(2));
+	var tools = __webpack_require__(2);
+	exports.tools = tools;
 	__export(__webpack_require__(3));
 	__export(__webpack_require__(4));
+	var eventsApi = __webpack_require__(5);
+	exports.eventsApi = eventsApi;
 
 
 /***/ },
@@ -253,33 +252,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return dest;
 	}
 	exports.fastDefaults = fastDefaults;
-	function forAllArgs(fun) {
-	    return function (dest) {
-	        var sources = [];
-	        for (var _i = 1; _i < arguments.length; _i++) {
-	            sources[_i - 1] = arguments[_i];
-	        }
-	        for (var i = 0; i < sources.length; i++) {
-	            var source = sources[i];
-	            source && fun(dest, source);
-	        }
-	        return dest;
-	    };
-	}
-	exports.assign = forAllArgs(function (dest, source) {
+	function assign(dest, source) {
 	    for (var name in source) {
 	        if (source.hasOwnProperty(name)) {
 	            dest[name] = source[name];
 	        }
 	    }
-	});
-	exports.defaults = forAllArgs(function (dest, source) {
+	    if (arguments.length > 2) {
+	        for (var i = 2; i < arguments.length; i++) {
+	            var other = arguments[i];
+	            other && assign(dest, other);
+	        }
+	    }
+	    return dest;
+	}
+	exports.assign = assign;
+	function defaults(dest, source) {
 	    for (var name in source) {
 	        if (source.hasOwnProperty(name) && dest[name] === void 0) {
 	            dest[name] = source[name];
 	        }
 	    }
-	});
+	    if (arguments.length > 2) {
+	        for (var i = 2; i < arguments.length; i++) {
+	            var other = arguments[i];
+	            other && assign(dest, other);
+	        }
+	    }
+	    return dest;
+	}
+	exports.defaults = defaults;
 	function keys(o) {
 	    return o ? Object.keys(o) : [];
 	}
@@ -584,13 +586,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return c > 3 && r && Object.defineProperty(target, key, r), r;
 	};
 	var Mixins = __webpack_require__(3);
-	var Tools = __webpack_require__(2);
-	var EventMaps = __webpack_require__(5);
-	var eventmaps_1 = __webpack_require__(5);
-	exports.EventMap = eventmaps_1.EventMap;
-	var mixins = Mixins.mixins, define = Mixins.define, extendable = Mixins.extendable;
-	var omit = Tools.omit, once = Tools.once, isEmpty = Tools.isEmpty, keys = Tools.keys;
-	var EventHandler = EventMaps.EventHandler, trigger0 = EventMaps.trigger0, trigger1 = EventMaps.trigger1, trigger2 = EventMaps.trigger2, trigger3 = EventMaps.trigger3;
+	var tools = __webpack_require__(2);
+	var _eventsApi = __webpack_require__(5);
+	var events_api_1 = __webpack_require__(5);
+	exports.EventMap = events_api_1.EventMap;
+	var mixins = Mixins.mixins, define = Mixins.define, extendable = Mixins.extendable, omit = tools.omit, once = tools.once, isEmpty = tools.isEmpty, keys = tools.keys, EventHandler = _eventsApi.EventHandler, trigger0 = _eventsApi.trigger0, trigger1 = _eventsApi.trigger1, trigger2 = _eventsApi.trigger2, trigger3 = _eventsApi.trigger3;
 	var eventSplitter = /\s+/;
 	var _idCount = 0;
 	function uniqueId() {
@@ -599,14 +599,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Messenger = (function () {
 	    function Messenger(cid) {
 	        this._events = void 0;
-	        this.cid = this.cidPrefix + cid;
+	        this._listeners = void 0;
+	        this._listeningTo = void 0;
+	        this.cid = cid || uniqueId();
 	    }
 	    Messenger.define = function (protoProps, staticProps) {
 	        var spec = omit(protoProps || {}, 'localEvents');
 	        if (protoProps) {
 	            var localEvents = protoProps.localEvents, _localEvents = protoProps._localEvents;
 	            if (localEvents || _localEvents) {
-	                var eventsMap = new eventmaps_1.EventMap(this.prototype._localEvents);
+	                var eventsMap = new events_api_1.EventMap(this.prototype._localEvents);
 	                localEvents && eventsMap.addEventsMap(localEvents);
 	                _localEvents && eventsMap.merge(_localEvents);
 	                spec._localEvents = eventsMap;
@@ -692,23 +694,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.stopListening();
 	        this.off();
 	    };
-	    Messenger.trigger0 = EventMaps.trigger0;
-	    Messenger.trigger1 = EventMaps.trigger1;
-	    Messenger.trigger2 = EventMaps.trigger2;
-	    Messenger.trigger3 = EventMaps.trigger3;
-	    Messenger.on = EventMaps.on;
-	    Messenger.off = EventMaps.off;
 	    Messenger = __decorate([
-	        define({
-	            cidPrefix: 'l'
-	        }),
 	        extendable
 	    ], Messenger);
 	    return Messenger;
 	}());
 	exports.Messenger = Messenger;
 	var slice = Array.prototype.slice;
-	exports.Events = Messenger.prototype;
+	exports.Events = omit(Messenger.prototype, 'constructor');
 	function eventsApi(iteratee, events, name, callback, opts) {
 	    var i = 0, names;
 	    if (name && typeof name === 'object') {
@@ -1065,24 +1058,576 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var transaction_1 = __webpack_require__(7);
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var object_plus_1 = __webpack_require__(1);
+	var transactions_1 = __webpack_require__(7);
+	var record_1 = __webpack_require__(10);
+	var commons_1 = __webpack_require__(17);
+	var add_1 = __webpack_require__(18);
+	var set_1 = __webpack_require__(19);
+	var remove_1 = __webpack_require__(20);
+	var trigger2 = object_plus_1.eventsApi.trigger2, begin = transactions_1.transactionApi.begin, commit = transactions_1.transactionApi.commit, markAsDirty = transactions_1.transactionApi.markAsDirty, omit = object_plus_1.tools.omit, log = object_plus_1.tools.log, assign = object_plus_1.tools.assign, defaults = object_plus_1.tools.defaults;
+	var _count = 0;
+	var silentOptions = { silent: true };
+	var Collection = (function (_super) {
+	    __extends(Collection, _super);
+	    function Collection(records, options) {
+	        if (options === void 0) { options = {}; }
+	        _super.call(this, _count++);
+	        this.models = [];
+	        this._byId = {};
+	        this.model = options.model || this.model;
+	        this.idAttribute = this.model.prototype.idAttribute;
+	        if (options.comparator !== void 0) {
+	            this.comparator = options.comparator;
+	        }
+	        if (records) {
+	            var elements = toElements(this, records, options);
+	            set_1.emptySetTransaction(this, elements, options, true);
+	        }
+	        this.initialize.apply(this, arguments);
+	        if (this._localEvents)
+	            this._localEvents.subscribe(this, this);
+	    }
+	    Collection.prototype.createSubset = function (models, options) {
+	        var SubsetOf = this.constructor.subsetOf(this).options.type;
+	        var subset = new SubsetOf(models, options);
+	        subset.resolve(this);
+	        return subset;
+	    };
+	    Collection.predefine = function () {
+	        this._SubsetOf = null;
+	        transactions_1.Transactional.predefine();
+	        return this;
+	    };
+	    Collection.define = function (protoProps, staticProps) {
+	        var spec = omit(protoProps, 'itemEvents', 'localEvents');
+	        if (protoProps.itemEvents) {
+	            var eventsMap = new object_plus_1.EventMap(this.prototype._itemEvents);
+	            eventsMap.addEventsMap(protoProps.itemEvents);
+	            spec._itemEvents = eventsMap;
+	        }
+	        return transactions_1.Transactional.define.call(this, spec, staticProps);
+	    };
+	    Object.defineProperty(Collection.prototype, "comparator", {
+	        get: function () { return this._comparator; },
+	        set: function (x) {
+	            var _this = this;
+	            var compare;
+	            switch (typeof x) {
+	                case 'string':
+	                    this._comparator = function (a, b) {
+	                        var aa = a[x], bb = b[x];
+	                        if (aa === bb)
+	                            return 0;
+	                        return aa < bb ? -1 : +1;
+	                    };
+	                    break;
+	                case 'function':
+	                    if (x.length === 1) {
+	                        this._comparator = function (a, b) {
+	                            var aa = x.call(_this, a), bb = x.call(_this, b);
+	                            if (aa === bb)
+	                                return 0;
+	                            return aa < bb ? -1 : +1;
+	                        };
+	                    }
+	                    else {
+	                        this._comparator = function (a, b) { return x.call(_this, a, b); };
+	                    }
+	                    break;
+	                default:
+	                    this._comparator = null;
+	            }
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Collection.prototype.getStore = function () {
+	        return this._store || (this._store = this._owner ? this._owner.getStore() : this._defaultStore);
+	    };
+	    Collection.prototype._onChildrenChange = function (record, options) {
+	        if (options === void 0) { options = {}; }
+	        var isRoot = begin(this), idAttribute = this.idAttribute;
+	        if (record.hasChanged(idAttribute)) {
+	            var _byId = this._byId;
+	            delete _byId[record.previous(idAttribute)];
+	            var id = record.id;
+	            id == null || (_byId[id] = record);
+	        }
+	        if (markAsDirty(this, options)) {
+	            trigger2(this, 'change', record, options);
+	        }
+	        isRoot && commit(this);
+	    };
+	    Collection.prototype.get = function (objOrId) {
+	        if (objOrId == null)
+	            return;
+	        if (typeof objOrId === 'object') {
+	            var id = objOrId[this.idAttribute];
+	            return (id !== void 0 && this._byId[id]) || this._byId[objOrId.cid];
+	        }
+	        else {
+	            return this._byId[objOrId];
+	        }
+	    };
+	    Collection.prototype.each = function (iteratee, context) {
+	        var fun = arguments.length === 2 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, models = this.models;
+	        for (var i = 0; i < models.length; i++) {
+	            fun(models[i], i);
+	        }
+	    };
+	    Collection.prototype._validateNested = function (errors) {
+	        var count = 0;
+	        this.each(function (record) {
+	            var error = record.validationError;
+	            if (error) {
+	                errors[record.cid] = error;
+	                count++;
+	            }
+	        });
+	        return count;
+	    };
+	    Collection.prototype.initialize = function () { };
+	    Object.defineProperty(Collection.prototype, "length", {
+	        get: function () { return this.models.length; },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Collection.prototype.first = function () { return this.models[0]; };
+	    Collection.prototype.last = function () { return this.models[this.models.length - 1]; };
+	    Collection.prototype.at = function (a_index) {
+	        var index = a_index < 0 ? a_index + this.models.length : a_index;
+	        return this.models[index];
+	    };
+	    Collection.prototype.clone = function (owner) {
+	        var models = this.map(function (model) { return model.clone(); });
+	        return new this.constructor(models, { model: this.model, comparator: this.comparator }, owner);
+	    };
+	    Collection.prototype.toJSON = function () {
+	        return this.models.map(function (model) { return model.toJSON(); });
+	    };
+	    Collection.prototype.set = function (elements, options) {
+	        if (elements === void 0) { elements = []; }
+	        if (options === void 0) { options = {}; }
+	        if (options.add !== void 0) {
+	            log.error("Collection.set doesn't support 'add' option, behaving as if options.add === true.");
+	        }
+	        if (options.reset) {
+	            this.reset(elements, options);
+	        }
+	        else {
+	            var transaction = this._createTransaction(elements, options);
+	            transaction && transaction.commit();
+	        }
+	        return this;
+	    };
+	    Collection.prototype.reset = function (a_elements, options) {
+	        if (options === void 0) { options = {}; }
+	        var previousModels = commons_1.dispose(this);
+	        if (a_elements) {
+	            set_1.emptySetTransaction(this, toElements(this, a_elements, options), options, true);
+	        }
+	        options.silent || trigger2(this, 'reset', this, defaults({ previousModels: previousModels }, options));
+	        return this.models;
+	    };
+	    Collection.prototype.add = function (a_elements, options) {
+	        if (options === void 0) { options = {}; }
+	        var elements = toElements(this, a_elements, options), transaction = this.models.length ?
+	            add_1.addTransaction(this, elements, options) :
+	            set_1.emptySetTransaction(this, elements, options);
+	        if (transaction) {
+	            transaction.commit();
+	            return transaction.added;
+	        }
+	    };
+	    Collection.prototype.remove = function (recordsOrIds, options) {
+	        if (options === void 0) { options = {}; }
+	        if (recordsOrIds) {
+	            return Array.isArray(recordsOrIds) ?
+	                remove_1.removeMany(this, recordsOrIds, options) :
+	                remove_1.removeOne(this, recordsOrIds, options);
+	        }
+	        return [];
+	    };
+	    Collection.prototype._createTransaction = function (a_elements, options) {
+	        if (options === void 0) { options = {}; }
+	        var elements = toElements(this, a_elements, options);
+	        if (this.models.length) {
+	            return options.remove === false ?
+	                add_1.addTransaction(this, elements, options) :
+	                set_1.setTransaction(this, elements, options);
+	        }
+	        else {
+	            return set_1.emptySetTransaction(this, elements, options);
+	        }
+	    };
+	    Collection.prototype.pluck = function (key) {
+	        return this.models.map(function (model) { return model[key]; });
+	    };
+	    Collection.prototype.sort = function (options) {
+	        if (options === void 0) { options = {}; }
+	        if (commons_1.sortElements(this, options)) {
+	            var isRoot = begin(this);
+	            if (markAsDirty(this, options)) {
+	                trigger2(this, 'sort', this, options);
+	            }
+	            isRoot && commit(this);
+	        }
+	        return this;
+	    };
+	    Collection.prototype.push = function (model, options) {
+	        return this.add(model, assign({ at: this.length }, options));
+	    };
+	    Collection.prototype.pop = function (options) {
+	        var model = this.at(this.length - 1);
+	        this.remove(model, options);
+	        return model;
+	    };
+	    Collection.prototype.unshift = function (model, options) {
+	        return this.add(model, assign({ at: 0 }, options));
+	    };
+	    Collection.prototype.shift = function (options) {
+	        var model = this.at(0);
+	        this.remove(model, options);
+	        return model;
+	    };
+	    Collection.prototype.slice = function () {
+	        return slice.apply(this.models, arguments);
+	    };
+	    Collection.prototype.indexOf = function (modelOrId) {
+	        var record = this.get(modelOrId);
+	        return this.models.indexOf(record);
+	    };
+	    Collection.prototype.modelId = function (attrs) {
+	        return attrs[this.model.prototype.idAttribute];
+	    };
+	    Collection.prototype.toggle = function (model, a_next) {
+	        var prev = Boolean(this.get(model)), next = a_next === void 0 ? !prev : Boolean(a_next);
+	        if (prev !== next) {
+	            if (prev) {
+	                this.remove(model);
+	            }
+	            else {
+	                this.add(model);
+	            }
+	        }
+	        return next;
+	    };
+	    Collection._attribute = record_1.TransactionalType;
+	    Collection = __decorate([
+	        object_plus_1.define({
+	            cidPrefix: 'c',
+	            model: record_1.Record,
+	            _changeEventName: 'changes'
+	        })
+	    ], Collection);
+	    return Collection;
+	}(transactions_1.Transactional));
+	exports.Collection = Collection;
+	function toElements(collection, elements, options) {
+	    var parsed = options.parse ? collection.parse(elements) : elements;
+	    return Array.isArray(parsed) ? parsed : [parsed];
+	}
+	var slice = Array.prototype.slice;
+	record_1.Record.Collection = Collection;
+
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var object_plus_1 = __webpack_require__(1);
+	var validation_1 = __webpack_require__(8);
+	var traversable_1 = __webpack_require__(9);
+	var assign = object_plus_1.tools.assign, trigger2 = object_plus_1.eventsApi.trigger2, trigger3 = object_plus_1.eventsApi.trigger3;
+	var Transactional = (function () {
+	    function Transactional(cid, owner, ownerKey) {
+	        this._events = void 0;
+	        this._changeToken = {};
+	        this._transaction = false;
+	        this._isDirty = null;
+	        this._validationError = void 0;
+	        this.cid = this.cidPrefix + cid;
+	        this._owner = owner;
+	        this._ownerKey = ownerKey;
+	    }
+	    Transactional.prototype.dispose = function () { };
+	    Transactional.prototype.transaction = function (fun, options) {
+	        if (options === void 0) { options = {}; }
+	        var isRoot = exports.transactionApi.begin(this);
+	        fun.call(this, this);
+	        isRoot && exports.transactionApi.commit(this);
+	    };
+	    Transactional.prototype.updateEach = function (iteratee, options) {
+	        var isRoot = exports.transactionApi.begin(this);
+	        this.each(iteratee);
+	        isRoot && exports.transactionApi.commit(this);
+	    };
+	    Transactional.prototype.set = function (values, options) {
+	        if (values) {
+	            var transaction = this._createTransaction(values, options);
+	            transaction && transaction.commit();
+	        }
+	        return this;
+	    };
+	    Transactional.prototype.parse = function (data) { return data; };
+	    Transactional.prototype.deepGet = function (reference) {
+	        return traversable_1.resolveReference(this, reference, function (object, key) { return object.get(key); });
+	    };
+	    Transactional.prototype.getOwner = function () {
+	        return this._owner;
+	    };
+	    Transactional.prototype.getStore = function () {
+	        var _owner = this._owner;
+	        return _owner ? _owner.getStore() : this._defaultStore;
+	    };
+	    Transactional.prototype.map = function (iteratee, context) {
+	        var arr = [], fun = arguments.length === 2 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee;
+	        this.each(function (val, key) {
+	            var result = fun(val, key);
+	            if (result !== void 0)
+	                arr.push(result);
+	        });
+	        return arr;
+	    };
+	    Transactional.prototype.mapObject = function (iteratee, context) {
+	        var obj = {}, fun = arguments.length === 2 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee;
+	        this.each(function (val, key) {
+	            var result = iteratee(val, key);
+	            if (result !== void 0)
+	                obj[key] = result;
+	        });
+	        return obj;
+	    };
+	    Transactional.prototype.keys = function () {
+	        return this.map(function (value, key) {
+	            if (value !== void 0)
+	                return key;
+	        });
+	    };
+	    Transactional.prototype.values = function () {
+	        return this.map(function (value) { return value; });
+	    };
+	    Object.defineProperty(Transactional.prototype, "validationError", {
+	        get: function () {
+	            var error = this._validationError || (this._validationError = new validation_1.ValidationError(this));
+	            return error.length ? error : null;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Transactional.prototype._invalidate = function (options) {
+	        var error;
+	        if (options.validate && (error = this.validationError)) {
+	            this.trigger('invalid', this, error, assign({ validationError: error }, options));
+	            return true;
+	        }
+	    };
+	    Transactional.prototype.validate = function (obj) { };
+	    Transactional.prototype.getValidationError = function (key) {
+	        var error = this.validationError;
+	        return (key ? error && error.nested[key] : error) || null;
+	    };
+	    Transactional.prototype.deepValidationError = function (reference) {
+	        return traversable_1.resolveReference(this, reference, function (object, key) { return object.getValidationError(key); });
+	    };
+	    Transactional.prototype.eachValidationError = function (iteratee) {
+	        var validationError = this.validationError;
+	        validationError && validationError.eachError(iteratee, this);
+	    };
+	    Transactional.prototype.isValid = function (key) {
+	        return !this.getValidationError(key);
+	    };
+	    Transactional = __decorate([
+	        object_plus_1.mixins(object_plus_1.Messenger),
+	        object_plus_1.extendable
+	    ], Transactional);
+	    return Transactional;
+	}());
+	exports.Transactional = Transactional;
+	Transactional.prototype.dispose = object_plus_1.Messenger.prototype.dispose;
+	exports.transactionApi = {
+	    begin: function (object) {
+	        return object._transaction ? false : (object._transaction = true);
+	    },
+	    markAsDirty: function (object, options) {
+	        var dirty = !options.silent;
+	        if (dirty)
+	            object._isDirty = options;
+	        object._changeToken = {};
+	        object._validationError = void 0;
+	        return dirty;
+	    },
+	    commit: function (object, isNested) {
+	        var originalOptions = object._isDirty;
+	        if (originalOptions) {
+	            while (object._isDirty) {
+	                var options = object._isDirty;
+	                object._isDirty = null;
+	                trigger2(object, object._changeEventName, object, options);
+	            }
+	            object._transaction = false;
+	            var _owner = object._owner;
+	            if (_owner && !isNested) {
+	                _owner._onChildrenChange(object, originalOptions);
+	            }
+	        }
+	        else {
+	            object._isDirty = null;
+	            object._transaction = false;
+	        }
+	    },
+	    aquire: function (owner, child, key) {
+	        if (!child._owner) {
+	            child._owner = owner;
+	            child._ownerKey = key;
+	            return true;
+	        }
+	        return false;
+	    },
+	    free: function (owner, child) {
+	        if (owner === child._owner) {
+	            child._owner = void 0;
+	            child._ownerKey = void 0;
+	        }
+	    }
+	};
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var ValidationError = (function () {
+	    function ValidationError(obj) {
+	        this.length = obj._validateNested(this.nested = {});
+	        if (this.error = obj.validate(obj)) {
+	            this.length++;
+	        }
+	    }
+	    ValidationError.prototype.each = function (iteratee) {
+	        var _a = this, error = _a.error, nested = _a.nested;
+	        if (error)
+	            iteratee(error, null);
+	        for (var key in nested) {
+	            iteratee(nested[key], key);
+	        }
+	    };
+	    ValidationError.prototype.eachError = function (iteratee, object) {
+	        this.each(function (value, key) {
+	            if (value instanceof ValidationError) {
+	                value._traverse(iteratee, object.get(key));
+	            }
+	            else {
+	                iteratee(value, key, object);
+	            }
+	        });
+	    };
+	    return ValidationError;
+	}());
+	exports.ValidationError = ValidationError;
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var referenceMask = /\~|\^|([^.]+)/g;
+	var CompiledReference = (function () {
+	    function CompiledReference(reference, splitTail) {
+	        if (splitTail === void 0) { splitTail = false; }
+	        var path = reference
+	            .match(referenceMask)
+	            .map(function (key) { return key === '~' ? 'getStore()' : (key === '^' ? 'getOwner()' : key); });
+	        this.tail = splitTail && path.pop();
+	        this.local = !path.length;
+	        path.unshift('self');
+	        this.resolve = new Function('self', "return " + path.join('.') + ";");
+	    }
+	    return CompiledReference;
+	}());
+	exports.CompiledReference = CompiledReference;
+	function resolveReference(root, reference, action) {
+	    var path = reference.match(referenceMask), skip = path.length - 1;
+	    var self = root;
+	    for (var i = 0; i < skip; i++) {
+	        var key = path[i];
+	        switch (key) {
+	            case '~':
+	                self = self.getStore();
+	                break;
+	            case '^':
+	                self = self.getOwner();
+	                break;
+	            default: self = self.get(key);
+	        }
+	        if (!self)
+	            return;
+	    }
+	    action(self, path[skip]);
+	    return self;
+	}
+	exports.resolveReference = resolveReference;
+	function referenceToObject(reference, value) {
+	    var path = reference.split('.'), root = {}, last = path.length - 1;
+	    var current = root;
+	    for (var i = 0; i < last; i++) {
+	        current = current[path[i]] = {};
+	    }
+	    current[path[last]] = value;
+	    return root;
+	}
+	exports.referenceToObject = referenceToObject;
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	function __export(m) {
+	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+	}
+	var transaction_1 = __webpack_require__(11);
 	exports.Record = transaction_1.Record;
 	var object_plus_1 = __webpack_require__(1);
-	var define_1 = __webpack_require__(11);
-	var typespec_1 = __webpack_require__(13);
+	var define_1 = __webpack_require__(12);
+	var typespec_1 = __webpack_require__(14);
 	exports.ChainableAttributeSpec = typespec_1.ChainableAttributeSpec;
-	var nestedTypes_1 = __webpack_require__(14);
+	var nestedTypes_1 = __webpack_require__(15);
 	exports.TransactionalType = nestedTypes_1.TransactionalType;
-	__webpack_require__(15);
+	__webpack_require__(16);
+	__export(__webpack_require__(13));
+	var assign = object_plus_1.tools.assign, defaults = object_plus_1.tools.defaults, omit = object_plus_1.tools.omit, getBaseClass = object_plus_1.tools.getBaseClass;
 	transaction_1.Record.define = function (protoProps, staticProps) {
-	    var BaseConstructor = object_plus_1.getBaseClass(this), baseProto = BaseConstructor.prototype;
+	    var BaseConstructor = getBaseClass(this), baseProto = BaseConstructor.prototype;
 	    if (protoProps) {
 	        var definition = define_1.compile(getAttributes(protoProps), baseProto._attributes);
 	        if (protoProps.properties === false) {
 	            definition.properties = {};
 	        }
-	        object_plus_1.assign(definition.properties, protoProps.properties || {});
-	        object_plus_1.defaults(definition, object_plus_1.omit(protoProps, 'attributes', 'collection'));
+	        assign(definition.properties, protoProps.properties || {});
+	        defaults(definition, omit(protoProps, 'attributes', 'collection'));
 	        object_plus_1.Mixable.define.call(this, definition, staticProps);
 	        defineCollection.call(this, protoProps && protoProps.collection);
 	    }
@@ -1090,7 +1635,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	transaction_1.Record.predefine = function () {
 	    object_plus_1.Mixable.predefine.call(this);
-	    this.Collection = object_plus_1.getBaseClass(this).Collection.extend();
+	    this.Collection = getBaseClass(this).Collection.extend();
 	    this.Collection.prototype.model = this;
 	    return this;
 	};
@@ -1104,7 +1649,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return definition;
 	}
 	function defineCollection(collection) {
-	    var BaseCollection = object_plus_1.getBaseClass(this).Collection;
+	    var BaseCollection = getBaseClass(this).Collection;
 	    var CollectionConstructor;
 	    if (typeof collection === 'function') {
 	        CollectionConstructor = collection;
@@ -1120,7 +1665,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 7 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1136,8 +1681,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return c > 3 && r && Object.defineProperty(target, key, r), r;
 	};
 	var object_plus_1 = __webpack_require__(1);
-	var transactions_1 = __webpack_require__(8);
-	var trigger3 = transactions_1.Transactional.trigger3;
+	var transactions_1 = __webpack_require__(7);
+	var trigger3 = object_plus_1.eventsApi.trigger3, assign = object_plus_1.tools.assign, isEmpty = object_plus_1.tools.isEmpty, log = object_plus_1.tools.log, free = transactions_1.transactionApi.free, aquire = transactions_1.transactionApi.aquire, commit = transactions_1.transactionApi.commit, _begin = transactions_1.transactionApi.begin, _markAsDirty = transactions_1.transactionApi.markAsDirty;
 	var _cidCounter = 0;
 	var Record = (function (_super) {
 	    __extends(Record, _super);
@@ -1185,7 +1730,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	    Record.prototype.changedAttributes = function (diff) {
 	        if (!diff)
-	            return this.hasChanged() ? object_plus_1.assign({}, this.changed) : false;
+	            return this.hasChanged() ? assign({}, this.changed) : false;
 	        var val, changed = false, old = this._transaction ? this._previousAttributes : this.attributes, attrSpecs = this._attributes;
 	        for (var attr in diff) {
 	            if (!attrSpecs[attr].isChanged(old[attr], (val = diff[attr])))
@@ -1200,7 +1745,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return false;
 	        return key ?
 	            this._attributes[key].isChanged(this.attributes[key], _previousAttributes[key]) :
-	            !object_plus_1.isEmpty(this.changed);
+	            !isEmpty(this.changed);
 	    };
 	    Record.prototype.previous = function (key) {
 	        if (key) {
@@ -1245,7 +1790,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                iteratee(attrs[name_1], name_1, spec);
 	            }
 	            else {
-	                object_plus_1.log.warn('[Unknown Attribute]', this, 'Unknown record attribute "' + name_1 + '" is ignored:', attrs);
+	                log.warn('[Unknown Attribute]', this, 'Unknown record attribute "' + name_1 + '" is ignored:', attrs);
 	            }
 	        }
 	    };
@@ -1313,7 +1858,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (options === void 0) { options = {}; }
 	        var isRoot = begin(this);
 	        fun.call(this, this);
-	        isRoot && transactions_1.commit(this);
+	        isRoot && commit(this);
 	    };
 	    Record.prototype._createTransaction = function (a_values, options) {
 	        var _this = this;
@@ -1339,12 +1884,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            });
 	        }
 	        else {
-	            object_plus_1.log.error('[Type Error]', this, 'Record update rejected (', values, '). Incompatible type.');
+	            log.error('[Type Error]', this, 'Record update rejected (', values, '). Incompatible type.');
 	        }
 	        if ((nested.length || changes.length) && markAsDirty(this, options)) {
 	            return new RecordTransaction(this, isRoot, nested, changes);
 	        }
-	        isRoot && transactions_1.commit(this);
+	        isRoot && commit(this);
 	    };
 	    Record.prototype._onChildrenChange = function (child, options) {
 	        this.forceAttributeChange(child._ownerKey, options);
@@ -1355,7 +1900,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (markAsDirty(this, options)) {
 	            trigger3(this, 'change:' + key, this, this.attributes[key], options);
 	        }
-	        isRoot && transactions_1.commit(this);
+	        isRoot && commit(this);
 	    };
 	    Object.defineProperty(Record.prototype, "collection", {
 	        get: function () {
@@ -1376,6 +1921,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Record = __decorate([
 	        object_plus_1.define({
 	            cidPrefix: 'm',
+	            _changeEventName: 'change',
 	            idAttribute: 'id',
 	            _keys: ['id']
 	        })
@@ -1385,7 +1931,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.Record = Record;
 	;
 	function begin(record) {
-	    if (transactions_1.begin(record)) {
+	    if (_begin(record)) {
 	        record._previousAttributes = new record.Attributes(record.attributes);
 	        record._changedAttributes = null;
 	        return true;
@@ -1396,7 +1942,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (record._changedAttributes) {
 	        record._changedAttributes = null;
 	    }
-	    return transactions_1.markAsDirty(record, options);
+	    return _markAsDirty(record, options);
 	}
 	function cloneAttributes(record, a_attributes) {
 	    var attributes = new record.Attributes(a_attributes);
@@ -1424,7 +1970,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            trigger3(record, 'change:' + name, record, next, options);
 	        }
 	    }
-	    isRoot && transactions_1.commit(record);
+	    isRoot && commit(record);
 	}
 	exports.setAttribute = setAttribute;
 	var RecordTransaction = (function () {
@@ -1445,290 +1991,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var key = changes_1[_b];
 	            trigger3(object, 'change:' + key, object, attributes[key], _isDirty);
 	        }
-	        this.isRoot && transactions_1.commit(object, isNested);
+	        this.isRoot && commit(object, isNested);
 	    };
 	    return RecordTransaction;
 	}());
 
 
 /***/ },
-/* 8 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-	    return c > 3 && r && Object.defineProperty(target, key, r), r;
-	};
+	var attribute_1 = __webpack_require__(13);
 	var object_plus_1 = __webpack_require__(1);
-	var validation_1 = __webpack_require__(9);
-	var traversable_1 = __webpack_require__(10);
-	var trigger2 = object_plus_1.Messenger.trigger2, trigger3 = object_plus_1.Messenger.trigger3;
-	var Transactional = (function (_super) {
-	    __extends(Transactional, _super);
-	    function Transactional(cid, owner, ownerKey) {
-	        _super.call(this, cid);
-	        this._changeToken = {};
-	        this._transaction = false;
-	        this._isDirty = null;
-	        this._validationError = void 0;
-	        this._owner = owner;
-	        this._ownerKey = ownerKey;
-	    }
-	    Transactional.prototype.transaction = function (fun, options) {
-	        if (options === void 0) { options = {}; }
-	        var isRoot = begin(this);
-	        fun.call(this, this);
-	        isRoot && commit(this);
-	    };
-	    Transactional.prototype.updateEach = function (iteratee, options) {
-	        var isRoot = begin(this);
-	        this.each(iteratee);
-	        isRoot && commit(this);
-	    };
-	    Transactional.prototype.set = function (values, options) {
-	        if (values) {
-	            var transaction = this._createTransaction(values, options);
-	            transaction && transaction.commit();
-	        }
-	        return this;
-	    };
-	    Transactional.prototype.parse = function (data) { return data; };
-	    Transactional.prototype.deepGet = function (reference) {
-	        return traversable_1.resolveReference(this, reference, function (object, key) { return object.get(key); });
-	    };
-	    Transactional.prototype.getOwner = function () {
-	        return this._owner;
-	    };
-	    Transactional.prototype.getStore = function () {
-	        var _owner = this._owner;
-	        return _owner ? _owner.getStore() : this._defaultStore;
-	    };
-	    Transactional.prototype.map = function (iteratee, context) {
-	        var arr = [], fun = arguments.length === 2 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee;
-	        this.each(function (val, key) {
-	            var result = fun(val, key);
-	            if (result !== void 0)
-	                arr.push(result);
-	        });
-	        return arr;
-	    };
-	    Transactional.prototype.mapObject = function (iteratee, context) {
-	        var obj = {}, fun = arguments.length === 2 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee;
-	        this.each(function (val, key) {
-	            var result = iteratee(val, key);
-	            if (result !== void 0)
-	                obj[key] = result;
-	        });
-	        return obj;
-	    };
-	    Transactional.prototype.keys = function () {
-	        return this.map(function (value, key) {
-	            if (value !== void 0)
-	                return key;
-	        });
-	    };
-	    Transactional.prototype.values = function () {
-	        return this.map(function (value) { return value; });
-	    };
-	    Object.defineProperty(Transactional.prototype, "validationError", {
-	        get: function () {
-	            var error = this._validationError || (this._validationError = new validation_1.ValidationError(this));
-	            return error.length ? error : null;
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Transactional.prototype._invalidate = function (options) {
-	        var error;
-	        if (options.validate && (error = this.validationError)) {
-	            this.trigger('invalid', this, error, object_plus_1.assign({ validationError: error }, options));
-	            return true;
-	        }
-	    };
-	    Transactional.prototype.validate = function (obj) { };
-	    Transactional.prototype.getValidationError = function (key) {
-	        var error = this.validationError;
-	        return (key ? error && error.nested[key] : error) || null;
-	    };
-	    Transactional.prototype.deepValidationError = function (reference) {
-	        return traversable_1.resolveReference(this, reference, function (object, key) { return object.getValidationError(key); });
-	    };
-	    Transactional.prototype.eachValidationError = function (iteratee) {
-	        var validationError = this.validationError;
-	        validationError && validationError.eachError(iteratee, this);
-	    };
-	    Transactional.prototype.isValid = function (key) {
-	        return !this.getValidationError(key);
-	    };
-	    Transactional = __decorate([
-	        object_plus_1.define({
-	            _changeEventName: 'change'
-	        })
-	    ], Transactional);
-	    return Transactional;
-	}(object_plus_1.Messenger));
-	exports.Transactional = Transactional;
-	function begin(object) {
-	    return object._transaction ? false : (object._transaction = true);
-	}
-	exports.begin = begin;
-	function markAsDirty(object, options) {
-	    var dirty = !options.silent;
-	    if (dirty)
-	        object._isDirty = options;
-	    object._changeToken = {};
-	    object._validationError = void 0;
-	    return dirty;
-	}
-	exports.markAsDirty = markAsDirty;
-	function commit(object, isNested) {
-	    var originalOptions = object._isDirty;
-	    if (originalOptions) {
-	        while (object._isDirty) {
-	            var options = object._isDirty;
-	            object._isDirty = null;
-	            trigger2(object, object._changeEventName, object, options);
-	        }
-	        object._transaction = false;
-	        var _owner = object._owner;
-	        if (_owner && !isNested) {
-	            _owner._onChildrenChange(object, originalOptions);
-	        }
-	    }
-	    else {
-	        object._isDirty = null;
-	        object._transaction = false;
-	    }
-	}
-	exports.commit = commit;
-	function aquire(owner, child, key) {
-	    if (!child._owner) {
-	        child._owner = owner;
-	        child._ownerKey = key;
-	        return true;
-	    }
-	    return false;
-	}
-	exports.aquire = aquire;
-	function free(owner, child) {
-	    if (owner === child._owner) {
-	        child._owner = void 0;
-	        child._ownerKey = void 0;
-	    }
-	}
-	exports.free = free;
-
-
-/***/ },
-/* 9 */
-/***/ function(module, exports) {
-
-	"use strict";
-	var ValidationError = (function () {
-	    function ValidationError(obj) {
-	        this.length = obj._validateNested(this.nested = {});
-	        if (this.error = obj.validate(obj)) {
-	            this.length++;
-	        }
-	    }
-	    ValidationError.prototype.each = function (iteratee) {
-	        var _a = this, error = _a.error, nested = _a.nested;
-	        if (error)
-	            iteratee(error, null);
-	        for (var key in nested) {
-	            iteratee(nested[key], key);
-	        }
-	    };
-	    ValidationError.prototype.eachError = function (iteratee, object) {
-	        this.each(function (value, key) {
-	            if (value instanceof ValidationError) {
-	                value._traverse(iteratee, object.get(key));
-	            }
-	            else {
-	                iteratee(value, key, object);
-	            }
-	        });
-	    };
-	    return ValidationError;
-	}());
-	exports.ValidationError = ValidationError;
-
-
-/***/ },
-/* 10 */
-/***/ function(module, exports) {
-
-	"use strict";
-	var referenceMask = /\~|\^|([^.]+)/g;
-	var CompiledReference = (function () {
-	    function CompiledReference(reference, splitTail) {
-	        if (splitTail === void 0) { splitTail = false; }
-	        var path = reference
-	            .match(referenceMask)
-	            .map(function (key) { return key === '~' ? 'getStore()' : (key === '^' ? 'getOwner()' : key); });
-	        this.tail = splitTail && path.pop();
-	        this.local = !path.length;
-	        path.unshift('self');
-	        this.resolve = new Function('self', "return " + path.join('.') + ";");
-	    }
-	    return CompiledReference;
-	}());
-	exports.CompiledReference = CompiledReference;
-	function resolveReference(root, reference, action) {
-	    var path = reference.match(referenceMask), skip = path.length - 1;
-	    var self = root;
-	    for (var i = 0; i < skip; i++) {
-	        var key = path[i];
-	        switch (key) {
-	            case '~':
-	                self = self.getStore();
-	                break;
-	            case '^':
-	                self = self.getOwner();
-	                break;
-	            default: self = self.get(key);
-	        }
-	        if (!self)
-	            return;
-	    }
-	    action(self, path[skip]);
-	    return self;
-	}
-	exports.resolveReference = resolveReference;
-	function referenceToObject(reference, value) {
-	    var path = reference.split('.'), root = {}, last = path.length - 1;
-	    var current = root;
-	    for (var i = 0; i < last; i++) {
-	        current = current[path[i]] = {};
-	    }
-	    current[path[last]] = value;
-	    return root;
-	}
-	exports.referenceToObject = referenceToObject;
-
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var attribute_1 = __webpack_require__(12);
-	var object_plus_1 = __webpack_require__(1);
-	var typespec_1 = __webpack_require__(13);
-	var traversable_1 = __webpack_require__(10);
+	var typespec_1 = __webpack_require__(14);
+	var traversable_1 = __webpack_require__(9);
+	var defaults = object_plus_1.tools.defaults, isValidJSON = object_plus_1.tools.isValidJSON, transform = object_plus_1.tools.transform, log = object_plus_1.tools.log, EventMap = object_plus_1.eventsApi.EventMap;
 	function compile(rawSpecs, baseAttributes) {
-	    var myAttributes = object_plus_1.transform({}, rawSpecs, createAttribute), allAttributes = object_plus_1.defaults({}, myAttributes, baseAttributes), Attributes = createCloneCtor(allAttributes), mixin = {
+	    var myAttributes = transform({}, rawSpecs, createAttribute), allAttributes = defaults({}, myAttributes, baseAttributes), Attributes = createCloneCtor(allAttributes), mixin = {
 	        Attributes: Attributes,
 	        _attributes: new Attributes(allAttributes),
-	        properties: object_plus_1.transform({}, myAttributes, function (x) { return x.createPropertyDescriptor(); }),
+	        properties: transform({}, myAttributes, function (x) { return x.createPropertyDescriptor(); }),
 	        defaults: createDefaults(allAttributes),
 	        _toJSON: createToJSON(allAttributes),
 	        _localEvents: createEventMap(myAttributes),
@@ -1738,7 +2021,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (_parse) {
 	        mixin._parse = _parse;
 	    }
-	    if (!object_plus_1.log.level) {
+	    if (!log.level) {
 	        mixin.forEachAttr = createForEach(allAttributes);
 	    }
 	    return mixin;
@@ -1752,7 +2035,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    for (var key in attrSpecs) {
 	        var attribute = attrSpecs[key], _onChange = attribute.options._onChange;
 	        if (_onChange) {
-	            events || (events = new object_plus_1.EventMap());
+	            events || (events = new EventMap());
 	            events.addEvent('change:' + key, typeof _onChange === 'string' ?
 	                createWatcherFromRef(_onChange, key) :
 	                wrapWatcher(_onChange, key));
@@ -1805,7 +2088,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            appendExpr(name_3, "i." + name_3 + ".create()");
 	        }
 	        else {
-	            if (object_plus_1.isValidJSON(value)) {
+	            if (isValidJSON(value)) {
 	                appendExpr(name_3, JSON.stringify(value));
 	            }
 	            else if (value === void 0) {
@@ -1852,12 +2135,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var transaction_1 = __webpack_require__(7);
+	var transaction_1 = __webpack_require__(11);
 	var object_plus_1 = __webpack_require__(1);
+	var notEqual = object_plus_1.tools.notEqual, assign = object_plus_1.tools.assign;
 	var GenericAttribute = (function () {
 	    function GenericAttribute(name, options) {
 	        this.name = name;
@@ -1893,7 +2177,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    GenericAttribute.prototype.transform = function (value, options, prev, model) { return value; };
 	    GenericAttribute.prototype.convert = function (value, options, model) { return value; };
 	    GenericAttribute.prototype.isChanged = function (a, b) {
-	        return object_plus_1.notEqual(a, b);
+	        return notEqual(a, b);
 	    };
 	    GenericAttribute.prototype.handleChange = function (next, prev, model) { };
 	    GenericAttribute.prototype.create = function () { return new this.type(); };
@@ -1961,17 +2245,18 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var transactions_1 = __webpack_require__(8);
+	var transactions_1 = __webpack_require__(7);
 	var object_plus_1 = __webpack_require__(1);
+	var assign = object_plus_1.tools.assign;
 	var ChainableAttributeSpec = (function () {
 	    function ChainableAttributeSpec(options) {
 	        if (options === void 0) { options = {}; }
 	        this.options = { getHooks: [], transforms: [], changeHandlers: [] };
-	        object_plus_1.assign(this.options, options);
+	        assign(this.options, options);
 	    }
 	    ChainableAttributeSpec.prototype.check = function (check, error) {
 	        function validate(model, value, name) {
@@ -2080,7 +2365,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2089,10 +2374,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var transaction_1 = __webpack_require__(7);
-	var attribute_1 = __webpack_require__(12);
-	var transactions_1 = __webpack_require__(8);
+	var transaction_1 = __webpack_require__(11);
+	var attribute_1 = __webpack_require__(13);
+	var transactions_1 = __webpack_require__(7);
 	var object_plus_1 = __webpack_require__(1);
+	var free = transactions_1.transactionApi.free, aquire = transactions_1.transactionApi.aquire;
 	var TransactionalType = (function (_super) {
 	    __extends(TransactionalType, _super);
 	    function TransactionalType() {
@@ -2116,9 +2402,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        options.changeHandlers.unshift(this._handleChange);
 	    };
 	    TransactionalType.prototype._handleChange = function (next, prev, record) {
-	        prev && transactions_1.free(record, prev);
-	        if (next && !transactions_1.aquire(record, next, this.name)) {
-	            object_plus_1.log.error('[Aggregation error] Assigned value already has an owner. Use shared attribute type.');
+	        prev && free(record, prev);
+	        if (next && !aquire(record, next, this.name)) {
+	            object_plus_1.tools.log.error('[Aggregation error] Assigned value already has an owner. Use shared attribute type.');
 	        }
 	    };
 	    return TransactionalType;
@@ -2128,7 +2414,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 15 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2137,8 +2423,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var attribute_1 = __webpack_require__(12);
+	var attribute_1 = __webpack_require__(13);
 	var object_plus_1 = __webpack_require__(1);
+	var parseDate = object_plus_1.tools.parseDate;
 	var ConstructorType = (function (_super) {
 	    __extends(ConstructorType, _super);
 	    function ConstructorType() {
@@ -2160,7 +2447,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _super.apply(this, arguments);
 	    }
 	    DateType.prototype.convert = function (value) {
-	        return typeof value === 'string' ? new Date(object_plus_1.parseDate(value)) : (value == null || value instanceof Date ? value : new Date(value));
+	        return typeof value === 'string' ? new Date(parseDate(value)) : (value == null || value instanceof Date ? value : new Date(value));
 	    };
 	    DateType.prototype.validate = function (model, value, name) {
 	        if (isNaN(+value))
@@ -2222,302 +2509,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
-	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-	    return c > 3 && r && Object.defineProperty(target, key, r), r;
-	};
-	var object_plus_1 = __webpack_require__(1);
-	var transactions_1 = __webpack_require__(8);
-	var record_1 = __webpack_require__(6);
-	var commons_1 = __webpack_require__(17);
-	var add_1 = __webpack_require__(18);
-	var set_1 = __webpack_require__(19);
-	var remove_1 = __webpack_require__(20);
-	var trigger2 = transactions_1.Transactional.trigger2;
-	var _count = 0;
-	var silentOptions = { silent: true };
-	var Collection = (function (_super) {
-	    __extends(Collection, _super);
-	    function Collection(records, options) {
-	        if (options === void 0) { options = {}; }
-	        _super.call(this, _count++);
-	        this.models = [];
-	        this._byId = {};
-	        this.model = options.model || this.model;
-	        this.idAttribute = this.model.prototype.idAttribute;
-	        if (options.comparator !== void 0) {
-	            this.comparator = options.comparator;
-	        }
-	        if (records) {
-	            var elements = toElements(this, records, options);
-	            set_1.emptySetTransaction(this, elements, options, true);
-	        }
-	        this.initialize.apply(this, arguments);
-	        if (this._localEvents)
-	            this._localEvents.subscribe(this, this);
-	    }
-	    Collection.prototype.createSubset = function (models, options) {
-	        var SubsetOf = this.constructor.subsetOf(this).options.type;
-	        var subset = new SubsetOf(models, options);
-	        subset.resolve(this);
-	        return subset;
-	    };
-	    Collection.predefine = function () {
-	        this._SubsetOf = null;
-	        transactions_1.Transactional.predefine();
-	        return this;
-	    };
-	    Collection.define = function (protoProps, staticProps) {
-	        var spec = object_plus_1.omit(protoProps, 'itemEvents', 'localEvents');
-	        if (protoProps.itemEvents) {
-	            var eventsMap = new object_plus_1.EventMap(this.prototype._itemEvents);
-	            eventsMap.addEventsMap(protoProps.itemEvents);
-	            spec._itemEvents = eventsMap;
-	        }
-	        return transactions_1.Transactional.define.call(this, spec, staticProps);
-	    };
-	    Object.defineProperty(Collection.prototype, "comparator", {
-	        get: function () { return this._comparator; },
-	        set: function (x) {
-	            var _this = this;
-	            var compare;
-	            switch (typeof x) {
-	                case 'string':
-	                    this._comparator = function (a, b) {
-	                        var aa = a[x], bb = b[x];
-	                        if (aa === bb)
-	                            return 0;
-	                        return aa < bb ? -1 : +1;
-	                    };
-	                    break;
-	                case 'function':
-	                    if (x.length === 1) {
-	                        this._comparator = function (a, b) {
-	                            var aa = x.call(_this, a), bb = x.call(_this, b);
-	                            if (aa === bb)
-	                                return 0;
-	                            return aa < bb ? -1 : +1;
-	                        };
-	                    }
-	                    else {
-	                        this._comparator = function (a, b) { return x.call(_this, a, b); };
-	                    }
-	                    break;
-	                default:
-	                    this._comparator = null;
-	            }
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Collection.prototype.getStore = function () {
-	        return this._store || (this._store = this._owner ? this._owner.getStore() : this._defaultStore);
-	    };
-	    Collection.prototype._onChildrenChange = function (record, options) {
-	        if (options === void 0) { options = {}; }
-	        var isRoot = transactions_1.begin(this), idAttribute = this.idAttribute;
-	        if (record.hasChanged(idAttribute)) {
-	            var _byId = this._byId;
-	            delete _byId[record.previous(idAttribute)];
-	            var id = record.id;
-	            id == null || (_byId[id] = record);
-	        }
-	        if (transactions_1.markAsDirty(this, options)) {
-	            trigger2(this, 'change', record, options);
-	        }
-	        isRoot && transactions_1.commit(this);
-	    };
-	    Collection.prototype.get = function (objOrId) {
-	        if (objOrId == null)
-	            return;
-	        if (typeof objOrId === 'object') {
-	            var id = objOrId[this.idAttribute];
-	            return (id !== void 0 && this._byId[id]) || this._byId[objOrId.cid];
-	        }
-	        else {
-	            return this._byId[objOrId];
-	        }
-	    };
-	    Collection.prototype.each = function (iteratee, context) {
-	        var fun = arguments.length === 2 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, models = this.models;
-	        for (var i = 0; i < models.length; i++) {
-	            fun(models[i], i);
-	        }
-	    };
-	    Collection.prototype._validateNested = function (errors) {
-	        var count = 0;
-	        this.each(function (record) {
-	            var error = record.validationError;
-	            if (error) {
-	                errors[record.cid] = error;
-	                count++;
-	            }
-	        });
-	        return count;
-	    };
-	    Collection.prototype.initialize = function () { };
-	    Object.defineProperty(Collection.prototype, "length", {
-	        get: function () { return this.models.length; },
-	        enumerable: true,
-	        configurable: true
-	    });
-	    Collection.prototype.first = function () { return this.models[0]; };
-	    Collection.prototype.last = function () { return this.models[this.models.length - 1]; };
-	    Collection.prototype.at = function (a_index) {
-	        var index = a_index < 0 ? a_index + this.models.length : a_index;
-	        return this.models[index];
-	    };
-	    Collection.prototype.clone = function (owner) {
-	        var models = this.map(function (model) { return model.clone(); });
-	        return new this.constructor(models, { model: this.model, comparator: this.comparator }, owner);
-	    };
-	    Collection.prototype.toJSON = function () {
-	        return this.models.map(function (model) { return model.toJSON(); });
-	    };
-	    Collection.prototype.set = function (elements, options) {
-	        if (elements === void 0) { elements = []; }
-	        if (options === void 0) { options = {}; }
-	        if (options.add !== void 0) {
-	            object_plus_1.log.error("Collection.set doesn't support 'add' option, behaving as if options.add === true.");
-	        }
-	        if (options.reset) {
-	            this.reset(elements, options);
-	        }
-	        else {
-	            var transaction = this._createTransaction(elements, options);
-	            transaction && transaction.commit();
-	        }
-	        return this;
-	    };
-	    Collection.prototype.reset = function (a_elements, options) {
-	        if (options === void 0) { options = {}; }
-	        var previousModels = commons_1.dispose(this);
-	        if (a_elements) {
-	            set_1.emptySetTransaction(this, toElements(this, a_elements, options), options, true);
-	        }
-	        options.silent || trigger2(this, 'reset', this, object_plus_1.defaults({ previousModels: previousModels }, options));
-	        return this.models;
-	    };
-	    Collection.prototype.add = function (a_elements, options) {
-	        if (options === void 0) { options = {}; }
-	        var elements = toElements(this, a_elements, options), transaction = this.models.length ?
-	            add_1.addTransaction(this, elements, options) :
-	            set_1.emptySetTransaction(this, elements, options);
-	        if (transaction) {
-	            transaction.commit();
-	            return transaction.added;
-	        }
-	    };
-	    Collection.prototype.remove = function (recordsOrIds, options) {
-	        if (options === void 0) { options = {}; }
-	        if (recordsOrIds) {
-	            return Array.isArray(recordsOrIds) ?
-	                remove_1.removeMany(this, recordsOrIds, options) :
-	                remove_1.removeOne(this, recordsOrIds, options);
-	        }
-	        return [];
-	    };
-	    Collection.prototype._createTransaction = function (a_elements, options) {
-	        if (options === void 0) { options = {}; }
-	        var elements = toElements(this, a_elements, options);
-	        if (this.models.length) {
-	            return options.remove === false ?
-	                add_1.addTransaction(this, elements, options) :
-	                set_1.setTransaction(this, elements, options);
-	        }
-	        else {
-	            return set_1.emptySetTransaction(this, elements, options);
-	        }
-	    };
-	    Collection.prototype.pluck = function (key) {
-	        return this.models.map(function (model) { return model[key]; });
-	    };
-	    Collection.prototype.sort = function (options) {
-	        if (options === void 0) { options = {}; }
-	        if (commons_1.sortElements(this, options)) {
-	            var isRoot = transactions_1.begin(this);
-	            if (transactions_1.markAsDirty(this, options)) {
-	                trigger2(this, 'sort', this, options);
-	            }
-	            isRoot && transactions_1.commit(this);
-	        }
-	        return this;
-	    };
-	    Collection.prototype.push = function (model, options) {
-	        return this.add(model, object_plus_1.assign({ at: this.length }, options));
-	    };
-	    Collection.prototype.pop = function (options) {
-	        var model = this.at(this.length - 1);
-	        this.remove(model, options);
-	        return model;
-	    };
-	    Collection.prototype.unshift = function (model, options) {
-	        return this.add(model, object_plus_1.assign({ at: 0 }, options));
-	    };
-	    Collection.prototype.shift = function (options) {
-	        var model = this.at(0);
-	        this.remove(model, options);
-	        return model;
-	    };
-	    Collection.prototype.slice = function () {
-	        return slice.apply(this.models, arguments);
-	    };
-	    Collection.prototype.indexOf = function (modelOrId) {
-	        var record = this.get(modelOrId);
-	        return this.models.indexOf(record);
-	    };
-	    Collection.prototype.modelId = function (attrs) {
-	        return attrs[this.model.prototype.idAttribute];
-	    };
-	    Collection.prototype.toggle = function (model, a_next) {
-	        var prev = Boolean(this.get(model)), next = a_next === void 0 ? !prev : Boolean(a_next);
-	        if (prev !== next) {
-	            if (prev) {
-	                this.remove(model);
-	            }
-	            else {
-	                this.add(model);
-	            }
-	        }
-	        return next;
-	    };
-	    Collection._attribute = record_1.TransactionalType;
-	    Collection = __decorate([
-	        object_plus_1.define({
-	            cidPrefix: 'c',
-	            model: record_1.Record,
-	            _changeEventName: 'changes'
-	        })
-	    ], Collection);
-	    return Collection;
-	}(transactions_1.Transactional));
-	exports.Collection = Collection;
-	function toElements(collection, elements, options) {
-	    var parsed = options.parse ? collection.parse(elements) : elements;
-	    return Array.isArray(parsed) ? parsed : [parsed];
-	}
-	var slice = Array.prototype.slice;
-	record_1.Record.Collection = Collection;
-
-
-/***/ },
 /* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var transactions_1 = __webpack_require__(8);
-	var trigger2 = transactions_1.Transactional.trigger2, trigger3 = transactions_1.Transactional.trigger3;
+	var transactions_1 = __webpack_require__(7);
+	var object_plus_1 = __webpack_require__(1);
+	var EventMap = object_plus_1.eventsApi.EventMap, trigger2 = object_plus_1.eventsApi.trigger2, trigger3 = object_plus_1.eventsApi.trigger3, commit = transactions_1.transactionApi.commit, markAsDirty = transactions_1.transactionApi.markAsDirty, _aquire = transactions_1.transactionApi.aquire, _free = transactions_1.transactionApi.free;
 	function dispose(collection) {
 	    var models = collection.models;
 	    collection.models = [];
@@ -2527,13 +2525,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	exports.dispose = dispose;
 	function aquire(owner, child) {
-	    transactions_1.aquire(owner, child);
+	    _aquire(owner, child);
 	    var _itemEvents = owner._itemEvents;
 	    _itemEvents && _itemEvents.subscribe(owner, child);
 	}
 	exports.aquire = aquire;
 	function free(owner, child) {
-	    transactions_1.free(owner, child);
+	    _free(owner, child);
 	    var _itemEvents = owner._itemEvents;
 	    _itemEvents && _itemEvents.unsubscribe(owner, child);
 	}
@@ -2618,7 +2616,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (added.length || removed.length) {
 	            trigger2(object, 'update', object, _isDirty);
 	        }
-	        this.isRoot && transactions_1.commit(object, isNested);
+	        this.isRoot && commit(object, isNested);
 	    };
 	    return CollectionTransaction;
 	}());
@@ -2630,18 +2628,19 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var transactions_1 = __webpack_require__(8);
+	var transactions_1 = __webpack_require__(7);
 	var commons_1 = __webpack_require__(17);
+	var begin = transactions_1.transactionApi.begin, commit = transactions_1.transactionApi.commit, markAsDirty = transactions_1.transactionApi.markAsDirty;
 	function addTransaction(collection, items, options) {
-	    var isRoot = transactions_1.begin(collection), nested = [];
+	    var isRoot = begin(collection), nested = [];
 	    var added = appendElements(collection, items, nested, options);
 	    if (added.length || nested.length) {
 	        var needSort = sortOrMoveElements(collection, added, options);
-	        if (transactions_1.markAsDirty(collection, options)) {
+	        if (markAsDirty(collection, options)) {
 	            return new commons_1.CollectionTransaction(collection, isRoot, added, [], nested, needSort);
 	        }
 	    }
-	    isRoot && transactions_1.commit(collection);
+	    isRoot && commit(collection);
 	}
 	exports.addTransaction = addTransaction;
 	;
@@ -2697,34 +2696,35 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var transactions_1 = __webpack_require__(8);
+	var transactions_1 = __webpack_require__(7);
 	var commons_1 = __webpack_require__(17);
+	var begin = transactions_1.transactionApi.begin, commit = transactions_1.transactionApi.commit, markAsDirty = transactions_1.transactionApi.markAsDirty;
 	var silentOptions = { silent: true };
 	function emptySetTransaction(collection, items, options, silent) {
-	    var isRoot = transactions_1.begin(collection);
+	    var isRoot = begin(collection);
 	    var added = _reallocateEmpty(collection, items, options);
 	    if (added.length) {
 	        var needSort = commons_1.sortElements(collection, options);
-	        if (transactions_1.markAsDirty(collection, silent ? silentOptions : options)) {
+	        if (markAsDirty(collection, silent ? silentOptions : options)) {
 	            return new commons_1.CollectionTransaction(collection, isRoot, added.slice(), [], [], needSort);
 	        }
 	    }
-	    isRoot && transactions_1.commit(collection);
+	    isRoot && commit(collection);
 	}
 	exports.emptySetTransaction = emptySetTransaction;
 	;
 	function setTransaction(collection, items, options) {
-	    var isRoot = transactions_1.begin(collection), nested = [];
+	    var isRoot = begin(collection), nested = [];
 	    var previous = collection.models, added = _reallocate(collection, items, nested, options);
 	    var reusedCount = collection.models.length - added.length, removed = reusedCount < previous.length ? (reusedCount ? _garbageCollect(collection, previous) :
 	        commons_1.freeAll(collection, previous)) : [];
 	    var addedOrChanged = nested.length || added.length, sorted = (addedOrChanged && commons_1.sortElements(collection, options)) || added.length || options.sorted;
 	    if (addedOrChanged || removed.length || sorted) {
-	        if (transactions_1.markAsDirty(collection, options)) {
+	        if (markAsDirty(collection, options)) {
 	            return new commons_1.CollectionTransaction(collection, isRoot, added, removed, nested, sorted);
 	        }
 	    }
-	    isRoot && transactions_1.commit(collection);
+	    isRoot && commit(collection);
 	}
 	exports.setTransaction = setTransaction;
 	;
@@ -2798,22 +2798,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	var commons_1 = __webpack_require__(17);
 	var object_plus_1 = __webpack_require__(1);
-	var transactions_1 = __webpack_require__(8);
-	var trigger2 = object_plus_1.Messenger.trigger2, trigger3 = object_plus_1.Messenger.trigger3;
+	var transactions_1 = __webpack_require__(7);
+	var trigger2 = object_plus_1.eventsApi.trigger2, trigger3 = object_plus_1.eventsApi.trigger3, markAsDirty = transactions_1.transactionApi.markAsDirty, begin = transactions_1.transactionApi.begin, commit = transactions_1.transactionApi.commit;
 	function removeOne(collection, el, options) {
 	    var model = collection.get(el);
 	    if (model) {
-	        var isRoot = transactions_1.begin(collection), models = collection.models;
+	        var isRoot = begin(collection), models = collection.models;
 	        models.splice(models.indexOf(model), 1);
 	        commons_1.removeIndex(collection._byId, model);
-	        var notify = transactions_1.markAsDirty(collection, options);
+	        var notify = markAsDirty(collection, options);
 	        if (notify) {
 	            trigger3(model, 'remove', model, collection, options);
 	            trigger3(collection, 'remove', model, collection, options);
 	        }
 	        commons_1.free(collection, model);
 	        notify && trigger2(collection, 'update', collection, options);
-	        isRoot && transactions_1.commit(collection);
+	        isRoot && commit(collection);
 	        return model;
 	    }
 	}
@@ -2822,14 +2822,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	function removeMany(collection, toRemove, options) {
 	    var removed = _removeFromIndex(collection, toRemove);
 	    if (removed.length) {
-	        var isRoot = transactions_1.begin(collection);
+	        var isRoot = begin(collection);
 	        _reallocate(collection, removed.length);
-	        if (transactions_1.markAsDirty(collection, options)) {
+	        if (markAsDirty(collection, options)) {
 	            var transaction = new commons_1.CollectionTransaction(collection, isRoot, [], removed, [], false);
 	            transaction.commit();
 	        }
 	        else {
-	            isRoot && transactions_1.commit(collection);
+	            isRoot && commit(collection);
 	        }
 	    }
 	    return removed;
@@ -2883,10 +2883,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var attribute_1 = __webpack_require__(12);
+	var record_1 = __webpack_require__(10);
 	var commons_1 = __webpack_require__(23);
-	var record_1 = __webpack_require__(6);
-	var typespec_1 = __webpack_require__(13);
+	var record_2 = __webpack_require__(10);
+	var record_3 = __webpack_require__(10);
 	var RecordRefAttribute = (function (_super) {
 	    __extends(RecordRefAttribute, _super);
 	    function RecordRefAttribute() {
@@ -2904,10 +2904,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    RecordRefAttribute.prototype.validate = function (model, value, name) { };
 	    return RecordRefAttribute;
-	}(attribute_1.GenericAttribute));
-	record_1.Record.from = function from(masterCollection) {
+	}(record_1.GenericAttribute));
+	record_2.Record.from = function from(masterCollection) {
 	    var getMasterCollection = commons_1.parseReference(masterCollection);
-	    var typeSpec = new typespec_1.ChainableAttributeSpec({
+	    var typeSpec = new record_3.ChainableAttributeSpec({
 	        value: null,
 	        _attribute: RecordRefAttribute
 	    });
@@ -2933,7 +2933,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var traversable_1 = __webpack_require__(10);
+	var traversable_1 = __webpack_require__(9);
 	function parseReference(collectionRef) {
 	    switch (typeof collectionRef) {
 	        case 'function':
@@ -2958,10 +2958,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var collection_1 = __webpack_require__(16);
+	var collection_1 = __webpack_require__(6);
 	var object_plus_1 = __webpack_require__(1);
 	var commons_1 = __webpack_require__(23);
-	var record_1 = __webpack_require__(6);
+	var record_1 = __webpack_require__(10);
+	var fastDefaults = object_plus_1.tools.fastDefaults;
 	collection_1.Collection.subsetOf = function subsetOf(masterCollection) {
 	    var CollectionConstructor = this, SubsetOf = this._SubsetOf || ((function (_super) {
 	        __extends(SubsetOfCollection, _super);
@@ -3040,7 +3041,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function subsetOptions(options) {
 	    var subsetOptions = { parse: true, merge: false };
 	    if (options)
-	        object_plus_1.fastDefaults(subsetOptions, options);
+	        fastDefaults(subsetOptions, options);
 	    return subsetOptions;
 	}
 
@@ -3055,11 +3056,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var record_1 = __webpack_require__(6);
-	var collection_1 = __webpack_require__(16);
-	var attribute_1 = __webpack_require__(12);
-	var transactions_1 = __webpack_require__(8);
+	var record_1 = __webpack_require__(10);
+	var collection_1 = __webpack_require__(6);
+	var record_2 = __webpack_require__(10);
+	var transactions_1 = __webpack_require__(7);
 	var object_plus_1 = __webpack_require__(1);
+	var on = object_plus_1.eventsApi.on, off = object_plus_1.eventsApi.off, free = transactions_1.transactionApi.free, aquire = transactions_1.transactionApi.aquire;
 	var SharedType = (function (_super) {
 	    __extends(SharedType, _super);
 	    function SharedType() {
@@ -3071,7 +3073,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    SharedType.prototype.convert = function (value, options, record) {
 	        if (value == null || value instanceof this.type)
 	            return value;
-	        object_plus_1.log.error("[Shared Attribute] Cannot assign value of incompatible type.", value, record);
+	        object_plus_1.tools.log.error("[Shared Attribute] Cannot assign value of incompatible type.", value, record);
 	        return null;
 	    };
 	    SharedType.prototype.validate = function (record, value) {
@@ -3083,15 +3085,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return null;
 	    };
 	    SharedType.prototype._handleChange = function (next, prev, record) {
-	        prev && transactions_1.Transactional.off(prev, prev._changeEventName, record._onChildrenChange, record);
-	        next && transactions_1.Transactional.on(next, next._changeEventName, record._onChildrenChange, record);
+	        prev && off(prev, prev._changeEventName, record._onChildrenChange, record);
+	        next && on(next, next._changeEventName, record._onChildrenChange, record);
 	    };
 	    SharedType.prototype.initialize = function (options) {
 	        this.toJSON = null;
 	        options.changeHandlers.unshift(this._handleChange);
 	    };
 	    return SharedType;
-	}(attribute_1.GenericAttribute));
+	}(record_2.GenericAttribute));
 	exports.SharedType = SharedType;
 	var createSharedTypeSpec = {
 	    get: function () {
@@ -3116,8 +3118,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var record_1 = __webpack_require__(6);
-	var transactions_1 = __webpack_require__(8);
+	var record_1 = __webpack_require__(10);
+	var transactions_1 = __webpack_require__(7);
 	var _store = null;
 	var Store = (function (_super) {
 	    __extends(Store, _super);

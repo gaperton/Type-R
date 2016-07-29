@@ -83,7 +83,7 @@
 			<section class="tsd-panel">
 				<h3>Implements</h3>
 				<ul class="tsd-hierarchy">
-					<li><a href="mixable.html" class="tsd-signature-type">Mixable</a></li>
+					<li><a href="messenger.html" class="tsd-signature-type">Messenger</a></li>
 					<li><a href="../interfaces/validatable.html" class="tsd-signature-type">Validatable</a></li>
 					<li><a href="../interfaces/traversable.html" class="tsd-signature-type">Traversable</a></li>
 					<li><a href="../interfaces/collectioncore.html" class="tsd-signature-type">CollectionCore</a></li>
@@ -121,20 +121,24 @@
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#cid" class="tsd-kind-icon">cid</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#cidprefix" class="tsd-kind-icon">cid<wbr>Prefix</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-external"><a href="collection.html#idattribute" class="tsd-kind-icon">id<wbr>Attribute</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#listento" class="tsd-kind-icon">listen<wbr>To</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#listentoonce" class="tsd-kind-icon">listen<wbr>ToOnce</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-external"><a href="collection.html#model" class="tsd-kind-icon">model</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-external"><a href="collection.html#models" class="tsd-kind-icon">models</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#off" class="tsd-kind-icon">off</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#on" class="tsd-kind-icon">on</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#once" class="tsd-kind-icon">once</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#stoplistening" class="tsd-kind-icon">stop<wbr>Listening</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#trigger" class="tsd-kind-icon">trigger</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static tsd-is-external"><a href="collection.html#_subsetof" class="tsd-kind-icon">_<wbr>Subset<wbr>Of</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static tsd-is-external"><a href="collection.html#_attribute" class="tsd-kind-icon">_attribute</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external"><a href="collection.html#create" class="tsd-kind-icon">create</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external"><a href="collection.html#extend" class="tsd-kind-icon">extend</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external"><a href="collection.html#off" class="tsd-kind-icon">off</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external"><a href="collection.html#on" class="tsd-kind-icon">on</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external"><a href="collection.html#mixto" class="tsd-kind-icon">mix<wbr>To</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external"><a href="collection.html#mixinrules" class="tsd-kind-icon">mixin<wbr>Rules</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external"><a href="collection.html#mixins" class="tsd-kind-icon">mixins</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external"><a href="collection.html#shared" class="tsd-kind-icon">shared</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static tsd-is-external"><a href="collection.html#subsetof" class="tsd-kind-icon">subset<wbr>Of</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external"><a href="collection.html#trigger0" class="tsd-kind-icon">trigger0</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external"><a href="collection.html#trigger1" class="tsd-kind-icon">trigger1</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external"><a href="collection.html#trigger2" class="tsd-kind-icon">trigger2</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external"><a href="collection.html#trigger3" class="tsd-kind-icon">trigger3</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section tsd-is-external">
@@ -171,14 +175,9 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#isvalid" class="tsd-kind-icon">is<wbr>Valid</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#keys" class="tsd-kind-icon">keys</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-external"><a href="collection.html#last" class="tsd-kind-icon">last</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#listento" class="tsd-kind-icon">listen<wbr>To</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#listentoonce" class="tsd-kind-icon">listen<wbr>ToOnce</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited tsd-is-external"><a href="collection.html#map" class="tsd-kind-icon">map</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited tsd-is-external"><a href="collection.html#mapobject" class="tsd-kind-icon">map<wbr>Object</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-external"><a href="collection.html#modelid" class="tsd-kind-icon">model<wbr>Id</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#off-1" class="tsd-kind-icon">off</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#on-1" class="tsd-kind-icon">on</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#once" class="tsd-kind-icon">once</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#parse" class="tsd-kind-icon">parse</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-external"><a href="collection.html#pluck" class="tsd-kind-icon">pluck</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-external"><a href="collection.html#pop" class="tsd-kind-icon">pop</a></li>
@@ -189,11 +188,9 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-external"><a href="collection.html#shift" class="tsd-kind-icon">shift</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-external"><a href="collection.html#slice" class="tsd-kind-icon">slice</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-external"><a href="collection.html#sort" class="tsd-kind-icon">sort</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#stoplistening" class="tsd-kind-icon">stop<wbr>Listening</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-external"><a href="collection.html#tojson" class="tsd-kind-icon">toJSON</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-external"><a href="collection.html#toggle" class="tsd-kind-icon">toggle</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#transaction" class="tsd-kind-icon">transaction</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#trigger" class="tsd-kind-icon">trigger</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-external"><a href="collection.html#unshift" class="tsd-kind-icon">unshift</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#updateeach" class="tsd-kind-icon">update<wbr>Each</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="collection.html#validate" class="tsd-kind-icon">validate</a></li>
@@ -218,7 +215,7 @@
 							<aside class="tsd-sources">
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in collection/index.ts:173</li>
+									<li>Defined in collection/index.ts:175</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -244,7 +241,7 @@
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#_byid">_byId</a></p>
 						<ul>
-							<li>Defined in collection/index.ts:74</li>
+							<li>Defined in collection/index.ts:76</li>
 						</ul>
 					</aside>
 				</section>
@@ -256,7 +253,7 @@
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#_changeeventname">_changeEventName</a></p>
 						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_changeeventname">_changeEventName</a></p>
 						<ul>
-							<li>Defined in transactions.ts:45</li>
+							<li>Defined in transactions.ts:80</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -270,7 +267,7 @@
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#_changetoken">_changeToken</a></p>
 						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_changetoken">_changeToken</a></p>
 						<ul>
-							<li>Defined in transactions.ts:24</li>
+							<li>Defined in transactions.ts:59</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -288,7 +285,7 @@
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#_comparator">_comparator</a></p>
 						<ul>
-							<li>Defined in collection/index.ts:113</li>
+							<li>Defined in collection/index.ts:115</li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -324,7 +321,7 @@
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#_defaultstore">_defaultStore</a></p>
 						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_defaultstore">_defaultStore</a></p>
 						<ul>
-							<li>Defined in transactions.ts:116</li>
+							<li>Defined in transactions.ts:151</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -333,12 +330,12 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-external">
 					<a name="_events" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _events</h3>
-					<div class="tsd-signature tsd-kind-icon">_events<span class="tsd-signature-symbol">:</span> <a href="../interfaces/subscribedevents.html" class="tsd-signature-type">SubscribedEvents</a><span class="tsd-signature-symbol"> =&nbsp;void 0</span></div>
+					<div class="tsd-signature tsd-kind-icon">_events<span class="tsd-signature-symbol">:</span> <a href="../interfaces/eventssubscription.html" class="tsd-signature-type">EventsSubscription</a><span class="tsd-signature-symbol"> =&nbsp;void 0</span></div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#_events">_events</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#_events">_events</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_events">_events</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:51</li>
+							<li>Defined in transactions.ts:41</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -352,7 +349,7 @@
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#_isdirty">_isDirty</a></p>
 						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_isdirty">_isDirty</a></p>
 						<ul>
-							<li>Defined in transactions.ts:32</li>
+							<li>Defined in transactions.ts:67</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -365,7 +362,7 @@
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#_itemevents">_itemEvents</a></p>
 						<ul>
-							<li>Defined in collection/index.ts:65</li>
+							<li>Defined in collection/index.ts:67</li>
 						</ul>
 					</aside>
 				</section>
@@ -375,9 +372,9 @@
 					<div class="tsd-signature tsd-kind-icon">_listeners<span class="tsd-signature-symbol">:</span> <a href="../interfaces/listeners.html" class="tsd-signature-type">Listeners</a></div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#_listeners">_listeners</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#_listeners">_listeners</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_listeners">_listeners</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:54</li>
+							<li>Defined in transactions.ts:44</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -389,9 +386,9 @@
 					<div class="tsd-signature tsd-kind-icon">_listening<wbr>To<span class="tsd-signature-symbol">:</span> <a href="../interfaces/listeningtomap.html" class="tsd-signature-type">ListeningToMap</a></div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#_listeningto">_listeningTo</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#_listeningto">_listeningTo</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_listeningto">_listeningTo</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:57</li>
+							<li>Defined in transactions.ts:47</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -403,9 +400,9 @@
 					<div class="tsd-signature tsd-kind-icon">_local<wbr>Events<span class="tsd-signature-symbol">:</span> <a href="eventmap.html" class="tsd-signature-type">EventMap</a></div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#_localevents">_localEvents</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#_localevents">_localEvents</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_localevents">_localEvents</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:71</li>
+							<li>Defined in transactions.ts:50</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -419,7 +416,7 @@
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#_owner">_owner</a></p>
 						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_owner">_owner</a></p>
 						<ul>
-							<li>Defined in transactions.ts:36</li>
+							<li>Defined in transactions.ts:71</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -433,7 +430,7 @@
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#_ownerkey">_ownerKey</a></p>
 						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_ownerkey">_ownerKey</a></p>
 						<ul>
-							<li>Defined in transactions.ts:41</li>
+							<li>Defined in transactions.ts:76</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -445,7 +442,7 @@
 					<div class="tsd-signature tsd-kind-icon">_store<span class="tsd-signature-symbol">:</span> <a href="transactional.html" class="tsd-signature-type">Transactional</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in collection/index.ts:110</li>
+							<li>Defined in collection/index.ts:112</li>
 						</ul>
 					</aside>
 				</section>
@@ -457,7 +454,7 @@
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#_transaction">_transaction</a></p>
 						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_transaction">_transaction</a></p>
 						<ul>
-							<li>Defined in transactions.ts:28</li>
+							<li>Defined in transactions.ts:63</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -471,7 +468,7 @@
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#_validationerror">_validationError</a></p>
 						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_validationerror">_validationError</a></p>
 						<ul>
-							<li>Defined in transactions.ts:176</li>
+							<li>Defined in transactions.ts:211</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -483,16 +480,11 @@
 					<div class="tsd-signature tsd-kind-icon">cid<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#cid">cid</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#cid">cid</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#cid">cid</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:63</li>
+							<li>Defined in transactions.ts:52</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Unique client-only id.</p>
-						</div>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
 					<a name="cidprefix" class="tsd-anchor"></a>
@@ -500,16 +492,11 @@
 					<div class="tsd-signature tsd-kind-icon">cid<wbr>Prefix<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#cidprefix">cidPrefix</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#cidprefix">cidPrefix</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#cidprefix">cidPrefix</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:60</li>
+							<li>Defined in transactions.ts:53</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Prifix for cid. Usually the prototype-only assigned by subclasses with local counters.</p>
-						</div>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-external">
 					<a name="idattribute" class="tsd-anchor"></a>
@@ -518,9 +505,85 @@
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#idattribute">idAttribute</a></p>
 						<ul>
-							<li>Defined in collection/index.ts:173</li>
+							<li>Defined in collection/index.ts:175</li>
 						</ul>
 					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+					<a name="listento" class="tsd-anchor"></a>
+					<h3>listen<wbr>To</h3>
+					<div class="tsd-signature tsd-kind-icon">listen<wbr>To<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#listento">listenTo</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#listento">listenTo</a></p>
+						<ul>
+							<li>Defined in transactions.ts:34</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>obj<span class="tsd-signature-symbol">: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>obj: <a href="messenger.html" class="tsd-signature-type">Messenger</a></h5>
+											</li>
+											<li>
+												<h5>name: <span class="tsd-signature-type">any</span></h5>
+											</li>
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> callback: <span class="tsd-signature-type">any</span></h5>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+					<a name="listentoonce" class="tsd-anchor"></a>
+					<h3>listen<wbr>ToOnce</h3>
+					<div class="tsd-signature tsd-kind-icon">listen<wbr>ToOnce<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#listentoonce">listenToOnce</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#listentoonce">listenToOnce</a></p>
+						<ul>
+							<li>Defined in transactions.ts:36</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>obj<span class="tsd-signature-symbol">: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>obj: <a href="messenger.html" class="tsd-signature-type">Messenger</a></h5>
+											</li>
+											<li>
+												<h5>name: <span class="tsd-signature-type">any</span></h5>
+											</li>
+											<li>
+												<h5>callback: <span class="tsd-signature-type">any</span></h5>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-external">
 					<a name="model" class="tsd-anchor"></a>
@@ -529,7 +592,7 @@
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#model">model</a></p>
 						<ul>
-							<li>Defined in collection/index.ts:170</li>
+							<li>Defined in collection/index.ts:172</li>
 						</ul>
 					</aside>
 				</section>
@@ -540,7 +603,7 @@
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#models">models</a></p>
 						<ul>
-							<li>Defined in collection/index.ts:71</li>
+							<li>Defined in collection/index.ts:73</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -549,13 +612,206 @@
 						</div>
 					</div>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+					<a name="off" class="tsd-anchor"></a>
+					<h3>off</h3>
+					<div class="tsd-signature tsd-kind-icon">off<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#off">off</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#off">off</a></p>
+						<ul>
+							<li>Defined in transactions.ts:32</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, callback<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Function</span>, context<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> name: <span class="tsd-signature-type">string</span></h5>
+											</li>
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> callback: <span class="tsd-signature-type">Function</span></h5>
+											</li>
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> context: <span class="tsd-signature-type">any</span></h5>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+					<a name="on" class="tsd-anchor"></a>
+					<h3>on</h3>
+					<div class="tsd-signature tsd-kind-icon">on<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#on">on</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#on">on</a></p>
+						<ul>
+							<li>Defined in transactions.ts:31</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, context<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>name: <span class="tsd-signature-type">any</span></h5>
+											</li>
+											<li>
+												<h5>callback: <span class="tsd-signature-type">any</span></h5>
+											</li>
+											<li>
+												<h5>context: <span class="tsd-signature-type">any</span></h5>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+					<a name="once" class="tsd-anchor"></a>
+					<h3>once</h3>
+					<div class="tsd-signature tsd-kind-icon">once<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#once">once</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#once">once</a></p>
+						<ul>
+							<li>Defined in transactions.ts:35</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, context<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>name: <span class="tsd-signature-type">any</span></h5>
+											</li>
+											<li>
+												<h5>callback: <span class="tsd-signature-type">any</span></h5>
+											</li>
+											<li>
+												<h5>context: <span class="tsd-signature-type">any</span></h5>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+					<a name="stoplistening" class="tsd-anchor"></a>
+					<h3>stop<wbr>Listening</h3>
+					<div class="tsd-signature tsd-kind-icon">stop<wbr>Listening<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#stoplistening">stopListening</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#stoplistening">stopListening</a></p>
+						<ul>
+							<li>Defined in transactions.ts:33</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>obj<span class="tsd-signature-symbol">?: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a>, name<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, callback<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> obj: <a href="messenger.html" class="tsd-signature-type">Messenger</a></h5>
+											</li>
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> name: <span class="tsd-signature-type">string</span></h5>
+											</li>
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> callback: <span class="tsd-signature-type">Function</span></h5>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+					<a name="trigger" class="tsd-anchor"></a>
+					<h3>trigger</h3>
+					<div class="tsd-signature tsd-kind-icon">trigger<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#trigger">trigger</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#trigger">trigger</a></p>
+						<ul>
+							<li>Defined in transactions.ts:37</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, a<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, b<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, c<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>name: <span class="tsd-signature-type">string</span></h5>
+											</li>
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> a: <span class="tsd-signature-type">any</span></h5>
+											</li>
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> b: <span class="tsd-signature-type">any</span></h5>
+											</li>
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> c: <span class="tsd-signature-type">any</span></h5>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static tsd-is-external">
 					<a name="_subsetof" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> _<wbr>Subset<wbr>Of</h3>
 					<div class="tsd-signature tsd-kind-icon">_<wbr>Subset<wbr>Of<span class="tsd-signature-symbol">:</span> <a href="collection.html" class="tsd-signature-type">Collection</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in collection/index.ts:36</li>
+							<li>Defined in collection/index.ts:38</li>
 						</ul>
 					</aside>
 				</section>
@@ -565,7 +821,7 @@
 					<div class="tsd-signature tsd-kind-icon">_attribute<span class="tsd-signature-symbol">:</span> <a href="transactionaltype.html" class="tsd-signature-type">TransactionalType</a><span class="tsd-signature-symbol"> =&nbsp;TransactionalType</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in collection/index.ts:286</li>
+							<li>Defined in collection/index.ts:288</li>
 						</ul>
 					</aside>
 				</section>
@@ -575,9 +831,9 @@
 					<div class="tsd-signature tsd-kind-icon">create<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#create">create</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#create">create</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#create">create</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:65</li>
+							<li>Defined in transactions.ts:23</li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -585,7 +841,7 @@
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter-siganture">
 								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>a<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, b<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, c<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a></li>
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>a<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, b<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, c<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="transactional.html" class="tsd-signature-type">Transactional</a></li>
 								</ul>
 								<ul class="tsd-descriptions">
 									<li class="tsd-description">
@@ -601,7 +857,7 @@
 												<h5><span class="tsd-flag ts-flagOptional">Optional</span> c: <span class="tsd-signature-type">any</span></h5>
 											</li>
 										</ul>
-										<h4 class="tsd-returns-title">Returns <a href="messenger.html" class="tsd-signature-type">Messenger</a></h4>
+										<h4 class="tsd-returns-title">Returns <a href="transactional.html" class="tsd-signature-type">Transactional</a></h4>
 									</li>
 								</ul>
 							</li>
@@ -614,9 +870,9 @@
 					<div class="tsd-signature tsd-kind-icon">extend<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#extend">extend</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#extend">extend</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#extend">extend</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:66</li>
+							<li>Defined in transactions.ts:27</li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -624,52 +880,125 @@
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter-siganture">
 								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>a<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, b<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a></li>
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>spec<span class="tsd-signature-symbol">?: </span><a href="../globals.html#transactionaldefinition" class="tsd-signature-type">TransactionalDefinition</a>, statics<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/mixableconstructor.html" class="tsd-signature-type">MixableConstructor</a><span class="tsd-signature-symbol">&lt;</span><a href="transactional.html" class="tsd-signature-type">Transactional</a><span class="tsd-signature-symbol">&gt;</span></li>
 								</ul>
 								<ul class="tsd-descriptions">
 									<li class="tsd-description">
 										<h4 class="tsd-parameters-title">Parameters</h4>
 										<ul class="tsd-parameters">
 											<li>
-												<h5><span class="tsd-flag ts-flagOptional">Optional</span> a: <span class="tsd-signature-type">any</span></h5>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> spec: <a href="../globals.html#transactionaldefinition" class="tsd-signature-type">TransactionalDefinition</a></h5>
 											</li>
 											<li>
-												<h5><span class="tsd-flag ts-flagOptional">Optional</span> b: <span class="tsd-signature-type">any</span></h5>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> statics: <span class="tsd-signature-type">object</span></h5>
+												<ul class="tsd-parameters">
+												</ul>
 											</li>
 										</ul>
-										<h4 class="tsd-returns-title">Returns <a href="messenger.html" class="tsd-signature-type">Messenger</a></h4>
+										<h4 class="tsd-returns-title">Returns <a href="../interfaces/mixableconstructor.html" class="tsd-signature-type">MixableConstructor</a><span class="tsd-signature-symbol">&lt;</span><a href="transactional.html" class="tsd-signature-type">Transactional</a><span class="tsd-signature-symbol">&gt;</span></h4>
 									</li>
 								</ul>
 							</li>
 						</ul>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-					<a name="off" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> off</h3>
-					<div class="tsd-signature tsd-kind-icon">off<span class="tsd-signature-symbol">:</span> <a href="../globals.html#off" class="tsd-signature-type">off</a><span class="tsd-signature-symbol"> =&nbsp;EventMaps.off</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
+					<a name="mixto" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> mix<wbr>To</h3>
+					<div class="tsd-signature tsd-kind-icon">mix<wbr>To<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
-						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#off">off</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#off">off</a></p>
+						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#mixto">mixTo</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#mixto">mixTo</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:48</li>
+							<li>Defined in transactions.ts:26</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>args<span class="tsd-signature-symbol">: </span><a href="../interfaces/constructor.html" class="tsd-signature-type">Constructor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/mixableconstructor.html" class="tsd-signature-type">MixableConstructor</a><span class="tsd-signature-symbol">&lt;</span><a href="transactional.html" class="tsd-signature-type">Transactional</a><span class="tsd-signature-symbol">&gt;</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5><span class="tsd-flag ts-flagRest">Rest</span> <span class="tsd-signature-symbol">...</span>args: <a href="../interfaces/constructor.html" class="tsd-signature-type">Constructor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <a href="../interfaces/mixableconstructor.html" class="tsd-signature-type">MixableConstructor</a><span class="tsd-signature-symbol">&lt;</span><a href="transactional.html" class="tsd-signature-type">Transactional</a><span class="tsd-signature-symbol">&gt;</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-					<a name="on" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> on</h3>
-					<div class="tsd-signature tsd-kind-icon">on<span class="tsd-signature-symbol">:</span> <a href="../globals.html#on" class="tsd-signature-type">on</a><span class="tsd-signature-symbol"> =&nbsp;EventMaps.on</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
+					<a name="mixinrules" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> mixin<wbr>Rules</h3>
+					<div class="tsd-signature tsd-kind-icon">mixin<wbr>Rules<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
-						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#on">on</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#on">on</a></p>
+						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#mixinrules">mixinRules</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#mixinrules">mixinRules</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:46</li>
+							<li>Defined in transactions.ts:25</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>mixinRules<span class="tsd-signature-symbol">: </span><a href="../interfaces/mixinrules.html" class="tsd-signature-type">MixinRules</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/mixableconstructor.html" class="tsd-signature-type">MixableConstructor</a><span class="tsd-signature-symbol">&lt;</span><a href="transactional.html" class="tsd-signature-type">Transactional</a><span class="tsd-signature-symbol">&gt;</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>mixinRules: <a href="../interfaces/mixinrules.html" class="tsd-signature-type">MixinRules</a></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <a href="../interfaces/mixableconstructor.html" class="tsd-signature-type">MixableConstructor</a><span class="tsd-signature-symbol">&lt;</span><a href="transactional.html" class="tsd-signature-type">Transactional</a><span class="tsd-signature-symbol">&gt;</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
+					<a name="mixins" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> mixins</h3>
+					<div class="tsd-signature tsd-kind-icon">mixins<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#mixins">mixins</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#mixins">mixins</a></p>
+						<ul>
+							<li>Defined in transactions.ts:24</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>mixins<span class="tsd-signature-symbol">: </span><a href="../interfaces/constructor.html" class="tsd-signature-type">Constructor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/mixableconstructor.html" class="tsd-signature-type">MixableConstructor</a><span class="tsd-signature-symbol">&lt;</span><a href="transactional.html" class="tsd-signature-type">Transactional</a><span class="tsd-signature-symbol">&gt;</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5><span class="tsd-flag ts-flagRest">Rest</span> <span class="tsd-signature-symbol">...</span>mixins: <a href="../interfaces/constructor.html" class="tsd-signature-type">Constructor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">object</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <a href="../interfaces/mixableconstructor.html" class="tsd-signature-type">MixableConstructor</a><span class="tsd-signature-symbol">&lt;</span><a href="transactional.html" class="tsd-signature-type">Transactional</a><span class="tsd-signature-symbol">&gt;</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
@@ -680,7 +1009,7 @@
 						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#shared">shared</a></p>
 						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#shared">shared</a></p>
 						<ul>
-							<li>Defined in transactions.ts:20</li>
+							<li>Defined in transactions.ts:55</li>
 						</ul>
 					</aside>
 				</section>
@@ -690,7 +1019,7 @@
 					<div class="tsd-signature tsd-kind-icon">subset<wbr>Of<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in collection/index.ts:63</li>
+							<li>Defined in collection/index.ts:65</li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -715,62 +1044,6 @@
 						</ul>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-					<a name="trigger0" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> trigger0</h3>
-					<div class="tsd-signature tsd-kind-icon">trigger0<span class="tsd-signature-symbol">:</span> <a href="../globals.html#trigger0" class="tsd-signature-type">trigger0</a><span class="tsd-signature-symbol"> =&nbsp;EventMaps.trigger0</span></div>
-					<aside class="tsd-sources">
-						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#trigger0">trigger0</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#trigger0">trigger0</a></p>
-						<ul>
-							<li>Defined in object-plus/events.ts:38</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-					<a name="trigger1" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> trigger1</h3>
-					<div class="tsd-signature tsd-kind-icon">trigger1<span class="tsd-signature-symbol">:</span> <a href="../globals.html#trigger1" class="tsd-signature-type">trigger1</a><span class="tsd-signature-symbol"> =&nbsp;EventMaps.trigger1</span></div>
-					<aside class="tsd-sources">
-						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#trigger1">trigger1</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#trigger1">trigger1</a></p>
-						<ul>
-							<li>Defined in object-plus/events.ts:40</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-					<a name="trigger2" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> trigger2</h3>
-					<div class="tsd-signature tsd-kind-icon">trigger2<span class="tsd-signature-symbol">:</span> <a href="../globals.html#trigger2" class="tsd-signature-type">trigger2</a><span class="tsd-signature-symbol"> =&nbsp;EventMaps.trigger2</span></div>
-					<aside class="tsd-sources">
-						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#trigger2">trigger2</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#trigger2">trigger2</a></p>
-						<ul>
-							<li>Defined in object-plus/events.ts:42</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-					<a name="trigger3" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> trigger3</h3>
-					<div class="tsd-signature tsd-kind-icon">trigger3<span class="tsd-signature-symbol">:</span> <a href="../globals.html#trigger3" class="tsd-signature-type">trigger3</a><span class="tsd-signature-symbol"> =&nbsp;EventMaps.trigger3</span></div>
-					<aside class="tsd-sources">
-						<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#trigger3">trigger3</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#trigger3">trigger3</a></p>
-						<ul>
-							<li>Defined in object-plus/events.ts:44</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-					</div>
-				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group tsd-is-external">
 				<h2>Accessors</h2>
@@ -785,7 +1058,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:112</li>
+									<li>Defined in collection/index.ts:114</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span>
@@ -798,7 +1071,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:76</li>
+									<li>Defined in collection/index.ts:78</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -821,7 +1094,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:198</li>
+									<li>Defined in collection/index.ts:200</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -839,7 +1112,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#validationerror">validationError</a></p>
 								<ul>
-									<li>Defined in transactions.ts:179</li>
+									<li>Defined in transactions.ts:214</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="validationerror.html" class="tsd-signature-type">ValidationError</a></h4>
@@ -860,7 +1133,7 @@
 							<aside class="tsd-sources">
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#_createtransaction">_createTransaction</a></p>
 								<ul>
-									<li>Defined in collection/index.ts:273</li>
+									<li>Defined in collection/index.ts:275</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -887,7 +1160,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_invalidate">_invalidate</a></p>
 								<ul>
-									<li>Defined in transactions.ts:185</li>
+									<li>Defined in transactions.ts:220</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -917,7 +1190,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:115</li>
+									<li>Defined in collection/index.ts:117</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -944,7 +1217,7 @@
 							<aside class="tsd-sources">
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#_validatenested">_validateNested</a></p>
 								<ul>
-									<li>Defined in collection/index.ts:156</li>
+									<li>Defined in collection/index.ts:158</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -969,7 +1242,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:248</li>
+									<li>Defined in collection/index.ts:250</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -995,7 +1268,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:201</li>
+									<li>Defined in collection/index.ts:203</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1019,7 +1292,7 @@
 							<aside class="tsd-sources">
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#clone">clone</a></p>
 								<ul>
-									<li>Defined in collection/index.ts:207</li>
+									<li>Defined in collection/index.ts:209</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1041,7 +1314,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:38</li>
+									<li>Defined in collection/index.ts:40</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1069,7 +1342,7 @@
 								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#deepget">deepGet</a></p>
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#deepget">deepGet</a></p>
 								<ul>
-									<li>Defined in transactions.ts:103</li>
+									<li>Defined in transactions.ts:138</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1094,7 +1367,7 @@
 								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#deepvalidationerror">deepValidationError</a></p>
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#deepvalidationerror">deepValidationError</a></p>
 								<ul>
-									<li>Defined in transactions.ts:207</li>
+									<li>Defined in transactions.ts:242</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1117,9 +1390,9 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#dispose">dispose</a></p>
-								<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#dispose">dispose</a></p>
+								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#dispose">dispose</a></p>
 								<ul>
-									<li>Defined in object-plus/events.ts:209</li>
+									<li>Defined in transactions.ts:38</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1137,7 +1410,7 @@
 							<aside class="tsd-sources">
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#each">each</a></p>
 								<ul>
-									<li>Defined in collection/index.ts:147</li>
+									<li>Defined in collection/index.ts:149</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1185,7 +1458,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#eachvalidationerror">eachValidationError</a></p>
 								<ul>
-									<li>Defined in transactions.ts:212</li>
+									<li>Defined in transactions.ts:247</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1232,7 +1505,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:199</li>
+									<li>Defined in collection/index.ts:201</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="record.html" class="tsd-signature-type">Record</a></h4>
@@ -1251,7 +1524,7 @@
 								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#get">get</a></p>
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#get">get</a></p>
 								<ul>
-									<li>Defined in collection/index.ts:135</li>
+									<li>Defined in collection/index.ts:137</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1276,7 +1549,7 @@
 								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#getowner">getOwner</a></p>
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#getowner">getOwner</a></p>
 								<ul>
-									<li>Defined in transactions.ts:110</li>
+									<li>Defined in transactions.ts:145</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../interfaces/owner.html" class="tsd-signature-type">Owner</a></h4>
@@ -1295,7 +1568,7 @@
 								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#getstore">getStore</a></p>
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#getstore">getStore</a></p>
 								<ul>
-									<li>Defined in collection/index.ts:106</li>
+									<li>Defined in collection/index.ts:108</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="transactional.html" class="tsd-signature-type">Transactional</a></h4>
@@ -1314,7 +1587,7 @@
 								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#getvalidationerror">getValidationError</a></p>
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#getvalidationerror">getValidationError</a></p>
 								<ul>
-									<li>Defined in transactions.ts:201</li>
+									<li>Defined in transactions.ts:236</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1337,7 +1610,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:339</li>
+									<li>Defined in collection/index.ts:341</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1360,7 +1633,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:196</li>
+									<li>Defined in collection/index.ts:198</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1379,7 +1652,7 @@
 								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#isvalid">isValid</a></p>
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#isvalid">isValid</a></p>
 								<ul>
-									<li>Defined in transactions.ts:218</li>
+									<li>Defined in transactions.ts:253</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1404,7 +1677,7 @@
 								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#keys">keys</a></p>
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#keys">keys</a></p>
 								<ul>
-									<li>Defined in transactions.ts:159</li>
+									<li>Defined in transactions.ts:194</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -1421,72 +1694,10 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:200</li>
+									<li>Defined in collection/index.ts:202</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="record.html" class="tsd-signature-type">Record</a></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-					<a name="listento" class="tsd-anchor"></a>
-					<h3>listen<wbr>To</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">listen<wbr>To<span class="tsd-signature-symbol">(</span>obj<span class="tsd-signature-symbol">: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">this</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#listento">listenTo</a></p>
-								<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#listento">listenTo</a></p>
-								<ul>
-									<li>Defined in object-plus/events.ts:138</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>obj: <a href="messenger.html" class="tsd-signature-type">Messenger</a></h5>
-								</li>
-								<li>
-									<h5>name: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> callback: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-					<a name="listentoonce" class="tsd-anchor"></a>
-					<h3>listen<wbr>ToOnce</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">listen<wbr>ToOnce<span class="tsd-signature-symbol">(</span>obj<span class="tsd-signature-symbol">: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">this</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#listentoonce">listenToOnce</a></p>
-								<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#listentoonce">listenToOnce</a></p>
-								<ul>
-									<li>Defined in object-plus/events.ts:169</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>obj: <a href="messenger.html" class="tsd-signature-type">Messenger</a></h5>
-								</li>
-								<li>
-									<h5>name: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>callback: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -1501,7 +1712,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#map">map</a></p>
 								<ul>
-									<li>Defined in transactions.ts:133</li>
+									<li>Defined in transactions.ts:168</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1555,7 +1766,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#mapobject">mapObject</a></p>
 								<ul>
-									<li>Defined in transactions.ts:146</li>
+									<li>Defined in transactions.ts:181</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1613,7 +1824,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:344</li>
+									<li>Defined in collection/index.ts:346</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1629,99 +1840,6 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-					<a name="off-1" class="tsd-anchor"></a>
-					<h3>off</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">off<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, callback<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Function</span>, context<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">this</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#off-1">off</a></p>
-								<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#off-1">off</a></p>
-								<ul>
-									<li>Defined in object-plus/events.ts:103</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> name: <span class="tsd-signature-type">string</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> callback: <span class="tsd-signature-type">Function</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> context: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-					<a name="on-1" class="tsd-anchor"></a>
-					<h3>on</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">on<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, context<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#on-1">on</a></p>
-								<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#on-1">on</a></p>
-								<ul>
-									<li>Defined in object-plus/events.ts:96</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>name: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>callback: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>context: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="messenger.html" class="tsd-signature-type">Messenger</a></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-					<a name="once" class="tsd-anchor"></a>
-					<h3>once</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">once<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, context<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#once">once</a></p>
-								<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#once">once</a></p>
-								<ul>
-									<li>Defined in object-plus/events.ts:162</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>name: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>callback: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>context: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="messenger.html" class="tsd-signature-type">Messenger</a></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
 					<a name="parse" class="tsd-anchor"></a>
 					<h3>parse</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -1733,7 +1851,7 @@
 								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#parse">parse</a></p>
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#parse">parse</a></p>
 								<ul>
-									<li>Defined in transactions.ts:90</li>
+									<li>Defined in transactions.ts:125</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1756,7 +1874,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:292</li>
+									<li>Defined in collection/index.ts:294</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1784,7 +1902,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:316</li>
+									<li>Defined in collection/index.ts:318</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1807,7 +1925,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:311</li>
+									<li>Defined in collection/index.ts:313</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1833,7 +1951,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:261</li>
+									<li>Defined in collection/index.ts:263</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1862,7 +1980,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:234</li>
+									<li>Defined in collection/index.ts:236</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1889,7 +2007,7 @@
 							<aside class="tsd-sources">
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#set">set</a></p>
 								<ul>
-									<li>Defined in collection/index.ts:217</li>
+									<li>Defined in collection/index.ts:219</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1914,7 +2032,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:328</li>
+									<li>Defined in collection/index.ts:330</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1937,7 +2055,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:335</li>
+									<li>Defined in collection/index.ts:337</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="record.html" class="tsd-signature-type">Record</a><span class="tsd-signature-symbol">[]</span></h4>
@@ -1954,7 +2072,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:296</li>
+									<li>Defined in collection/index.ts:298</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1963,37 +2081,6 @@
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> options: <a href="../interfaces/transactionoptions.html" class="tsd-signature-type">TransactionOptions</a><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
 								</li>
 							</ul>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-					<a name="stoplistening" class="tsd-anchor"></a>
-					<h3>stop<wbr>Listening</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">stop<wbr>Listening<span class="tsd-signature-symbol">(</span>obj<span class="tsd-signature-symbol">?: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a>, name<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, callback<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">this</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#stoplistening">stopListening</a></p>
-								<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#stoplistening">stopListening</a></p>
-								<ul>
-									<li>Defined in object-plus/events.ts:115</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> obj: <a href="messenger.html" class="tsd-signature-type">Messenger</a></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> name: <span class="tsd-signature-type">string</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> callback: <span class="tsd-signature-type">Function</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -2009,7 +2096,7 @@
 								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#tojson">toJSON</a></p>
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#tojson">toJSON</a></p>
 								<ul>
-									<li>Defined in collection/index.ts:212</li>
+									<li>Defined in collection/index.ts:214</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -2026,7 +2113,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:349</li>
+									<li>Defined in collection/index.ts:351</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2053,7 +2140,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#transaction">transaction</a></p>
 								<ul>
-									<li>Defined in transactions.ts:59</li>
+									<li>Defined in transactions.ts:94</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2087,39 +2174,6 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-					<a name="trigger" class="tsd-anchor"></a>
-					<h3>trigger</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">trigger<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, a<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, b<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, c<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#trigger">trigger</a></p>
-								<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#trigger">trigger</a></p>
-								<ul>
-									<li>Defined in object-plus/events.ts:179</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>name: <span class="tsd-signature-type">string</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> a: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> b: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> c: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-						</li>
-					</ul>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-external">
 					<a name="unshift" class="tsd-anchor"></a>
 					<h3>unshift</h3>
@@ -2130,7 +2184,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in collection/index.ts:323</li>
+									<li>Defined in collection/index.ts:325</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2157,7 +2211,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#updateeach">updateEach</a></p>
 								<ul>
-									<li>Defined in transactions.ts:67</li>
+									<li>Defined in transactions.ts:102</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2206,7 +2260,7 @@
 								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#validate">validate</a></p>
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#validate">validate</a></p>
 								<ul>
-									<li>Defined in transactions.ts:198</li>
+									<li>Defined in transactions.ts:233</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2231,7 +2285,7 @@
 								<p>Implementation of <a href="../interfaces/collectioncore.html">CollectionCore</a>.<a href="../interfaces/collectioncore.html#values">values</a></p>
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#values">values</a></p>
 								<ul>
-									<li>Defined in transactions.ts:166</li>
+									<li>Defined in transactions.ts:201</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -2247,9 +2301,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overwrites <a href="messenger.html">Messenger</a>.<a href="messenger.html#define">define</a></p>
+								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#define">define</a></p>
 								<ul>
-									<li>Defined in collection/index.ts:51</li>
+									<li>Defined in collection/index.ts:53</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2274,9 +2328,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overwrites <a href="messenger.html">Messenger</a>.<a href="messenger.html#predefine">predefine</a></p>
+								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#predefine">predefine</a></p>
 								<ul>
-									<li>Defined in collection/index.ts:45</li>
+									<li>Defined in collection/index.ts:47</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -2360,11 +2414,32 @@
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-external">
 								<a href="collection.html#idattribute" class="tsd-kind-icon">id<wbr>Attribute</a>
 							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+								<a href="collection.html#listento" class="tsd-kind-icon">listen<wbr>To</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+								<a href="collection.html#listentoonce" class="tsd-kind-icon">listen<wbr>ToOnce</a>
+							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-external">
 								<a href="collection.html#model" class="tsd-kind-icon">model</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-external">
 								<a href="collection.html#models" class="tsd-kind-icon">models</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+								<a href="collection.html#off" class="tsd-kind-icon">off</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+								<a href="collection.html#on" class="tsd-kind-icon">on</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+								<a href="collection.html#once" class="tsd-kind-icon">once</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+								<a href="collection.html#stoplistening" class="tsd-kind-icon">stop<wbr>Listening</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+								<a href="collection.html#trigger" class="tsd-kind-icon">trigger</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static tsd-is-external">
 								<a href="collection.html#_subsetof" class="tsd-kind-icon">_<wbr>Subset<wbr>Of</a>
@@ -2378,29 +2453,20 @@
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
 								<a href="collection.html#extend" class="tsd-kind-icon">extend</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-								<a href="collection.html#off" class="tsd-kind-icon">off</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
+								<a href="collection.html#mixto" class="tsd-kind-icon">mix<wbr>To</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-								<a href="collection.html#on" class="tsd-kind-icon">on</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
+								<a href="collection.html#mixinrules" class="tsd-kind-icon">mixin<wbr>Rules</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
+								<a href="collection.html#mixins" class="tsd-kind-icon">mixins</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
 								<a href="collection.html#shared" class="tsd-kind-icon">shared</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static tsd-is-external">
 								<a href="collection.html#subsetof" class="tsd-kind-icon">subset<wbr>Of</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-								<a href="collection.html#trigger0" class="tsd-kind-icon">trigger0</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-								<a href="collection.html#trigger1" class="tsd-kind-icon">trigger1</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-								<a href="collection.html#trigger2" class="tsd-kind-icon">trigger2</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-								<a href="collection.html#trigger3" class="tsd-kind-icon">trigger3</a>
 							</li>
 							<li class=" tsd-kind-accessor tsd-parent-kind-class tsd-is-external">
 								<a href="collection.html#comparator" class="tsd-kind-icon">comparator</a>
@@ -2480,12 +2546,6 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-external">
 								<a href="collection.html#last" class="tsd-kind-icon">last</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-								<a href="collection.html#listento" class="tsd-kind-icon">listen<wbr>To</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-								<a href="collection.html#listentoonce" class="tsd-kind-icon">listen<wbr>ToOnce</a>
-							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited tsd-is-external">
 								<a href="collection.html#map" class="tsd-kind-icon">map</a>
 							</li>
@@ -2494,15 +2554,6 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-external">
 								<a href="collection.html#modelid" class="tsd-kind-icon">model<wbr>Id</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-								<a href="collection.html#off-1" class="tsd-kind-icon">off</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-								<a href="collection.html#on-1" class="tsd-kind-icon">on</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-								<a href="collection.html#once" class="tsd-kind-icon">once</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
 								<a href="collection.html#parse" class="tsd-kind-icon">parse</a>
@@ -2534,9 +2585,6 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-external">
 								<a href="collection.html#sort" class="tsd-kind-icon">sort</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-								<a href="collection.html#stoplistening" class="tsd-kind-icon">stop<wbr>Listening</a>
-							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-external">
 								<a href="collection.html#tojson" class="tsd-kind-icon">toJSON</a>
 							</li>
@@ -2545,9 +2593,6 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
 								<a href="collection.html#transaction" class="tsd-kind-icon">transaction</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-								<a href="collection.html#trigger" class="tsd-kind-icon">trigger</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-external">
 								<a href="collection.html#unshift" class="tsd-kind-icon">unshift</a>
