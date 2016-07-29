@@ -1,8 +1,10 @@
 import { Record, ChainableAttributeSpec } from '../record'
 import { Collection } from '../collection'
-import { GenericAttribute } from '../record/attribute'
+import { GenericAttribute } from '../record'
 import { Owner, free, aquire, Transactional, TransactionOptions, TransactionalConstructor } from '../transactions' 
-import { log } from '../object-plus'
+import { tools, eventsApi } from '../object-plus'
+
+const { on, off } = eventsApi;
 
 /************************
  * Model.shared and Collection.shared
@@ -21,7 +23,7 @@ export class SharedType extends GenericAttribute {
     convert( value : any, options : TransactionOptions, record : Record ) : Transactional {
         if( value == null || value instanceof this.type ) return value;
 
-        log.error( `[Shared Attribute] Cannot assign value of incompatible type.`, value, record );
+        tools.log.error( `[Shared Attribute] Cannot assign value of incompatible type.`, value, record );
         
         return null;
     }
@@ -39,8 +41,8 @@ export class SharedType extends GenericAttribute {
 
     // Listening to the change events
     _handleChange( next : Transactional, prev : Transactional, record : Record ){
-        prev && Transactional.off( prev, prev._changeEventName, record._onChildrenChange, record );
-        next && Transactional.on( next, next._changeEventName, record._onChildrenChange, record );
+        prev && off( prev, prev._changeEventName, record._onChildrenChange, record );
+        next && on( next, next._changeEventName, record._onChildrenChange, record );
     }
 
     initialize( options ){

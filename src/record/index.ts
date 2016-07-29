@@ -1,10 +1,15 @@
 import { Record, RecordDefinition, AttributeDescriptorMap } from './transaction'
-import { assign, defaults, omit, Mixable, ClassDefinition, getBaseClass } from '../object-plus'
+import { Mixable, ClassDefinition, tools } from '../object-plus'
 import { compile, AttributesSpec } from './define'
 import { ChainableAttributeSpec } from './typespec'
 
 import { TransactionalType } from './nestedTypes'
 import './basicTypes'
+
+export * from './attribute'
+export { Record, ChainableAttributeSpec, TransactionalType }
+
+const { assign, defaults, omit, getBaseClass } = tools;
 
 Record.define = function( protoProps : RecordDefinition, staticProps ){
     const BaseConstructor : typeof Record = getBaseClass( this ),
@@ -51,8 +56,6 @@ function getAttributes({ defaults, attributes, idAttribute } : RecordDefinition 
 
     return definition;
 }
-
-export { Record, ChainableAttributeSpec, TransactionalType }
 
 function defineCollection( collection : {} ){
     const BaseCollection = getBaseClass( this ).Collection;

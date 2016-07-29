@@ -1,8 +1,9 @@
-import { Messenger, assign, define, Constructor, MixableConstructor } from './object-plus'
+import { Messenger, MixinRules, MessengerDefinition, tools, extendable, mixins, eventsApi, define, Constructor, MixableConstructor } from './object-plus'
 import { ValidationError, Validatable, ChildrenErrors } from './validation'
-import { Traversable, resolveReference } from './object-plus/traversable'
+import { Traversable, resolveReference } from './traversable'
 
-const { trigger2, trigger3 } = Messenger;
+const { assign } = tools,
+      { trigger2, trigger3 } = eventsApi;
 /***
  * Abstract class implementing ownership tree, tho-phase transactions, and validation. 
  * 1. createTransaction() - apply changes to an object tree, and if there are some events to send, transaction object is created.
@@ -10,13 +11,47 @@ const { trigger2, trigger3 } = Messenger;
  */
 
 /** @private */
-export type TransactionalConstructor = MixableConstructor< Transactional >;
+export type TransactionalConstructor = MixableConstructor< Transactional >
+export type TransactionalDefinition = MessengerDefinition
 
 // Transactional object interface
-@define({
-    _changeEventName : 'change' // TODO: move to record.
-})
-export abstract class Transactional extends Messenger implements Validatable, Traversable {
+@mixins( Messenger )
+@extendable
+export abstract class Transactional implements Messenger, Validatable, Traversable {
+    // Mixins are hard in TypeScript. We need to copy type signatures over...
+    // Define extendable mixin static properties.
+    static create : ( a : any, b? : any, c? : any ) => Transactional
+    static mixins : ( ...mixins : ( Constructor<any> | {} )[] ) => MixableConstructor< Transactional >
+    static mixinRules : ( mixinRules : MixinRules ) => MixableConstructor< Transactional >
+    static mixTo : ( ...args : Constructor<any>[] ) => MixableConstructor< Transactional >
+    static extend : (spec? : TransactionalDefinition, statics? : {} ) => MixableConstructor< Transactional >
+    static define : (spec? : TransactionalDefinition, statics? : {} ) => MixableConstructor< Transactional >
+    static predefine : () => typeof Messenger
+
+    on : (name, callback, context) => any
+    off : (name? : string, callback? : Function, context? ) => any
+    stopListening : ( obj? : Messenger, name? : string, callback? : Function ) => any
+    listenTo : (obj : Messenger, name, callback? ) => any
+    once : (name, callback, context) => any  
+    listenToOnce : (obj : Messenger, name, callback) => any 
+    trigger      : (name : string, a?, b?, c? ) => this
+    dispose(){}
+
+    /** @private */
+    _events : eventsApi.EventsSubscription = void 0;
+    
+    /** @private */
+    _listeners : any
+
+    /** @private */
+    _listeningTo : any
+
+    /** @private */
+    _localEvents : any
+
+    cid : string
+    cidPrefix : string
+
     static shared : any;
 
     // Unique version token replaced on change
@@ -45,7 +80,7 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     _changeEventName : string
 
     constructor( cid : string | number, owner? : Owner, ownerKey? : string ){
-        super( cid );
+        this.cid = this.cidPrefix + cid;
         this._owner = owner;
         this._ownerKey = ownerKey;
     }
@@ -219,6 +254,8 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
         return !this.getValidationError( key );
     }
 }
+
+Transactional.prototype.dispose = Messenger.prototype.dispose;
 
 // Owner must accept children update events. It's an only way children communicates with an owner.
 /** @private */

@@ -1,19 +1,27 @@
+/**************************************************************
+ * Low-level high-performance publish-subscrive events API.
+ * Monomorphic, minimalistic, JIT optimized.
+ * 
+ * Implementation is 100% structurally compatible woth a subset of Backbone 1.2 Events.
+ * 
+ * Type-R solely depends on that API for managing events subscriptions.
+ */
 
 /** @private */
 export const eventSplitter = /\s+/;
 
-/** @private */
-export interface EventsCore {
-    _events : SubscribedEvents
+/** @private Main interface object must conform to in order to send events */
+export interface EventSource {
+    _events : EventsSubscription
 }
 
-/** @private */
-export interface SubscribedEvents {
+/** @private Internal hash holding events subscription */
+export interface EventsSubscription {
     all? : EventHandler[]
-    [ name : string ] : EventHandler[]
+    [ eventName : string ] : EventHandler[]
 }
 
-/** @private */
+/** @private Event handler data structure, with a shape expected by Backbone 1.2 Events */
 export class EventHandler {
     constructor(
         public context,
@@ -29,7 +37,7 @@ export class EventHandler {
     }
 }
 
-/** @private */
+/** @private Callback structure, with a shape expected by Backbone 1.2 Events */
 export interface Callback extends Function{
     _callback? : any
 }
@@ -38,7 +46,7 @@ export interface Callback extends Function{
  * Prebuilt events map, used for optimized bulk event subscriptions.
  * 
  * const events = new EventMap({
- *      'change' : true, // resend this event from target
+ *      'change' : true, // Resend this event from self as it is.
  *      'change:attr' : 'localTargetFunction',
  *      'executedInTargetContext' : function(){ ... }
  *      'executedInNativeContext' : '^props.handler' 
@@ -88,14 +96,14 @@ export class EventMap {
         }        
     }
 
-    subscribe( target : {}, source : EventsCore ){
+    subscribe( target : {}, source : EventSource ){
         const  _events = source._events || ( source._events = {} );
         for( let event of this.handlers ){
             _on( _events, event.name, event.callback, target );
         }
     }
 
-    unsubscribe( target : {}, source : EventsCore ){
+    unsubscribe( target : {}, source : EventSource ){
         const { _events } = source;
         if( _events ){
             for( let event of this.handlers ){
@@ -133,13 +141,13 @@ class EventDescriptor {
  */
 
 /** @private */
-export function on( self : EventsCore, name : string, callback : Function, context? ){
+export function on( self : EventSource, name : string, callback : Function, context? ){
     const _events = self._events || ( self._events = {} );
     _on( _events, name, callback, context );
 }
 
 /** @private */
-export function off( self : EventsCore, name : string, callback : Function, context : {} ){
+export function off( self : EventSource, name : string, callback : Function, context : {} ){
     const { _events } = self;
     _events && _off( _events, name, callback, context );
 }
@@ -148,7 +156,7 @@ export function off( self : EventsCore, name : string, callback : Function, cont
  * Event-triggering API 
  */
 /** @private */
-export function trigger0( self : EventsCore, name : string ) : void {
+export function trigger0( self : EventSource, name : string ) : void {
     const { _events } = self;
     if( _events ){
         const queue = _events[ name ],
@@ -160,7 +168,7 @@ export function trigger0( self : EventsCore, name : string ) : void {
 };
 
 /** @private */
-export function trigger1( self : EventsCore, name : string, a : any ) : void {
+export function trigger1( self : EventSource, name : string, a : any ) : void {
     const { _events } = self;
     if( _events ){
         const queue = _events[ name ],
@@ -172,7 +180,7 @@ export function trigger1( self : EventsCore, name : string, a : any ) : void {
 };
 
 /** @private */
-export function trigger2( self : EventsCore, name : string, a, b ) : void {
+export function trigger2( self : EventSource, name : string, a, b ) : void {
     const { _events } = self;
     if( _events ){
         const queue = _events[ name ],
@@ -184,7 +192,7 @@ export function trigger2( self : EventsCore, name : string, a, b ) : void {
 };
 
 /** @private */
-export function trigger3( self : EventsCore, name : string, a, b, c ) : void{
+export function trigger3( self : EventSource, name : string, a, b, c ) : void{
     const { _events } = self;
     if( _events ){
         const queue = _events[ name ],
@@ -223,7 +231,7 @@ function _fireEvent4( events : EventHandler[], a, b, c, d ) : void {
 }
 
 // Subscrive for the single event
-function _on( _events : SubscribedEvents, name : string, callback : Function, context : Object, ctx? : Object ){
+function _on( _events : EventsSubscription, name : string, callback : Function, context : Object, ctx? : Object ){
     const events = _events[ name ],
           handler = new EventHandler( context, ctx || context, null, callback );
 
@@ -236,7 +244,7 @@ function _on( _events : SubscribedEvents, name : string, callback : Function, co
 };
 
 // Remove all events with a given name and context, or callback, if its provided. 
-function _off( _events : SubscribedEvents, name : string, callback : Function, context : {} ) {
+function _off( _events : EventsSubscription, name : string, callback : Function, context : {} ) {
     const events = _events[ name ];
 
     if( events ) {
