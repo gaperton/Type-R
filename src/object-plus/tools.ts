@@ -161,32 +161,41 @@ export function fastDefaults<A, B>( dest : A, source : B ) : A & B {
     return <A & B >dest;
 }
 
-function forAllArgs( fun ) {
-    return function< T >( dest : T, ...sources ) : T {
-        for( var i = 0; i < sources.length; i++ ) {
-            const source = sources[ i ];
-            source && fun( dest, source );
-        }
-
-        return dest;
-    }
-}
-
-export const assign = forAllArgs( ( dest, source ) => {
+export function assign< T >( dest : T, ...sources : Object[] ) : T
+export function assign< T >( dest : T, source : Object ) : T {
     for( var name in source ) {
         if( source.hasOwnProperty( name ) ) {
             dest[ name ] = source[ name ];
         }
     }
-} );
 
-export const defaults = forAllArgs( ( dest, source ) => {
-    for( var name in source ) {
-        if( source.hasOwnProperty( name ) && dest[ name ] === void 0 ) {
-             dest[ name ] = source[ name ];
+    if( arguments.length > 2 ){
+        for( let i = 2; i < arguments.length; i++ ){
+            const other = arguments[ i ];
+            other && assign( dest, other );
         }
     }
-} );
+
+    return dest;
+}
+
+export function defaults< T >( dest : T, ...sources : Object[] ) : T
+export function defaults< T >( dest : T, source : Object ) : T {
+    for( var name in source ) {
+        if( source.hasOwnProperty( name ) && dest[ name ] === void 0 ) {
+            dest[ name ] = source[ name ];
+        }
+    }
+
+    if( arguments.length > 2 ){
+        for( let i = 2; i < arguments.length; i++ ){
+            const other = arguments[ i ];
+            other && defaults( dest, other );
+        }
+    }
+
+    return dest;
+}
 
 export function keys( o : any ) : string[]{
     return o ? Object.keys( o ) : [];

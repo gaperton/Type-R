@@ -1,6 +1,8 @@
-import { Transaction, begin, commit, markAsDirty } from '../transactions'
+import { Transaction, transactionApi } from '../transactions'
 import { CollectionTransaction, IdIndex, aquire, free, sortElements, CollectionOptions, toModel, addIndex, CollectionCore, Elements, freeAll } from './commons'
 import { Record } from '../record'
+
+const { begin, commit, markAsDirty } = transactionApi;
 
 /** @private */
 const silentOptions = { silent : true };

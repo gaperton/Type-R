@@ -1,6 +1,8 @@
-import { Transaction, begin, commit, markAsDirty } from '../transactions'
+import { Transaction, transactionApi } from '../transactions'
 import { CollectionTransaction, sortElements, aquire, free, CollectionOptions, toModel, addIndex, CollectionCore } from './commons'
 import { Record } from '../record'
+
+const { begin, commit, markAsDirty } = transactionApi;
 
 interface AddOptions extends CollectionOptions {
     at? : number 

@@ -1,7 +1,9 @@
 import { Record } from './transaction' 
 import { GenericAttribute } from './attribute'
-import { Owner, free, aquire, Transactional, TransactionOptions, TransactionalConstructor } from '../transactions'
-import { log } from '../object-plus' 
+import { Owner, transactionApi, Transactional, TransactionOptions, TransactionalConstructor } from '../transactions'
+import { tools } from '../object-plus' 
+
+const { free, aquire } = transactionApi;
 
 export class TransactionalType extends GenericAttribute {
     type : TransactionalConstructor
@@ -33,7 +35,7 @@ export class TransactionalType extends GenericAttribute {
         prev && free( record, prev );
         
         if( next && !aquire( record, next, this.name ) ){
-            log.error( '[Aggregation error] Assigned value already has an owner. Use shared attribute type.' );
+            tools.log.error( '[Aggregation error] Assigned value already has an owner. Use shared attribute type.' );
         }
     }
 }

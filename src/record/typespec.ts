@@ -5,7 +5,9 @@
 import { Transactional } from '../transactions'
 import { ChangeAttrHandler, AttributeDescriptor } from './attribute'
 import { Record } from './transaction'
-import { assign, EventMap, EventsDefinition, Constructor } from '../object-plus'
+import { EventMap, EventsDefinition, Constructor, tools } from '../object-plus'
+
+const { assign } = tools;
 
 export interface AttributeCheck {
     ( value : any, key : string ) : boolean

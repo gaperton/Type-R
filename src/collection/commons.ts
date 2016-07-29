@@ -1,10 +1,12 @@
 import { Record } from '../record'
-import { Owner, aquire as _aquire, free as _free, Transaction, markAsDirty,
-        TransactionOptions, Transactional, commit } from '../transactions'
+import { Owner, Transaction,
+        TransactionOptions, Transactional, transactionApi } from '../transactions'
 
-import { EventMap } from '../object-plus'
+import { eventsApi } from '../object-plus'
 
-const { trigger2, trigger3 } = Transactional;        
+const { EventMap, trigger2, trigger3 } = eventsApi,
+      { commit, markAsDirty } = transactionApi,
+      _aquire = transactionApi.aquire, _free = transactionApi.free;
 
 /** @private */
 export interface CollectionCore extends Transactional, Owner {
@@ -14,7 +16,7 @@ export interface CollectionCore extends Transactional, Owner {
     idAttribute : string // TODO: Refactor inconsistent idAttribute usage
     _comparator : Comparator
     get( objOrId : string | Record | Object ) : Record    
-    _itemEvents? : EventMap
+    _itemEvents? : eventsApi.EventMap
 }
 
 // Collection's manipulation methods elements

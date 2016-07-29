@@ -1,18 +1,18 @@
 import Mixins = require( './mixins' )
-import Tools = require( './tools' );
-import EventMaps = require( './eventmaps' );
-import { EventMap, EventsDefinition } from './eventmaps'
+import tools = require( './tools' );
+import _eventsApi = require( './events-api' );
+import { EventMap, EventsDefinition } from './events-api'
 
-const { mixins, define, extendable } = Mixins;
-const { omit, once, isEmpty, keys } = Tools;
-const { EventHandler, trigger0, trigger1, trigger2, trigger3 } = EventMaps;
+const { mixins, define, extendable } = Mixins,
+      { omit, once, isEmpty, keys } = tools,
+      { EventHandler, trigger0, trigger1, trigger2, trigger3 } = _eventsApi;
 
 // Regular expression used to split event strings.
 const eventSplitter = /\s+/;
 
 let _idCount = 0;
 
-function uniqueId(){
+function uniqueId() : string {
     return 'l' + _idCount++;
 }
 
@@ -28,50 +28,34 @@ export interface MessengerDefinition extends Mixins.ClassDefinition {
 }
 
 // Attach default cid prefix to the prototype.
-@define({
-    cidPrefix : 'l'
-})
 @extendable
 export abstract class Messenger implements Mixins.Mixable {
-    // High-performance API to be used in the library core.
-    /** @private */
-    static trigger0 = EventMaps.trigger0
-    /** @private */
-    static trigger1 = EventMaps.trigger1
-    /** @private */
-    static trigger2 = EventMaps.trigger2
-    /** @private */
-    static trigger3 = EventMaps.trigger3
-    /** @private */
-    static on = EventMaps.on
-    /** @private */
-    static off = EventMaps.off
+    // Define extendable mixin static properties.
+    static create : ( a : any, b? : any, c? : any ) => Messenger
+    static mixins : ( ...mixins : ( Mixins.Constructor<any> | {} )[] ) => Mixins.MixableConstructor< Messenger >
+    static mixinRules : ( mixinRules : Mixins.MixinRules ) => Mixins.MixableConstructor< Messenger >
+    static mixTo : ( ...args : Mixins.Constructor<any>[] ) => Mixins.MixableConstructor< Messenger >
+    static extend : (spec? : MessengerDefinition, statics? : {} ) => Mixins.MixableConstructor< Messenger >
+    static predefine : () => Mixins.MixableConstructor< Messenger >
 
     /** @private */ 
-    _events : EventMaps.SubscribedEvents = void 0;
+    _events : _eventsApi.EventsSubscription = void 0;
 
     /** @private */
-    _listeners : Listeners
+    _listeners : Listeners = void 0
 
     /** @private */
-    _listeningTo : ListeningToMap
-    
-    /** Prifix for cid. Usually the prototype-only assigned by subclasses with local counters. */
-    cidPrefix : string
+    _listeningTo : ListeningToMap = void 0
 
     /** Unique client-only id. */
     cid : string
 
-    static create : ( a : any, b? : any, c? : any ) => Messenger
-    static extend : ( a? : any, b? : any ) => typeof Messenger
-    static predefine : () => typeof Messenger
-
     // Prototype-only property to manage automatic local events subscription.
     /** @private */
-    _localEvents : EventMaps.EventMap
+    _localEvents : _eventsApi.EventMap
 
     /** @private */
-    static define( protoProps? : MessengerDefinition , staticProps? ){
+    static define( protoProps? : MessengerDefinition , staticProps? ) : typeof Messenger {
         const spec : MessengerDefinition = omit( protoProps || {}, 'localEvents' );
 
         if( protoProps ){
@@ -87,20 +71,23 @@ export abstract class Messenger implements Mixins.Mixable {
         return Mixins.Mixable.define.call( this, spec, staticProps );
     }
 
-    constructor( cid : string | number ){
-        this.cid = this.cidPrefix + cid;
+    constructor(){
+        this.cid = uniqueId();
+        this.initialize.apply( this, arguments );
     }
+
+    initialize() : void {}
     
     // Bind an event to a `callback` function. Passing `"all"` will bind
     // the callback to all events fired.
-    on(name, callback, context) {
-        return internalOn(this, name, callback, context);
+    on(name, callback, context) : this  {
+        return <this>internalOn(this, name, callback, context);
     }
     // Remove one or many callbacks. If `context` is null, removes all
     // callbacks with that function. If `callback` is null, removes all
     // callbacks for the event. If `name` is null, removes all bound
     // callbacks for all events.
-    off(name? : string, callback? : Function, context? ) {
+    off(name? : string, callback? : Function, context? )  : this {
         if (!this._events) return this;
         this._events = eventsApi(offApi, this._events, name, callback,
                                 new OffOptions(
@@ -112,7 +99,7 @@ export abstract class Messenger implements Mixins.Mixable {
 
     // Tell this object to stop listening to either specific events ... or
     // to every object it's currently listening to.
-    stopListening( obj? : Messenger, name? : string, callback? : Function ) {
+    stopListening( obj? : Messenger, name? : string, callback? : Function ) : this {
         const listeningTo = this._listeningTo;
         if (!listeningTo) return this;
 
@@ -135,7 +122,7 @@ export abstract class Messenger implements Mixins.Mixable {
     // Inversion-of-control versions of `on`. Tell *this* object to listen to
     // an event in another object... keeping track of what it's listening to
     // for easier unbinding later.
-    listenTo(obj : Messenger, name, callback? ) {
+    listenTo(obj : Messenger, name, callback? ) : this {
         if( !obj ) return this;
         
         const id = obj.cid || (obj.cid = uniqueId()),
@@ -159,14 +146,14 @@ export abstract class Messenger implements Mixins.Mixable {
     // the callback is invoked, its listener will be removed. If multiple events
     // are passed in using the space-separated syntax, the handler will fire
     // once for each event, not once for a combination of all events.
-    once(name, callback, context) {
+    once(name, callback, context)  : this {
         // Map the event into a `{event: once}` object.
         const events = eventsApi(onceMap, {}, name, callback, this.off.bind( this ));
         return this.on(events, void 0, context);
     }
 
     // Inversion-of-control versions of `once`.
-    listenToOnce(obj : Messenger, name, callback) {
+    listenToOnce(obj : Messenger, name, callback)  : this {
         // Map the event into a `{event: once}` object.
         const events = eventsApi(onceMap, {}, name, callback, this.stopListening.bind( this, obj ) );
         return this.listenTo(obj, events);
@@ -212,11 +199,12 @@ export abstract class Messenger implements Mixins.Mixable {
     }
 }
 
-
 const slice = Array.prototype.slice;
 
-/** @private */
-export const Events = Messenger.prototype;
+/**
+ * Backbone 1.2 API conformant Events mixin.
+ */
+export const Events : Messenger = <Messenger> omit( Messenger.prototype, 'constructor', 'initialize' );
 
 // Iterates over the standard `event, callback` (as well as the fancy multiple
 // space-separated events `"change blur", callback` and jQuery-style event
@@ -246,11 +234,11 @@ class ListeningTo {
     constructor( public obj, public objId, public id, public listeningTo ){}
 }
 
-interface ListeningToMap {
+export interface ListeningToMap {
     [ id : string ] : ListeningTo
 }
 
-interface Listeners {
+export interface Listeners {
     [ id : string ] : Messenger
 }
 
@@ -268,7 +256,7 @@ function internalOn(obj : Messenger, name, callback, context, listening? ) : Mes
 };
 
 // The reducing API that adds a callback to the `events` object.
-function onApi(events : EventMaps.SubscribedEvents, name : string, callback : Function, options) : EventMaps.SubscribedEvents {
+function onApi(events : _eventsApi.EventsSubscription, name : string, callback : Function, options) : _eventsApi.EventsSubscription {
     if (callback) {
         const handlers = events[name],
               toAdd = [ options.clone( callback ) ];
@@ -284,7 +272,7 @@ class OffOptions {
 }
 
 // The reducing API that removes a callback from the `events` object.
-function offApi(events : EventMaps.SubscribedEvents, name, callback, options : OffOptions ) {
+function offApi(events : _eventsApi.EventsSubscription, name, callback, options : OffOptions ) {
     if (!events) return;
 
     let i = 0, listening;
@@ -342,7 +330,7 @@ function offApi(events : EventMaps.SubscribedEvents, name, callback, options : O
 // `offer` unbinds the `onceWrapper` after it has been called.
 function onceMap(map, name, callback, offer) {
     if (callback) {
-        const _once : EventMaps.Callback = map[name] = once(function() {
+        const _once : _eventsApi.Callback = map[name] = once(function() {
             offer(name, _once);
             callback.apply(this, arguments);
         });
@@ -351,7 +339,7 @@ function onceMap(map, name, callback, offer) {
     return map;
 };
 
-function _fireEventAll( events : EventMaps.EventHandler[], a ) : void {
+function _fireEventAll( events : _eventsApi.EventHandler[], a ) : void {
     for( let ev of events )
         ev.callback.call( ev.ctx, a );
 }

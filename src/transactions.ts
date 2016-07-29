@@ -1,8 +1,9 @@
-import { Messenger, assign, define, Constructor, MixableConstructor } from './object-plus'
+import { Messenger, Listeners, ListeningToMap, MixinRules, MessengerDefinition, tools, extendable, mixins, eventsApi, define, Constructor, MixableConstructor } from './object-plus'
 import { ValidationError, Validatable, ChildrenErrors } from './validation'
-import { Traversable, resolveReference } from './object-plus/traversable'
+import { Traversable, resolveReference } from './traversable'
 
-const { trigger2, trigger3 } = Messenger;
+const { assign } = tools,
+      { trigger2, trigger3 } = eventsApi;
 /***
  * Abstract class implementing ownership tree, tho-phase transactions, and validation. 
  * 1. createTransaction() - apply changes to an object tree, and if there are some events to send, transaction object is created.
@@ -10,13 +11,48 @@ const { trigger2, trigger3 } = Messenger;
  */
 
 /** @private */
-export type TransactionalConstructor = MixableConstructor< Transactional >;
+export type TransactionalConstructor = MixableConstructor< Transactional >
+export type TransactionalDefinition = MessengerDefinition
 
 // Transactional object interface
-@define({
-    _changeEventName : 'change' // TODO: move to record.
-})
-export abstract class Transactional extends Messenger implements Validatable, Traversable {
+@mixins( Messenger )
+@extendable
+export abstract class Transactional implements Messenger, Validatable, Traversable {
+    // Mixins are hard in TypeScript. We need to copy type signatures over...
+    // Define extendable mixin static properties.
+    static create : ( a : any, b? : any, c? : any ) => Transactional
+    static mixins : ( ...mixins : ( Constructor<any> | {} )[] ) => MixableConstructor< Transactional >
+    static mixinRules : ( mixinRules : MixinRules ) => MixableConstructor< Transactional >
+    static mixTo : ( ...args : Constructor<any>[] ) => MixableConstructor< Transactional >
+    static extend : (spec? : TransactionalDefinition, statics? : {} ) => MixableConstructor< Transactional >
+    static define : (spec? : TransactionalDefinition, statics? : {} ) => MixableConstructor< Transactional >
+    static predefine : () => typeof Messenger
+
+    on : (name, callback, context) => this
+    off : (name? : string, callback? : Function, context? ) => this
+    stopListening : ( obj? : Messenger, name? : string, callback? : Function ) => this
+    listenTo : (obj : Messenger, name, callback? ) => this
+    once : (name, callback, context) => this 
+    listenToOnce : (obj : Messenger, name, callback) => this 
+    trigger      : (name : string, a?, b?, c? ) => this
+    dispose() : void {}
+    initialize() : void{}
+
+    /** @private */
+    _events : eventsApi.EventsSubscription = void 0;
+    
+    /** @private */
+    _listeners : Listeners
+
+    /** @private */
+    _listeningTo : ListeningToMap
+
+    /** @private */
+    _localEvents : eventsApi.EventMap
+
+    cid : string
+    cidPrefix : string
+
     static shared : any;
 
     // Unique version token replaced on change
@@ -45,7 +81,7 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     _changeEventName : string
 
     constructor( cid : string | number, owner? : Owner, ownerKey? : string ){
-        super( cid );
+        this.cid = this.cidPrefix + cid;
         this._owner = owner;
         this._ownerKey = ownerKey;
     }
@@ -57,17 +93,17 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     
     // Execute given function in the scope of ad-hoc transaction.
     transaction( fun : ( self : this ) => void, options : TransactionOptions = {} ) : void{
-        const isRoot = begin( this );
+        const isRoot = transactionApi.begin( this );
         fun.call( this, this );
-        isRoot && commit( this );
+        isRoot && transactionApi.commit( this );
     }
 
     // Loop through the members in the scope of transaction.
     // Transactional version of each()
     updateEach( iteratee : ( val : any, key : string ) => void, options? : TransactionOptions ){
-        const isRoot = begin( this );
+        const isRoot = transactionApi.begin( this );
         this.each( iteratee );
-        isRoot && commit( this );
+        isRoot && transactionApi.commit( this );
     }
 
     // Apply bulk in-place object update in scope of ad-hoc transaction 
@@ -220,6 +256,8 @@ export abstract class Transactional extends Messenger implements Validatable, Tr
     }
 }
 
+Transactional.prototype.dispose = Messenger.prototype.dispose;
+
 // Owner must accept children update events. It's an only way children communicates with an owner.
 /** @private */
 export interface Owner extends Traversable, Messenger {
@@ -271,80 +309,82 @@ export interface TransactionOptions {
  * commit( object, options, isNested ) 
  */
 
-// Start transaction. Return true if it's the root one.
-/** @private */
-export function begin( object : Transactional ) : boolean {
-    return object._transaction ? false : ( object._transaction = true );  
-}
+export const transactionApi = {
+    // Start transaction. Return true if it's the root one.
+    /** @private */
+    begin( object : Transactional ) : boolean {
+        return object._transaction ? false : ( object._transaction = true );  
+    },
 
-// Mark object having changes inside of the current transaction.
-// Returns true whenever there notifications are required.
-/** @private */
-export function markAsDirty( object : Transactional, options : TransactionOptions ) : boolean {
-    // If silent option is in effect, don't set isDirty flag.
-    const dirty = !options.silent;
-    if( dirty ) object._isDirty = options;
-    
-    // Reset version token.
-    object._changeToken = {};
-
-    // Object is changed, so validation must happen again. Clear the cache.
-    object._validationError = void 0;
-
-    return dirty;
-}
-
-// Commit transaction. Send out change event and notify owner. Returns true if there were changes.
-// Must be executed for the root transaction only.
-/** @private */
-export function commit( object : Transactional, isNested? : boolean ){
-    let originalOptions = object._isDirty;
-
-    if( originalOptions ){
-        // Send the sequence of change events, handling chained handlers.
-        while( object._isDirty ){
-            const options = object._isDirty;
-            object._isDirty = null; 
-            trigger2( object, object._changeEventName, object, options );
-        }
+    // Mark object having changes inside of the current transaction.
+    // Returns true whenever there notifications are required.
+    /** @private */
+    markAsDirty( object : Transactional, options : TransactionOptions ) : boolean {
+        // If silent option is in effect, don't set isDirty flag.
+        const dirty = !options.silent;
+        if( dirty ) object._isDirty = options;
         
-        // Mark transaction as closed.
-        object._transaction = false;
+        // Reset version token.
+        object._changeToken = {};
 
-        // Notify owner on changes out of transaction scope.
-        const { _owner } = object;  
-        if( _owner && !isNested ){ // If it's the nested transaction, owner is already aware there are some changes.
-            _owner._onChildrenChange( object, originalOptions );
+        // Object is changed, so validation must happen again. Clear the cache.
+        object._validationError = void 0;
+
+        return dirty;
+    },
+
+    // Commit transaction. Send out change event and notify owner. Returns true if there were changes.
+    // Must be executed for the root transaction only.
+    /** @private */
+    commit( object : Transactional, isNested? : boolean ){
+        let originalOptions = object._isDirty;
+
+        if( originalOptions ){
+            // Send the sequence of change events, handling chained handlers.
+            while( object._isDirty ){
+                const options = object._isDirty;
+                object._isDirty = null; 
+                trigger2( object, object._changeEventName, object, options );
+            }
+            
+            // Mark transaction as closed.
+            object._transaction = false;
+
+            // Notify owner on changes out of transaction scope.
+            const { _owner } = object;  
+            if( _owner && !isNested ){ // If it's the nested transaction, owner is already aware there are some changes.
+                _owner._onChildrenChange( object, originalOptions );
+            }
         }
-    }
-    else{
-        // No changes. Silently close transaction.
-        object._isDirty = null;
-        object._transaction = false;
-    }
-}
+        else{
+            // No changes. Silently close transaction.
+            object._isDirty = null;
+            object._transaction = false;
+        }
+    },
 
-/************************************
- * Ownership management
- */
+    /************************************
+     * Ownership management
+     */
 
-// Add reference to the record.
-/** @private */
-export function aquire( owner : Owner, child : Transactional, key? : string ) : boolean {
-    if( !child._owner ){
-        child._owner = owner;
-        child._ownerKey = key;
-        return true;
-    }
+    // Add reference to the record.
+    /** @private */
+    aquire( owner : Owner, child : Transactional, key? : string ) : boolean {
+        if( !child._owner ){
+            child._owner = owner;
+            child._ownerKey = key;
+            return true;
+        }
 
-    return false;
-}
+        return false;
+    },
 
-// Remove reference to the record.
-/** @private */
-export function free( owner : Owner, child : Transactional ) : void {
-    if( owner === child._owner ){
-        child._owner = void 0;
-        child._ownerKey = void 0;
+    // Remove reference to the record.
+    /** @private */
+    free( owner : Owner, child : Transactional ) : void {
+        if( owner === child._owner ){
+            child._owner = void 0;
+            child._ownerKey = void 0;
+        }
     }
 }

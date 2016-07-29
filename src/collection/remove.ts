@@ -10,10 +10,11 @@
 
 import { Record } from '../record'
 import { free, CollectionCore, CollectionTransaction, removeIndex } from './commons'
-import { Messenger } from '../object-plus'
-import { TransactionOptions, markAsDirty, begin, commit } from '../transactions' 
+import { eventsApi } from '../object-plus'
+import { TransactionOptions, transactionApi } from '../transactions' 
 
-const { trigger2, trigger3 } = Messenger;
+const { trigger2, trigger3 } = eventsApi,
+    { markAsDirty, begin, commit } = transactionApi;
 
 /** @private */
 export function removeOne( collection : CollectionCore, el : Record | {} | string, options : TransactionOptions ) : Record {

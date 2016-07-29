@@ -1,5 +1,5 @@
-import { define, omit, log, assign, EventMap, EventsDefinition, Mixable, MessengerDefinition, defaults } from '../object-plus'
-import { begin, commit, markAsDirty, Transactional, Transaction, TransactionOptions, Owner } from '../transactions'
+import { define, tools, eventsApi, EventMap, EventsDefinition, Mixable, MessengerDefinition } from '../object-plus'
+import { transactionApi, Transactional, Transaction, TransactionOptions, Owner } from '../transactions'
 import { Record, TransactionalType } from '../record'
 
 import { IdIndex, sortElements, dispose, Elements, CollectionCore, addIndex, removeIndex, Comparator, CollectionTransaction } from './commons'
@@ -7,7 +7,9 @@ import { addTransaction } from './add'
 import { setTransaction, emptySetTransaction } from './set'
 import { removeOne, removeMany } from './remove'
 
-const { trigger2 } = Transactional;
+const { trigger2 } = eventsApi,
+    { begin, commit, markAsDirty } = transactionApi,
+    { omit, log, assign, defaults } = tools;
 
 let _count = 0;
 

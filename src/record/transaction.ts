@@ -3,12 +3,15 @@
  * The root of all definitions. 
  */
 
-import { assign, isEmpty, Mixable, ClassDefinition, Constructor, log, define } from '../object-plus'
+import { tools, eventsApi, Mixable, ClassDefinition, Constructor, define } from '../object-plus'
 
-import { begin as _begin, markAsDirty as _markAsDirty, commit, Transactional, Transaction, TransactionOptions, Owner } from '../transactions'
+import { transactionApi, Transactional, Transaction, TransactionOptions, Owner } from '../transactions'
 import { ChildrenErrors } from '../validation'
 
-const { trigger3 } = Transactional;
+const { trigger3 } = eventsApi,
+      { assign, isEmpty, log } = tools,
+      { free, aquire, commit } = transactionApi,
+      _begin = transactionApi.begin, _markAsDirty = transactionApi.markAsDirty;
 
 /***************************************************************
  * Record Definition as accepted by Record.define( definition )
@@ -93,6 +96,9 @@ let _cidCounter : number = 0;
 @define({
     // Default client id prefix 
     cidPrefix : 'm',
+
+    // Name of the change event
+    _changeEventName : 'change',
 
     // Default id attribute name
     idAttribute : 'id',

@@ -88,7 +88,7 @@
 			<section class="tsd-panel">
 				<h3>Implements</h3>
 				<ul class="tsd-hierarchy">
-					<li><a href="mixable.html" class="tsd-signature-type">Mixable</a></li>
+					<li><a href="messenger.html" class="tsd-signature-type">Messenger</a></li>
 					<li><a href="../interfaces/validatable.html" class="tsd-signature-type">Validatable</a></li>
 					<li><a href="../interfaces/traversable.html" class="tsd-signature-type">Traversable</a></li>
 					<li><a href="../interfaces/owner.html" class="tsd-signature-type">Owner</a></li>
@@ -127,18 +127,22 @@
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#cid" class="tsd-kind-icon">cid</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#cidprefix" class="tsd-kind-icon">cid<wbr>Prefix</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-external"><a href="record.html#idattribute" class="tsd-kind-icon">id<wbr>Attribute</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#listento" class="tsd-kind-icon">listen<wbr>To</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#listentoonce" class="tsd-kind-icon">listen<wbr>ToOnce</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#off" class="tsd-kind-icon">off</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#on" class="tsd-kind-icon">on</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#once" class="tsd-kind-icon">once</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#stoplistening" class="tsd-kind-icon">stop<wbr>Listening</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#trigger" class="tsd-kind-icon">trigger</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static tsd-is-external"><a href="record.html#collection" class="tsd-kind-icon">Collection</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external"><a href="record.html#create" class="tsd-kind-icon">create</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external"><a href="record.html#extend" class="tsd-kind-icon">extend</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static tsd-is-external"><a href="record.html#from" class="tsd-kind-icon">from</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external"><a href="record.html#off" class="tsd-kind-icon">off</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external"><a href="record.html#on" class="tsd-kind-icon">on</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external"><a href="record.html#mixto" class="tsd-kind-icon">mix<wbr>To</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external"><a href="record.html#mixinrules" class="tsd-kind-icon">mixin<wbr>Rules</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external"><a href="record.html#mixins" class="tsd-kind-icon">mixins</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-static tsd-is-external"><a href="record.html#predefine" class="tsd-kind-icon">predefine</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external"><a href="record.html#shared" class="tsd-kind-icon">shared</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external"><a href="record.html#trigger0" class="tsd-kind-icon">trigger0</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external"><a href="record.html#trigger1" class="tsd-kind-icon">trigger1</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external"><a href="record.html#trigger2" class="tsd-kind-icon">trigger2</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external"><a href="record.html#trigger3" class="tsd-kind-icon">trigger3</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section tsd-is-external">
@@ -177,25 +181,18 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#getvalidationerror" class="tsd-kind-icon">get<wbr>Validation<wbr>Error</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-external"><a href="record.html#has" class="tsd-kind-icon">has</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-external"><a href="record.html#haschanged" class="tsd-kind-icon">has<wbr>Changed</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-external"><a href="record.html#initialize" class="tsd-kind-icon">initialize</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-external"><a href="record.html#initialize" class="tsd-kind-icon">initialize</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-external"><a href="record.html#isnew" class="tsd-kind-icon">is<wbr>New</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#isvalid" class="tsd-kind-icon">is<wbr>Valid</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#keys" class="tsd-kind-icon">keys</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#listento" class="tsd-kind-icon">listen<wbr>To</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#listentoonce" class="tsd-kind-icon">listen<wbr>ToOnce</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited tsd-is-external"><a href="record.html#map" class="tsd-kind-icon">map</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited tsd-is-external"><a href="record.html#mapobject" class="tsd-kind-icon">map<wbr>Object</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#off-1" class="tsd-kind-icon">off</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#on-1" class="tsd-kind-icon">on</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#once" class="tsd-kind-icon">once</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-external"><a href="record.html#parse" class="tsd-kind-icon">parse</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-external"><a href="record.html#previous" class="tsd-kind-icon">previous</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-external"><a href="record.html#previousattributes" class="tsd-kind-icon">previous<wbr>Attributes</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-external"><a href="record.html#set" class="tsd-kind-icon">set</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#stoplistening" class="tsd-kind-icon">stop<wbr>Listening</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-external"><a href="record.html#tojson" class="tsd-kind-icon">toJSON</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-external"><a href="record.html#transaction" class="tsd-kind-icon">transaction</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#trigger" class="tsd-kind-icon">trigger</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-external"><a href="record.html#unset" class="tsd-kind-icon">unset</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#updateeach" class="tsd-kind-icon">update<wbr>Each</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="record.html#validate" class="tsd-kind-icon">validate</a></li>
@@ -220,7 +217,7 @@
 							<aside class="tsd-sources">
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:284</li>
+									<li>Defined in record/transaction.ts:290</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -255,7 +252,7 @@
 					<div class="tsd-signature tsd-kind-icon">_attributes<span class="tsd-signature-symbol">:</span> <a href="../interfaces/attributesspec.html" class="tsd-signature-type">AttributesSpec</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in record/transaction.ts:230</li>
+							<li>Defined in record/transaction.ts:236</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -271,7 +268,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_changeeventname">_changeEventName</a></p>
 						<ul>
-							<li>Defined in transactions.ts:45</li>
+							<li>Defined in transactions.ts:81</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -284,7 +281,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_changetoken">_changeToken</a></p>
 						<ul>
-							<li>Defined in transactions.ts:24</li>
+							<li>Defined in transactions.ts:60</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -301,7 +298,7 @@
 					<div class="tsd-signature tsd-kind-icon">_changed<wbr>Attributes<span class="tsd-signature-symbol">:</span> <a href="../interfaces/attributesvalues.html" class="tsd-signature-type">AttributesValues</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in record/transaction.ts:128</li>
+							<li>Defined in record/transaction.ts:134</li>
 						</ul>
 					</aside>
 				</section>
@@ -312,7 +309,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_defaultstore">_defaultStore</a></p>
 						<ul>
-							<li>Defined in transactions.ts:116</li>
+							<li>Defined in transactions.ts:152</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -321,12 +318,12 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-external">
 					<a name="_events" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _events</h3>
-					<div class="tsd-signature tsd-kind-icon">_events<span class="tsd-signature-symbol">:</span> <a href="../interfaces/subscribedevents.html" class="tsd-signature-type">SubscribedEvents</a><span class="tsd-signature-symbol"> =&nbsp;void 0</span></div>
+					<div class="tsd-signature tsd-kind-icon">_events<span class="tsd-signature-symbol">:</span> <a href="../interfaces/eventssubscription.html" class="tsd-signature-type">EventsSubscription</a><span class="tsd-signature-symbol"> =&nbsp;void 0</span></div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#_events">_events</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#_events">_events</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_events">_events</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:51</li>
+							<li>Defined in transactions.ts:42</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -339,7 +336,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_isdirty">_isDirty</a></p>
 						<ul>
-							<li>Defined in transactions.ts:32</li>
+							<li>Defined in transactions.ts:68</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -351,7 +348,7 @@
 					<div class="tsd-signature tsd-kind-icon">_keys<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in record/transaction.ts:233</li>
+							<li>Defined in record/transaction.ts:239</li>
 						</ul>
 					</aside>
 				</section>
@@ -361,9 +358,9 @@
 					<div class="tsd-signature tsd-kind-icon">_listeners<span class="tsd-signature-symbol">:</span> <a href="../interfaces/listeners.html" class="tsd-signature-type">Listeners</a></div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#_listeners">_listeners</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#_listeners">_listeners</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_listeners">_listeners</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:54</li>
+							<li>Defined in transactions.ts:45</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -375,9 +372,9 @@
 					<div class="tsd-signature tsd-kind-icon">_listening<wbr>To<span class="tsd-signature-symbol">:</span> <a href="../interfaces/listeningtomap.html" class="tsd-signature-type">ListeningToMap</a></div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#_listeningto">_listeningTo</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#_listeningto">_listeningTo</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_listeningto">_listeningTo</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:57</li>
+							<li>Defined in transactions.ts:48</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -389,9 +386,9 @@
 					<div class="tsd-signature tsd-kind-icon">_local<wbr>Events<span class="tsd-signature-symbol">:</span> <a href="eventmap.html" class="tsd-signature-type">EventMap</a></div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#_localevents">_localEvents</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#_localevents">_localEvents</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_localevents">_localEvents</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:71</li>
+							<li>Defined in transactions.ts:51</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -404,7 +401,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_owner">_owner</a></p>
 						<ul>
-							<li>Defined in transactions.ts:36</li>
+							<li>Defined in transactions.ts:72</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -417,7 +414,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_ownerkey">_ownerKey</a></p>
 						<ul>
-							<li>Defined in transactions.ts:41</li>
+							<li>Defined in transactions.ts:77</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -429,7 +426,7 @@
 					<div class="tsd-signature tsd-kind-icon">_previous<wbr>Attributes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in record/transaction.ts:120</li>
+							<li>Defined in record/transaction.ts:126</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -450,7 +447,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_transaction">_transaction</a></p>
 						<ul>
-							<li>Defined in transactions.ts:28</li>
+							<li>Defined in transactions.ts:64</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -463,7 +460,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_validationerror">_validationError</a></p>
 						<ul>
-							<li>Defined in transactions.ts:176</li>
+							<li>Defined in transactions.ts:212</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -475,7 +472,7 @@
 					<div class="tsd-signature tsd-kind-icon">attributes<span class="tsd-signature-symbol">:</span> <a href="../interfaces/attributesvalues.html" class="tsd-signature-type">AttributesValues</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in record/transaction.ts:125</li>
+							<li>Defined in record/transaction.ts:131</li>
 						</ul>
 					</aside>
 				</section>
@@ -485,33 +482,22 @@
 					<div class="tsd-signature tsd-kind-icon">cid<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#cid">cid</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#cid">cid</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#cid">cid</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:63</li>
+							<li>Defined in transactions.ts:53</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Unique client-only id.</p>
-						</div>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
 					<a name="cidprefix" class="tsd-anchor"></a>
 					<h3>cid<wbr>Prefix</h3>
 					<div class="tsd-signature tsd-kind-icon">cid<wbr>Prefix<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
-						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#cidprefix">cidPrefix</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#cidprefix">cidPrefix</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#cidprefix">cidPrefix</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:60</li>
+							<li>Defined in transactions.ts:54</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Prifix for cid. Usually the prototype-only assigned by subclasses with local counters.</p>
-						</div>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-external">
 					<a name="idattribute" class="tsd-anchor"></a>
@@ -519,7 +505,7 @@
 					<div class="tsd-signature tsd-kind-icon">id<wbr>Attribute<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in record/transaction.ts:219</li>
+							<li>Defined in record/transaction.ts:225</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -528,13 +514,282 @@
 						</div>
 					</div>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+					<a name="listento" class="tsd-anchor"></a>
+					<h3>listen<wbr>To</h3>
+					<div class="tsd-signature tsd-kind-icon">listen<wbr>To<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#listento">listenTo</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#listento">listenTo</a></p>
+						<ul>
+							<li>Defined in transactions.ts:34</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>obj<span class="tsd-signature-symbol">: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>obj: <a href="messenger.html" class="tsd-signature-type">Messenger</a></h5>
+											</li>
+											<li>
+												<h5>name: <span class="tsd-signature-type">any</span></h5>
+											</li>
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> callback: <span class="tsd-signature-type">any</span></h5>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+					<a name="listentoonce" class="tsd-anchor"></a>
+					<h3>listen<wbr>ToOnce</h3>
+					<div class="tsd-signature tsd-kind-icon">listen<wbr>ToOnce<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#listentoonce">listenToOnce</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#listentoonce">listenToOnce</a></p>
+						<ul>
+							<li>Defined in transactions.ts:36</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>obj<span class="tsd-signature-symbol">: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>obj: <a href="messenger.html" class="tsd-signature-type">Messenger</a></h5>
+											</li>
+											<li>
+												<h5>name: <span class="tsd-signature-type">any</span></h5>
+											</li>
+											<li>
+												<h5>callback: <span class="tsd-signature-type">any</span></h5>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+					<a name="off" class="tsd-anchor"></a>
+					<h3>off</h3>
+					<div class="tsd-signature tsd-kind-icon">off<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#off">off</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#off">off</a></p>
+						<ul>
+							<li>Defined in transactions.ts:32</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, callback<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Function</span>, context<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> name: <span class="tsd-signature-type">string</span></h5>
+											</li>
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> callback: <span class="tsd-signature-type">Function</span></h5>
+											</li>
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> context: <span class="tsd-signature-type">any</span></h5>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+					<a name="on" class="tsd-anchor"></a>
+					<h3>on</h3>
+					<div class="tsd-signature tsd-kind-icon">on<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#on">on</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#on">on</a></p>
+						<ul>
+							<li>Defined in transactions.ts:31</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, context<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>name: <span class="tsd-signature-type">any</span></h5>
+											</li>
+											<li>
+												<h5>callback: <span class="tsd-signature-type">any</span></h5>
+											</li>
+											<li>
+												<h5>context: <span class="tsd-signature-type">any</span></h5>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+					<a name="once" class="tsd-anchor"></a>
+					<h3>once</h3>
+					<div class="tsd-signature tsd-kind-icon">once<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#once">once</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#once">once</a></p>
+						<ul>
+							<li>Defined in transactions.ts:35</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, context<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>name: <span class="tsd-signature-type">any</span></h5>
+											</li>
+											<li>
+												<h5>callback: <span class="tsd-signature-type">any</span></h5>
+											</li>
+											<li>
+												<h5>context: <span class="tsd-signature-type">any</span></h5>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+					<a name="stoplistening" class="tsd-anchor"></a>
+					<h3>stop<wbr>Listening</h3>
+					<div class="tsd-signature tsd-kind-icon">stop<wbr>Listening<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#stoplistening">stopListening</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#stoplistening">stopListening</a></p>
+						<ul>
+							<li>Defined in transactions.ts:33</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>obj<span class="tsd-signature-symbol">?: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a>, name<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, callback<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> obj: <a href="messenger.html" class="tsd-signature-type">Messenger</a></h5>
+											</li>
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> name: <span class="tsd-signature-type">string</span></h5>
+											</li>
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> callback: <span class="tsd-signature-type">Function</span></h5>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+					<a name="trigger" class="tsd-anchor"></a>
+					<h3>trigger</h3>
+					<div class="tsd-signature tsd-kind-icon">trigger<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#trigger">trigger</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#trigger">trigger</a></p>
+						<ul>
+							<li>Defined in transactions.ts:37</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, a<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, b<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, c<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>name: <span class="tsd-signature-type">string</span></h5>
+											</li>
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> a: <span class="tsd-signature-type">any</span></h5>
+											</li>
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> b: <span class="tsd-signature-type">any</span></h5>
+											</li>
+											<li>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> c: <span class="tsd-signature-type">any</span></h5>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static tsd-is-external">
 					<a name="collection" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> Collection</h3>
 					<div class="tsd-signature tsd-kind-icon">Collection<span class="tsd-signature-symbol">:</span> <a href="transactional.html" class="tsd-signature-type">Transactional</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in record/transaction.ts:108</li>
+							<li>Defined in record/transaction.ts:114</li>
 						</ul>
 					</aside>
 				</section>
@@ -544,9 +799,9 @@
 					<div class="tsd-signature tsd-kind-icon">create<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#create">create</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#create">create</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#create">create</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:65</li>
+							<li>Defined in transactions.ts:23</li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -554,7 +809,7 @@
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter-siganture">
 								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>a<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, b<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, c<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a></li>
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>a<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, b<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, c<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="transactional.html" class="tsd-signature-type">Transactional</a></li>
 								</ul>
 								<ul class="tsd-descriptions">
 									<li class="tsd-description">
@@ -570,7 +825,7 @@
 												<h5><span class="tsd-flag ts-flagOptional">Optional</span> c: <span class="tsd-signature-type">any</span></h5>
 											</li>
 										</ul>
-										<h4 class="tsd-returns-title">Returns <a href="messenger.html" class="tsd-signature-type">Messenger</a></h4>
+										<h4 class="tsd-returns-title">Returns <a href="transactional.html" class="tsd-signature-type">Transactional</a></h4>
 									</li>
 								</ul>
 							</li>
@@ -583,9 +838,9 @@
 					<div class="tsd-signature tsd-kind-icon">extend<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#extend">extend</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#extend">extend</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#extend">extend</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:66</li>
+							<li>Defined in transactions.ts:27</li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -593,20 +848,22 @@
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter-siganture">
 								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>a<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, b<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a></li>
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>spec<span class="tsd-signature-symbol">?: </span><a href="../globals.html#transactionaldefinition" class="tsd-signature-type">TransactionalDefinition</a>, statics<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/mixableconstructor.html" class="tsd-signature-type">MixableConstructor</a><span class="tsd-signature-symbol">&lt;</span><a href="transactional.html" class="tsd-signature-type">Transactional</a><span class="tsd-signature-symbol">&gt;</span></li>
 								</ul>
 								<ul class="tsd-descriptions">
 									<li class="tsd-description">
 										<h4 class="tsd-parameters-title">Parameters</h4>
 										<ul class="tsd-parameters">
 											<li>
-												<h5><span class="tsd-flag ts-flagOptional">Optional</span> a: <span class="tsd-signature-type">any</span></h5>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> spec: <a href="../globals.html#transactionaldefinition" class="tsd-signature-type">TransactionalDefinition</a></h5>
 											</li>
 											<li>
-												<h5><span class="tsd-flag ts-flagOptional">Optional</span> b: <span class="tsd-signature-type">any</span></h5>
+												<h5><span class="tsd-flag ts-flagOptional">Optional</span> statics: <span class="tsd-signature-type">object</span></h5>
+												<ul class="tsd-parameters">
+												</ul>
 											</li>
 										</ul>
-										<h4 class="tsd-returns-title">Returns <a href="messenger.html" class="tsd-signature-type">Messenger</a></h4>
+										<h4 class="tsd-returns-title">Returns <a href="../interfaces/mixableconstructor.html" class="tsd-signature-type">MixableConstructor</a><span class="tsd-signature-symbol">&lt;</span><a href="transactional.html" class="tsd-signature-type">Transactional</a><span class="tsd-signature-symbol">&gt;</span></h4>
 									</li>
 								</ul>
 							</li>
@@ -619,7 +876,7 @@
 					<div class="tsd-signature tsd-kind-icon">from<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in record/transaction.ts:110</li>
+							<li>Defined in record/transaction.ts:116</li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -644,32 +901,103 @@
 						</ul>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-					<a name="off" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> off</h3>
-					<div class="tsd-signature tsd-kind-icon">off<span class="tsd-signature-symbol">:</span> <a href="../globals.html#off" class="tsd-signature-type">off</a><span class="tsd-signature-symbol"> =&nbsp;EventMaps.off</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
+					<a name="mixto" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> mix<wbr>To</h3>
+					<div class="tsd-signature tsd-kind-icon">mix<wbr>To<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
-						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#off">off</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#off">off</a></p>
+						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#mixto">mixTo</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#mixto">mixTo</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:48</li>
+							<li>Defined in transactions.ts:26</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>args<span class="tsd-signature-symbol">: </span><a href="../interfaces/constructor.html" class="tsd-signature-type">Constructor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/mixableconstructor.html" class="tsd-signature-type">MixableConstructor</a><span class="tsd-signature-symbol">&lt;</span><a href="transactional.html" class="tsd-signature-type">Transactional</a><span class="tsd-signature-symbol">&gt;</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5><span class="tsd-flag ts-flagRest">Rest</span> <span class="tsd-signature-symbol">...</span>args: <a href="../interfaces/constructor.html" class="tsd-signature-type">Constructor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <a href="../interfaces/mixableconstructor.html" class="tsd-signature-type">MixableConstructor</a><span class="tsd-signature-symbol">&lt;</span><a href="transactional.html" class="tsd-signature-type">Transactional</a><span class="tsd-signature-symbol">&gt;</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-					<a name="on" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> on</h3>
-					<div class="tsd-signature tsd-kind-icon">on<span class="tsd-signature-symbol">:</span> <a href="../globals.html#on" class="tsd-signature-type">on</a><span class="tsd-signature-symbol"> =&nbsp;EventMaps.on</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
+					<a name="mixinrules" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> mixin<wbr>Rules</h3>
+					<div class="tsd-signature tsd-kind-icon">mixin<wbr>Rules<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
-						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#on">on</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#on">on</a></p>
+						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#mixinrules">mixinRules</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#mixinrules">mixinRules</a></p>
 						<ul>
-							<li>Defined in object-plus/events.ts:46</li>
+							<li>Defined in transactions.ts:25</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>mixinRules<span class="tsd-signature-symbol">: </span><a href="../interfaces/mixinrules.html" class="tsd-signature-type">MixinRules</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/mixableconstructor.html" class="tsd-signature-type">MixableConstructor</a><span class="tsd-signature-symbol">&lt;</span><a href="transactional.html" class="tsd-signature-type">Transactional</a><span class="tsd-signature-symbol">&gt;</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>mixinRules: <a href="../interfaces/mixinrules.html" class="tsd-signature-type">MixinRules</a></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <a href="../interfaces/mixableconstructor.html" class="tsd-signature-type">MixableConstructor</a><span class="tsd-signature-symbol">&lt;</span><a href="transactional.html" class="tsd-signature-type">Transactional</a><span class="tsd-signature-symbol">&gt;</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
+					<a name="mixins" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> mixins</h3>
+					<div class="tsd-signature tsd-kind-icon">mixins<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
+					<aside class="tsd-sources">
+						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#mixins">mixins</a></p>
+						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#mixins">mixins</a></p>
+						<ul>
+							<li>Defined in transactions.ts:24</li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-siganture">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property tsd-is-not-exported">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>mixins<span class="tsd-signature-symbol">: </span><a href="../interfaces/constructor.html" class="tsd-signature-type">Constructor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/mixableconstructor.html" class="tsd-signature-type">MixableConstructor</a><span class="tsd-signature-symbol">&lt;</span><a href="transactional.html" class="tsd-signature-type">Transactional</a><span class="tsd-signature-symbol">&gt;</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5><span class="tsd-flag ts-flagRest">Rest</span> <span class="tsd-signature-symbol">...</span>mixins: <a href="../interfaces/constructor.html" class="tsd-signature-type">Constructor</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">object</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <a href="../interfaces/mixableconstructor.html" class="tsd-signature-type">MixableConstructor</a><span class="tsd-signature-symbol">&lt;</span><a href="transactional.html" class="tsd-signature-type">Transactional</a><span class="tsd-signature-symbol">&gt;</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-static tsd-is-external">
@@ -678,9 +1006,9 @@
 					<div class="tsd-signature tsd-kind-icon">predefine<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">function</span></div>
 					<aside class="tsd-sources">
 						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#predefine">predefine</a></p>
-						<p>Overwrites <a href="messenger.html">Messenger</a>.<a href="messenger.html#predefine">predefine</a></p>
+						<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#predefine">predefine</a></p>
 						<ul>
-							<li>Defined in record/transaction.ts:107</li>
+							<li>Defined in record/transaction.ts:113</li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -706,65 +1034,9 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#shared">shared</a></p>
 						<ul>
-							<li>Defined in transactions.ts:20</li>
+							<li>Defined in transactions.ts:56</li>
 						</ul>
 					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-					<a name="trigger0" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> trigger0</h3>
-					<div class="tsd-signature tsd-kind-icon">trigger0<span class="tsd-signature-symbol">:</span> <a href="../globals.html#trigger0" class="tsd-signature-type">trigger0</a><span class="tsd-signature-symbol"> =&nbsp;EventMaps.trigger0</span></div>
-					<aside class="tsd-sources">
-						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#trigger0">trigger0</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#trigger0">trigger0</a></p>
-						<ul>
-							<li>Defined in object-plus/events.ts:38</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-					<a name="trigger1" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> trigger1</h3>
-					<div class="tsd-signature tsd-kind-icon">trigger1<span class="tsd-signature-symbol">:</span> <a href="../globals.html#trigger1" class="tsd-signature-type">trigger1</a><span class="tsd-signature-symbol"> =&nbsp;EventMaps.trigger1</span></div>
-					<aside class="tsd-sources">
-						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#trigger1">trigger1</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#trigger1">trigger1</a></p>
-						<ul>
-							<li>Defined in object-plus/events.ts:40</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-					<a name="trigger2" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> trigger2</h3>
-					<div class="tsd-signature tsd-kind-icon">trigger2<span class="tsd-signature-symbol">:</span> <a href="../globals.html#trigger2" class="tsd-signature-type">trigger2</a><span class="tsd-signature-symbol"> =&nbsp;EventMaps.trigger2</span></div>
-					<aside class="tsd-sources">
-						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#trigger2">trigger2</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#trigger2">trigger2</a></p>
-						<ul>
-							<li>Defined in object-plus/events.ts:42</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-					<a name="trigger3" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> <span class="tsd-flag ts-flagPrivate">Private</span> trigger3</h3>
-					<div class="tsd-signature tsd-kind-icon">trigger3<span class="tsd-signature-symbol">:</span> <a href="../globals.html#trigger3" class="tsd-signature-type">trigger3</a><span class="tsd-signature-symbol"> =&nbsp;EventMaps.trigger3</span></div>
-					<aside class="tsd-sources">
-						<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#trigger3">trigger3</a></p>
-						<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#trigger3">trigger3</a></p>
-						<ul>
-							<li>Defined in object-plus/events.ts:44</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group tsd-is-external">
@@ -779,7 +1051,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:130</li>
+									<li>Defined in record/transaction.ts:136</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../interfaces/attributesvalues.html" class="tsd-signature-type">AttributesValues</a></h4>
@@ -796,7 +1068,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:461</li>
+									<li>Defined in record/transaction.ts:467</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -814,7 +1086,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:222</li>
+									<li>Defined in record/transaction.ts:228</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span>
@@ -825,7 +1097,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:223</li>
+									<li>Defined in record/transaction.ts:229</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -849,7 +1121,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#validationerror">validationError</a></p>
 								<ul>
-									<li>Defined in transactions.ts:179</li>
+									<li>Defined in transactions.ts:215</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="validationerror.html" class="tsd-signature-type">ValidationError</a></h4>
@@ -869,7 +1141,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:237</li>
+									<li>Defined in record/transaction.ts:243</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -893,7 +1165,7 @@
 							<aside class="tsd-sources">
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#_createtransaction">_createTransaction</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:396</li>
+									<li>Defined in record/transaction.ts:402</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -922,7 +1194,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#_invalidate">_invalidate</a></p>
 								<ul>
-									<li>Defined in transactions.ts:185</li>
+									<li>Defined in transactions.ts:221</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -953,7 +1225,7 @@
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#_onchildrenchange">_onChildrenChange</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:444</li>
+									<li>Defined in record/transaction.ts:450</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -979,7 +1251,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:281</li>
+									<li>Defined in record/transaction.ts:287</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1002,7 +1274,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:278</li>
+									<li>Defined in record/transaction.ts:284</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
@@ -1023,7 +1295,7 @@
 								<p>Implementation of <a href="../interfaces/validatable.html">Validatable</a>.<a href="../interfaces/validatable.html#_validatenested">_validateNested</a></p>
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#_validatenested">_validateNested</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:321</li>
+									<li>Defined in record/transaction.ts:327</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1046,7 +1318,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:153</li>
+									<li>Defined in record/transaction.ts:159</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1074,7 +1346,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:199</li>
+									<li>Defined in record/transaction.ts:205</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1098,7 +1370,7 @@
 							<aside class="tsd-sources">
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#clone">clone</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:316</li>
+									<li>Defined in record/transaction.ts:322</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1121,7 +1393,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#deepget">deepGet</a></p>
 								<ul>
-									<li>Defined in transactions.ts:103</li>
+									<li>Defined in transactions.ts:139</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1145,7 +1417,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#deepvalidationerror">deepValidationError</a></p>
 								<ul>
-									<li>Defined in transactions.ts:207</li>
+									<li>Defined in transactions.ts:243</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1168,7 +1440,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:284</li>
+									<li>Defined in record/transaction.ts:290</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1195,9 +1467,9 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#dispose">dispose</a></p>
-								<p>Overwrites <a href="messenger.html">Messenger</a>.<a href="messenger.html#dispose">dispose</a></p>
+								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#dispose">dispose</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:466</li>
+									<li>Defined in record/transaction.ts:472</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1215,7 +1487,7 @@
 							<aside class="tsd-sources">
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#each">each</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:267</li>
+									<li>Defined in record/transaction.ts:273</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1263,7 +1535,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#eachvalidationerror">eachValidationError</a></p>
 								<ul>
-									<li>Defined in transactions.ts:212</li>
+									<li>Defined in transactions.ts:248</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1310,7 +1582,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:241</li>
+									<li>Defined in record/transaction.ts:247</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1362,7 +1634,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:449</li>
+									<li>Defined in record/transaction.ts:455</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1390,7 +1662,7 @@
 								<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#get">get</a></p>
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#get">get</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:337</li>
+									<li>Defined in record/transaction.ts:343</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1415,7 +1687,7 @@
 								<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#getowner">getOwner</a></p>
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#getowner">getOwner</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:206</li>
+									<li>Defined in record/transaction.ts:212</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="../interfaces/owner.html" class="tsd-signature-type">Owner</a></h4>
@@ -1434,7 +1706,7 @@
 								<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#getstore">getStore</a></p>
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#getstore">getStore</a></p>
 								<ul>
-									<li>Defined in transactions.ts:119</li>
+									<li>Defined in transactions.ts:155</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="transactional.html" class="tsd-signature-type">Transactional</a></h4>
@@ -1452,7 +1724,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#getvalidationerror">getValidationError</a></p>
 								<ul>
-									<li>Defined in transactions.ts:201</li>
+									<li>Defined in transactions.ts:237</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1475,7 +1747,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:190</li>
+									<li>Defined in record/transaction.ts:196</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1498,7 +1770,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:168</li>
+									<li>Defined in record/transaction.ts:174</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1511,17 +1783,18 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-external">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-external">
 					<a name="initialize" class="tsd-anchor"></a>
 					<h3>initialize</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-external">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-external">
 						<li class="tsd-signature tsd-kind-icon">initialize<span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
+								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#initialize">initialize</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:313</li>
+									<li>Defined in record/transaction.ts:319</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1547,7 +1820,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:186</li>
+									<li>Defined in record/transaction.ts:192</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -1565,7 +1838,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#isvalid">isValid</a></p>
 								<ul>
-									<li>Defined in transactions.ts:218</li>
+									<li>Defined in transactions.ts:254</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1589,72 +1862,10 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#keys">keys</a></p>
 								<ul>
-									<li>Defined in transactions.ts:159</li>
+									<li>Defined in transactions.ts:195</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-					<a name="listento" class="tsd-anchor"></a>
-					<h3>listen<wbr>To</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">listen<wbr>To<span class="tsd-signature-symbol">(</span>obj<span class="tsd-signature-symbol">: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">this</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#listento">listenTo</a></p>
-								<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#listento">listenTo</a></p>
-								<ul>
-									<li>Defined in object-plus/events.ts:138</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>obj: <a href="messenger.html" class="tsd-signature-type">Messenger</a></h5>
-								</li>
-								<li>
-									<h5>name: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> callback: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-					<a name="listentoonce" class="tsd-anchor"></a>
-					<h3>listen<wbr>ToOnce</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">listen<wbr>ToOnce<span class="tsd-signature-symbol">(</span>obj<span class="tsd-signature-symbol">: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">this</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#listentoonce">listenToOnce</a></p>
-								<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#listentoonce">listenToOnce</a></p>
-								<ul>
-									<li>Defined in object-plus/events.ts:169</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>obj: <a href="messenger.html" class="tsd-signature-type">Messenger</a></h5>
-								</li>
-								<li>
-									<h5>name: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>callback: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -1669,7 +1880,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#map">map</a></p>
 								<ul>
-									<li>Defined in transactions.ts:133</li>
+									<li>Defined in transactions.ts:169</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1723,7 +1934,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#mapobject">mapObject</a></p>
 								<ul>
-									<li>Defined in transactions.ts:146</li>
+									<li>Defined in transactions.ts:182</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1771,99 +1982,6 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-					<a name="off-1" class="tsd-anchor"></a>
-					<h3>off</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">off<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, callback<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Function</span>, context<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">this</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#off-1">off</a></p>
-								<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#off-1">off</a></p>
-								<ul>
-									<li>Defined in object-plus/events.ts:103</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> name: <span class="tsd-signature-type">string</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> callback: <span class="tsd-signature-type">Function</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> context: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-					<a name="on-1" class="tsd-anchor"></a>
-					<h3>on</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">on<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, context<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#on-1">on</a></p>
-								<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#on-1">on</a></p>
-								<ul>
-									<li>Defined in object-plus/events.ts:96</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>name: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>callback: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>context: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="messenger.html" class="tsd-signature-type">Messenger</a></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-					<a name="once" class="tsd-anchor"></a>
-					<h3>once</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">once<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, context<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#once">once</a></p>
-								<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#once">once</a></p>
-								<ul>
-									<li>Defined in object-plus/events.ts:162</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>name: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>callback: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>context: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="messenger.html" class="tsd-signature-type">Messenger</a></h4>
-						</li>
-					</ul>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-external">
 					<a name="parse" class="tsd-anchor"></a>
 					<h3>parse</h3>
@@ -1875,7 +1993,7 @@
 							<aside class="tsd-sources">
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#parse">parse</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:361</li>
+									<li>Defined in record/transaction.ts:367</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1898,7 +2016,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:177</li>
+									<li>Defined in record/transaction.ts:183</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1921,7 +2039,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:122</li>
+									<li>Defined in record/transaction.ts:128</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -1940,7 +2058,7 @@
 							<aside class="tsd-sources">
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#set">set</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:371</li>
+									<li>Defined in record/transaction.ts:377</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1965,7 +2083,7 @@
 							<aside class="tsd-sources">
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#set">set</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:372</li>
+									<li>Defined in record/transaction.ts:378</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1982,37 +2100,6 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-					<a name="stoplistening" class="tsd-anchor"></a>
-					<h3>stop<wbr>Listening</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">stop<wbr>Listening<span class="tsd-signature-symbol">(</span>obj<span class="tsd-signature-symbol">?: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a>, name<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span>, callback<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">this</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#stoplistening">stopListening</a></p>
-								<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#stoplistening">stopListening</a></p>
-								<ul>
-									<li>Defined in object-plus/events.ts:115</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> obj: <a href="messenger.html" class="tsd-signature-type">Messenger</a></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> name: <span class="tsd-signature-type">string</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> callback: <span class="tsd-signature-type">Function</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">this</span></h4>
-						</li>
-					</ul>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-external">
 					<a name="tojson" class="tsd-anchor"></a>
 					<h3>toJSON</h3>
@@ -2024,7 +2111,7 @@
 							<aside class="tsd-sources">
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#tojson">toJSON</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:346</li>
+									<li>Defined in record/transaction.ts:352</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2047,7 +2134,7 @@
 							<aside class="tsd-sources">
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#transaction">transaction</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:389</li>
+									<li>Defined in record/transaction.ts:395</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2081,39 +2168,6 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-					<a name="trigger" class="tsd-anchor"></a>
-					<h3>trigger</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">trigger<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, a<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, b<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, c<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#trigger">trigger</a></p>
-								<p>Inherited from <a href="messenger.html">Messenger</a>.<a href="messenger.html#trigger">trigger</a></p>
-								<ul>
-									<li>Defined in object-plus/events.ts:179</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>name: <span class="tsd-signature-type">string</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> a: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> b: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> c: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-						</li>
-					</ul>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-external">
 					<a name="unset" class="tsd-anchor"></a>
 					<h3>unset</h3>
@@ -2124,7 +2178,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:194</li>
+									<li>Defined in record/transaction.ts:200</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2151,7 +2205,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#updateeach">updateEach</a></p>
 								<ul>
-									<li>Defined in transactions.ts:67</li>
+									<li>Defined in transactions.ts:103</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2199,7 +2253,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#validate">validate</a></p>
 								<ul>
-									<li>Defined in transactions.ts:198</li>
+									<li>Defined in transactions.ts:234</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2223,7 +2277,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="transactional.html">Transactional</a>.<a href="transactional.html#values">values</a></p>
 								<ul>
-									<li>Defined in transactions.ts:166</li>
+									<li>Defined in transactions.ts:202</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -2234,13 +2288,13 @@
 					<a name="defaults-1" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> defaults</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static tsd-is-external">
-						<li class="tsd-signature tsd-kind-icon">defaults<span class="tsd-signature-symbol">(</span>attrs<span class="tsd-signature-symbol">: </span><a href="../interfaces/attributedescriptormap.html" class="tsd-signature-type">AttributeDescriptorMap</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="messenger.html" class="tsd-signature-type">Messenger</a></li>
+						<li class="tsd-signature tsd-kind-icon">defaults<span class="tsd-signature-symbol">(</span>attrs<span class="tsd-signature-symbol">: </span><a href="../interfaces/attributedescriptormap.html" class="tsd-signature-type">AttributeDescriptorMap</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/mixableconstructor.html" class="tsd-signature-type">MixableConstructor</a><span class="tsd-signature-symbol">&lt;</span><a href="transactional.html" class="tsd-signature-type">Transactional</a><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in record/transaction.ts:112</li>
+									<li>Defined in record/transaction.ts:118</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2249,7 +2303,7 @@
 									<h5>attrs: <a href="../interfaces/attributedescriptormap.html" class="tsd-signature-type">AttributeDescriptorMap</a></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="messenger.html" class="tsd-signature-type">Messenger</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/mixableconstructor.html" class="tsd-signature-type">MixableConstructor</a><span class="tsd-signature-symbol">&lt;</span><a href="transactional.html" class="tsd-signature-type">Transactional</a><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -2262,9 +2316,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overwrites <a href="messenger.html">Messenger</a>.<a href="messenger.html#define">define</a></p>
+								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#define">define</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:103</li>
+									<li>Defined in record/transaction.ts:109</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2360,6 +2414,27 @@
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-external">
 								<a href="record.html#idattribute" class="tsd-kind-icon">id<wbr>Attribute</a>
 							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+								<a href="record.html#listento" class="tsd-kind-icon">listen<wbr>To</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+								<a href="record.html#listentoonce" class="tsd-kind-icon">listen<wbr>ToOnce</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+								<a href="record.html#off" class="tsd-kind-icon">off</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+								<a href="record.html#on" class="tsd-kind-icon">on</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+								<a href="record.html#once" class="tsd-kind-icon">once</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+								<a href="record.html#stoplistening" class="tsd-kind-icon">stop<wbr>Listening</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+								<a href="record.html#trigger" class="tsd-kind-icon">trigger</a>
+							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static tsd-is-external">
 								<a href="record.html#collection" class="tsd-kind-icon">Collection</a>
 							</li>
@@ -2372,29 +2447,20 @@
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static tsd-is-external">
 								<a href="record.html#from" class="tsd-kind-icon">from</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-								<a href="record.html#off" class="tsd-kind-icon">off</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
+								<a href="record.html#mixto" class="tsd-kind-icon">mix<wbr>To</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-								<a href="record.html#on" class="tsd-kind-icon">on</a>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
+								<a href="record.html#mixinrules" class="tsd-kind-icon">mixin<wbr>Rules</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
+								<a href="record.html#mixins" class="tsd-kind-icon">mixins</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-static tsd-is-external">
 								<a href="record.html#predefine" class="tsd-kind-icon">predefine</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static tsd-is-external">
 								<a href="record.html#shared" class="tsd-kind-icon">shared</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-								<a href="record.html#trigger0" class="tsd-kind-icon">trigger0</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-								<a href="record.html#trigger1" class="tsd-kind-icon">trigger1</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-								<a href="record.html#trigger2" class="tsd-kind-icon">trigger2</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-private tsd-is-static tsd-is-external">
-								<a href="record.html#trigger3" class="tsd-kind-icon">trigger3</a>
 							</li>
 							<li class=" tsd-kind-get-signature tsd-parent-kind-class tsd-is-external">
 								<a href="record.html#changed" class="tsd-kind-icon">changed</a>
@@ -2480,7 +2546,7 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-external">
 								<a href="record.html#haschanged" class="tsd-kind-icon">has<wbr>Changed</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-external">
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-external">
 								<a href="record.html#initialize" class="tsd-kind-icon">initialize</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-external">
@@ -2492,26 +2558,11 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
 								<a href="record.html#keys" class="tsd-kind-icon">keys</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-								<a href="record.html#listento" class="tsd-kind-icon">listen<wbr>To</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-								<a href="record.html#listentoonce" class="tsd-kind-icon">listen<wbr>ToOnce</a>
-							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited tsd-is-external">
 								<a href="record.html#map" class="tsd-kind-icon">map</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-inherited tsd-is-external">
 								<a href="record.html#mapobject" class="tsd-kind-icon">map<wbr>Object</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-								<a href="record.html#off-1" class="tsd-kind-icon">off</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-								<a href="record.html#on-1" class="tsd-kind-icon">on</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-								<a href="record.html#once" class="tsd-kind-icon">once</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-external">
 								<a href="record.html#parse" class="tsd-kind-icon">parse</a>
@@ -2525,17 +2576,11 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-external">
 								<a href="record.html#set" class="tsd-kind-icon">set</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-								<a href="record.html#stoplistening" class="tsd-kind-icon">stop<wbr>Listening</a>
-							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-external">
 								<a href="record.html#tojson" class="tsd-kind-icon">toJSON</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-external">
 								<a href="record.html#transaction" class="tsd-kind-icon">transaction</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-								<a href="record.html#trigger" class="tsd-kind-icon">trigger</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-external">
 								<a href="record.html#unset" class="tsd-kind-icon">unset</a>

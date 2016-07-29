@@ -23,7 +23,7 @@ type Property = PropertyDescriptor | ( () => any )
 
 type Mixin = Constructor< any > | {}
 
-interface MixinRules {
+export interface MixinRules {
     [ propertyName : string ] : MergeRule | MixinRules
 }
 
@@ -43,7 +43,6 @@ export interface Constructor< T >{
  * Generic interface to reference constructor function of any Mixable type T.
  */
 export interface MixableConstructor< T > extends Constructor< T >{
-
     prototype : Mixable
     create( a : any, b? : any, c? : any ) : Mixable
     mixins( ...mixins : ( Constructor<any> | {} )[] ) : MixableConstructor< T >

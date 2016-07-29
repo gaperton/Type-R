@@ -1,9 +1,9 @@
-import { GenericAttribute, AttributeDescriptor } from '../record/attribute'
+import { GenericAttribute, AttributeDescriptor } from '../record'
 import { parseReference, CollectionReference } from './commons'
 import { Collection } from '../collection'
 import { Record } from '../record'
 
-import { ChainableAttributeSpec } from '../record/typespec'
+import { ChainableAttributeSpec } from '../record'
 
 /********
  * Reference to model by id.

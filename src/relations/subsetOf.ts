@@ -1,8 +1,10 @@
 import { Collection, CollectionOptions } from '../collection'
-import { fastDefaults } from '../object-plus'
+import { tools } from '../object-plus'
 import { Record } from '../record'
 import { parseReference, CollectionReference } from './commons'
 import { ChainableAttributeSpec } from '../record'
+
+const { fastDefaults } = tools;
 
 type RecordsIds = ( string | number )[];
 
