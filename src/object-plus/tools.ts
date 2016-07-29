@@ -190,7 +190,7 @@ export function defaults< T >( dest : T, source : Object ) : T {
     if( arguments.length > 2 ){
         for( let i = 2; i < arguments.length; i++ ){
             const other = arguments[ i ];
-            other && assign( dest, other );
+            other && defaults( dest, other );
         }
     }
 

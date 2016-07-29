@@ -276,7 +276,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (arguments.length > 2) {
 	        for (var i = 2; i < arguments.length; i++) {
 	            var other = arguments[i];
-	            other && assign(dest, other);
+	            other && defaults(dest, other);
 	        }
 	    }
 	    return dest;

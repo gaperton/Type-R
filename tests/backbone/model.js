@@ -433,7 +433,9 @@
     var changed = 0;
     var attrs = {id: 1, label: 'c'};
     var obj = new ( Backbone.Model.defaults(attrs) );
-    obj.on('change', function() { changed += 1; });
+    obj.on('change', function() {
+      changed += 1;
+    });
     obj.set(attrs);
     assert.equal(changed, 0);
   });
