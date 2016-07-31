@@ -99,14 +99,6 @@ export interface LogOptions {
 
 export let log = new Log();
 
-declare global {
-    interface ObjectConstructor {
-        log : Log
-    }
-}
-
-Object.log = log;
-
 /** Check if value is valid JSON */
 export function isValidJSON( value : any ) : boolean {
     if( value === null ){
