@@ -1,31 +1,113 @@
 /**
- * Simple overridable logging stubs
- *
+ * Simple overridable logging stubs, writing to `console` by default. Log levels:
+ * Node.js users might want to redirect logging somewhere.
+ * 
+ * - 0 - errors only.
+ * - 1 - errors and warnings.
+ * - 2 - errors, warnings, and some (important) information.
+ * - 3 - Everything, including debugging and troubleshooting logging.
  */
+export class Log {
+    level : number
+    stops : LogOptions = {}
+    throws : LogOptions = {}
+    counts : { error : number, warn : number, info : number, debug : number }
+    logger : Logger
 
-class Log {
-    level : Number = 2
+    doLogging( type, args : any[] ){
+        const { logger } = this,
+              logMethod = logger && logger[ type ];
+
+        if( logMethod ) logMethod.apply( logger, args );
+
+        if( this.stops[ type ] )  debugger;
+        if( this.throws[ type ] ) throw new Error( `[${ type }] ${ args[ 0 ] }` );
+
+        this.counts[ type ]++;
+    }
+
+    reset(){
+        this.level = 2;
+        this.counts = { error : 0, warn : 0, info : 0, debug : 0 };
+        this.stops = {};
+        return this;
+    }
+
+    developer( trueDeveloper? : boolean ){
+        this.level = 3;
+        this.stops = { error : true, warn : Boolean( trueDeveloper ) };
+        return this;
+    }
+
+    constructor(){
+        this.logger = typeof console !== 'undefined' ? console : null;
+        this.reset();
+    }
 
     error( ...args : any[] ) : void {
-        console.error.apply( console, args );
+        if( this.level > 0 ) this.doLogging( 'error', args );
     }
 
     warn( ...args : any[] ) : void {
-        if( this.level > 0 ) console.warn.apply( console, args );
+        if( this.level > 1 ) this.doLogging( 'warn', args );
     }
 
-    info(){
-        if( this.level > 1 ) console.info.apply( console, arguments );
+    info( ...args : any[] ){
+        if( this.level > 2 ) this.doLogging( 'info', args );
     }
 
-    debug(){
-        if( this.level > 2 ) console.log.apply( console, arguments );
+    debug( ...args : any[] ){
+        if( this.level > 3 ) this.doLogging( 'debug', args );
     }
+
+    toString() : string {
+        return (`
+Object.log - Object+ Logging and Debugging Utility
+--------------------------------------------------
+Object.log.counts: Number of logged events by type
+    { errors : ${ this.counts.error }, warns : ${ this.counts.warn }, info : ${ this.counts.info }, debug : ${ this.counts.debug } }
+
+Object.log.level ( ${ this.level } ): Ignore events which are above specified level 
+    - 0 - logging is off;
+    - 1 - Object.log.error(...) only;
+    - 2 - .error() and .warn();
+    - 3 - .error(), .warn(), and .info();
+    - 4 - all of above plus .debug().
+
+Object.log.stops: Stops in debugger for some certain event types
+     { error : ${ this.stops.error || false }, warn  : ${ this.stops.warn || false }, info  : ${ this.stops.info || false }, debug : ${ this.stops.debug || false } } 
+
+Object.log.throws: Throws expection on some certain event types
+     { error : ${ this.throws.error || false }, warn  : ${ this.throws.warn || false }, info  : ${ this.throws.info || false }, debug : ${ this.throws.debug || false } }
+`);
+    }
+}
+
+export interface Logger {
+    error( ...args : any[] ) : void
+    warn( ...args : any[] ) : void
+    info( ...args : any[] ) : void
+    debug( ...args : any[] ) : void
+}
+
+export interface LogOptions {
+    error? : boolean
+    warn? : boolean
+    info? : boolean
+    debug? : boolean
 }
 
 export let log = new Log();
 
-// Check if value is valid JSON.
+declare global {
+    interface ObjectConstructor {
+        log : Log
+    }
+}
+
+Object.log = log;
+
+/** Check if value is valid JSON */
 export function isValidJSON( value : any ) : boolean {
     if( value === null ){
         return true;
@@ -52,8 +134,24 @@ export function isValidJSON( value : any ) : boolean {
  * Object manipulation helpers...
  */
 
+/** Get the base class constructor function */
 export function getBaseClass( Class : Function ){
     return Object.getPrototypeOf( Class.prototype ).constructor
+}
+
+/** Get a hash of static (constructor) properties which have not been inherited */
+export function getChangedStatics( Ctor : Function, ...names : string[] ) : {}{
+    const Base = getBaseClass( Ctor ),
+          props = {};
+
+    for( let name of names ){
+        const value = Ctor[ name ];
+        if( value !== void 0 && value !== Base[ name ] ){
+            props[ name ] = value;
+        }
+    }
+
+    return props;
 }
 
 export function isEmpty( obj : {} ) : boolean {
