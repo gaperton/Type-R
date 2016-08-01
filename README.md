@@ -53,3 +53,4 @@ Because we can.
 - Types of models and collection default valus are now inferred to shared types.
 - Symbolic references - `store.x` syntax is deprecated, use `~x` instead.
 - `Integer` -> `Number.integer`
+- `Date` attribute doesn't parse MS format. Use `Date.microsoft`.
