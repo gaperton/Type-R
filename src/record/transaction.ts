@@ -299,7 +299,7 @@ export class Record extends Transactional implements Owner {
         super( _cidCounter++, owner );
 
         const options = a_options || {},
-              values = ( options.parse ? this.parse( a_values ) :  a_values ) || {};
+              values = ( options.parse ? this.parse( a_values, options ) :  a_values ) || {};
 
         // TODO: type error for wrong object.
 
@@ -366,7 +366,7 @@ export class Record extends Transactional implements Owner {
     }
     
     // Default record-level parser, to be overriden by the subclasses.
-    parse( data ){
+    parse( data, options? : TransactionOptions ){
         // Call dynamically compiled loop-unrolled attribute-level parse function.
         return this._parse( data );
     }
@@ -406,7 +406,7 @@ export class Record extends Transactional implements Owner {
               changes : string[] = [],
               nested : RecordTransaction[]= [],
               { attributes } = this,
-              values = options.parse ? this.parse( a_values ) : a_values,
+              values = options.parse ? this.parse( a_values, options ) : a_values,
               merge = !options.reset;
 
         if( Object.getPrototypeOf( values ) === Object.prototype ){

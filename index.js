@@ -1362,7 +1362,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}(transactions_1.Transactional));
 	exports.Collection = Collection;
 	function toElements(collection, elements, options) {
-	    var parsed = options.parse ? collection.parse(elements) : elements;
+	    var parsed = options.parse ? collection.parse(elements, options) : elements;
 	    return Array.isArray(parsed) ? parsed : [parsed];
 	}
 	var slice = Array.prototype.slice;
@@ -1415,7 +1415,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return this;
 	    };
-	    Transactional.prototype.parse = function (data) { return data; };
+	    Transactional.prototype.parse = function (data, options) { return data; };
 	    Transactional.prototype.deepGet = function (reference) {
 	        return traversable_1.resolveReference(this, reference, function (object, key) { return object.get(key); });
 	    };
@@ -1736,7 +1736,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function Record(a_values, a_options, owner) {
 	        var _this = this;
 	        _super.call(this, _cidCounter++, owner);
-	        var options = a_options || {}, values = (options.parse ? this.parse(a_values) : a_values) || {};
+	        var options = a_options || {}, values = (options.parse ? this.parse(a_values, options) : a_values) || {};
 	        var attributes = options.clone ? cloneAttributes(this, values) : this.defaults(values);
 	        this.forEachAttr(attributes, function (value, key, attr) {
 	            var next = attributes[key] = attr.transform(value, options, void 0, _this);
@@ -1884,7 +1884,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        });
 	        return json;
 	    };
-	    Record.prototype.parse = function (data) {
+	    Record.prototype.parse = function (data, options) {
 	        return this._parse(data);
 	    };
 	    Record.prototype.set = function (a, b, c) {
@@ -1911,7 +1911,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Record.prototype._createTransaction = function (a_values, options) {
 	        var _this = this;
 	        if (options === void 0) { options = {}; }
-	        var isRoot = begin(this), changes = [], nested = [], attributes = this.attributes, values = options.parse ? this.parse(a_values) : a_values, merge = !options.reset;
+	        var isRoot = begin(this), changes = [], nested = [], attributes = this.attributes, values = options.parse ? this.parse(a_values, options) : a_values, merge = !options.reset;
 	        if (Object.getPrototypeOf(values) === Object.prototype) {
 	            this.forEachAttr(values, function (value, key, attr) {
 	                var prev = attributes[key];

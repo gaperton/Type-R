@@ -123,7 +123,7 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     abstract _createTransaction( values : any, options? : TransactionOptions ) : Transaction
     
     // Parse function applied when 'parse' option is set for transaction.
-    parse( data : any ) : any { return data }
+    parse( data : any, options? : TransactionOptions ) : any { return data }
 
     // Convert object to the serializable JSON structure
     abstract toJSON() : {}
