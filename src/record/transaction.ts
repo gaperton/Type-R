@@ -197,15 +197,17 @@ export class Record extends Transactional implements Owner {
         return this[ key ] != void 0;
     }
 
-    unset( key, options? ) {
+    unset( key, options? ) : this {
         this.set( key, void 0, options );
         return this; 
     }
 
-    clear( options ){
+    clear( options ) : this {
         this.transaction( () =>{
             this.forEachAttr( this.attributes, ( value, key ) => this[ key ] = void 0 );
         }, options );
+
+        return this;
     }
 
     // Returns Record owner skipping collections. TODO: Move out

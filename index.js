@@ -1817,6 +1817,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.transaction(function () {
 	            _this.forEachAttr(_this.attributes, function (value, key) { return _this[key] = void 0; });
 	        }, options);
+	        return this;
 	    };
 	    Record.prototype.getOwner = function () {
 	        var owner = this._owner;
