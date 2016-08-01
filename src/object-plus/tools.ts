@@ -60,14 +60,14 @@ export class Log {
         if( this.level > 3 ) this.doLogging( 'debug', args );
     }
 
-    toString() : string {
+    get state() : string {
         return (`
 Object.log - Object+ Logging and Debugging Utility
 --------------------------------------------------
 Object.log.counts: Number of logged events by type
     { errors : ${ this.counts.error }, warns : ${ this.counts.warn }, info : ${ this.counts.info }, debug : ${ this.counts.debug } }
 
-Object.log.level ( ${ this.level } ): Ignore events which are above specified level 
+Object.log.level == ${ this.level } : Ignore events which are above specified level 
     - 0 - logging is off;
     - 1 - Object.log.error(...) only;
     - 2 - .error() and .warn();

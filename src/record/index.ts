@@ -11,26 +11,29 @@ export { Record, ChainableAttributeSpec, TransactionalType }
 
 const { assign, defaults, omit, getBaseClass } = tools;
 
-Record.define = function( protoProps : RecordDefinition, staticProps ){
+Record.define = function( protoProps : RecordDefinition = {}, staticProps ){
     const BaseConstructor : typeof Record = getBaseClass( this ),
-          baseProto : Record = BaseConstructor.prototype;
+          baseProto : Record = BaseConstructor.prototype,
+          // Extract record definition from static members, if any.
+          staticsDefinition : RecordDefinition = tools.getChangedStatics( this, 'attributes', 'collection' ),
+          // Definition can be made either through statics or define argument.
+          // Merge them together, so we won't care about it below. 
+          definition = assign( staticsDefinition, protoProps );
 
-    if( protoProps ) {
-        // Compile attributes spec, creating definition mixin.
-        const definition = compile( getAttributes( protoProps ), <AttributesSpec> baseProto._attributes );
+    // Compile attributes spec, creating definition mixin.
+    const dynamicMixin = compile( getAttributes( definition ), <AttributesSpec> baseProto._attributes );
 
-        // Explicit 'properties' declaration overrides auto-generated attribute properties.
-        if( protoProps.properties === false ){
-            definition.properties = {};
-        }
-
-        assign( definition.properties, protoProps.properties || {} );
-
-        // Merge in definition.
-        defaults( definition, omit( protoProps, 'attributes', 'collection' ) );            
-        Mixable.define.call( this, definition, staticProps );
-        defineCollection.call( this, protoProps && protoProps.collection );
+    // Explicit 'properties' declaration overrides auto-generated attribute properties.
+    if( definition.properties === false ){
+        dynamicMixin.properties = {};
     }
+
+    assign( dynamicMixin.properties, protoProps.properties || {} );
+
+    // Merge in definition.
+    defaults( dynamicMixin, omit( definition, 'attributes', 'collection' ) );            
+    Mixable.define.call( this, dynamicMixin, staticProps );
+    defineCollection.call( this, definition.collection );
 
     return this;
 }

@@ -1,5 +1,5 @@
-import { define, tools, eventsApi, EventMap, EventsDefinition, Mixable, MessengerDefinition } from '../object-plus'
-import { transactionApi, Transactional, Transaction, TransactionOptions, Owner } from '../transactions'
+import { define, tools, eventsApi, EventMap, EventsDefinition, Mixable } from '../object-plus'
+import { transactionApi, Transactional, Transaction, TransactionOptions, TransactionalDefinition, Owner } from '../transactions'
 import { Record, TransactionalType } from '../record'
 
 import { IdIndex, sortElements, dispose, Elements, CollectionCore, addIndex, removeIndex, Comparator, CollectionTransaction } from './commons'
@@ -23,7 +23,8 @@ export interface CollectionOptions extends TransactionOptions {
     model? : typeof Record
 }
 
-interface CollectionDefinition extends MessengerDefinition {
+interface CollectionDefinition extends TransactionalDefinition {
+    model? : Record,
     itemEvents? : EventsDefinition
     _itemEvents? : EventMap
 }
@@ -50,12 +51,18 @@ export class Collection extends Transactional implements CollectionCore {
         return this;
     }
     
-    static define( protoProps? : CollectionDefinition, staticProps? ){
-        const spec : CollectionDefinition = omit( protoProps, 'itemEvents', 'localEvents' );
+    static define( protoProps : CollectionDefinition = {}, staticProps? ){
+                // Extract record definition from static members, if any.
+        const   staticsDefinition : CollectionDefinition = tools.getChangedStatics( this, 'model', 'itemEvents' ),
+                // Definition can be made either through statics or define argument.
+                // Merge them together, so we won't care about it below. 
+                definition = assign( staticsDefinition, protoProps );
 
-        if( protoProps.itemEvents ){
+        const spec : CollectionDefinition = omit( definition, 'itemEvents' );
+
+        if( definition.itemEvents ){
             const eventsMap = new EventMap( this.prototype._itemEvents );
-            eventsMap.addEventsMap( protoProps.itemEvents );
+            eventsMap.addEventsMap( definition.itemEvents );
             spec._itemEvents = eventsMap; 
         }
 

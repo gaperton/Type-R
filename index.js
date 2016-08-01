@@ -104,6 +104,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	__export(__webpack_require__(4));
 	var eventsApi = __webpack_require__(5);
 	exports.eventsApi = eventsApi;
+	var mixins_2 = __webpack_require__(3);
+	Object.extend = function (protoProps, staticProps) { return mixins_2.Mixable.extend(protoProps, staticProps); };
+	Object.assign || (Object.assign = tools.assign);
+	Object.log = tools.log;
 
 
 /***/ },
@@ -113,33 +117,74 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	var Log = (function () {
 	    function Log() {
-	        this.level = 2;
+	        this.stops = {};
+	        this.throws = {};
+	        this.logger = typeof console !== 'undefined' ? console : null;
+	        this.reset();
 	    }
+	    Log.prototype.doLogging = function (type, args) {
+	        var logger = this.logger, logMethod = logger && logger[type];
+	        if (logMethod)
+	            logMethod.apply(logger, args);
+	        if (this.stops[type])
+	            debugger;
+	        if (this.throws[type])
+	            throw new Error("[" + type + "] " + args[0]);
+	        this.counts[type]++;
+	    };
+	    Log.prototype.reset = function () {
+	        this.level = 2;
+	        this.counts = { error: 0, warn: 0, info: 0, debug: 0 };
+	        this.stops = {};
+	        return this;
+	    };
+	    Log.prototype.developer = function (trueDeveloper) {
+	        this.level = 3;
+	        this.stops = { error: true, warn: Boolean(trueDeveloper) };
+	        return this;
+	    };
 	    Log.prototype.error = function () {
 	        var args = [];
 	        for (var _i = 0; _i < arguments.length; _i++) {
 	            args[_i - 0] = arguments[_i];
 	        }
-	        console.error.apply(console, args);
+	        if (this.level > 0)
+	            this.doLogging('error', args);
 	    };
 	    Log.prototype.warn = function () {
 	        var args = [];
 	        for (var _i = 0; _i < arguments.length; _i++) {
 	            args[_i - 0] = arguments[_i];
 	        }
-	        if (this.level > 0)
-	            console.warn.apply(console, args);
+	        if (this.level > 1)
+	            this.doLogging('warn', args);
 	    };
 	    Log.prototype.info = function () {
-	        if (this.level > 1)
-	            console.info.apply(console, arguments);
+	        var args = [];
+	        for (var _i = 0; _i < arguments.length; _i++) {
+	            args[_i - 0] = arguments[_i];
+	        }
+	        if (this.level > 2)
+	            this.doLogging('info', args);
 	    };
 	    Log.prototype.debug = function () {
-	        if (this.level > 2)
-	            console.log.apply(console, arguments);
+	        var args = [];
+	        for (var _i = 0; _i < arguments.length; _i++) {
+	            args[_i - 0] = arguments[_i];
+	        }
+	        if (this.level > 3)
+	            this.doLogging('debug', args);
 	    };
+	    Object.defineProperty(Log.prototype, "state", {
+	        get: function () {
+	            return ("\nObject.log - Object+ Logging and Debugging Utility\n--------------------------------------------------\nObject.log.counts: Number of logged events by type\n    { errors : " + this.counts.error + ", warns : " + this.counts.warn + ", info : " + this.counts.info + ", debug : " + this.counts.debug + " }\n\nObject.log.level ( " + this.level + " ): Ignore events which are above specified level \n    - 0 - logging is off;\n    - 1 - Object.log.error(...) only;\n    - 2 - .error() and .warn();\n    - 3 - .error(), .warn(), and .info();\n    - 4 - all of above plus .debug().\n\nObject.log.stops: Stops in debugger for some certain event types\n     { error : " + (this.stops.error || false) + ", warn  : " + (this.stops.warn || false) + ", info  : " + (this.stops.info || false) + ", debug : " + (this.stops.debug || false) + " } \n\nObject.log.throws: Throws expection on some certain event types\n     { error : " + (this.throws.error || false) + ", warn  : " + (this.throws.warn || false) + ", info  : " + (this.throws.info || false) + ", debug : " + (this.throws.debug || false) + " }\n");
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
 	    return Log;
 	}());
+	exports.Log = Log;
 	exports.log = new Log();
 	function isValidJSON(value) {
 	    if (value === null) {
@@ -163,6 +208,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return Object.getPrototypeOf(Class.prototype).constructor;
 	}
 	exports.getBaseClass = getBaseClass;
+	function getChangedStatics(Ctor) {
+	    var names = [];
+	    for (var _i = 1; _i < arguments.length; _i++) {
+	        names[_i - 1] = arguments[_i];
+	    }
+	    var Base = getBaseClass(Ctor), props = {};
+	    for (var _a = 0, names_1 = names; _a < names_1.length; _a++) {
+	        var name_1 = names_1[_a];
+	        var value = Ctor[name_1];
+	        if (value !== void 0 && value !== Base[name_1]) {
+	            props[name_1] = value;
+	        }
+	    }
+	    return props;
+	}
+	exports.getChangedStatics = getChangedStatics;
 	function isEmpty(obj) {
 	    if (obj) {
 	        for (var key in obj) {
@@ -1113,10 +1174,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this;
 	    };
 	    Collection.define = function (protoProps, staticProps) {
-	        var spec = omit(protoProps, 'itemEvents', 'localEvents');
-	        if (protoProps.itemEvents) {
+	        if (protoProps === void 0) { protoProps = {}; }
+	        var staticsDefinition = object_plus_1.tools.getChangedStatics(this, 'model', 'itemEvents'), definition = assign(staticsDefinition, protoProps);
+	        var spec = omit(definition, 'itemEvents');
+	        if (definition.itemEvents) {
 	            var eventsMap = new object_plus_1.EventMap(this.prototype._itemEvents);
-	            eventsMap.addEventsMap(protoProps.itemEvents);
+	            eventsMap.addEventsMap(definition.itemEvents);
 	            spec._itemEvents = eventsMap;
 	        }
 	        return transactions_1.Transactional.define.call(this, spec, staticProps);
@@ -1623,17 +1686,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	__export(__webpack_require__(13));
 	var assign = object_plus_1.tools.assign, defaults = object_plus_1.tools.defaults, omit = object_plus_1.tools.omit, getBaseClass = object_plus_1.tools.getBaseClass;
 	transaction_1.Record.define = function (protoProps, staticProps) {
-	    var BaseConstructor = getBaseClass(this), baseProto = BaseConstructor.prototype;
-	    if (protoProps) {
-	        var definition = define_1.compile(getAttributes(protoProps), baseProto._attributes);
-	        if (protoProps.properties === false) {
-	            definition.properties = {};
-	        }
-	        assign(definition.properties, protoProps.properties || {});
-	        defaults(definition, omit(protoProps, 'attributes', 'collection'));
-	        object_plus_1.Mixable.define.call(this, definition, staticProps);
-	        defineCollection.call(this, protoProps && protoProps.collection);
+	    if (protoProps === void 0) { protoProps = {}; }
+	    var BaseConstructor = getBaseClass(this), baseProto = BaseConstructor.prototype, staticsDefinition = object_plus_1.tools.getChangedStatics(this, 'attributes', 'collection'), definition = assign(staticsDefinition, protoProps);
+	    var dynamicMixin = define_1.compile(getAttributes(definition), baseProto._attributes);
+	    if (definition.properties === false) {
+	        dynamicMixin.properties = {};
 	    }
+	    assign(dynamicMixin.properties, protoProps.properties || {});
+	    defaults(dynamicMixin, omit(definition, 'attributes', 'collection'));
+	    object_plus_1.Mixable.define.call(this, dynamicMixin, staticProps);
+	    defineCollection.call(this, definition.collection);
 	    return this;
 	};
 	transaction_1.Record.predefine = function () {
