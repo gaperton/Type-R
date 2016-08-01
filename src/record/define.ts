@@ -1,4 +1,4 @@
-import { GenericAttribute } from './attribute';
+import { GenericAttribute } from './attributes';
 import { Attribute, AttributesValues, AttributeDescriptorMap, CloneAttributesCtor } from './transaction'
 import { tools, eventsApi } from '../object-plus'
 import { toAttributeDescriptor } from './typespec'

@@ -3,7 +3,7 @@
  * and returns object with spec.
  */
 import { Transactional } from '../transactions'
-import { ChangeAttrHandler, AttributeDescriptor } from './attribute'
+import { ChangeAttrHandler, AttributeDescriptor } from './attributes'
 import { Record } from './transaction'
 import { EventMap, EventsDefinition, Constructor, tools } from '../object-plus'
 

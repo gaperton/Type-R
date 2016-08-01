@@ -3,11 +3,10 @@ import { Mixable, ClassDefinition, tools } from '../object-plus'
 import { compile, AttributesSpec } from './define'
 import { ChainableAttributeSpec } from './typespec'
 
-import { TransactionalType } from './nestedTypes'
-import './basicTypes'
+import { TransactionalType, MSDateType, TimestampType, NumericType } from './attributes'
 
-export * from './attribute'
-export { Record, ChainableAttributeSpec, TransactionalType }
+export * from './attributes'
+export { Record, ChainableAttributeSpec }
 
 const { assign, defaults, omit, getBaseClass } = tools;
 
@@ -78,4 +77,51 @@ function defineCollection( collection : {} ){
     // Link collection with the record
     CollectionConstructor.prototype.model = this;
     this.Collection = CollectionConstructor;
+}
+
+
+// Add extended Date attribute types.
+declare global {
+    interface DateConstructor {
+        microsoft
+        timestamp
+    }
+}
+
+Object.defineProperties( Date, {
+    microsoft : {
+        get(){
+            return new ChainableAttributeSpec({
+                type : Date,
+                _attribute : MSDateType
+            })
+        }
+    },
+
+    timestamp : {
+        get(){
+            return new ChainableAttributeSpec({
+                type : Date,
+                _attribute : TimestampType
+            })
+        }
+    }
+});
+
+// Add Number.integer attrubute type
+declare global {
+    interface NumberConstructor {
+        integer : Function
+    }
+
+    interface Window {
+        Integer : Function;
+    }
+}
+
+Number.integer = function( x ){ return x ? Math.round( x ) : 0; }
+Number.integer._attribute = NumericType;
+
+if( typeof window !== 'undefined' ){
+    window.Integer = Number.integer;
 }
