@@ -60,7 +60,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	__export(__webpack_require__(1));
 	__export(__webpack_require__(6));
-	__export(__webpack_require__(21));
+	__export(__webpack_require__(23));
 	__export(__webpack_require__(10));
 	var _1 = __webpack_require__(1);
 	exports.on = _1.Events.on, exports.off = _1.Events.off, exports.trigger = _1.Events.trigger, exports.once = _1.Events.once, exports.listenTo = _1.Events.listenTo, exports.stopListening = _1.Events.stopListening, exports.listenToOnce = _1.Events.listenToOnce;
@@ -177,7 +177,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Object.defineProperty(Log.prototype, "state", {
 	        get: function () {
-	            return ("\nObject.log - Object+ Logging and Debugging Utility\n--------------------------------------------------\nObject.log.counts: Number of logged events by type\n    { errors : " + this.counts.error + ", warns : " + this.counts.warn + ", info : " + this.counts.info + ", debug : " + this.counts.debug + " }\n\nObject.log.level ( " + this.level + " ): Ignore events which are above specified level \n    - 0 - logging is off;\n    - 1 - Object.log.error(...) only;\n    - 2 - .error() and .warn();\n    - 3 - .error(), .warn(), and .info();\n    - 4 - all of above plus .debug().\n\nObject.log.stops: Stops in debugger for some certain event types\n     { error : " + (this.stops.error || false) + ", warn  : " + (this.stops.warn || false) + ", info  : " + (this.stops.info || false) + ", debug : " + (this.stops.debug || false) + " } \n\nObject.log.throws: Throws expection on some certain event types\n     { error : " + (this.throws.error || false) + ", warn  : " + (this.throws.warn || false) + ", info  : " + (this.throws.info || false) + ", debug : " + (this.throws.debug || false) + " }\n");
+	            return ("\nObject.log - Object+ Logging and Debugging Utility\n--------------------------------------------------\nObject.log.counts: Number of logged events by type\n    { errors : " + this.counts.error + ", warns : " + this.counts.warn + ", info : " + this.counts.info + ", debug : " + this.counts.debug + " }\n\nObject.log.level == " + this.level + " : Ignore events which are above specified level \n    - 0 - logging is off;\n    - 1 - Object.log.error(...) only;\n    - 2 - .error() and .warn();\n    - 3 - .error(), .warn(), and .info();\n    - 4 - all of above plus .debug().\n\nObject.log.stops: Stops in debugger for some certain event types\n     { error : " + (this.stops.error || false) + ", warn  : " + (this.stops.warn || false) + ", info  : " + (this.stops.info || false) + ", debug : " + (this.stops.debug || false) + " } \n\nObject.log.throws: Throws expection on some certain event types\n     { error : " + (this.throws.error || false) + ", warn  : " + (this.throws.warn || false) + ", info  : " + (this.throws.info || false) + ", debug : " + (this.throws.debug || false) + " }\n");
 	        },
 	        enumerable: true,
 	        configurable: true
@@ -399,45 +399,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    return false;
 	}
-	var numericKeys = [1, 4, 5, 6, 7, 10, 11], msDatePattern = /\/Date\(([0-9]+)\)\//, isoDatePattern = /^(\d{4}|[+\-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:(Z)|([+\-])(\d{2})(?::(\d{2}))?)?)?$/;
-	function safeParseDate(date) {
-	    var msDate, timestamp, struct, minutesOffset = 0;
-	    if (msDate = msDatePattern.exec(date)) {
-	        timestamp = Number(msDate[1]);
-	    }
-	    else if ((struct = isoDatePattern.exec(date))) {
-	        for (var i = 0, k; (k = numericKeys[i]); ++i) {
-	            struct[k] = +struct[k] || 0;
-	        }
-	        struct[2] = (+struct[2] || 1) - 1;
-	        struct[3] = +struct[3] || 1;
-	        if (struct[8] !== 'Z' && struct[9] !== undefined) {
-	            minutesOffset = struct[10] * 60 + struct[11];
-	            if (struct[9] === '+') {
-	                minutesOffset = 0 - minutesOffset;
-	            }
-	        }
-	        timestamp =
-	            Date.UTC(struct[1], struct[2], struct[3], struct[4], struct[5] + minutesOffset, struct[6], struct[7]);
-	    }
-	    else {
-	        timestamp = Date.parse(date);
-	    }
-	    return timestamp;
-	}
-	function fastParseDate(date) {
-	    var msDate = msDatePattern.exec(date);
-	    return msDate ? Number(msDate[1]) : Date.parse(date);
-	}
-	function supportsDate(date) {
-	    return !isNaN(Date.parse(date));
-	}
-	var parseDate = supportsDate('2011-11-29T15:52:30.5') &&
-	    supportsDate('2011-11-29T15:52:30.52') &&
-	    supportsDate('2011-11-29T15:52:18.867') &&
-	    supportsDate('2011-11-29T15:52:18.867Z') &&
-	    supportsDate('2011-11-29T15:52:18.867-03:30') ? fastParseDate : safeParseDate;
-	exports.parseDate = parseDate;
 
 
 /***/ },
@@ -1135,10 +1096,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	var object_plus_1 = __webpack_require__(1);
 	var transactions_1 = __webpack_require__(7);
 	var record_1 = __webpack_require__(10);
-	var commons_1 = __webpack_require__(17);
-	var add_1 = __webpack_require__(18);
-	var set_1 = __webpack_require__(19);
-	var remove_1 = __webpack_require__(20);
+	var commons_1 = __webpack_require__(19);
+	var add_1 = __webpack_require__(20);
+	var set_1 = __webpack_require__(21);
+	var remove_1 = __webpack_require__(22);
 	var trigger2 = object_plus_1.eventsApi.trigger2, begin = transactions_1.transactionApi.begin, commit = transactions_1.transactionApi.commit, markAsDirty = transactions_1.transactionApi.markAsDirty, omit = object_plus_1.tools.omit, log = object_plus_1.tools.log, assign = object_plus_1.tools.assign, defaults = object_plus_1.tools.defaults;
 	var _count = 0;
 	var silentOptions = { silent: true };
@@ -1678,11 +1639,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.Record = transaction_1.Record;
 	var object_plus_1 = __webpack_require__(1);
 	var define_1 = __webpack_require__(12);
-	var typespec_1 = __webpack_require__(14);
+	var typespec_1 = __webpack_require__(18);
 	exports.ChainableAttributeSpec = typespec_1.ChainableAttributeSpec;
-	var nestedTypes_1 = __webpack_require__(15);
-	exports.TransactionalType = nestedTypes_1.TransactionalType;
-	__webpack_require__(16);
+	var attributes_1 = __webpack_require__(13);
 	__export(__webpack_require__(13));
 	var assign = object_plus_1.tools.assign, defaults = object_plus_1.tools.defaults, omit = object_plus_1.tools.omit, getBaseClass = object_plus_1.tools.getBaseClass;
 	transaction_1.Record.define = function (protoProps, staticProps) {
@@ -1704,7 +1663,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.Collection.prototype.model = this;
 	    return this;
 	};
-	transaction_1.Record._attribute = nestedTypes_1.TransactionalType;
+	transaction_1.Record._attribute = attributes_1.TransactionalType;
 	function getAttributes(_a) {
 	    var defaults = _a.defaults, attributes = _a.attributes, idAttribute = _a.idAttribute;
 	    var definition = typeof defaults === 'function' ? defaults() : attributes || defaults || {};
@@ -1726,6 +1685,29 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    CollectionConstructor.prototype.model = this;
 	    this.Collection = CollectionConstructor;
+	}
+	Object.defineProperties(Date, {
+	    microsoft: {
+	        get: function () {
+	            return new typespec_1.ChainableAttributeSpec({
+	                type: Date,
+	                _attribute: attributes_1.MSDateType
+	            });
+	        }
+	    },
+	    timestamp: {
+	        get: function () {
+	            return new typespec_1.ChainableAttributeSpec({
+	                type: Date,
+	                _attribute: attributes_1.TimestampType
+	            });
+	        }
+	    }
+	});
+	Number.integer = function (x) { return x ? Math.round(x) : 0; };
+	Number.integer._attribute = attributes_1.NumericType;
+	if (typeof window !== 'undefined') {
+	    window.Integer = Number.integer;
 	}
 
 
@@ -2067,9 +2049,9 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var attribute_1 = __webpack_require__(13);
+	var attributes_1 = __webpack_require__(13);
 	var object_plus_1 = __webpack_require__(1);
-	var typespec_1 = __webpack_require__(14);
+	var typespec_1 = __webpack_require__(18);
 	var traversable_1 = __webpack_require__(9);
 	var defaults = object_plus_1.tools.defaults, isValidJSON = object_plus_1.tools.isValidJSON, transform = object_plus_1.tools.transform, log = object_plus_1.tools.log, EventMap = object_plus_1.eventsApi.EventMap;
 	function compile(rawSpecs, baseAttributes) {
@@ -2093,7 +2075,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	exports.compile = compile;
 	function createAttribute(spec, name) {
-	    return attribute_1.GenericAttribute.create(typespec_1.toAttributeDescriptor(spec), name);
+	    return attributes_1.GenericAttribute.create(typespec_1.toAttributeDescriptor(spec), name);
 	}
 	function createEventMap(attrSpecs) {
 	    var events;
@@ -2204,6 +2186,20 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	function __export(m) {
+	    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+	}
+	__export(__webpack_require__(14));
+	__export(__webpack_require__(15));
+	__export(__webpack_require__(16));
+	__export(__webpack_require__(17));
+
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
 	var transaction_1 = __webpack_require__(11);
 	var object_plus_1 = __webpack_require__(1);
 	var notEqual = object_plus_1.tools.notEqual, assign = object_plus_1.tools.assign;
@@ -2310,7 +2306,222 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 14 */
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var transaction_1 = __webpack_require__(11);
+	var generic_1 = __webpack_require__(14);
+	var transactions_1 = __webpack_require__(7);
+	var object_plus_1 = __webpack_require__(1);
+	var free = transactions_1.transactionApi.free, aquire = transactions_1.transactionApi.aquire;
+	var TransactionalType = (function (_super) {
+	    __extends(TransactionalType, _super);
+	    function TransactionalType() {
+	        _super.apply(this, arguments);
+	    }
+	    TransactionalType.prototype.canBeUpdated = function (prev, next) {
+	        return prev && next && !(next instanceof this.type);
+	    };
+	    TransactionalType.prototype.convert = function (value, options, record) {
+	        return value == null || value instanceof this.type ? value : this.type.create(value, options, record);
+	    };
+	    TransactionalType.prototype.validate = function (record, value) {
+	        var error = value && value.validationError;
+	        if (error)
+	            return error;
+	    };
+	    TransactionalType.prototype.create = function () {
+	        return new this.type();
+	    };
+	    TransactionalType.prototype.initialize = function (options) {
+	        options.changeHandlers.unshift(this._handleChange);
+	    };
+	    TransactionalType.prototype._handleChange = function (next, prev, record) {
+	        prev && free(record, prev);
+	        if (next && !aquire(record, next, this.name)) {
+	            object_plus_1.tools.log.error('[Aggregation error] Assigned value already has an owner. Use shared attribute type.');
+	        }
+	    };
+	    return TransactionalType;
+	}(generic_1.GenericAttribute));
+	exports.TransactionalType = TransactionalType;
+	transaction_1.Record._attribute = TransactionalType;
+
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var generic_1 = __webpack_require__(14);
+	var DateProto = Date.prototype;
+	var DateType = (function (_super) {
+	    __extends(DateType, _super);
+	    function DateType() {
+	        _super.apply(this, arguments);
+	    }
+	    DateType.prototype.convert = function (value) {
+	        return value == null || value instanceof Date ? value : new Date(value);
+	    };
+	    DateType.prototype.validate = function (model, value, name) {
+	        if (isNaN(+value))
+	            return name + ' is Invalid Date';
+	    };
+	    DateType.prototype.toJSON = function (value) { return value && value.toISOString(); };
+	    DateType.prototype.isChanged = function (a, b) { return (a && +a) !== (b && +b); };
+	    DateType.prototype.clone = function (value) { return value && new Date(+value); };
+	    return DateType;
+	}(generic_1.GenericAttribute));
+	exports.DateType = DateType;
+	Date._attribute = DateType;
+	var msDatePattern = /\/Date\(([0-9]+)\)\//;
+	var MSDateType = (function (_super) {
+	    __extends(MSDateType, _super);
+	    function MSDateType() {
+	        _super.apply(this, arguments);
+	    }
+	    MSDateType.prototype.convert = function (value) {
+	        if (typeof value === 'string') {
+	            var msDate = msDatePattern.exec(value);
+	            if (msDate) {
+	                return new Date(Number(msDate[1]));
+	            }
+	        }
+	        return _super.prototype.convert.call(this, value);
+	    };
+	    MSDateType.prototype.toJSON = function (value) { return value && "/Date(" + value.getTime() + ")/"; };
+	    return MSDateType;
+	}(DateType));
+	exports.MSDateType = MSDateType;
+	var TimestampType = (function (_super) {
+	    __extends(TimestampType, _super);
+	    function TimestampType() {
+	        _super.apply(this, arguments);
+	    }
+	    TimestampType.prototype.toJSON = function (value) { return value.getTime(); };
+	    return TimestampType;
+	}(DateType));
+	exports.TimestampType = TimestampType;
+	function supportsDate(date) {
+	    return !isNaN((new Date(date)).getTime());
+	}
+	if (!supportsDate('2011-11-29T15:52:30.5') ||
+	    !supportsDate('2011-11-29T15:52:30.52') ||
+	    !supportsDate('2011-11-29T15:52:18.867') ||
+	    !supportsDate('2011-11-29T15:52:18.867Z') ||
+	    !supportsDate('2011-11-29T15:52:18.867-03:30')) {
+	    var numericKeys_1 = [1, 4, 5, 6, 7, 10, 11], isoDatePattern_1 = /^(\d{4}|[+\-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:(Z)|([+\-])(\d{2})(?::(\d{2}))?)?)?$/;
+	    DateType.prototype.convert = function (value) {
+	        return value == null || value instanceof Date ? value : new Date(safeParseDate(value));
+	    };
+	    function safeParseDate(date) {
+	        var timestamp, struct, minutesOffset = 0;
+	        if ((struct = isoDatePattern_1.exec(date))) {
+	            for (var i = 0, k; (k = numericKeys_1[i]); ++i) {
+	                struct[k] = +struct[k] || 0;
+	            }
+	            struct[2] = (+struct[2] || 1) - 1;
+	            struct[3] = +struct[3] || 1;
+	            if (struct[8] !== 'Z' && struct[9] !== undefined) {
+	                minutesOffset = struct[10] * 60 + struct[11];
+	                if (struct[9] === '+') {
+	                    minutesOffset = 0 - minutesOffset;
+	                }
+	            }
+	            timestamp =
+	                Date.UTC(struct[1], struct[2], struct[3], struct[4], struct[5] + minutesOffset, struct[6], struct[7]);
+	        }
+	        else {
+	            timestamp = Date.parse(date);
+	        }
+	        return timestamp;
+	    }
+	}
+
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var generic_1 = __webpack_require__(14);
+	var ConstructorType = (function (_super) {
+	    __extends(ConstructorType, _super);
+	    function ConstructorType() {
+	        _super.apply(this, arguments);
+	    }
+	    ConstructorType.prototype.convert = function (value) {
+	        return value == null || value instanceof this.type ? value : new this.type(value);
+	    };
+	    ConstructorType.prototype.clone = function (value, options) {
+	        return value.clone ? value.clone(value, options) : this.convert(JSON.parse(JSON.stringify(value)));
+	    };
+	    return ConstructorType;
+	}(generic_1.GenericAttribute));
+	Function.prototype._attribute = ConstructorType;
+	var PrimitiveType = (function (_super) {
+	    __extends(PrimitiveType, _super);
+	    function PrimitiveType() {
+	        _super.apply(this, arguments);
+	    }
+	    PrimitiveType.prototype.create = function () { return this.type(); };
+	    PrimitiveType.prototype.toJSON = function (value) { return value; };
+	    PrimitiveType.prototype.convert = function (value) { return value == null ? value : this.type(value); };
+	    PrimitiveType.prototype.isChanged = function (a, b) { return a !== b; };
+	    PrimitiveType.prototype.clone = function (value) { return value; };
+	    return PrimitiveType;
+	}(generic_1.GenericAttribute));
+	exports.PrimitiveType = PrimitiveType;
+	Boolean._attribute = String._attribute = PrimitiveType;
+	var NumericType = (function (_super) {
+	    __extends(NumericType, _super);
+	    function NumericType() {
+	        _super.apply(this, arguments);
+	    }
+	    NumericType.prototype.validate = function (model, value, name) {
+	        if (!isFinite(value)) {
+	            return name + ' is not valid number';
+	        }
+	    };
+	    return NumericType;
+	}(PrimitiveType));
+	exports.NumericType = NumericType;
+	Number._attribute = NumericType;
+	var ArrayType = (function (_super) {
+	    __extends(ArrayType, _super);
+	    function ArrayType() {
+	        _super.apply(this, arguments);
+	    }
+	    ArrayType.prototype.toJSON = function (value) { return value; };
+	    ArrayType.prototype.convert = function (value) {
+	        if (value == null || Array.isArray(value))
+	            return value;
+	        return [];
+	    };
+	    return ArrayType;
+	}(generic_1.GenericAttribute));
+	exports.ArrayType = ArrayType;
+	Array._attribute = ArrayType;
+
+
+/***/ },
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2430,151 +2641,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 15 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
-	var transaction_1 = __webpack_require__(11);
-	var attribute_1 = __webpack_require__(13);
-	var transactions_1 = __webpack_require__(7);
-	var object_plus_1 = __webpack_require__(1);
-	var free = transactions_1.transactionApi.free, aquire = transactions_1.transactionApi.aquire;
-	var TransactionalType = (function (_super) {
-	    __extends(TransactionalType, _super);
-	    function TransactionalType() {
-	        _super.apply(this, arguments);
-	    }
-	    TransactionalType.prototype.canBeUpdated = function (prev, next) {
-	        return prev && next && !(next instanceof this.type);
-	    };
-	    TransactionalType.prototype.convert = function (value, options, record) {
-	        return value == null || value instanceof this.type ? value : this.type.create(value, options, record);
-	    };
-	    TransactionalType.prototype.validate = function (record, value) {
-	        var error = value && value.validationError;
-	        if (error)
-	            return error;
-	    };
-	    TransactionalType.prototype.create = function () {
-	        return new this.type();
-	    };
-	    TransactionalType.prototype.initialize = function (options) {
-	        options.changeHandlers.unshift(this._handleChange);
-	    };
-	    TransactionalType.prototype._handleChange = function (next, prev, record) {
-	        prev && free(record, prev);
-	        if (next && !aquire(record, next, this.name)) {
-	            object_plus_1.tools.log.error('[Aggregation error] Assigned value already has an owner. Use shared attribute type.');
-	        }
-	    };
-	    return TransactionalType;
-	}(attribute_1.GenericAttribute));
-	exports.TransactionalType = TransactionalType;
-	transaction_1.Record._attribute = TransactionalType;
-
-
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
-	var attribute_1 = __webpack_require__(13);
-	var object_plus_1 = __webpack_require__(1);
-	var parseDate = object_plus_1.tools.parseDate;
-	var ConstructorType = (function (_super) {
-	    __extends(ConstructorType, _super);
-	    function ConstructorType() {
-	        _super.apply(this, arguments);
-	    }
-	    ConstructorType.prototype.convert = function (value) {
-	        return value == null || value instanceof this.type ? value : new this.type(value);
-	    };
-	    ConstructorType.prototype.clone = function (value, options) {
-	        return value.clone ? value.clone(value, options) : this.convert(JSON.parse(JSON.stringify(value)));
-	    };
-	    return ConstructorType;
-	}(attribute_1.GenericAttribute));
-	Function.prototype._attribute = ConstructorType;
-	var DateProto = Date.prototype;
-	var DateType = (function (_super) {
-	    __extends(DateType, _super);
-	    function DateType() {
-	        _super.apply(this, arguments);
-	    }
-	    DateType.prototype.convert = function (value) {
-	        return typeof value === 'string' ? new Date(parseDate(value)) : (value == null || value instanceof Date ? value : new Date(value));
-	    };
-	    DateType.prototype.validate = function (model, value, name) {
-	        if (isNaN(+value))
-	            return name + ' is Invalid Date';
-	    };
-	    DateType.prototype.toJSON = function (value) { return value && value.toJSON(); };
-	    DateType.prototype.isChanged = function (a, b) { return (a && +a) !== (b && +b); };
-	    DateType.prototype.clone = function (value) { return value && new Date(+value); };
-	    return DateType;
-	}(attribute_1.GenericAttribute));
-	Date._attribute = DateType;
-	var PrimitiveType = (function (_super) {
-	    __extends(PrimitiveType, _super);
-	    function PrimitiveType() {
-	        _super.apply(this, arguments);
-	    }
-	    PrimitiveType.prototype.create = function () { return this.type(); };
-	    PrimitiveType.prototype.toJSON = function (value) { return value; };
-	    PrimitiveType.prototype.convert = function (value) { return value == null ? value : this.type(value); };
-	    PrimitiveType.prototype.isChanged = function (a, b) { return a !== b; };
-	    PrimitiveType.prototype.clone = function (value) { return value; };
-	    return PrimitiveType;
-	}(attribute_1.GenericAttribute));
-	exports.PrimitiveType = PrimitiveType;
-	Boolean._attribute = String._attribute = PrimitiveType;
-	var NumericType = (function (_super) {
-	    __extends(NumericType, _super);
-	    function NumericType() {
-	        _super.apply(this, arguments);
-	    }
-	    NumericType.prototype.validate = function (model, value, name) {
-	        if (!isFinite(value)) {
-	            return name + ' is not valid number';
-	        }
-	    };
-	    return NumericType;
-	}(PrimitiveType));
-	exports.NumericType = NumericType;
-	Number._attribute = NumericType;
-	if (window) {
-	    window.Integer = function (x) { return x ? Math.round(x) : 0; };
-	    window.Integer._attribute = NumericType;
-	}
-	var ArrayType = (function (_super) {
-	    __extends(ArrayType, _super);
-	    function ArrayType() {
-	        _super.apply(this, arguments);
-	    }
-	    ArrayType.prototype.toJSON = function (value) { return value; };
-	    ArrayType.prototype.convert = function (value) {
-	        if (value == null || Array.isArray(value))
-	            return value;
-	        return [];
-	    };
-	    return ArrayType;
-	}(attribute_1.GenericAttribute));
-	exports.ArrayType = ArrayType;
-	Array._attribute = ArrayType;
-
-
-/***/ },
-/* 17 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2689,12 +2756,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 18 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var transactions_1 = __webpack_require__(7);
-	var commons_1 = __webpack_require__(17);
+	var commons_1 = __webpack_require__(19);
 	var begin = transactions_1.transactionApi.begin, commit = transactions_1.transactionApi.commit, markAsDirty = transactions_1.transactionApi.markAsDirty;
 	function addTransaction(collection, items, options) {
 	    var isRoot = begin(collection), nested = [];
@@ -2757,12 +2824,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 19 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var transactions_1 = __webpack_require__(7);
-	var commons_1 = __webpack_require__(17);
+	var commons_1 = __webpack_require__(19);
 	var begin = transactions_1.transactionApi.begin, commit = transactions_1.transactionApi.commit, markAsDirty = transactions_1.transactionApi.markAsDirty;
 	var silentOptions = { silent: true };
 	function emptySetTransaction(collection, items, options, silent) {
@@ -2857,11 +2924,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 20 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var commons_1 = __webpack_require__(17);
+	var commons_1 = __webpack_require__(19);
 	var object_plus_1 = __webpack_require__(1);
 	var transactions_1 = __webpack_require__(7);
 	var trigger2 = object_plus_1.eventsApi.trigger2, trigger3 = object_plus_1.eventsApi.trigger3, markAsDirty = transactions_1.transactionApi.markAsDirty, begin = transactions_1.transactionApi.begin, commit = transactions_1.transactionApi.commit;
@@ -2927,19 +2994,19 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 21 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	__webpack_require__(22);
 	__webpack_require__(24);
-	__webpack_require__(25);
-	var store_1 = __webpack_require__(26);
+	__webpack_require__(26);
+	__webpack_require__(27);
+	var store_1 = __webpack_require__(28);
 	exports.Store = store_1.Store;
 
 
 /***/ },
-/* 22 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2949,7 +3016,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var record_1 = __webpack_require__(10);
-	var commons_1 = __webpack_require__(23);
+	var commons_1 = __webpack_require__(25);
 	var record_2 = __webpack_require__(10);
 	var record_3 = __webpack_require__(10);
 	var RecordRefAttribute = (function (_super) {
@@ -2994,7 +3061,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 23 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -3014,7 +3081,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 24 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -3025,7 +3092,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var collection_1 = __webpack_require__(6);
 	var object_plus_1 = __webpack_require__(1);
-	var commons_1 = __webpack_require__(23);
+	var commons_1 = __webpack_require__(25);
 	var record_1 = __webpack_require__(10);
 	var fastDefaults = object_plus_1.tools.fastDefaults;
 	collection_1.Collection.subsetOf = function subsetOf(masterCollection) {
@@ -3112,7 +3179,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 25 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -3174,7 +3241,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 26 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";

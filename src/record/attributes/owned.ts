@@ -1,7 +1,7 @@
-import { Record } from './transaction' 
-import { GenericAttribute } from './attribute'
-import { Owner, transactionApi, Transactional, TransactionOptions, TransactionalConstructor } from '../transactions'
-import { tools } from '../object-plus' 
+import { Record } from '../transaction' 
+import { GenericAttribute } from './generic'
+import { Owner, transactionApi, Transactional, TransactionOptions, TransactionalConstructor } from '../../transactions'
+import { tools } from '../../object-plus' 
 
 const { free, aquire } = transactionApi;
 

@@ -1,7 +1,5 @@
-import { GenericAttribute } from './attribute'
-import { tools } from '../object-plus'
-
-const { parseDate } = tools;  
+import { GenericAttribute } from './generic'
+import { tools } from '../../object-plus'
 
 // Default attribute type for all constructor functions...
 /** @private */
@@ -19,30 +17,6 @@ class ConstructorType extends GenericAttribute {
 }
 
 Function.prototype._attribute = ConstructorType;
-
-const DateProto = Date.prototype;
-
-// Date Attribute
-/** @private */
-class DateType extends GenericAttribute {
-    convert( value ) {
-        return typeof value === 'string' ? new Date( parseDate( value ) ) : (
-            value == null || value instanceof Date ? value : new Date( value )
-        );
-    }
-
-    validate( model, value, name ) {
-        if( isNaN( +value ) ) return name + ' is Invalid Date';
-    }
-
-    toJSON( value ) { return value && value.toJSON(); }
-
-    isChanged( a, b ) { return ( a && +a ) !== ( b && +b ); }
-
-    clone( value ) { return value && new Date( +value ); }
-}
-
-Date._attribute = DateType;
 
 // Primitive Types.
 /** @private */
@@ -76,18 +50,6 @@ export class NumericType extends PrimitiveType {
 }
 
 Number._attribute = NumericType;
-
-// Add global Integer data type
-declare global {
-    interface Window {
-        Integer : Function
-    }
-}
-
-if( window ){
-    window.Integer = function( x ){ return x ? Math.round( x ) : 0; }
-    window.Integer._attribute = NumericType;
-}
 
 /**
  * Compatibility wrapper for Array type.
