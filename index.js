@@ -2635,7 +2635,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        case 'undefined':
 	            return void 0;
 	        case 'object':
-	            return value ? value.constructor : Object;
+	            return value ? value.constructor : void 0;
 	    }
 	}
 

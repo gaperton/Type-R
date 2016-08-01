@@ -174,6 +174,6 @@ function inferType( value : {} ) : Constructor<any> {
         case 'undefined' :
             return void 0;
         case 'object' :
-            return value ? <any> value.constructor : Object;
+            return value ? <any> value.constructor : void 0;
     }
 }
