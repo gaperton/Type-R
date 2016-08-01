@@ -1461,13 +1461,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        enumerable: true,
 	        configurable: true
 	    });
-	    Transactional.prototype._invalidate = function (options) {
-	        var error;
-	        if (options.validate && (error = this.validationError)) {
-	            this.trigger('invalid', this, error, assign({ validationError: error }, options));
-	            return true;
-	        }
-	    };
 	    Transactional.prototype.validate = function (obj) { };
 	    Transactional.prototype.getValidationError = function (key) {
 	        var error = this.validationError;

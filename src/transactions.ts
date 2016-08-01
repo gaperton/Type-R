@@ -217,15 +217,6 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
         return error.length ? error : null; 
     }
 
-    /** @private */
-    _invalidate( options : { validate? : boolean } ) : boolean {
-        var error;
-        if( options.validate && ( error = this.validationError ) ){
-            this.trigger( 'invalid', this, error, assign( { validationError : error }, options ) );
-            return true;
-        }
-    }
-
     // Validate nested members. Returns errors count.
     /** @private */
     abstract _validateNested( errors : ChildrenErrors ) : number
