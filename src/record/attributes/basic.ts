@@ -43,7 +43,7 @@ export class NumericType extends PrimitiveType {
 
     validate( model, value, name ) {
         // Whatever is not symmetrically serializable to JSON, is not valid by default.
-        if( !isFinite( value ) ) {
+        if( value != null && !isFinite( value ) ) {
             return name + ' is not valid number';
         }
     }

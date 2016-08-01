@@ -10,7 +10,7 @@ export class DateType extends GenericAttribute {
     }
 
     validate( model, value, name ) {
-        if( isNaN( +value ) ) return name + ' is Invalid Date';
+        if( value != null && isNaN( +value ) ) return name + ' is Invalid Date';
     }
 
     toJSON( value ) { return value && value.toISOString(); }
