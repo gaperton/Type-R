@@ -43,7 +43,7 @@ I bet you never was aware about the most of these things, but still:
 - `object.trigger( 'a b' )` is not supported. Use `object.trigger( 'a' ).trigger( 'b' )`. Performance reasons. Not to mention, that when you doing so, you are most likely doing something wrong.
 - `model.initialize( attrs, options, owner )` uses third parameter to set owner, `options.collection` is ignored.
 - default model cid prefix is `m`.
-- model.set `unset` option is deprecated. In Type-R, model is not a hash, its record with pre-defined members. Just assign attributes with `void 0` instead.
+- model.set `unset` option is deprecated. In Type-R, model is not a hash, it's a record with pre-defined members. So, you cannot really delete the model attribute. Just assign it with `void 0` instead.
 - model `change:attr` events are not bubbled up by collection by default. Manual `itemEvents` spec is required. Performance reasons.
 - Collection doesn't have `_addReference` and `_removeReference` callbacks. Impossible to implement efficiently. Use 'add' and 'remove' events instead.
 - Collection's `add` options is not supported. Period.
