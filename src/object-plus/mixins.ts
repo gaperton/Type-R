@@ -79,8 +79,8 @@ export class Mixable {
 
     static mixins( ...mixins : ( Mixin | Mixin[] )[] ) : typeof Mixable {
         const proto      = this.prototype,
-              mergeRules : MixinRules = this._mixinRules || {},
-              _appliedMixins = this._appliedMixins || ( this._appliedMixins = [] );
+              mergeRules : MixinRules = this._mixinRules || {},      
+              _appliedMixins = this._appliedMixins = ( this._appliedMixins || [] ).slice();
 
         // Apply mixins in sequence...
         for( let mixin of mixins ) {
