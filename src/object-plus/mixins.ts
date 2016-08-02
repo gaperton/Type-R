@@ -74,18 +74,28 @@ export class Mixable {
      *    MyOtherClass.mixins([ plainObjMixin, OtherConstructor, ... ]); 
      * ```
      */
+
+    static _appliedMixins : any[]
+
     static mixins( ...mixins : ( Mixin | Mixin[] )[] ) : typeof Mixable {
         const proto      = this.prototype,
-              mergeRules : MixinRules = this._mixinRules || {};
+              mergeRules : MixinRules = this._mixinRules || {},
+              _appliedMixins = this._appliedMixins || ( this._appliedMixins = [] );
 
         // Apply mixins in sequence...
         for( let mixin of mixins ) {
             // Mixins array should be flattened. 
             if( mixin instanceof Array ) {
-                Mixable.mixins.apply( this, mixin );
+                return Mixable.mixins.apply( this, mixin );
             }
+
+            // Don't apply mixins twice.
+            if( _appliedMixins.indexOf( mixin ) >= 0 ) continue;
+
+            _appliedMixins.push( mixin );
+
             // For constructors, merge _both_ static and prototype members.
-            else if( typeof mixin === 'function' ){
+            if( typeof mixin === 'function' ){
                 // Statics are merged by simple substitution.
                 defaults( this, mixin );
 
