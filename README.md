@@ -20,9 +20,9 @@ Because we can.
     - [x] Model regression passes.
     - [x] Collection regression passes.
 - [x] Implement relations.
-- [ ] Implement NestedTypes compatibility layer.
-    - [ ] Underscore/Lodash mixin for Model and Collection
-    - [ ] Backbone Persistence API
+- [x] Implement NestedTypes compatibility layer.
+    - [x] Underscore/Lodash mixin for Model and Collection
+    - [x] Backbone Persistence API
 - [ ] Test it with NestedReact examples.
 - [ ] Release ObjectPlus as separate package.
 - [ ] Implement classes support in NestedReact.
