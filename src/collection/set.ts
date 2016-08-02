@@ -1,11 +1,13 @@
-import { Transaction, begin, commit, aquire, free } from '../transactions.ts'
-import { CollectionTransaction, IdIndex, sortElements, CollectionOptions, toModel, addIndex, CollectionCore, Elements, freeAll } from './commons.ts'
-import { Record } from '../record/index.ts'
+import { Transaction, transactionApi } from '../transactions'
+import { CollectionTransaction, IdIndex, aquire, free, sortElements, CollectionOptions, toModel, addIndex, CollectionCore, Elements, freeAll } from './commons'
+import { Record } from '../record'
 
-/*******
- * 
- */
+const { begin, commit, markAsDirty } = transactionApi;
 
+/** @private */
+const silentOptions = { silent : true };
+
+/** @private */
 export function emptySetTransaction( collection : CollectionCore, items : Elements, options : CollectionOptions, silent? : boolean ){
     const isRoot = begin( collection );
 
@@ -13,13 +15,18 @@ export function emptySetTransaction( collection : CollectionCore, items : Elemen
 
     if( added.length ){
         const needSort = sortElements( collection, options );
-        return new CollectionTransaction( collection, isRoot, added, [], [], needSort );
+
+        if( markAsDirty( collection, silent ? silentOptions : options ) ){
+            // 'added' is the reference to this.models. Need to copy it.
+            return new CollectionTransaction( collection, isRoot, added.slice(), [], [], needSort );
+        }
     }
 
     // No changes...
-    isRoot && commit( collection, options );
+    isRoot && commit( collection );
 };
 
+/** @private */
 export function setTransaction( collection, items, options ){
     const isRoot = begin( collection ),
           nested = [];
@@ -34,17 +41,20 @@ export function setTransaction( collection, items, options ){
                     ) : [];                    
     
     const addedOrChanged = nested.length || added.length,
-          needSort = addedOrChanged && sortElements( collection, options );
+          sorted = ( addedOrChanged && sortElements( collection, options ) ) || added.length || options.sorted;
 
-    if( addedOrChanged || removed.length ){
-        return new CollectionTransaction( collection, isRoot, added, removed, nested, needSort );
+    if( addedOrChanged || removed.length || sorted ){
+        if( markAsDirty( collection, options ) ){ 
+            return new CollectionTransaction( collection, isRoot, added, removed, nested, sorted );
+        }
     }
 
-    isRoot && commit( collection, options );
+    isRoot && commit( collection );
 };
 
 // Remove references to all previous elements, which are not present in collection.
 // Returns an array with removed elements.
+/** @private */
 function _garbageCollect( collection : CollectionCore, previous : Record[] ) : Record[]{
     const { _byId }  = collection,
           removed = [];
@@ -61,13 +71,16 @@ function _garbageCollect( collection : CollectionCore, previous : Record[] ) : R
 }
 
 // reallocate model and index
-function _reallocate( collection : CollectionCore, source, nested : Transaction[], options ){
+/** @private */
+function _reallocate( collection : CollectionCore, source : any[], nested : Transaction[], options ){
     var models      = Array( source.length ),
         _byId : IdIndex = {},
         merge       = options.merge == null ? true : options.merge,
         _prevById   = collection._byId,
+        prevModels  = collection.models, 
         idAttribute = collection.model.prototype.idAttribute,
-        toAdd       = [];
+        toAdd       = [],
+        orderKept   = true;
 
     // for each item in source set...
     for( var i = 0, j = 0; i < source.length; i++ ){
@@ -85,6 +98,8 @@ function _reallocate( collection : CollectionCore, source, nested : Transaction[
 
         if( model ){
             if( merge && item !== model ){
+                if( orderKept && prevModels[ j ] !== model ) orderKept = false;
+
                 var attrs = item.attributes || item;
                 const transaction = model._createTransaction( attrs, options );
                 transaction && nested.push( transaction );
@@ -104,9 +119,12 @@ function _reallocate( collection : CollectionCore, source, nested : Transaction[
     collection.models   = models;
     collection._byId    = _byId;
 
+    if( !orderKept ) options.sorted = true;
+
     return toAdd;
 }
 
+/** @private */
 function _reallocateEmpty( self, source, options ){
     var len         = source ? source.length : 0,
         models      = Array( len ),

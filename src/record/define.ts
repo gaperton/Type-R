@@ -1,10 +1,13 @@
-import { GenericAttribute } from './attribute.ts';
-import { Attribute, AttributesValues, AttributeDescriptorMap, CloneAttributesCtor } from './transaction.ts'
-import { defaults, isValidJSON, transform, log, EventHandlers } from '../objectplus/index.ts'
-import { toAttributeDescriptor } from './typespec.ts'
+import { GenericAttribute } from './attributes';
+import { Attribute, AttributesValues, AttributeDescriptorMap, CloneAttributesCtor } from './transaction'
+import { tools, eventsApi } from '../object-plus'
+import { toAttributeDescriptor } from './typespec'
+import { CompiledReference } from '../traversable'
 
-import { CompiledReference } from '../references.ts'
+const { defaults, isValidJSON, transform, log } = tools,
+      { EventMap } = eventsApi;
 
+/** @private */
 export interface DynamicMixin {
     _attributes : AttributesSpec
     Attributes : CloneAttributesCtor
@@ -12,11 +15,13 @@ export interface DynamicMixin {
     forEachAttr? : ForEach
     defaults : Defaults
     _toJSON : ToJSON
-    _parse : Parse
-    _listenToSelf : EventHandlers
+    _parse? : Parse
+    _localEvents : eventsApi.EventMap
+    _keys : string[]
 }
 
 // Refine AttributesSpec definition.
+/** @private */
 export interface AttributesSpec {
     [ key : string ] : GenericAttribute
 }
@@ -27,6 +32,7 @@ type Parse     = ( data : any ) => any;
 type ToJSON    = () => any;
 
 // Compile attributes spec
+/** @private */
 export function compile( rawSpecs : AttributeDescriptorMap, baseAttributes : AttributesSpec ) : DynamicMixin {
     const myAttributes = transform( <AttributesSpec>{}, rawSpecs, createAttribute ),
           allAttributes = defaults( <AttributesSpec>{}, myAttributes, baseAttributes ),
@@ -37,50 +43,59 @@ export function compile( rawSpecs : AttributeDescriptorMap, baseAttributes : Att
             properties : transform( <PropertyDescriptorMap>{}, myAttributes, x => x.createPropertyDescriptor() ),
             defaults : createDefaults( allAttributes ),
             _toJSON : createToJSON( allAttributes ), // <- TODO: profile and check if there is any real benefit. I doubt it. 
-            _parse : createParse( myAttributes, allAttributes ),
-            _listenToSelf : createEventMap( allAttributes )
+            _localEvents : createEventMap( myAttributes ),
+            _keys : Object.keys( allAttributes )
          };
 
+    const _parse = createParse( myAttributes, allAttributes );
+    if( _parse ){
+        mixin._parse = _parse;
+    }
+
     // Enable optimized forEach if warnings are disabled.
-    //if( !log.level ){
+    if( !log.level ){
         mixin.forEachAttr = createForEach( allAttributes );
-    //}
+    }
 
     return mixin;
 }
 
 // Create attribute from the type spec.
+/** @private */
 function createAttribute( spec, name ){
     return GenericAttribute.create( toAttributeDescriptor( spec ), name );
 }
 
 // Build events map for attribute change events.
-function createEventMap( attrSpecs : AttributesSpec ) : EventHandlers {
-    var events : EventHandlers = null;
+/** @private */
+function createEventMap( attrSpecs : AttributesSpec ) : eventsApi.EventMap {
+    let events : eventsApi.EventMap;
 
     for( var key in attrSpecs ){
         const attribute = attrSpecs[ key ],
             { _onChange } = attribute.options; 
 
         if( _onChange ){
-            events || ( events = {} );
+            events || ( events = new EventMap() );
 
-            events[ 'change:' + key ] =
+            events.addEvent( 'change:' + key,
                 typeof _onChange === 'string' ?
                     createWatcherFromRef( _onChange, key ) : 
-                    wrapWatcher( _onChange, key );
+                    wrapWatcher( _onChange, key ) );
         }
     }
 
     return events;
 }
 
+/** @private */
 function wrapWatcher( watcher, key ){
     return function( record, value ){
         watcher.call( record, value, key );
     } 
 }
 
+/** @private */
 function createWatcherFromRef( ref : string, key : string ){
     const { local, resolve, tail } = new CompiledReference( ref, true );
     return local ?
@@ -92,6 +107,7 @@ function createWatcherFromRef( ref : string, key : string ){
         }
 }
 
+/** @private */
 export function createForEach( attrSpecs : AttributesSpec ) : ForEach {
     let statements = [ 'var v, _a=this._attributes;' ];
 
@@ -102,6 +118,7 @@ export function createForEach( attrSpecs : AttributesSpec ) : ForEach {
     return <ForEach> new Function( 'a', 'f', statements.join( '' ) );
 }
 
+/** @private */
 export function createCloneCtor( attrSpecs : AttributesSpec ) : CloneAttributesCtor {
     var statements = [];
 
@@ -115,6 +132,7 @@ export function createCloneCtor( attrSpecs : AttributesSpec ) : CloneAttributesC
 }
 
 // Create optimized model.defaults( attrs, options ) function
+/** @private */
 function createDefaults( attrSpecs : AttributesSpec ) : Defaults {
     let assign_f = ['var v;'], create_f = [];
 
@@ -161,6 +179,7 @@ function createDefaults( attrSpecs : AttributesSpec ) : Defaults {
     }
 }
 
+/** @private */
 function createParse( allAttrSpecs : AttributesSpec, attrSpecs : AttributesSpec ) : Parse {
     var statements = [ 'var a=this._attributes;' ],
         create     = false;
@@ -184,6 +203,7 @@ function createParse( allAttrSpecs : AttributesSpec, attrSpecs : AttributesSpec 
     }
  }
 
+/** @private */
 function createToJSON( attrSpecs : AttributesSpec ) : ToJSON {
     let statements = [ `var json = {},v=this.attributes,a=this._attributes;` ];
 

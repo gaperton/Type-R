@@ -1,15 +1,22 @@
-import { Record } from '../record/index.ts'
-import { Owner, aquire, free, Transaction, markAsDirty,
-        TransactionOptions, Transactional, commit } from '../transactions.ts'
+import { Record } from '../record'
+import { Owner, Transaction,
+        TransactionOptions, Transactional, transactionApi } from '../transactions'
 
-import { trigger2, trigger3 } from '../objectplus/index.ts'        
+import { eventsApi } from '../object-plus'
 
+const { EventMap, trigger2, trigger3 } = eventsApi,
+      { commit, markAsDirty } = transactionApi,
+      _aquire = transactionApi.aquire, _free = transactionApi.free;
+
+/** @private */
 export interface CollectionCore extends Transactional, Owner {
     _byId : IdIndex
     models : Record[]
     model : typeof Record
+    idAttribute : string // TODO: Refactor inconsistent idAttribute usage
     _comparator : Comparator
     get( objOrId : string | Record | Object ) : Record    
+    _itemEvents? : eventsApi.EventMap
 }
 
 // Collection's manipulation methods elements
@@ -21,6 +28,7 @@ export interface CollectionOptions extends TransactionOptions {
 
 export type Comparator = ( a : Record, b : Record ) => number;  
 
+/** @private */
 export function dispose( collection : CollectionCore ) : Record[]{
     const models = collection.models;
 
@@ -31,6 +39,23 @@ export function dispose( collection : CollectionCore ) : Record[]{
     return models;
 }
 
+/** @private */
+export function aquire( owner : CollectionCore, child : Record ) : void {
+    _aquire( owner, child );
+
+    const { _itemEvents } = owner;
+    _itemEvents && _itemEvents.subscribe( owner, child );
+}
+
+/** @private */
+export function free( owner : CollectionCore, child : Record ) : void {
+    _free( owner, child );
+
+    const { _itemEvents } = owner;
+    _itemEvents && _itemEvents.unsubscribe( owner, child );
+}
+
+/** @private */
 export function freeAll( collection : CollectionCore, children : Record[] ) : Record[] {
     for( let child of children ){
         free( collection, child );
@@ -39,11 +64,14 @@ export function freeAll( collection : CollectionCore, children : Record[] ) : Re
     return children;
 }
 
-// Silently sort collection, if its required. Returns true if sort happened.  
+/**
+ * Silently sort collection, if its required. Returns true if sort happened.
+ * @private
+ */   
 export function sortElements( collection : CollectionCore, options : CollectionOptions ) : boolean {
     let { _comparator } = collection;
     if( _comparator && options.sort !== false ){
-        collection.models.sort( ( a, b ) => _comparator.call( collection, a, b ) )
+        collection.models.sort( _comparator );
         return true;
     }
 
@@ -51,15 +79,14 @@ export function sortElements( collection : CollectionCore, options : CollectionO
 }
 
 /**********************************
- * Collection Index 
+ * Collection Index
+ * @private 
  */
-
-// Index data structure
 export interface IdIndex {
     [ id : string ] : Record
 }
 
-// Add record
+/** @private Add record */ 
 export function addIndex( index : IdIndex, model : Record ) : void {
     index[ model.cid ] = model;
     var id             = model.id;
@@ -69,7 +96,7 @@ export function addIndex( index : IdIndex, model : Record ) : void {
     }
 }
 
-// Remove record
+/** @private Remove record */ 
 export function removeIndex( index : IdIndex, model : Record ) : void {
     delete index[ model.cid ];
     var id = model.id;
@@ -78,12 +105,13 @@ export function removeIndex( index : IdIndex, model : Record ) : void {
     }
 }
 
-// convert argument to model. Return false if fails.
+/** @private Convert argument to record. Return false if fails. */
 export function toModel( collection : CollectionCore, attrs, options ){
     const { model } = collection;
     return attrs instanceof model ? attrs : model.create( attrs, options, collection );
 }
 
+/** @private */
 export function convertAndAquire( collection : CollectionCore, attrs, options ){
     const { model } = collection,
     	  record = attrs instanceof model ? attrs : model.create( attrs, options, collection );
@@ -102,11 +130,11 @@ export function convertAndAquire( collection : CollectionCore, attrs, options ){
  * Two major optimization cases.
  * 1) Population of an empty collection
  * 2) Update of the collection (no or little changes) - it's crucial to reject empty transactions.
- * 3) 
  */
 
 
-// Transaction class. Implements two-phase transactions on object's tree. 
+// Transaction class. Implements two-phase transactions on object's tree.
+/** @private */ 
 export class CollectionTransaction implements Transaction {
     // open transaction
     constructor(    public object : CollectionCore,
@@ -114,44 +142,47 @@ export class CollectionTransaction implements Transaction {
                     public added : Record[],
                     public removed : Record[],
                     public nested : Transaction[],
-                    public sorted : boolean ){
-        markAsDirty( object );
-    }
+                    public sorted : boolean ){}
 
     // commit transaction
-    commit( options : TransactionOptions = {}, isNested? : boolean ){
-        const { nested, object } = this;
+    commit( isNested? : boolean ){
+        const { nested, object } = this,
+              { _isDirty } = object;
 
         // Commit all nested transactions...
         for( let transaction of nested ){
-            transaction.commit( options, true );
+            transaction.commit( true );
+        }
+
+        // Just trigger 'change' on collection, it must be already triggered for models during nested commits.
+        // ??? TODO: do it in nested transactions loop? This way appears to be more correct. 
+        for( let transaction of nested ){
+            trigger2( object, 'change', transaction.object, _isDirty );
         }
 
         // Notify listeners on attribute changes...
-        if( !options.silent ){
-            const { added, removed } = this;
+        const { added, removed } = this;
 
-            for( let record of added ){
-                trigger3( object, 'add', record, object, options );
-            }
-
-            for( let record of removed ){
-                trigger3( object, 'remove', record, object, options );
-            }
-
-            for( let transaction of nested ){
-                trigger2( object, 'change', transaction.object, options );
-            }
-
-            if( this.sorted ){
-                trigger2( object, 'sort', object, options );
-            }
-
-            if( added.length || removed.length ){
-                trigger2( object, 'update', object, options );
-            }
+        // Trigger `add` events for both model and collection.
+        for( let record of added ){
+            trigger3( record, 'add', record, object, _isDirty );
+            trigger3( object, 'add', record, object, _isDirty );
         }
 
-        this.isRoot && commit( object, options, isNested );
+        // Trigger `remove` events for both model and collection.
+        for( let record of removed ){
+            trigger3( record, 'remove', record, object, _isDirty );
+            trigger3( object, 'remove', record, object, _isDirty );
+        }
+
+        if( this.sorted ){
+            trigger2( object, 'sort', object, _isDirty );
+        }
+
+        if( added.length || removed.length ){
+            trigger2( object, 'update', object, _isDirty );
+        }
+
+        this.isRoot && commit( object, isNested );
     }
 }

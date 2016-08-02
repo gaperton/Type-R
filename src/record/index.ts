@@ -1,37 +1,44 @@
-import { Record, RecordDefinition, AttributeDescriptorMap } from './transaction.ts'
-import { assign, defaults, omit, Class, ClassDefinition, getBaseClass } from '../objectplus/index.ts'
-import { compile, AttributesSpec } from './define.ts'
-import { ChainableAttributeSpec } from './typespec.ts'
+import { Record, RecordDefinition, AttributeDescriptorMap } from './transaction'
+import { Mixable, ClassDefinition, tools } from '../object-plus'
+import { compile, AttributesSpec } from './define'
+import { ChainableAttributeSpec } from './typespec'
 
-import { TransactionalType } from './nestedTypes.ts'
-import './basicTypes.ts'
+import { TransactionalType, MSDateType, TimestampType, NumericType } from './attributes'
 
-Record.define = function( protoProps : RecordDefinition, staticProps ){
+export * from './attributes'
+export { Record, ChainableAttributeSpec }
+
+const { assign, defaults, omit, getBaseClass } = tools;
+
+Record.define = function( protoProps : RecordDefinition = {}, staticProps ){
     const BaseConstructor : typeof Record = getBaseClass( this ),
-          baseProto : Record = BaseConstructor.prototype;
+          baseProto : Record = BaseConstructor.prototype,
+          // Extract record definition from static members, if any.
+          staticsDefinition : RecordDefinition = tools.getChangedStatics( this, 'attributes', 'collection' ),
+          // Definition can be made either through statics or define argument.
+          // Merge them together, so we won't care about it below. 
+          definition = assign( staticsDefinition, protoProps );
 
-    if( protoProps ) {
-        // Compile attributes spec, creating definition mixin.
-        const definition = compile( getAttributes( protoProps ), <AttributesSpec> baseProto._attributes );
+    // Compile attributes spec, creating definition mixin.
+    const dynamicMixin = compile( getAttributes( definition ), <AttributesSpec> baseProto._attributes );
 
-        // Explicit 'properties' declaration overrides auto-generated attribute properties.
-        if( protoProps.properties === false ){
-            definition.properties = {};
-        }
-
-        assign( definition.properties, protoProps.properties || {} );
-
-        // Merge in definition.
-        defaults( definition, omit( protoProps, 'attributes', 'collection' ) );            
-        Class.define.call( this, definition, staticProps );
-        defineCollection.call( this, protoProps && protoProps.collection );
+    // Explicit 'properties' declaration overrides auto-generated attribute properties.
+    if( definition.properties === false ){
+        dynamicMixin.properties = {};
     }
+
+    assign( dynamicMixin.properties, protoProps.properties || {} );
+
+    // Merge in definition.
+    defaults( dynamicMixin, omit( definition, 'attributes', 'collection' ) );            
+    Mixable.define.call( this, dynamicMixin, staticProps );
+    defineCollection.call( this, definition.collection );
 
     return this;
 }
 
 Record.predefine = function(){
-    Class.predefine.call( this );
+    Mixable.predefine.call( this );
 
     this.Collection = getBaseClass( this ).Collection.extend();
     this.Collection.prototype.model = this;
@@ -41,11 +48,16 @@ Record.predefine = function(){
 
 Record._attribute = TransactionalType;
 
-function getAttributes({ defaults, attributes } : RecordDefinition ) : AttributeDescriptorMap {
-    return typeof defaults === 'function' ? (<any>defaults)() : attributes || defaults;
-}
+function getAttributes({ defaults, attributes, idAttribute } : RecordDefinition ) : AttributeDescriptorMap {
+    const definition = typeof defaults === 'function' ? (<any>defaults)() : attributes || defaults || {};
+    
+    // If there is an undeclared idAttribute, add its definition as untyped generic attribute.
+    if( idAttribute && !( idAttribute in definition ) ){
+        definition[ idAttribute ] = void 0;
+    }
 
-export { Record, ChainableAttributeSpec, TransactionalType }
+    return definition;
+}
 
 function defineCollection( collection : {} ){
     const BaseCollection = getBaseClass( this ).Collection;
@@ -57,17 +69,59 @@ function defineCollection( collection : {} ){
         CollectionConstructor = collection;
     } 
     // Same when Collection is specified as static class member.  
-    else if( this.Collection !== BaseCollection ){
-        CollectionConstructor = this.Collection;
-        if( collection ) (<any>CollectionConstructor).mixins( collection );
-    } 
-    // Otherwise we need to create new Collection type...
     else{
-        // ...which must extend Collection of our base Record.
-        CollectionConstructor = <any> BaseCollection.extend( collection );
+        CollectionConstructor = this.Collection;
+        if( collection ) (<any>CollectionConstructor).define( collection );
     }
 
     // Link collection with the record
     CollectionConstructor.prototype.model = this;
     this.Collection = CollectionConstructor;
+}
+
+
+// Add extended Date attribute types.
+declare global {
+    interface DateConstructor {
+        microsoft
+        timestamp
+    }
+}
+
+Object.defineProperties( Date, {
+    microsoft : {
+        get(){
+            return new ChainableAttributeSpec({
+                type : Date,
+                _attribute : MSDateType
+            })
+        }
+    },
+
+    timestamp : {
+        get(){
+            return new ChainableAttributeSpec({
+                type : Date,
+                _attribute : TimestampType
+            })
+        }
+    }
+});
+
+// Add Number.integer attrubute type
+declare global {
+    interface NumberConstructor {
+        integer : Function
+    }
+
+    interface Window {
+        Integer : Function;
+    }
+}
+
+Number.integer = function( x ){ return x ? Math.round( x ) : 0; }
+Number.integer._attribute = NumericType;
+
+if( typeof window !== 'undefined' ){
+    window.Integer = Number.integer;
 }

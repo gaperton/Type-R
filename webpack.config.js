@@ -1,5 +1,5 @@
 module.exports = {
-    entry : "./src/index.ts",
+    entry : "./src/index",
 
     output : {
         filename      : './index.js',
@@ -9,23 +9,9 @@ module.exports = {
 
     devtool : 'source-map',
 
-    externals : [
-       {
-         'jquery' : {
-           commonjs : 'jquery',
-           commonjs2 : 'jquery',
-           amd : 'jquery',
-           root : '$'
-         },
-
-         'underscore' : {
-           commonjs : 'underscore',
-           commonjs2 : 'underscore',
-           amd : 'underscore',
-           root : '_'
-         }
-       }
-    ],
+    resolve : {
+        extensions : [ '.ts', '.js' ] 
+    },
 
     module: {
         loaders: [

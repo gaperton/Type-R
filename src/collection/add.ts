@@ -1,11 +1,14 @@
-import { Transaction, begin, commit, aquire, free } from '../transactions.ts'
-import { CollectionTransaction, sortElements, CollectionOptions, toModel, addIndex, CollectionCore } from './commons.ts'
-import { Record } from '../record/index.ts'
+import { Transaction, transactionApi } from '../transactions'
+import { CollectionTransaction, sortElements, aquire, free, CollectionOptions, toModel, addIndex, CollectionCore } from './commons'
+import { Record } from '../record'
+
+const { begin, commit, markAsDirty } = transactionApi;
 
 interface AddOptions extends CollectionOptions {
     at? : number 
 }
 
+/** @private */
 export function addTransaction( collection : CollectionCore, items, options : AddOptions ){
     const isRoot = begin( collection ),
           nested = [];
@@ -14,24 +17,32 @@ export function addTransaction( collection : CollectionCore, items, options : Ad
 
     if( added.length || nested.length ){
         let needSort = sortOrMoveElements( collection, added, options );
-        return new CollectionTransaction( collection, isRoot, added, [], nested, needSort );
+        if( markAsDirty( collection, options ) ){
+            return new CollectionTransaction( collection, isRoot, added, [], nested, needSort );
+        }
     }
 
     // No changes...
-    isRoot && commit( collection, options );
+    isRoot && commit( collection );
 };
 
-// Handle sort or insert at options for add operation. Reurns true if sort happened. 
+// Handle sort or insert at options for add operation. Reurns true if sort happened.
+/** @private */ 
 function sortOrMoveElements( collection : CollectionCore, added : Record[], options : AddOptions ) : boolean {
     let at = options.at;
+
+    // if `at` option is given, it overrides sorting option...
     if( at != null ){
-        // if at is given, it overrides sorting option...
-        const { length } = collection.models;
-        at = +at;
+        // Take an original collection's length. 
+        const length = collection.models.length - added.length;
+
+        // Crazy Backbone rules about `at` index. I don't know what that guys smoke.
+        at = Number( at );
         if( at < 0 ) at += length + 1;
         if( at < 0 ) at = 0;
         if( at > length ) at = length;
 
+        // Move added elements to desired position. In place.
         moveElements( collection.models, at, added );
         return false;
     }
@@ -39,6 +50,7 @@ function sortOrMoveElements( collection : CollectionCore, added : Record[], opti
     return sortElements( collection, options );
 }
 
+/** @private */
 function moveElements( source : any[], at : number, added : any[] ) : void {
     for( var j = source.length - 1, i = j - added.length; i >= at; i--, j-- ){
         source[ j ] = source[ i ];
@@ -50,6 +62,7 @@ function moveElements( source : any[], at : number, added : any[] ) : void {
 }
 
 // append data to model and index
+/** @private */
 function appendElements( collection : CollectionCore, a_items, nested : Transaction[], a_options ){
     var models      = collection.models,
         _byId       = collection._byId,
@@ -58,7 +71,7 @@ function appendElements( collection : CollectionCore, a_items, nested : Transact
         idAttribute = collection.model.prototype.idAttribute,
         prevLength = models.length;
 
-    for( const item of a_items.length ){
+    for( const item of a_items ){
         let model = item ? _byId[ item[ idAttribute ] ] || _byId[ item.cid ] : null;
 
         if( model ){

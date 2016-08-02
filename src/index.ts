@@ -1,29 +1,30 @@
-import * as tools from './objectplus/tools.ts'
-import { ChainableAttributeSpec } from './record/index.ts'
-import { Record as Model } from './record/index.ts' 
+/**
+ * Export everything 
+ */
+export * from './object-plus'
+export * from './collection'
+export * from './relations'
+export * from './record'
 
-import { Events } from './objectplus/events.ts'
+// Exported module itself is the global event bus.
+import { Events } from './object-plus/'
 export const { on, off, trigger, once, listenTo, stopListening, listenToOnce } = Events;
 
-import { Collection } from './collection/index.ts'
+// Define synonims for NestedTypes backward compatibility.
+import { Record as Model } from './record' 
+import { Mixable as Class } from './object-plus/'
+export { Model, Class }; 
 
-export * from './objectplus/mixins.ts'
-export * from './objectplus/events.ts'
+import { ChainableAttributeSpec } from './record'
 
-export {
-    tools,
-    Model,
-    Collection,
-    transaction,
-    value
-}; 
-
-function value( x ){
+/** Typeless attribute declaration with default value. */ 
+export function value( x : any ) : ChainableAttributeSpec {
     return new ChainableAttributeSpec({ value : x });
 }
 
-function transaction( method ){
-    return function( ...args ){
+/** Wrap model or collection method in transaction. */
+export function transaction< F extends Function >( method : F ) : F {
+    return <any>function( ...args ){
         let result;
         
         this.transaction( () => {

@@ -2,10 +2,17 @@
  * Type spec engine. Declare attributes using chainable syntax,
  * and returns object with spec.
  */
+import { Transactional } from '../transactions'
+import { ChangeAttrHandler, AttributeDescriptor } from './attributes'
+import { Record } from './transaction'
+import { EventMap, EventsDefinition, Constructor, tools } from '../object-plus'
 
-import { ChangeAttrHandler } from './attribute.ts'
-import { AttributeDescriptor, Record } from './transaction.ts'
-import { assign, EventHandlers, Constructor } from '../objectplus/index.ts'
+const { assign } = tools;
+
+export interface AttributeCheck {
+    ( value : any, key : string ) : boolean
+    error? : any
+}
 
 export class ChainableAttributeSpec {
     options : AttributeDescriptor;
@@ -15,6 +22,25 @@ export class ChainableAttributeSpec {
         assign( this.options, options );
     }
 
+    check( check : AttributeCheck, error : any ) : this {
+        function validate( model, value, name ){
+            if( !check.call( model, value, name ) ){
+                return error || check.error || name + ' is not valid';
+            }
+        }
+
+        const prev = this.options.validate;
+
+        this.options.validate = prev ? (
+            function( model, value, name ){
+                return prev( model, value, name ) || validate( model, value, name );
+            }
+        ) : validate;
+
+        return this;
+    }
+
+    /** @private */
     triggerWhenChanged( events ) : this {
         // TODO: not clear
         return this;
@@ -57,11 +83,13 @@ export class ChainableAttributeSpec {
     }
 
     // Subsribe to events from an attribute.
-    events( map : EventHandlers ) : this {
-        this.options.changeHandlers.push( function( next, prev, record : Record ){
-                prev && record.stopListening( prev );
+    events( map : EventsDefinition ) : this {
+        const eventMap = new EventMap( map );
 
-                next && record.listenTo( next, map );
+        this.options.changeHandlers.push( function( next, prev, record : Record ){
+                prev && eventMap.unsubscribe( record, prev );
+
+                next && eventMap.subscribe( record, next );
             });
 
         return this;
@@ -110,18 +138,29 @@ Object.defineProperty( Function.prototype, 'has', {
 } );
 
 export function toAttributeDescriptor( spec : any ) : AttributeDescriptor {
-    if( typeof spec === 'function' ) {
-        return { type : <any> spec };
-    }
+    let attrSpec : ChainableAttributeSpec;
 
-    if( spec && spec instanceof ChainableAttributeSpec ) {
-        return spec.options;
+    if( typeof spec === 'function' ) {
+        attrSpec = new ChainableAttributeSpec({ type : <any> spec });
+    }
+    else if( spec && spec instanceof ChainableAttributeSpec ) {
+        attrSpec = spec;
+    }
+    else{
+        // Infer type from value.
+        const type = inferType( spec );
+
+        // Transactional types inferred from values must have shared type. 
+        if( type && type.prototype instanceof Transactional ){
+            attrSpec = (<any>type).shared.value( spec );
+        }
+        // All others will be created in regular way.
+        else{
+            attrSpec = new ChainableAttributeSpec({ type : type, value : spec });
+        }
     }
  
-    return {
-        type : inferType( spec ),
-        value : spec
-    }
+    return attrSpec.options;
 }
 
 function inferType( value : {} ) : Constructor<any> {
@@ -135,6 +174,6 @@ function inferType( value : {} ) : Constructor<any> {
         case 'undefined' :
             return void 0;
         case 'object' :
-            return value ? <any> value.constructor : Object;
+            return value ? <any> value.constructor : void 0;
     }
 }

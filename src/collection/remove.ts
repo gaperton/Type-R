@@ -8,35 +8,41 @@
  * Most frequent operation - single element remove. Thus, it have the fast-path.
  */
 
-import { Record } from '../record/index.ts'
-import { CollectionCore, CollectionTransaction, removeIndex } from './commons.ts'
-import { trigger2, trigger3 } from '../objectplus/index.ts'
-import { free, TransactionOptions, markAsDirty, begin, commit } from '../transactions.ts' 
+import { Record } from '../record'
+import { free, CollectionCore, CollectionTransaction, removeIndex } from './commons'
+import { eventsApi } from '../object-plus'
+import { TransactionOptions, transactionApi } from '../transactions' 
 
+const { trigger2, trigger3 } = eventsApi,
+    { markAsDirty, begin, commit } = transactionApi;
+
+/** @private */
 export function removeOne( collection : CollectionCore, el : Record | {} | string, options : TransactionOptions ) : Record {
     var model : Record = collection.get( el );
 
     if( model ){
         const isRoot = begin( collection ),
-              models = collection.models,
-              silent = options.silent;
+              models = collection.models;
 
         // Remove model form the collection. 
         models.splice( models.indexOf( model ), 1 );
         removeIndex( collection._byId, model );
         
         // Mark transaction as dirty. 
-        markAsDirty( collection );
+        const notify = markAsDirty( collection, options );
 
         // Send out events.
-        silent || trigger3( model, 'remove', model, collection, options );
+        if( notify ){
+            trigger3( model, 'remove', model, collection, options );
+            trigger3( collection, 'remove', model, collection, options );
+        } 
 
         free( collection, model );
 
-        silent || trigger2( collection, 'update', collection, options );
+        notify && trigger2( collection, 'update', collection, options );
 
         // Commit transaction.
-        isRoot && commit( collection, options );
+        isRoot && commit( collection );
 
         return model;
     }
@@ -47,6 +53,8 @@ export function removeOne( collection : CollectionCore, el : Record | {} | strin
  * 2. Create new models array matching index
  * 3. Send notifications and remove references
  */
+
+/** @private */
 export function removeMany( collection : CollectionCore, toRemove : any[], options ){
     const removed = _removeFromIndex( collection, toRemove );
     if( removed.length ){
@@ -54,14 +62,21 @@ export function removeMany( collection : CollectionCore, toRemove : any[], optio
 
         _reallocate( collection, removed.length );
 
-        const transaction = new CollectionTransaction( collection, isRoot, null, removed, null, false );
-        transaction.commit( options );
-
-        return removed;
+        if( markAsDirty( collection, options ) ){
+            const transaction = new CollectionTransaction( collection, isRoot, [], removed, [], false );
+            transaction.commit();
+        }
+        else{
+            // Commit transaction.
+            isRoot && commit( collection );
+        }
     }
+
+    return removed;
 };
 
 // remove models from the index...
+/** @private */
 function _removeFromIndex( collection, toRemove ){
     var removed = Array( toRemove.length ),
         _byId   = collection._byId;
@@ -81,6 +96,7 @@ function _removeFromIndex( collection, toRemove ){
 }
 
 // Allocate new models array removing models not present in the index.
+/** @private */
 function _reallocate( collection, removed ){
     var prev   = collection.models,
         models = collection.models = Array( prev.length - removed ),
