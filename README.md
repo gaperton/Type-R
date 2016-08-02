@@ -38,10 +38,12 @@ Because we can.
 
 ## Compatibility notes
 
+I bet you never was aware about the most of these things, but still:
+
 - `model.initialize( attrs, options, owner )` uses third parameter to set owner, `options.collection` is ignored.
 - default model cid prefix is `m`.
 - model.set `unset` option is deprecated. In Type-R, model is not a hash, its record with pre-defined members. Just assign attributes with `void 0` instead.
-- model `change:attr` events are not bubbled up by collection by default. Manual `bubbleEvents` spec is required. Performance reasons.
+- model `change:attr` events are not bubbled up by collection by default. Manual `itemEvents` spec is required. Performance reasons.
 - Collection doesn't have `_addReference` and `_removeReference` callbacks. Impossible to implement efficiently. Use 'add' and 'remove' events instead.
 - Collection's `add` options is not supported. Period.
 - Collection doesn't set options.at options when firing `add` event. No way, dude. It's even not documented in official backbone API.
