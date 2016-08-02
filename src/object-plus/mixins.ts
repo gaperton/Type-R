@@ -222,8 +222,15 @@ export function predefine( Constructor : MixableConstructor< any > ) : void {
 }
 
 // @define decorator for metaprogramming magic.
-export function define( spec : ClassDefinition ){
-    return createDecorator( 'define', spec );
+export function define( spec : ClassDefinition | MixableConstructor< any > ){
+    // Handle the case when @define used without arguments. 
+    if( typeof spec === 'function' ){
+        ( <MixableConstructor< any >> spec).define({});
+    }
+    // Normal usage.
+    else{
+        return createDecorator( 'define', spec );
+    }
 } 
 
 // Create ES7 class decorator forwarding call to the static class member.

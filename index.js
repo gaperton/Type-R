@@ -528,7 +528,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	exports.predefine = predefine;
 	function define(spec) {
-	    return createDecorator('define', spec);
+	    if (typeof spec === 'function') {
+	        spec.define({});
+	    }
+	    else {
+	        return createDecorator('define', spec);
+	    }
 	}
 	exports.define = define;
 	function createDecorator(name, spec) {
