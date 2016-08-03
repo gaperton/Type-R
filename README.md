@@ -25,7 +25,7 @@ Because we can.
 - [x] Implement NestedTypes compatibility layer.
     - [x] Underscore/Lodash mixin for Model and Collection
     - [x] Backbone Persistence API
-- [ ] Test it with NestedReact examples.
+- [x] Test it with NestedReact examples.
 - [ ] Release ObjectPlus as separate package.
 - [ ] Implement classes support in NestedReact.
 - [ ] Deploy NestedReact and NestedTypes 2.0 RC to Volicon Observer product.
