@@ -1,4 +1,4 @@
-    var Nested = require( '../nestedtypes' ),
+    var Nested = require( '../../../index' ),
         chai = require( 'chai' ),
         expect = chai.expect,
         sinon = require( 'sinon' ),
@@ -209,7 +209,7 @@
                     timestamp : Date.timestamp,
                     microsoft : Date.microsoft,
                     name: String,
-                    loginCount: Integer
+                    loginCount: Number.integer
                 }
             });
 

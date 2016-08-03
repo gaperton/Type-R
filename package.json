@@ -1,13 +1,13 @@
 {
   "name": "type-r",
-  "version": "0.1.2-90",
+  "version": "0.1.2-91",
   "description": "Reactive objects with transactional updates and automatic serialization",
   "main": "index.js",
   "directories": {
     "test": "tests"
   },
   "scripts": {
-    "test": "mocha",
+    "test":  "tests\\nestedtypes\\node_modules\\.bin\\mocha tests/nestedtypes/functionality",
     "build": "node_modules/.bin/webpack && typedoc --options typedoc.json ./src/",
     "watch": "node_modules/.bin/webpack --watch",
     "docs" : "typedoc --options typedoc.json ./src/"

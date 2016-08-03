@@ -2570,7 +2570,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    ChainableAttributeSpec.prototype.set = function (fun) {
 	        this.options.transforms.push(function (next, options, prev, model) {
 	            if (this.isChanged(next, prev)) {
-	                var changed = fun.call(model, next, name);
+	                var changed = fun.call(model, next, this.name);
 	                return changed === void 0 ? prev : changed;
 	            }
 	            return prev;
