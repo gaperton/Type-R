@@ -1,4 +1,6 @@
-# TransactionalJS
+# Type-R
+
+![master build](https://api.travis-ci.org/Volicon/Type-R.svg?branch=master)
 
 Transactional, reactive, and serializable state management core written with TypeScript.
 
