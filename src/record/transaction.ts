@@ -21,6 +21,7 @@ export interface RecordDefinition extends ClassDefinition {
     attributes? : AttributeDescriptorMap
     defaults? : AttributeDescriptorMap | ( () => AttributeDescriptorMap )
     collection? : typeof Transactional | {}
+    Collection? : typeof Transactional
 }
 
 export interface AttributeDescriptorMap {

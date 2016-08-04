@@ -14,10 +14,14 @@ Record.define = function( protoProps : RecordDefinition = {}, staticProps ){
     const BaseConstructor : typeof Record = getBaseClass( this ),
           baseProto : Record = BaseConstructor.prototype,
           // Extract record definition from static members, if any.
-          staticsDefinition : RecordDefinition = tools.getChangedStatics( this, 'attributes', 'collection' ),
+          staticsDefinition : RecordDefinition = tools.getChangedStatics( this, 'attributes', 'collection', 'Collection' ),
           // Definition can be made either through statics or define argument.
           // Merge them together, so we won't care about it below. 
           definition = assign( staticsDefinition, protoProps );
+
+    if( 'Collection' in definition && definition.Collection === void 0 ){
+        tools.log.error( `[Model.define] Model.Collection is undefined. It must be defined _before_ the model.`, definition );
+    }
 
     // Compile attributes spec, creating definition mixin.
     const dynamicMixin = compile( getAttributes( definition ), <AttributesSpec> baseProto._attributes );
@@ -32,7 +36,7 @@ Record.define = function( protoProps : RecordDefinition = {}, staticProps ){
     // Merge in definition.
     defaults( dynamicMixin, omit( definition, 'attributes', 'collection' ) );            
     Mixable.define.call( this, dynamicMixin, staticProps );
-    defineCollection.call( this, definition.collection );
+    defineCollection.call( this, definition.collection || definition.Collection );
 
     return this;
 }
@@ -60,25 +64,18 @@ function getAttributes({ defaults, attributes, idAttribute } : RecordDefinition 
 }
 
 function defineCollection( collection : {} ){
-    const BaseCollection = getBaseClass( this ).Collection;
-
-    let CollectionConstructor;
-
-    // If collection constructor is specified, just take it. 
+    // If collection constructor is specified, take it as it is. 
     if( typeof collection === 'function' ) {
-        CollectionConstructor = collection;
+        this.Collection = collection;
+        
+        // Link collection with the record
+        this.Collection.prototype.model = this;
     } 
-    // Same when Collection is specified as static class member.  
+    // Otherwise, define implicitly created Collection.
     else{
-        CollectionConstructor = this.Collection;
-        if( collection ) (<any>CollectionConstructor).define( collection );
+        this.Collection.define( collection || {} );
     }
-
-    // Link collection with the record
-    CollectionConstructor.prototype.model = this;
-    this.Collection = CollectionConstructor;
 }
-
 
 // Add extended Date attribute types.
 declare global {
