@@ -19,7 +19,7 @@ Record.define = function( protoProps : RecordDefinition = {}, staticProps ){
           // Merge them together, so we won't care about it below. 
           definition = assign( staticsDefinition, protoProps );
 
-    if( 'Collection' in definition && definition.Collection === void 0 ){
+    if( 'Collection' in this && this.Collection === void 0 ){
         tools.log.error( `[Model.define] Model.Collection is undefined. It must be defined _before_ the model.`, definition );
     }
 
