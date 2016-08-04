@@ -2,8 +2,9 @@ import { Record, RecordDefinition, AttributeDescriptorMap } from './transaction'
 import { Mixable, ClassDefinition, tools } from '../object-plus'
 import { compile, AttributesSpec } from './define'
 import { ChainableAttributeSpec } from './typespec'
+import { Transactional } from '../transactions'
 
-import { TransactionalType, MSDateType, TimestampType, NumericType } from './attributes'
+import { TransactionalType, MSDateType, TimestampType, NumericType, SharedType } from './attributes'
 
 export * from './attributes'
 export { Record, ChainableAttributeSpec }
@@ -42,10 +43,12 @@ Record.define = function( protoProps : RecordDefinition = {}, staticProps ){
 }
 
 Record.predefine = function(){
-    Mixable.predefine.call( this );
+    Transactional.predefine.call( this );
 
     this.Collection = getBaseClass( this ).Collection.extend();
     this.Collection.prototype.model = this;
+
+    createSharedTypeSpec( this );
 
     return this;
 }
@@ -121,4 +124,18 @@ Number.integer._attribute = NumericType;
 
 if( typeof window !== 'undefined' ){
     window.Integer = Number.integer;
+}
+
+/** @private */
+export function createSharedTypeSpec( Constructor ){
+    Constructor.hasOwnProperty( 'shared' ) ||
+        Object.defineProperty( Constructor, 'shared', {
+            get(){
+                return new ChainableAttributeSpec({
+                    value : null,
+                    type : Constructor,
+                    _attribute : SharedType
+                });
+            }
+        });
 }

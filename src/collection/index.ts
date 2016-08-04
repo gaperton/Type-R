@@ -1,6 +1,6 @@
 import { define, tools, eventsApi, EventMap, EventsDefinition, Mixable } from '../object-plus'
 import { transactionApi, Transactional, Transaction, TransactionOptions, TransactionalDefinition, Owner } from '../transactions'
-import { Record, TransactionalType } from '../record'
+import { Record, TransactionalType, createSharedTypeSpec } from '../record'
 
 import { IdIndex, sortElements, dispose, Elements, CollectionCore, addIndex, removeIndex, Comparator, CollectionTransaction } from './commons'
 import { addTransaction } from './add'
@@ -47,7 +47,8 @@ export class Collection extends Transactional implements CollectionCore {
 
     static predefine() : any {
         this._SubsetOf = null;
-        Transactional.predefine();
+        Transactional.predefine.call( this );
+        createSharedTypeSpec( this );
         return this;
     }
     

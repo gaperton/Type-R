@@ -1,14 +1,16 @@
-import { Record, ChainableAttributeSpec } from '../record'
-import { Collection } from '../collection'
-import { GenericAttribute } from '../record'
-import { Owner, transactionApi, Transactional, TransactionOptions, TransactionalConstructor } from '../transactions' 
-import { tools, eventsApi } from '../object-plus'
+import { Record } from '../transaction'
+import { GenericAttribute } from './generic'
+import { Owner, transactionApi, Transactional, TransactionOptions, TransactionalConstructor } from '../../transactions' 
+import { tools, eventsApi } from '../../object-plus'
 
 const { on, off } = eventsApi,
     { free, aquire } = transactionApi;
 
 /************************
- * Model.shared and Collection.shared
+ * Shared attribute definition.
+ * - Not serialized.
+ * - Listening to the changes.
+ * - Doesn't take ownership.
  */
 
 /** @private */
@@ -52,17 +54,3 @@ export class SharedType extends GenericAttribute {
         options.changeHandlers.unshift( this._handleChange );
     }
 }
-
-/** @private */
-const createSharedTypeSpec = {
-    get(){
-        return new ChainableAttributeSpec({
-            value : null,
-            type : this,
-            _attribute : SharedType
-        });
-    }
-};
-
-Object.defineProperty( Record, 'shared', createSharedTypeSpec );
-Object.defineProperty( Collection, 'shared', createSharedTypeSpec );
