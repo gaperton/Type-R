@@ -1,5 +1,5 @@
 import { Transaction, transactionApi } from '../transactions'
-import { CollectionTransaction, IdIndex, aquire, free, sortElements, CollectionOptions, toModel, addIndex, CollectionCore, Elements, freeAll } from './commons'
+import { CollectionTransaction, IdIndex, convertAndAquire, free, sortElements, CollectionOptions, addIndex, CollectionCore, Elements, freeAll } from './commons'
 import { Record } from '../record'
 
 const { begin, commit, markAsDirty } = transactionApi;
@@ -106,8 +106,7 @@ function _reallocate( collection : CollectionCore, source : any[], nested : Tran
             }
         }
         else{
-            model = toModel( collection, item, options );
-            aquire( collection, model );
+            model = convertAndAquire( collection, item, options );
             toAdd.push( model );
         }
 
@@ -138,12 +137,9 @@ function _reallocateEmpty( self, source, options ){
             continue;
         }
 
-        var model = toModel( self, src, options );
-
-        aquire( self, model );
+        var model = convertAndAquire( self, src, options );
         models[ j++ ] = model;
         addIndex( _byId, model );
-
     }
 
     models.length = j;

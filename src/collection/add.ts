@@ -1,5 +1,5 @@
 import { Transaction, transactionApi } from '../transactions'
-import { CollectionTransaction, sortElements, aquire, free, CollectionOptions, toModel, addIndex, CollectionCore } from './commons'
+import { CollectionTransaction, sortElements, convertAndAquire, free, CollectionOptions, addIndex, CollectionCore } from './commons'
 import { Record } from '../record'
 
 const { begin, commit, markAsDirty } = transactionApi;
@@ -82,10 +82,8 @@ function appendElements( collection : CollectionCore, a_items, nested : Transact
             }
         }
         else{
-            model = toModel( collection, item, a_options );
-
+            model = convertAndAquire( collection, item, a_options );
             models.push( model );
-            aquire( collection, model );
             addIndex( _byId, model );
         }
     }

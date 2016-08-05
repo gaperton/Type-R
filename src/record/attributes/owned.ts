@@ -35,7 +35,7 @@ export class TransactionalType extends GenericAttribute {
         prev && free( record, prev );
         
         if( next && !aquire( record, next, this.name ) ){
-            tools.log.error( '[Aggregation error] Assigned value already has an owner. Use shared attribute type.' );
+            tools.log.warn( '[Aggregation error] Assigned value already has an owner. Use shared attribute type.' );
         }
     }
 }

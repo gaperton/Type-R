@@ -2,7 +2,7 @@ import { Record } from '../record'
 import { Owner, Transaction,
         TransactionOptions, Transactional, transactionApi } from '../transactions'
 
-import { eventsApi } from '../object-plus'
+import { eventsApi, tools } from '../object-plus'
 
 const { EventMap, trigger2, trigger3 } = eventsApi,
       { commit, markAsDirty } = transactionApi,
@@ -17,6 +17,7 @@ export interface CollectionCore extends Transactional, Owner {
     _comparator : Comparator
     get( objOrId : string | Record | Object ) : Record    
     _itemEvents? : eventsApi.EventMap
+    _aggregates : boolean
 }
 
 // Collection's manipulation methods elements
@@ -40,11 +41,25 @@ export function dispose( collection : CollectionCore ) : Record[]{
 }
 
 /** @private */
-export function aquire( owner : CollectionCore, child : Record ) : void {
-    _aquire( owner, child );
+export function convertAndAquire( collection : CollectionCore, attrs : {} | Record, options ){
+    const { model } = collection;
+    let record : Record;
 
-    const { _itemEvents } = owner;
-    _itemEvents && _itemEvents.subscribe( owner, child );
+    if( attrs instanceof model ){
+        record = attrs;
+        if( collection._aggregates && !_aquire( collection, record ) ){
+            tools.log.warn( '[Aggregation error] Record already has an owner. Use susbet collection type.', record );
+        }
+    }
+    else{
+        record = <Record> model.create( attrs, options, collection );
+    }
+
+    // Subscribe for events...
+    const { _itemEvents } = collection;
+    _itemEvents && _itemEvents.subscribe( collection, record );
+
+    return record;
 }
 
 /** @private */
@@ -103,21 +118,6 @@ export function removeIndex( index : IdIndex, model : Record ) : void {
     if( id != null ){
         delete index[ id ];
     }
-}
-
-/** @private Convert argument to record. Return false if fails. */
-export function toModel( collection : CollectionCore, attrs, options ){
-    const { model } = collection;
-    return attrs instanceof model ? attrs : model.create( attrs, options, collection );
-}
-
-/** @private */
-export function convertAndAquire( collection : CollectionCore, attrs, options ){
-    const { model } = collection,
-    	  record = attrs instanceof model ? attrs : model.create( attrs, options, collection );
-
-    aquire( collection, record );
-    return record;
 }
 
 /***

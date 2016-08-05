@@ -33,9 +33,12 @@ interface CollectionDefinition extends TransactionalDefinition {
     // Default client id prefix 
     cidPrefix : 'c',
     model : Record,
-    _changeEventName : 'changes' 
+    _changeEventName : 'changes',
+    _aggregates : true
 })
 export class Collection extends Transactional implements CollectionCore {
+    _aggregates : boolean
+
     static _SubsetOf : typeof Collection
     
     createSubset( models, options ){
