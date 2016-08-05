@@ -1867,6 +1867,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Record.prototype.clone = function (owner) {
 	        return new this.constructor(this.attributes, { clone: true }, owner);
 	    };
+	    Record.prototype.deepClone = function () { return this.clone(); };
+	    ;
 	    Record.prototype._validateNested = function (errors) {
 	        var _this = this;
 	        var length = 0;

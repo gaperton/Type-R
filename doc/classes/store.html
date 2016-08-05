@@ -162,6 +162,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="store.html#changedattributes" class="tsd-kind-icon">changed<wbr>Attributes</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="store.html#clear" class="tsd-kind-icon">clear</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-external"><a href="store.html#clone" class="tsd-kind-icon">clone</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="store.html#deepclone" class="tsd-kind-icon">deep<wbr>Clone</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="store.html#deepget" class="tsd-kind-icon">deep<wbr>Get</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="store.html#deepset" class="tsd-kind-icon">deep<wbr>Set</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a href="store.html#deepvalidationerror" class="tsd-kind-icon">deep<wbr>Validation<wbr>Error</a></li>
@@ -1076,7 +1077,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="record.html">Record</a>.<a href="record.html#collection-1">collection</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:521</li>
+									<li>Defined in record/transaction.ts:524</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -1209,7 +1210,7 @@
 								<p>Inherited from <a href="record.html">Record</a>.<a href="record.html#_createtransaction">_createTransaction</a></p>
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#_createtransaction">_createTransaction</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:456</li>
+									<li>Defined in record/transaction.ts:459</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1239,7 +1240,7 @@
 								<p>Implementation of <a href="../interfaces/owner.html">Owner</a>.<a href="../interfaces/owner.html#_onchildrenchange">_onChildrenChange</a></p>
 								<p>Inherited from <a href="record.html">Record</a>.<a href="record.html#_onchildrenchange">_onChildrenChange</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:504</li>
+									<li>Defined in record/transaction.ts:507</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1312,7 +1313,7 @@
 								<p>Inherited from <a href="record.html">Record</a>.<a href="record.html#_validatenested">_validateNested</a></p>
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#_validatenested">_validateNested</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:332</li>
+									<li>Defined in record/transaction.ts:335</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1402,6 +1403,23 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+					<a name="deepclone" class="tsd-anchor"></a>
+					<h3>deep<wbr>Clone</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+						<li class="tsd-signature tsd-kind-icon">deep<wbr>Clone<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="record.html">Record</a>.<a href="record.html#deepclone">deepClone</a></p>
+								<ul>
+									<li>Defined in record/transaction.ts:332</li>
+								</ul>
+							</aside>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
 					<a name="deepget" class="tsd-anchor"></a>
 					<h3>deep<wbr>Get</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -1436,7 +1454,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="record.html">Record</a>.<a href="record.html#deepset">deepSet</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:399</li>
+									<li>Defined in record/transaction.ts:402</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1520,7 +1538,7 @@
 								<p>Inherited from <a href="record.html">Record</a>.<a href="record.html#dispose">dispose</a></p>
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#dispose">dispose</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:526</li>
+									<li>Defined in record/transaction.ts:529</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1688,7 +1706,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="record.html">Record</a>.<a href="record.html#forceattributechange">forceAttributeChange</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:509</li>
+									<li>Defined in record/transaction.ts:512</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2053,7 +2071,7 @@
 								<p>Inherited from <a href="record.html">Record</a>.<a href="record.html#parse">parse</a></p>
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#parse">parse</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:372</li>
+									<li>Defined in record/transaction.ts:375</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2124,7 +2142,7 @@
 								<p>Inherited from <a href="record.html">Record</a>.<a href="record.html#set">set</a></p>
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#set">set</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:382</li>
+									<li>Defined in record/transaction.ts:385</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2150,7 +2168,7 @@
 								<p>Inherited from <a href="record.html">Record</a>.<a href="record.html#set">set</a></p>
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#set">set</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:383</li>
+									<li>Defined in record/transaction.ts:386</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2179,7 +2197,7 @@
 								<p>Inherited from <a href="record.html">Record</a>.<a href="record.html#tojson">toJSON</a></p>
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#tojson">toJSON</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:357</li>
+									<li>Defined in record/transaction.ts:360</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2203,7 +2221,7 @@
 								<p>Inherited from <a href="record.html">Record</a>.<a href="record.html#transaction">transaction</a></p>
 								<p>Overwrites <a href="transactional.html">Transactional</a>.<a href="transactional.html#transaction">transaction</a></p>
 								<ul>
-									<li>Defined in record/transaction.ts:449</li>
+									<li>Defined in record/transaction.ts:452</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2574,6 +2592,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-external">
 								<a href="store.html#clone" class="tsd-kind-icon">clone</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
+								<a href="store.html#deepclone" class="tsd-kind-icon">deep<wbr>Clone</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
 								<a href="store.html#deepget" class="tsd-kind-icon">deep<wbr>Get</a>

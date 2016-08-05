@@ -328,6 +328,9 @@ export class Record extends Transactional implements Owner {
         return new (<any>this.constructor)( this.attributes, { clone : true }, owner );
     }
 
+    // Deprecated, every clone is the deep one now.
+    deepClone() : this { return this.clone() };
+
     // Validate attributes.
     _validateNested( errors : ChildrenErrors ) : number {
         var length    = 0;
