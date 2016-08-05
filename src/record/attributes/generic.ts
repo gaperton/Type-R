@@ -125,13 +125,18 @@ export class GenericAttribute implements Attribute {
 
     initialize( name : string, options ){}
 
-    constructor( public name : string, public options : ExtendedAttributeDescriptor ) {
+    options : ExtendedAttributeDescriptor
+
+    constructor( public name : string, a_options : ExtendedAttributeDescriptor ) {
+        // Clone options.
+        const options : ExtendedAttributeDescriptor = this.options = assign( { getHooks : [], transforms : [], changeHandlers : [] }, a_options );
+        options.getHooks = options.getHooks.slice();
+        options.transforms = options.transforms.slice();
+        options.changeHandlers = options.changeHandlers.slice();
+
         const {
                   value, type, parse, toJSON,
-                  getHooks = [],
-                  transforms = [],
-                  changeHandlers = [],
-                  validate
+                  validate, getHooks, transforms, changeHandlers
               } = options;
 
         this.value = value;
