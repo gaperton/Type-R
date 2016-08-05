@@ -1750,6 +1750,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function Record(a_values, a_options, owner) {
 	        var _this = this;
 	        _super.call(this, _cidCounter++, owner);
+	        this.attributes = {};
 	        var options = a_options || {}, values = (options.parse ? this.parse(a_values, options) : a_values) || {};
 	        var attributes = options.clone ? cloneAttributes(this, values) : this.defaults(values);
 	        this.forEachAttr(attributes, function (value, key, attr) {

@@ -300,7 +300,8 @@ export class Record extends Transactional implements Owner {
     // Create record, optionally setting an owner
     constructor( a_values? : {}, a_options? : ConstructorOptions, owner? : Owner ){
         super( _cidCounter++, owner );
-
+        this.attributes = {};
+        
         const options = a_options || {},
               values = ( options.parse ? this.parse( a_values, options ) :  a_values ) || {};
 
