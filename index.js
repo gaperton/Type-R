@@ -1435,7 +1435,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Transactional.prototype.parse = function (data, options) { return data; };
 	    Transactional.prototype.deepGet = function (reference) {
-	        return traversable_1.resolveReference(this, reference, function (object, key) { return object.get(key); });
+	        return traversable_1.resolveReference(this, reference, function (object, key) { return object.get ? object.get(key) : object[key]; });
 	    };
 	    Transactional.prototype.getOwner = function () {
 	        return this._owner;

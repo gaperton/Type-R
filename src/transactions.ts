@@ -135,7 +135,7 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
 
     // Get object member by symbolic reference.
     deepGet( reference : string ) : any {
-        return resolveReference( this, reference, ( object, key ) => object.get( key ) );
+        return resolveReference( this, reference, ( object, key ) => object.get ? object.get( key ) : object[ key ] );
     }
 
     //_isCollection : boolean
