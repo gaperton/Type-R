@@ -10,9 +10,9 @@ class ConstructorType extends GenericAttribute {
         return value == null || value instanceof this.type ? value : new this.type( value );
     }
 
-    clone( value, options ) {
+    clone( value ) {
         // delegate to clone function or deep clone through serialization
-        return value.clone ? value.clone( value, options ) : this.convert( JSON.parse( JSON.stringify( value ) ) );
+        return value.clone ? value.clone() : this.convert( JSON.parse( JSON.stringify( value ) ) );
     }
 }
 

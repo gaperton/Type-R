@@ -5,7 +5,7 @@
 
 import { tools, eventsApi, Mixable, ClassDefinition, Constructor, define } from '../object-plus'
 
-import { transactionApi, Transactional, Transaction, TransactionOptions, Owner } from '../transactions'
+import { transactionApi, CloneOptions, Transactional, Transaction, TransactionOptions, Owner } from '../transactions'
 import { ChildrenErrors } from '../validation'
 
 const { trigger3 } = eventsApi,
@@ -324,8 +324,11 @@ export class Record extends Transactional implements Owner {
     initialize( values?, options? ){}
 
     // Deeply clone record, optionally setting new owner.
-    clone( owner? : any ) : this {
-        return new (<any>this.constructor)( this.attributes, { clone : true }, owner );
+    clone( options : CloneOptions = {} ) : this {
+        const copy : this = new (<any>this.constructor)( this.attributes, { clone : true }, options.owner );
+        if( options.pinStore ) copy._defaultStore = this.getStore();
+        if( options.key ) copy._ownerKey = options.key;
+        return copy;
     }
 
     // Deprecated, every clone is the deep one now.

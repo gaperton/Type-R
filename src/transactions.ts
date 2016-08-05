@@ -86,10 +86,8 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
         this._ownerKey = ownerKey;
     }
 
-    // Deeply clone ownership subtree, optionally setting the new owner
-    // (TODO: Do we really need it? Record must ignore events with empty keys)
-    // 'Pin store' shall assign this._defaultStore = this.getStore();
-    abstract clone( options? : { owner? : Owner, key? : string, pinStore? : boolean }) : this
+    // Deeply clone ownership subtree
+    abstract clone( options? : CloneOptions ) : this
     
     // Execute given function in the scope of ad-hoc transaction.
     transaction( fun : ( self : this ) => void, options : TransactionOptions = {} ) : void{
@@ -248,6 +246,13 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
 }
 
 Transactional.prototype.dispose = Messenger.prototype.dispose;
+
+export interface CloneOptions {
+    owner? : Owner
+    key? : string
+    // 'Pin store' shall assign this._defaultStore = this.getStore();
+    pinStore? : boolean
+}
 
 // Owner must accept children update events. It's an only way children communicates with an owner.
 /** @private */

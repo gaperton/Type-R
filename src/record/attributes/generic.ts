@@ -70,20 +70,16 @@ export class GenericAttribute implements Attribute {
 
     // generic clone function for typeless attributes
     // Must be overriden in sublass
-    clone( value, options : { deep? : boolean } = {} ) {
+    clone( value ) {
         if( value && typeof value === 'object' ) {
             // delegate to object's clone(), if it exist...
-            if( value.clone ) {
-                return value.clone( options );
-            }
+            if( value.clone ) return value.clone();
 
-            if( options.deep ){
-                const proto = Object.getPrototypeOf( value );
+            const proto = Object.getPrototypeOf( value );
 
-                // attempt to deep copy raw objects, assuming they are JSON
-                if( proto === Object.prototype || proto === Array.prototype ){
-                    return JSON.parse( JSON.stringify( value ) );
-                }
+            // attempt to deep copy raw objects, assuming they are JSON 
+            if( proto === Object.prototype || proto === Array.prototype ){
+                return JSON.parse( JSON.stringify( value ) ); // FIXME! This cloning will not work for Dates.
             }
         }
 

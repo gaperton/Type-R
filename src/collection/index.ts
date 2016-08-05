@@ -1,5 +1,5 @@
 import { define, tools, eventsApi, EventMap, EventsDefinition, Mixable } from '../object-plus'
-import { transactionApi, Transactional, Transaction, TransactionOptions, TransactionalDefinition, Owner } from '../transactions'
+import { transactionApi, Transactional, CloneOptions, Transaction, TransactionOptions, TransactionalDefinition, Owner } from '../transactions'
 import { Record, TransactionalType, createSharedTypeSpec } from '../record'
 
 import { IdIndex, sortElements, dispose, Elements, CollectionCore, addIndex, removeIndex, Comparator, CollectionTransaction } from './commons'
@@ -217,9 +217,12 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     // Deeply clone collection, optionally setting new owner.
-    clone( owner? : any ) : this {
+    clone( options : CloneOptions = {} ) : this {
         var models = this.map( model => model.clone() );
-        return new (<any>this.constructor)( models, { model : this.model, comparator : this.comparator }, owner );
+        const copy : this = new (<any>this.constructor)( models, { model : this.model, comparator : this.comparator }, options.owner );
+        if( options.key ) copy._ownerKey = options.key;
+        if( options.pinStore ) copy._defaultStore = this.getStore();
+        return copy;
     }
 
     toJSON() : Object[] {
