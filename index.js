@@ -1811,7 +1811,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return null;
 	    };
 	    Record.prototype.isNew = function () {
-	        return this.id === void 0;
+	        return this.id == null;
 	    };
 	    Record.prototype.has = function (key) {
 	        return this[key] != void 0;

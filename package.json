@@ -1,6 +1,6 @@
 {
   "name": "type-r",
-  "version": "1.0.0-a08",
+  "version": "1.0.0-a09",
   "description": "Reactive objects with transactional updates and automatic serialization",
   "main": "index.js",
   "directories": {

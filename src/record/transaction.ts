@@ -191,7 +191,7 @@ export class Record extends Transactional implements Owner {
     }
 
     isNew() : boolean {
-        return this.id === void 0;
+        return this.id == null;
     }
 
     has( key : string ) : boolean {
