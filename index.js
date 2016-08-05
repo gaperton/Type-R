@@ -586,6 +586,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (rules === void 0) { rules = {}; }
 	    for (var _i = 0, _a = Object.keys(source); _i < _a.length; _i++) {
 	        var name_1 = _a[_i];
+	        if (name_1 === 'constructor')
+	            continue;
 	        var sourceProp = Object.getOwnPropertyDescriptor(source, name_1), destProp = tools_1.getPropertyDescriptor(target, name_1);
 	        if (destProp) {
 	            var rule = rules[name_1], value = destProp.value;

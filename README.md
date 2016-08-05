@@ -27,7 +27,7 @@ Because we can.
     - [x] Backbone Persistence API
 - [x] Test it with NestedReact examples.
 - [ ] Release ObjectPlus as separate package.
-- [ ] Implement classes support in NestedReact.
+- [x] Implement classes support in NestedReact.
 - [ ] Deploy NestedReact and NestedTypes 2.0 RC to Volicon Observer product.
 - [ ] Release NestedTypes 2.0 and NestedReact 1.0
 
@@ -59,3 +59,4 @@ I bet you never was aware about the most of these things, but still:
 - Symbolic references - `store.x` syntax is deprecated, use `~x` instead.
 - `Integer` -> `Number.integer`
 - `Date` attribute doesn't parse MS format. Use `Date.microsoft`.
+- Object.extend.attach( Something ) => Nested.Messenger.mixTo( Something ).

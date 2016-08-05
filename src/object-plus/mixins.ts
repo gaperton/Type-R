@@ -304,6 +304,8 @@ const mergeFunctions : IMergeFunctions = {
 
 function mergeProps< T extends {} >( target : T, source : {}, rules : MixinRules = {}) : T {
     for( let name of Object.keys( source ) ) {
+        if( name === 'constructor' ) continue;
+        
         const sourceProp = Object.getOwnPropertyDescriptor( source, name ),
               destProp   = getPropertyDescriptor( target, name ); // Shouldn't be own
 
