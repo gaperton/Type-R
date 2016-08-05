@@ -57,19 +57,3 @@ export function resolveReference( root : Traversable, reference : string, action
     action( self, path[ skip ] );
     return self;
 }
-
-// Construct object reference { a : { b : { c : 0 } } }
-export function referenceToObject( reference, value ){
-    const path = reference.split( '.' ),
-          root = {},
-          last = path.length - 1;
-    let current = root;
-
-    for( let i = 0; i < last; i++ ){
-        current = current[ path[ i ] ] = {};
-    }
-
-    current[ path[ last ] ] = value;
-
-    return root;
-}

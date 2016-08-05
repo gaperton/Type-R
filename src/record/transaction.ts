@@ -203,9 +203,11 @@ export class Record extends Transactional implements Owner {
         return this; 
     }
 
-    clear( options ) : this {
+    clear( options? ) : this {
+        const nullify = options && options.nullify;
+
         this.transaction( () =>{
-            this.forEachAttr( this.attributes, ( value, key ) => this[ key ] = void 0 );
+            this.forEachAttr( this.attributes, ( value, key ) => this[ key ] = nullify ? null : void 0 );
         }, options );
 
         return this;
@@ -392,6 +394,55 @@ export class Record extends Transactional implements Owner {
         else{
             return <this> super.set( a, b );
         }
+    }
+
+    deepSet( name : string, value : any, options? ){
+        // Operation might involve series of nested object updates, thus it's wrapped in transaction.
+        this.transaction( () => {
+            const path  = name.split( '.' ),
+                l     = path.length - 1,
+                attr  = path[ l ];
+
+            let model = this;
+
+            // Locate the model, traversing the path.
+            for( let i = 0; i < l; i++ ){
+                const key = path[ i ];
+
+                // There might be collections in path, so use `get`.
+                let next    = model.get ? model.get( key ) : model[ key ];
+
+                // Create models, if they are not exist.
+                if( !next ){
+                    const attrSpecs = model._attributes;
+                    if( attrSpecs ){
+                        // If current object is model, create default attribute
+                        var newModel = attrSpecs[ key ].create();
+
+                        // If created object is model, nullify attributes when requested
+                        if( options && options.nullify && newModel._attributes ){
+                            newModel.clear( options );
+                        }
+
+                        model[ key ] = next = newModel;
+                    }
+                    // Silently fail in other case.
+                    else return;
+                }
+                
+                model = next;
+            }
+
+            // Set model attribute.
+            if( model.set ){
+                model.set( attr, value, options );
+            }
+            else{
+                model[ attr ] = value;
+            }
+        });
+
+        return this;
     }
 
     // Need to override it here, since begin/end transaction brackets are overriden. 
