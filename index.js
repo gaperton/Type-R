@@ -2382,7 +2382,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _super.apply(this, arguments);
 	    }
 	    TransactionalType.prototype.canBeUpdated = function (prev, next) {
-	        return prev && next && !(next instanceof this.type);
+	        return prev && next != null && !(next instanceof this.type);
 	    };
 	    TransactionalType.prototype.convert = function (value, options, record) {
 	        return value == null || value instanceof this.type ? value : this.type.create(value, options, record);

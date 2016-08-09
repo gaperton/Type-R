@@ -10,7 +10,7 @@ export class TransactionalType extends GenericAttribute {
 
     canBeUpdated( prev : Transactional, next : any ) : boolean {
         // If an object already exists, and new value is of incompatible type, let object handle the update.
-        return prev && next && !( next instanceof this.type );
+        return prev && next != null && !( next instanceof this.type );
     }
 
     convert( value : any, options : TransactionOptions, record : Record ) : Transactional {
