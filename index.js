@@ -1539,7 +1539,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            child._ownerKey = key;
 	            return true;
 	        }
-	        return false;
+	        return child._owner === owner;
 	    },
 	    free: function (owner, child) {
 	        if (owner === child._owner) {

@@ -372,7 +372,7 @@ export const transactionApi = {
             return true;
         }
 
-        return false;
+        return child._owner === owner;
     },
 
     // Remove reference to the record.
