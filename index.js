@@ -1848,14 +1848,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Record.prototype.Attributes = function (x) { this.id = x.id; };
 	    Record.prototype.forEachAttr = function (attrs, iteratee) {
 	        var _attributes = this._attributes;
+	        var unknown;
 	        for (var name_1 in attrs) {
 	            var spec = _attributes[name_1];
 	            if (spec) {
 	                iteratee(attrs[name_1], name_1, spec);
 	            }
 	            else {
-	                log.warn('[Unknown Attribute]', this, 'Unknown record attribute "' + name_1 + '" is ignored:', attrs);
+	                unknown || (unknown = []);
+	                unknown.push(name_1);
 	            }
+	        }
+	        if (unknown) {
+	            log.warn("[Record] Unknown attributes are ignored: " + unknown.join(', ') + ". Known attributes:", _attributes, 'Values:', attrs);
 	        }
 	    };
 	    Record.prototype.each = function (iteratee, context) {

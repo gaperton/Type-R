@@ -251,6 +251,7 @@ export class Record extends Transactional implements Owner {
     // Overriden by dynamically compiled loop unrolled function in define.ts
     forEachAttr( attrs : {}, iteratee : ( value : any, key? : string, spec? : Attribute ) => void ) : void {
         const { _attributes } = this;
+        let unknown : string[];
 
         for( let name in attrs ){
             const spec = _attributes[ name ];
@@ -259,8 +260,13 @@ export class Record extends Transactional implements Owner {
                 iteratee( attrs[ name ], name, spec );
             }
             else{
-                log.warn( '[Unknown Attribute]', this, 'Unknown record attribute "' + name + '" is ignored:', attrs );
+                unknown || ( unknown = [] );
+                unknown.push( name );
             }
+        }
+
+        if( unknown ){
+            log.warn( `[Record] Unknown attributes are ignored: ${ unknown.join(', ')}. Known attributes:`,  _attributes, 'Values:', attrs );
         }
 
         // TODO: try this versus object traversal.
