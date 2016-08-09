@@ -266,7 +266,7 @@ export class Record extends Transactional implements Owner {
         }
 
         if( unknown ){
-            log.warn( `[Record] Unknown attributes are ignored: ${ unknown.join(', ')}. Known attributes:`,  _attributes, 'Values:', attrs );
+            log.warn( `[Record] Unknown attributes are ignored (${ unknown.join(', ')}). Record:`,  _attributes, 'Attributes:', attrs );
         }
 
         // TODO: try this versus object traversal.

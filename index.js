@@ -1860,7 +1860,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	        }
 	        if (unknown) {
-	            log.warn("[Record] Unknown attributes are ignored: " + unknown.join(', ') + ". Known attributes:", _attributes, 'Values:', attrs);
+	            log.warn("[Record] Unknown attributes are ignored (" + unknown.join(', ') + "). Record:", _attributes, 'Attributes:', attrs);
 	        }
 	    };
 	    Record.prototype.each = function (iteratee, context) {
@@ -3235,7 +3235,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return _super.prototype.add.call(this, elements, subsetOptions(options));
 	        };
 	        SubsetOfCollection.prototype.reset = function (elements, options) {
-	            return _super.prototype.add.call(this, elements, subsetOptions(options));
+	            return _super.prototype.reset.call(this, elements, subsetOptions(options));
 	        };
 	        SubsetOfCollection.prototype._createTransaction = function (elements, options) {
 	            return _super.prototype._createTransaction.call(this, elements, subsetOptions(options));

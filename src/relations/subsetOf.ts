@@ -51,7 +51,7 @@ function defineSubsetOf( CollectionConstructor : typeof Collection ) {
         }
 
         reset( elements?, options? ){
-            return super.add( elements, subsetOptions( options ) );
+            return super.reset( elements, subsetOptions( options ) );
         }
 
         _createTransaction( elements, options? ){
