@@ -1195,17 +1195,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Collection.prototype._onChildrenChange = function (record, options) {
 	        if (options === void 0) { options = {}; }
-	        var isRoot = begin(this), idAttribute = this.idAttribute;
-	        if (record.hasChanged(idAttribute)) {
-	            var _byId = this._byId;
-	            delete _byId[record.previous(idAttribute)];
-	            var id = record.id;
-	            id == null || (_byId[id] = record);
+	        var _byId = this._byId;
+	        if (_byId[record.cid]) {
+	            var isRoot = begin(this), idAttribute = this.idAttribute;
+	            if (record.hasChanged(idAttribute)) {
+	                delete _byId[record.previous(idAttribute)];
+	                var id = record.id;
+	                id == null || (_byId[id] = record);
+	            }
+	            if (markAsDirty(this, options)) {
+	                trigger2(this, 'change', record, options);
+	            }
+	            isRoot && commit(this);
 	        }
-	        if (markAsDirty(this, options)) {
-	            trigger2(this, 'change', record, options);
-	        }
-	        isRoot && commit(this);
 	    };
 	    Collection.prototype.get = function (objOrId) {
 	        if (objOrId == null)

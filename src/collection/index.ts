@@ -126,23 +126,26 @@ export class Collection extends Transactional implements CollectionCore {
     _comparator : ( a : Record, b : Record ) => number
 
     _onChildrenChange( record : Record, options : TransactionOptions = {} ){
-        const isRoot = begin( this ),
-              { idAttribute } = this;
+        const { _byId } = this;
+        // Updates in initialize cause troubles, especially id change. TODO: check the same thing for the model.  
+        if( _byId[ record.cid ] ){
+            const isRoot = begin( this ),
+                { idAttribute } = this;
 
-        if( record.hasChanged( idAttribute ) ){
-            const { _byId } = this;
-            delete _byId[ record.previous( idAttribute ) ];
+            if( record.hasChanged( idAttribute ) ){
+                delete _byId[ record.previous( idAttribute ) ];
 
-            const { id } = record;
-            id == null || ( _byId[ id ] = record );
-        }
+                const { id } = record;
+                id == null || ( _byId[ id ] = record );
+            }
 
-        if( markAsDirty( this, options ) ){
-            // Forward change event from the record.
-            trigger2( this, 'change', record, options )
-        }
+            if( markAsDirty( this, options ) ){
+                // Forward change event from the record.
+                trigger2( this, 'change', record, options )
+            }
 
-        isRoot && commit( this );
+            isRoot && commit( this );
+        }  
     }
 
     get( objOrId : string | Record | Object ) : Record {
@@ -257,7 +260,7 @@ export class Collection extends Transactional implements CollectionCore {
         }
 
         markAsDirty( this, options );
-        
+
         options.silent || trigger2( this, 'reset', this, defaults( { previousModels : previousModels }, options ) );
 
         isRoot && commit( this );
