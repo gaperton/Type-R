@@ -54,6 +54,5 @@ export function resolveReference( root : Traversable, reference : string, action
         if( !self ) return;
     }
 
-    action( self, path[ skip ] );
-    return self;
+    return action( self, path[ skip ] );
 }

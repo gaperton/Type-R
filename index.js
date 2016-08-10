@@ -1573,7 +1573,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    ValidationError.prototype.eachError = function (iteratee, object) {
 	        this.each(function (value, key) {
 	            if (value instanceof ValidationError) {
-	                value._traverse(iteratee, object.get(key));
+	                value.eachError(iteratee, object.get(key));
 	            }
 	            else {
 	                iteratee(value, key, object);
@@ -1622,8 +1622,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (!self)
 	            return;
 	    }
-	    action(self, path[skip]);
-	    return self;
+	    return action(self, path[skip]);
 	}
 	exports.resolveReference = resolveReference;
 
