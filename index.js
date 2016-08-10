@@ -1277,11 +1277,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Collection.prototype.reset = function (a_elements, options) {
 	        if (options === void 0) { options = {}; }
-	        var previousModels = commons_1.dispose(this);
+	        var isRoot = begin(this), previousModels = commons_1.dispose(this);
 	        if (a_elements) {
 	            set_1.emptySetTransaction(this, toElements(this, a_elements, options), options, true);
 	        }
+	        markAsDirty(this, options);
 	        options.silent || trigger2(this, 'reset', this, defaults({ previousModels: previousModels }, options));
+	        isRoot && commit(this);
 	        return this.models;
 	    };
 	    Collection.prototype.add = function (a_elements, options) {

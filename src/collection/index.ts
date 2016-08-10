@@ -248,15 +248,19 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     reset( a_elements : ElementsArg, options : TransactionOptions = {} ) : Record[] {
-        const previousModels = dispose( this );
+        const isRoot = begin( this ),
+              previousModels = dispose( this );
 
         // Make all changes required, but be silent.
         if( a_elements ){            
             emptySetTransaction( this, toElements( this, a_elements, options ), options, true );
         }
 
+        markAsDirty( this, options );
+        
         options.silent || trigger2( this, 'reset', this, defaults( { previousModels : previousModels }, options ) );
 
+        isRoot && commit( this );
         return this.models;
     }
 
