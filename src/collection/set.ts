@@ -1,5 +1,5 @@
 import { Transaction, transactionApi } from '../transactions'
-import { CollectionTransaction, IdIndex, convertAndAquire, free, sortElements, CollectionOptions, addIndex, CollectionCore, Elements, freeAll } from './commons'
+import { CollectionTransaction, logAggregationError, IdIndex, convertAndAquire, free, sortElements, CollectionOptions, addIndex, CollectionCore, Elements, freeAll } from './commons'
 import { Record } from '../record'
 
 const { begin, commit, markAsDirty } = transactionApi;
@@ -20,6 +20,8 @@ export function emptySetTransaction( collection : CollectionCore, items : Elemen
             // 'added' is the reference to this.models. Need to copy it.
             return new CollectionTransaction( collection, isRoot, added.slice(), [], [], needSort );
         }
+
+        if( collection._aggregationError ) logAggregationError( collection );
     }
 
     // No changes...
@@ -47,6 +49,8 @@ export function setTransaction( collection, items, options ){
         if( markAsDirty( collection, options ) ){ 
             return new CollectionTransaction( collection, isRoot, added, removed, nested, sorted );
         }
+
+        if( collection._aggregationError ) logAggregationError( collection );
     }
 
     isRoot && commit( collection );

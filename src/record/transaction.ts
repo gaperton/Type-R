@@ -521,13 +521,15 @@ export class Record extends Transactional implements Owner {
     // Simulate attribute change 
     forceAttributeChange( key : string, options : TransactionOptions = {} ){
         // Touch an attribute in bounds of transaction
-        const isRoot = begin( this );
+        if( key ){
+            const isRoot = begin( this );
 
-        if( markAsDirty( this, options ) ){
-            trigger3( this, 'change:' + key, this, this.attributes[ key ], options );
+            if( markAsDirty( this, options ) ){
+                trigger3( this, 'change:' + key, this, this.attributes[ key ], options );
+            }
+            
+            isRoot && commit( this );
         }
-        
-        isRoot && commit( this );
     }
 
     // Returns owner without the key (usually it's collection)

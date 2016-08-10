@@ -34,10 +34,12 @@ interface CollectionDefinition extends TransactionalDefinition {
     cidPrefix : 'c',
     model : Record,
     _changeEventName : 'changes',
-    _aggregates : true
+    _aggregates : true,
+    _aggregationError : null
 })
 export class Collection extends Transactional implements CollectionCore {
     _aggregates : boolean
+    _aggregationError : Record[]
 
     static _SubsetOf : typeof Collection
     

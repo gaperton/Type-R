@@ -1377,7 +1377,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            cidPrefix: 'c',
 	            model: record_1.Record,
 	            _changeEventName: 'changes',
-	            _aggregates: true
+	            _aggregates: true,
+	            _aggregationError: null
 	        })
 	    ], Collection);
 	    return Collection;
@@ -2007,11 +2008,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Record.prototype.forceAttributeChange = function (key, options) {
 	        if (options === void 0) { options = {}; }
-	        var isRoot = begin(this);
-	        if (markAsDirty(this, options)) {
-	            trigger3(this, 'change:' + key, this, this.attributes[key], options);
+	        if (key) {
+	            var isRoot = begin(this);
+	            if (markAsDirty(this, options)) {
+	                trigger3(this, 'change:' + key, this, this.attributes[key], options);
+	            }
+	            isRoot && commit(this);
 	        }
-	        isRoot && commit(this);
 	    };
 	    Object.defineProperty(Record.prototype, "collection", {
 	        get: function () {
@@ -2775,7 +2778,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (attrs instanceof model) {
 	        record = attrs;
 	        if (collection._aggregates && !_aquire(collection, record)) {
-	            object_plus_1.tools.log.warn('[Aggregation error] Record already has an owner. Use susbet collection type.', record);
+	            var errors = collection._aggregationError || (collection._aggregationError = []);
+	            errors.push(record);
 	        }
 	    }
 	    else {
@@ -2840,6 +2844,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var transaction = nested_1[_i];
 	            transaction.commit(true);
 	        }
+	        if (object._aggregationError) {
+	            logAggregationError(object);
+	        }
 	        for (var _b = 0, nested_2 = nested; _b < nested_2.length; _b++) {
 	            var transaction = nested_2[_b];
 	            trigger2(object, 'change', transaction.object, _isDirty);
@@ -2866,6 +2873,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return CollectionTransaction;
 	}());
 	exports.CollectionTransaction = CollectionTransaction;
+	function logAggregationError(collection) {
+	    object_plus_1.tools.log.warn('[Collection] Added records which already has an owner:', collection._aggregationError, collection);
+	    collection._aggregationError = void 0;
+	}
+	exports.logAggregationError = logAggregationError;
 
 
 /***/ },
@@ -2884,6 +2896,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (markAsDirty(collection, options)) {
 	            return new commons_1.CollectionTransaction(collection, isRoot, added, [], nested, needSort);
 	        }
+	        if (collection._aggregationError)
+	            commons_1.logAggregationError(collection);
 	    }
 	    isRoot && commit(collection);
 	}
@@ -2952,6 +2966,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (markAsDirty(collection, silent ? silentOptions : options)) {
 	            return new commons_1.CollectionTransaction(collection, isRoot, added.slice(), [], [], needSort);
 	        }
+	        if (collection._aggregationError)
+	            commons_1.logAggregationError(collection);
 	    }
 	    isRoot && commit(collection);
 	}
@@ -2967,6 +2983,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (markAsDirty(collection, options)) {
 	            return new commons_1.CollectionTransaction(collection, isRoot, added, removed, nested, sorted);
 	        }
+	        if (collection._aggregationError)
+	            commons_1.logAggregationError(collection);
 	    }
 	    isRoot && commit(collection);
 	}

@@ -18,6 +18,7 @@ export interface CollectionCore extends Transactional, Owner {
     get( objOrId : string | Record | Object ) : Record    
     _itemEvents? : eventsApi.EventMap
     _aggregates : boolean
+    _aggregationError : Record[]
 }
 
 // Collection's manipulation methods elements
@@ -48,7 +49,8 @@ export function convertAndAquire( collection : CollectionCore, attrs : {} | Reco
     if( attrs instanceof model ){
         record = attrs;
         if( collection._aggregates && !_aquire( collection, record ) ){
-            tools.log.warn( '[Aggregation error] Record already has an owner. Use susbet collection type.', record );
+            const errors = collection._aggregationError || ( collection._aggregationError = [] );
+            errors.push( record );
         }
     }
     else{
@@ -154,6 +156,10 @@ export class CollectionTransaction implements Transaction {
             transaction.commit( true );
         }
 
+        if( object._aggregationError ){
+            logAggregationError( object );
+        }
+
         // Just trigger 'change' on collection, it must be already triggered for models during nested commits.
         // ??? TODO: do it in nested transactions loop? This way appears to be more correct. 
         for( let transaction of nested ){
@@ -185,4 +191,9 @@ export class CollectionTransaction implements Transaction {
 
         this.isRoot && commit( object, isNested );
     }
+}
+
+export function logAggregationError( collection : CollectionCore ){
+    tools.log.warn( '[Collection] Added records which already has an owner:', collection._aggregationError, collection );
+    collection._aggregationError = void 0;
 }

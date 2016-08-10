@@ -1,5 +1,5 @@
 import { Transaction, transactionApi } from '../transactions'
-import { CollectionTransaction, sortElements, convertAndAquire, free, CollectionOptions, addIndex, CollectionCore } from './commons'
+import { CollectionTransaction, logAggregationError, sortElements, convertAndAquire, free, CollectionOptions, addIndex, CollectionCore } from './commons'
 import { Record } from '../record'
 
 const { begin, commit, markAsDirty } = transactionApi;
@@ -20,6 +20,8 @@ export function addTransaction( collection : CollectionCore, items, options : Ad
         if( markAsDirty( collection, options ) ){
             return new CollectionTransaction( collection, isRoot, added, [], nested, needSort );
         }
+
+        if( collection._aggregationError ) logAggregationError( collection );
     }
 
     // No changes...
