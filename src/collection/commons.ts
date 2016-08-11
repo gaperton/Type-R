@@ -4,7 +4,7 @@ import { Owner, Transaction,
 
 import { eventsApi, tools } from '../object-plus'
 
-const { EventMap, trigger2, trigger3 } = eventsApi,
+const { EventMap, trigger2, trigger3, on, off } = eventsApi,
       { commit, markAsDirty } = transactionApi,
       _aquire = transactionApi.aquire, _free = transactionApi.free;
 
@@ -48,9 +48,14 @@ export function convertAndAquire( collection : CollectionCore, attrs : {} | Reco
 
     if( attrs instanceof model ){
         record = attrs;
-        if( collection._aggregates && !_aquire( collection, record ) ){
-            const errors = collection._aggregationError || ( collection._aggregationError = [] );
-            errors.push( record );
+        if( collection._aggregates ){
+            if( !_aquire( collection, record ) ){
+                const errors = collection._aggregationError || ( collection._aggregationError = [] );
+                errors.push( record );
+            }
+        }
+        else if( collection._observes ){
+            on( record, record._changeEventName, collection._onChildrenChange, collection );
         }
     }
     else{

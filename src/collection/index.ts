@@ -29,6 +29,12 @@ interface CollectionDefinition extends TransactionalDefinition {
     _itemEvents? : EventMap
 }
 
+interface LocalOptions {
+    comparator? : GenericComparator
+    owner? : Owner
+    observe? : boolean
+}
+
 @define({
     // Default client id prefix 
     cidPrefix : 'c',
@@ -191,15 +197,24 @@ export class Collection extends Transactional implements CollectionCore {
     idAttribute : string
 
 
-    constructor( records? : ( Record | {} )[], options : CollectionOptions = {} ){
+    constructor( records? : ( Record | {} )[], options : CollectionOptions = {}, localOptions? : LocalOptions ){
         super( _count++ );
         this.models = [];
         this._byId = {};
         this.model      = options.model || this.model;
-        this.idAttribute = this.model.prototype.idAttribute;
+        this.idAttribute = this.model.prototype.idAttribute; //TODO: Remove?
         
-        if( options.comparator !== void 0 ){
-            this.comparator = options.comparator;
+        if( localOptions ){
+            if( localOptions.comparator !== void 0 ){
+                this.comparator = localOptions.comparator;
+            }
+
+            this._owner = localOptions.owner;
+
+            if( localOptions.observe ){
+                this._aggregates = false;
+                this._observes = localOptions.observe;
+            } 
         }
 
         if( records ){
