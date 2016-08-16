@@ -1,21 +1,20 @@
 import { Collection, CollectionOptions } from '../collection'
 import { tools, define } from '../object-plus'
-import { Record } from '../record'
+import { Record, TransactionalType } from '../record'
 import { parseReference, CollectionReference } from './commons'
 import { ChainableAttributeSpec } from '../record'
+import { Transactional, TransactionOptions } from '../transactions'
 
 const { fastDefaults } = tools;
 
 type RecordsIds = ( string | number )[];
 
 Collection.subsetOf = function subsetOf( masterCollection : CollectionReference ) : ChainableAttributeSpec {
-    const CollectionConstructor : typeof Collection = this,
-          SubsetOf : typeof Collection = this._SubsetOf || ( this._SubsetOf = defineSubsetOf( this ) ),
-          getMasterCollection = parseReference( masterCollection ),
-          typeSpec = new ChainableAttributeSpec({
-              type : SubsetOf,
-              validate( model, value, name ){},
-          });
+    const SubsetOf = this._SubsetOf || ( this._SubsetOf = defineSubsetCollection( this ) ),
+        getMasterCollection = parseReference( masterCollection ),
+        typeSpec = new ChainableAttributeSpec({
+            type : SubsetOf
+        });
 
     typeSpec.get(
         function( refs ){
@@ -28,22 +27,20 @@ Collection.subsetOf = function subsetOf( masterCollection : CollectionReference 
 };
 
 /** @private */
-function subsetOptions( options? : CollectionOptions ){
-    const subsetOptions = { parse : true, merge : false };
+function subsetOptions( options : CollectionOptions ){
+    const subsetOptions = { parse : true };
     if( options ) fastDefaults( subsetOptions, options );
     return subsetOptions;
 }
 
-function defineSubsetOf( CollectionConstructor : typeof Collection ) {
-    @define({
-        _aggregates : false 
-    })
+function defineSubsetCollection( CollectionConstructor : typeof Collection ) {
+    @define({})
     class SubsetOfCollection extends CollectionConstructor {
         refs : any[];
         resolvedWith : Collection = null;
 
         constructor( recordsOrIds?, options? ){
-            super( recordsOrIds, subsetOptions( options ) );
+            super( recordsOrIds, subsetOptions( options ), true );
         }
 
         add( elements, options? ){
@@ -67,7 +64,12 @@ function defineSubsetOf( CollectionConstructor : typeof Collection ) {
 
         // Must be shallow copied on clone.
         clone( owner? ){
-            var copy          = new (<any>this).constructor( this.models, { model : this.model, comparator : this.comparator }, owner );
+            var Ctor = (<any>this).constructor,
+                copy = new Ctor( this.models, {
+                    model : this.model,
+                    comparator : this.comparator
+                });
+
             copy.resolvedWith = this.resolvedWith;
             copy.refs         = this.refs;
 

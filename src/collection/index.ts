@@ -29,29 +29,46 @@ interface CollectionDefinition extends TransactionalDefinition {
     _itemEvents? : EventMap
 }
 
+
 @define({
     // Default client id prefix 
     cidPrefix : 'c',
     model : Record,
     _changeEventName : 'changes',
-    _aggregates : true,
     _aggregationError : null
 })
 export class Collection extends Transactional implements CollectionCore {
     _aggregates : boolean
     _aggregationError : Record[]
 
+    static Subset : typeof Collection
     static _SubsetOf : typeof Collection
     
     createSubset( models, options ){
-        var SubsetOf = (<any>this.constructor).subsetOf( this ).options.type;
-        var subset   = new SubsetOf( models, options );
+        const SubsetOf = (<any>this.constructor).subsetOf( this ).options.type,
+            subset   = new SubsetOf( models, options );
+            
         subset.resolve( this );
         return subset;
     }
 
     static predefine() : any {
+        // Cached subset collection must not be inherited.
+        const Ctor = this;
         this._SubsetOf = null;
+
+        function Subset( a, b ){
+            Ctor.call( this, a, b, true );
+        }
+
+        Subset.prototype = this.prototype;
+        Subset._attribute = TransactionalType;
+        Subset[ 'of' ] = function( path ){
+            return Ctor.subsetOf( path );
+        }
+
+        this.Subset = <any>Subset;
+
         Transactional.predefine.call( this );
         createSharedTypeSpec( this );
         return this;
@@ -128,26 +145,23 @@ export class Collection extends Transactional implements CollectionCore {
     _comparator : ( a : Record, b : Record ) => number
 
     _onChildrenChange( record : Record, options : TransactionOptions = {} ){
-        const { _byId } = this;
-        // Updates in initialize cause troubles, especially id change. TODO: check the same thing for the model.  
-        if( _byId[ record.cid ] ){
-            const isRoot = begin( this ),
-                { idAttribute } = this;
+        const isRoot = begin( this ),
+            { idAttribute } = this;
 
-            if( record.hasChanged( idAttribute ) ){
-                delete _byId[ record.previous( idAttribute ) ];
+        if( record.hasChanged( idAttribute ) ){
+            const { _byId } = this;
+            delete _byId[ record.previous( idAttribute ) ];
 
-                const { id } = record;
-                id == null || ( _byId[ id ] = record );
-            }
+            const { id } = record;
+            id == null || ( _byId[ id ] = record );
+        }
 
-            if( markAsDirty( this, options ) ){
-                // Forward change event from the record.
-                trigger2( this, 'change', record, options )
-            }
+        if( markAsDirty( this, options ) ){
+            // Forward change event from the record.
+            trigger2( this, 'change', record, options )
+        }
 
-            isRoot && commit( this );
-        }  
+        isRoot && commit( this );
     }
 
     get( objOrId : string | Record | Object ) : Record {
@@ -172,6 +186,9 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     _validateNested( errors : {} ) : number {
+        // Don't validate if not aggregated.
+        if( !this._aggregates ) return 0;
+
         let count = 0;
 
         this.each( record => {
@@ -190,17 +207,28 @@ export class Collection extends Transactional implements CollectionCore {
     // idAttribute extracted from the model type.
     idAttribute : string
 
-
-    constructor( records? : ( Record | {} )[], options : CollectionOptions = {} ){
+    constructor( records? : ( Record | {} )[], options : CollectionOptions = {}, shared? : boolean ){
         super( _count++ );
         this.models = [];
         this._byId = {};
-        this.model      = options.model || this.model;
-        this.idAttribute = this.model.prototype.idAttribute;
         
+        this.comparator  = this.comparator;
+
         if( options.comparator !== void 0 ){
             this.comparator = options.comparator;
+            options.comparator = void 0;
         }
+        
+        this.model       = this.model;
+        
+        if( options.model ){
+            this.model = options.model;
+            options.model = void 0;
+        }
+
+        this.idAttribute = this.model.prototype.idAttribute; //TODO: Remove?
+
+        this._aggregates = !shared;
 
         if( records ){
             const elements = toElements( this, records, options );
@@ -208,6 +236,7 @@ export class Collection extends Transactional implements CollectionCore {
         }
 
         this.initialize.apply( this, arguments );
+
         if( this._localEvents ) this._localEvents.subscribe( this, this );
     }
 
@@ -223,15 +252,19 @@ export class Collection extends Transactional implements CollectionCore {
 
     // Deeply clone collection, optionally setting new owner.
     clone( options : CloneOptions = {} ) : this {
-        var models = this.map( model => model.clone() );
-        const copy : this = new (<any>this.constructor)( models, { model : this.model, comparator : this.comparator }, options.owner );
-        if( options.key ) copy._ownerKey = options.key;
+        const models = this.map( model => model.clone() ),
+              copy : this = new (<any>this.constructor)( models, { model : this.model, comparator : this.comparator } );
+        
         if( options.pinStore ) copy._defaultStore = this.getStore();
+        
         return copy;
     }
 
     toJSON() : Object[] {
-        return this.models.map( model => model.toJSON() );
+        // Don't serialize when not aggregated
+        if( this._aggregates ){
+            return this.models.map( model => model.toJSON() );
+        }
     }
 
     // Apply bulk in-place object update in scope of ad-hoc transaction 
@@ -300,7 +333,7 @@ export class Collection extends Transactional implements CollectionCore {
 
         if( this.models.length ){
             return options.remove === false ?
-                        addTransaction( this, elements, options ) :
+                        addTransaction( this, elements, options, true ) :
                         setTransaction( this, elements, options );
         }
         else{
