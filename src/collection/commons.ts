@@ -43,23 +43,12 @@ export function dispose( collection : CollectionCore ) : Record[]{
 
 /** @private */
 export function convertAndAquire( collection : CollectionCore, attrs : {} | Record, options ){
-    const { model } = collection;
-    let record : Record;
+    const { model } = collection,
+        record : Record = attrs instanceof model ? attrs : <Record>model.create( attrs, options );
 
-    if( attrs instanceof model ){
-        record = attrs;
-        if( collection._aggregates ){
-            if( !_aquire( collection, record ) ){
-                const errors = collection._aggregationError || ( collection._aggregationError = [] );
-                errors.push( record );
-            }
-        }
-        else if( collection._observes ){
-            on( record, record._changeEventName, collection._onChildrenChange, collection );
-        }
-    }
-    else{
-        record = <Record> model.create( attrs, options, collection );
+    if( collection._aggregates && !_aquire( collection, record ) ){
+        const errors = collection._aggregationError || ( collection._aggregationError = [] );
+        errors.push( record );
     }
 
     // Subscribe for events...

@@ -28,20 +28,22 @@
       collection = new klass();
       collection.add(doc);
     }
-
   });
 
   QUnit.test("initialize", function(assert) {
-    assert.expect(3);
+    assert.expect(2);
     var Model = Backbone.Model.extend({
+      attrbutes : {
+        one : 5
+      },
+
       initialize: function() {
         this.one = 1;
-        assert.equal(this.collection, collection);
       }
     });
-    var model = new Model({}, {}, collection );
+    var model = new Model({}, {});
     assert.equal(model.one, 1);
-    assert.equal(model.collection, collection);
+    assert.equal(model.collection, void 0);
   });
 
   QUnit.test("initialize with attributes and options", function(assert) {

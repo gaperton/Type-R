@@ -29,11 +29,6 @@ interface CollectionDefinition extends TransactionalDefinition {
     _itemEvents? : EventMap
 }
 
-interface LocalOptions {
-    comparator? : GenericComparator
-    owner? : Owner
-    observe? : boolean
-}
 
 @define({
     // Default client id prefix 
@@ -47,17 +42,20 @@ export class Collection extends Transactional implements CollectionCore {
     _aggregates : boolean
     _aggregationError : Record[]
 
-    static _SubsetOf : typeof Collection
+    static _Subset : typeof Collection
+    static Subset : typeof Collection
     
     createSubset( models, options ){
-        var SubsetOf = (<any>this.constructor).subsetOf( this ).options.type;
-        var subset   = new SubsetOf( models, options );
+        var Subset = (<any>this.constructor).Subset,
+            subset   = new Subset( models, options, true );
+        
         subset.resolve( this );
         return subset;
     }
 
     static predefine() : any {
-        this._SubsetOf = null;
+        // Cached subset collection must not be inherited.
+        this._Subset = null;
         Transactional.predefine.call( this );
         createSharedTypeSpec( this );
         return this;
@@ -134,26 +132,23 @@ export class Collection extends Transactional implements CollectionCore {
     _comparator : ( a : Record, b : Record ) => number
 
     _onChildrenChange( record : Record, options : TransactionOptions = {} ){
-        const { _byId } = this;
-        // Updates in initialize cause troubles, especially id change. TODO: check the same thing for the model.  
-        if( _byId[ record.cid ] ){
-            const isRoot = begin( this ),
-                { idAttribute } = this;
+        const isRoot = begin( this ),
+            { idAttribute } = this;
 
-            if( record.hasChanged( idAttribute ) ){
-                delete _byId[ record.previous( idAttribute ) ];
+        if( record.hasChanged( idAttribute ) ){
+            const { _byId } = this;
+            delete _byId[ record.previous( idAttribute ) ];
 
-                const { id } = record;
-                id == null || ( _byId[ id ] = record );
-            }
+            const { id } = record;
+            id == null || ( _byId[ id ] = record );
+        }
 
-            if( markAsDirty( this, options ) ){
-                // Forward change event from the record.
-                trigger2( this, 'change', record, options )
-            }
+        if( markAsDirty( this, options ) ){
+            // Forward change event from the record.
+            trigger2( this, 'change', record, options )
+        }
 
-            isRoot && commit( this );
-        }  
+        isRoot && commit( this );
     }
 
     get( objOrId : string | Record | Object ) : Record {
@@ -196,25 +191,25 @@ export class Collection extends Transactional implements CollectionCore {
     // idAttribute extracted from the model type.
     idAttribute : string
 
-
-    constructor( records? : ( Record | {} )[], options : CollectionOptions = {}, localOptions? : LocalOptions ){
+    constructor( records? : ( Record | {} )[], options : CollectionOptions = {} ){
         super( _count++ );
         this.models = [];
         this._byId = {};
-        this.model      = options.model || this.model;
+        
         this.idAttribute = this.model.prototype.idAttribute; //TODO: Remove?
         
-        if( localOptions ){
-            if( localOptions.comparator !== void 0 ){
-                this.comparator = localOptions.comparator;
-            }
+        this.comparator  = this.comparator;
 
-            this._owner = localOptions.owner;
-
-            if( localOptions.observe ){
-                this._aggregates = false;
-                this._observes = localOptions.observe;
-            } 
+        if( options.comparator !== void 0 ){
+            this.comparator = options.comparator;
+            options.comparator = void 0;
+        }
+        
+        this.model       = this.model;
+        
+        if( options.model ){
+            this.model = options.model;
+            options.model = void 0;
         }
 
         if( records ){
@@ -223,6 +218,7 @@ export class Collection extends Transactional implements CollectionCore {
         }
 
         this.initialize.apply( this, arguments );
+
         if( this._localEvents ) this._localEvents.subscribe( this, this );
     }
 
@@ -238,10 +234,11 @@ export class Collection extends Transactional implements CollectionCore {
 
     // Deeply clone collection, optionally setting new owner.
     clone( options : CloneOptions = {} ) : this {
-        var models = this.map( model => model.clone() );
-        const copy : this = new (<any>this.constructor)( models, { model : this.model, comparator : this.comparator }, options.owner );
-        if( options.key ) copy._ownerKey = options.key;
+        const models = this.map( model => model.clone() ),
+              copy : this = new (<any>this.constructor)( models, { model : this.model, comparator : this.comparator } );
+        
         if( options.pinStore ) copy._defaultStore = this.getStore();
+        
         return copy;
     }
 

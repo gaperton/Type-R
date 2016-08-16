@@ -304,8 +304,8 @@ export class Record extends Transactional implements Owner {
      * Record construction
      */
     // Create record, optionally setting an owner
-    constructor( a_values? : {}, a_options? : ConstructorOptions, owner? : Owner ){
-        super( _cidCounter++, owner );
+    constructor( a_values? : {}, a_options? : ConstructorOptions ){
+        super( _cidCounter++ );
         this.attributes = {};
         
         const options = a_options || {},
@@ -332,9 +332,10 @@ export class Record extends Transactional implements Owner {
 
     // Deeply clone record, optionally setting new owner.
     clone( options : CloneOptions = {} ) : this {
-        const copy : this = new (<any>this.constructor)( this.attributes, { clone : true }, options.owner );
+        const copy : this = new (<any>this.constructor)( this.attributes, { clone : true } );
+        
         if( options.pinStore ) copy._defaultStore = this.getStore();
-        if( options.key ) copy._ownerKey = options.key;
+
         return copy;
     }
 
@@ -373,8 +374,11 @@ export class Record extends Transactional implements Owner {
         this.forEachAttr( this.attributes, ( value, key : string, { toJSON } : AttributeSerialization ) =>{
             // If attribute serialization is not disabled, and its value is not undefined...
             if( toJSON && value !== void 0 ){
-                // ...serialize it according with its spec.
-                json[ key ] = toJSON.call( this, value, key );
+                // ...serialize it according to its spec.
+                const asJson = toJSON.call( this, value, key );
+
+                // ...skipping undefined values. Such an attributes are excluded.
+                if( asJson !== void 0 ) json[ key ] = asJson; 
             }
         });
 
@@ -521,15 +525,13 @@ export class Record extends Transactional implements Owner {
     // Simulate attribute change 
     forceAttributeChange( key : string, options : TransactionOptions = {} ){
         // Touch an attribute in bounds of transaction
-        if( key ){
-            const isRoot = begin( this );
+        const isRoot = begin( this );
 
-            if( markAsDirty( this, options ) ){
-                trigger3( this, 'change:' + key, this, this.attributes[ key ], options );
-            }
-            
-            isRoot && commit( this );
+        if( markAsDirty( this, options ) ){
+            trigger3( this, 'change:' + key, this, this.attributes[ key ], options );
         }
+        
+        isRoot && commit( this );
     }
 
     // Returns owner without the key (usually it's collection)

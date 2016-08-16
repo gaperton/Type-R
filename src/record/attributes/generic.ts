@@ -44,10 +44,10 @@ export class GenericAttribute implements Attribute {
     /**
      * Stage 1. Transform stage
      */
-    transform( value, options, prev, model ) { return value; }
+    transform( value, options, prev, model : Record ) { return value; }
 
     // convert attribute type to `this.type`
-    convert( value, options, model ) { return value; }
+    convert( value, options, model : Record ) { return value; }
 
     /**
      * Stage 2. Check if attr value is changed
@@ -59,7 +59,7 @@ export class GenericAttribute implements Attribute {
     /**
      * Stage 3. Handle attribute change
      */
-    handleChange( next, prev, model ) {}
+    handleChange( next, prev, model : Record ) {}
 
     /**
      * End update pipeline definitions.

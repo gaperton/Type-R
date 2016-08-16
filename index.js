@@ -415,8 +415,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Mixable = (function () {
 	    function Mixable() {
 	    }
-	    Mixable.create = function (a, b, c) {
-	        return new this(a, b, c);
+	    Mixable.create = function (a, b) {
+	        return new this(a, b);
 	    };
 	    Mixable.mixins = function () {
 	        var mixins = [];
@@ -1120,10 +1120,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _super.call(this, _count++);
 	        this.models = [];
 	        this._byId = {};
-	        this.model = options.model || this.model;
 	        this.idAttribute = this.model.prototype.idAttribute;
+	        this.comparator = this.comparator;
 	        if (options.comparator !== void 0) {
 	            this.comparator = options.comparator;
+	            options.comparator = void 0;
+	        }
+	        this.model = this.model;
+	        if (options.model) {
+	            this.model = options.model;
+	            options.model = void 0;
 	        }
 	        if (records) {
 	            var elements = toElements(this, records, options);
@@ -1134,13 +1140,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this._localEvents.subscribe(this, this);
 	    }
 	    Collection.prototype.createSubset = function (models, options) {
-	        var SubsetOf = this.constructor.subsetOf(this).options.type;
-	        var subset = new SubsetOf(models, options);
+	        var Subset = this.constructor.Subset, subset = new Subset(models, options, true);
 	        subset.resolve(this);
 	        return subset;
 	    };
 	    Collection.predefine = function () {
-	        this._SubsetOf = null;
+	        this._Subset = null;
 	        transactions_1.Transactional.predefine.call(this);
 	        record_1.createSharedTypeSpec(this);
 	        return this;
@@ -1195,19 +1200,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Collection.prototype._onChildrenChange = function (record, options) {
 	        if (options === void 0) { options = {}; }
-	        var _byId = this._byId;
-	        if (_byId[record.cid]) {
-	            var isRoot = begin(this), idAttribute = this.idAttribute;
-	            if (record.hasChanged(idAttribute)) {
-	                delete _byId[record.previous(idAttribute)];
-	                var id = record.id;
-	                id == null || (_byId[id] = record);
-	            }
-	            if (markAsDirty(this, options)) {
-	                trigger2(this, 'change', record, options);
-	            }
-	            isRoot && commit(this);
+	        var isRoot = begin(this), idAttribute = this.idAttribute;
+	        if (record.hasChanged(idAttribute)) {
+	            var _byId = this._byId;
+	            delete _byId[record.previous(idAttribute)];
+	            var id = record.id;
+	            id == null || (_byId[id] = record);
 	        }
+	        if (markAsDirty(this, options)) {
+	            trigger2(this, 'change', record, options);
+	        }
+	        isRoot && commit(this);
 	    };
 	    Collection.prototype.get = function (objOrId) {
 	        if (objOrId == null)
@@ -1251,10 +1254,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Collection.prototype.clone = function (options) {
 	        if (options === void 0) { options = {}; }
-	        var models = this.map(function (model) { return model.clone(); });
-	        var copy = new this.constructor(models, { model: this.model, comparator: this.comparator }, options.owner);
-	        if (options.key)
-	            copy._ownerKey = options.key;
+	        var models = this.map(function (model) { return model.clone(); }), copy = new this.constructor(models, { model: this.model, comparator: this.comparator });
 	        if (options.pinStore)
 	            copy._defaultStore = this.getStore();
 	        return copy;
@@ -1408,15 +1408,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	var traversable_1 = __webpack_require__(9);
 	var assign = object_plus_1.tools.assign, trigger2 = object_plus_1.eventsApi.trigger2, trigger3 = object_plus_1.eventsApi.trigger3;
 	var Transactional = (function () {
-	    function Transactional(cid, owner, ownerKey) {
+	    function Transactional(cid) {
 	        this._events = void 0;
 	        this._changeToken = {};
 	        this._transaction = false;
 	        this._isDirty = null;
+	        this._owner = void 0;
+	        this._ownerKey = void 0;
 	        this._validationError = void 0;
 	        this.cid = this.cidPrefix + cid;
-	        this._owner = owner;
-	        this._ownerKey = ownerKey;
 	    }
 	    Transactional.prototype.dispose = function () { };
 	    Transactional.prototype.initialize = function () { };
@@ -1751,9 +1751,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _cidCounter = 0;
 	var Record = (function (_super) {
 	    __extends(Record, _super);
-	    function Record(a_values, a_options, owner) {
+	    function Record(a_values, a_options) {
 	        var _this = this;
-	        _super.call(this, _cidCounter++, owner);
+	        _super.call(this, _cidCounter++);
 	        this.attributes = {};
 	        var options = a_options || {}, values = (options.parse ? this.parse(a_values, options) : a_values) || {};
 	        var attributes = options.clone ? cloneAttributes(this, values) : this.defaults(values);
@@ -1882,11 +1882,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Record.prototype.initialize = function (values, options) { };
 	    Record.prototype.clone = function (options) {
 	        if (options === void 0) { options = {}; }
-	        var copy = new this.constructor(this.attributes, { clone: true }, options.owner);
+	        var copy = new this.constructor(this.attributes, { clone: true });
 	        if (options.pinStore)
 	            copy._defaultStore = this.getStore();
-	        if (options.key)
-	            copy._ownerKey = options.key;
 	        return copy;
 	    };
 	    Record.prototype.deepClone = function () { return this.clone(); };
@@ -1912,7 +1910,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.forEachAttr(this.attributes, function (value, key, _a) {
 	            var toJSON = _a.toJSON;
 	            if (toJSON && value !== void 0) {
-	                json[key] = toJSON.call(_this, value, key);
+	                var asJson = toJSON.call(_this, value, key);
+	                if (asJson !== void 0)
+	                    json[key] = asJson;
 	            }
 	        });
 	        return json;
@@ -2008,13 +2008,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Record.prototype.forceAttributeChange = function (key, options) {
 	        if (options === void 0) { options = {}; }
-	        if (key) {
-	            var isRoot = begin(this);
-	            if (markAsDirty(this, options)) {
-	                trigger3(this, 'change:' + key, this, this.attributes[key], options);
-	            }
-	            isRoot && commit(this);
+	        var isRoot = begin(this);
+	        if (markAsDirty(this, options)) {
+	            trigger3(this, 'change:' + key, this, this.attributes[key], options);
 	        }
+	        isRoot && commit(this);
 	    };
 	    Object.defineProperty(Record.prototype, "collection", {
 	        get: function () {
@@ -2396,7 +2394,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return prev && next != null && !(next instanceof this.type);
 	    };
 	    TransactionalType.prototype.convert = function (value, options, record) {
-	        return value == null || value instanceof this.type ? value : this.type.create(value, options, record);
+	        return value == null || value instanceof this.type ? value : this.type.create(value, options);
 	    };
 	    TransactionalType.prototype.validate = function (record, value) {
 	        var error = value && value.validationError;
@@ -2612,7 +2610,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    SharedType.prototype.convert = function (value, options, record) {
 	        if (value == null || value instanceof this.type)
 	            return value;
-	        object_plus_1.tools.log.error("[Shared Attribute] Cannot assign value of incompatible type.", value, record);
+	        object_plus_1.tools.log.error("[Record] Cannot assign value of incompatible type to shared attribute.", value, record._attributes);
 	        return null;
 	    };
 	    SharedType.prototype.validate = function (record, value) {
@@ -2763,7 +2761,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	var transactions_1 = __webpack_require__(7);
 	var object_plus_1 = __webpack_require__(1);
-	var EventMap = object_plus_1.eventsApi.EventMap, trigger2 = object_plus_1.eventsApi.trigger2, trigger3 = object_plus_1.eventsApi.trigger3, commit = transactions_1.transactionApi.commit, markAsDirty = transactions_1.transactionApi.markAsDirty, _aquire = transactions_1.transactionApi.aquire, _free = transactions_1.transactionApi.free;
+	var EventMap = object_plus_1.eventsApi.EventMap, trigger2 = object_plus_1.eventsApi.trigger2, trigger3 = object_plus_1.eventsApi.trigger3, on = object_plus_1.eventsApi.on, off = object_plus_1.eventsApi.off, commit = transactions_1.transactionApi.commit, markAsDirty = transactions_1.transactionApi.markAsDirty, _aquire = transactions_1.transactionApi.aquire, _free = transactions_1.transactionApi.free;
 	function dispose(collection) {
 	    var models = collection.models;
 	    collection.models = [];
@@ -2773,17 +2771,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	exports.dispose = dispose;
 	function convertAndAquire(collection, attrs, options) {
-	    var model = collection.model;
-	    var record;
-	    if (attrs instanceof model) {
-	        record = attrs;
-	        if (collection._aggregates && !_aquire(collection, record)) {
-	            var errors = collection._aggregationError || (collection._aggregationError = []);
-	            errors.push(record);
-	        }
-	    }
-	    else {
-	        record = model.create(attrs, options, collection);
+	    var model = collection.model, record = attrs instanceof model ? attrs : model.create(attrs, options);
+	    if (collection._aggregates && !_aquire(collection, record)) {
+	        var errors = collection._aggregationError || (collection._aggregationError = []);
+	        errors.push(record);
 	    }
 	    var _itemEvents = collection._itemEvents;
 	    _itemEvents && _itemEvents.subscribe(collection, record);
@@ -3225,49 +3216,76 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var collection_1 = __webpack_require__(6);
 	var object_plus_1 = __webpack_require__(1);
-	var commons_1 = __webpack_require__(26);
 	var record_1 = __webpack_require__(10);
+	var commons_1 = __webpack_require__(26);
+	var record_2 = __webpack_require__(10);
 	var fastDefaults = object_plus_1.tools.fastDefaults;
+	Object.defineProperty(collection_1.Collection, 'Subset', {
+	    get: function () { return this._Subset || (this._Subset = defineSubsetCollection(this)); }
+	});
 	collection_1.Collection.subsetOf = function subsetOf(masterCollection) {
-	    var CollectionConstructor = this, SubsetOf = this._SubsetOf || (this._SubsetOf = defineSubsetOf(this)), getMasterCollection = commons_1.parseReference(masterCollection), typeSpec = new record_1.ChainableAttributeSpec({
-	        type: SubsetOf,
-	        validate: function (model, value, name) { },
-	    });
-	    typeSpec.get(function (refs) {
-	        !refs || refs.resolvedWith || refs.resolve(getMasterCollection(this));
-	        return refs;
-	    });
-	    return typeSpec;
+	    return this.Subset.of(masterCollection);
 	};
-	function subsetOptions(options) {
-	    var subsetOptions = { parse: true, merge: false };
+	function subsetOptions(options, parseIds) {
+	    var subsetOptions = { parse: parseIds, merge: false };
 	    if (options)
 	        fastDefaults(subsetOptions, options);
 	    return subsetOptions;
 	}
-	function defineSubsetOf(CollectionConstructor) {
+	var SubsetOfType = (function (_super) {
+	    __extends(SubsetOfType, _super);
+	    function SubsetOfType() {
+	        _super.apply(this, arguments);
+	    }
+	    SubsetOfType.prototype.convert = function (value, options, record) {
+	        return value == null || value instanceof this.type ? value : new this.type(value, options, record, true);
+	    };
+	    SubsetOfType.prototype.create = function () {
+	        return new this.type(void 0, void 0, void 0, true);
+	    };
+	    return SubsetOfType;
+	}(record_1.TransactionalType));
+	function defineSubsetCollection(CollectionConstructor) {
 	    var SubsetOfCollection = (function (_super) {
 	        __extends(SubsetOfCollection, _super);
-	        function SubsetOfCollection(recordsOrIds, options) {
-	            _super.call(this, recordsOrIds, subsetOptions(options));
+	        function SubsetOfCollection(recordsOrIds, options, owner, _parseIds) {
+	            _super.call(this, recordsOrIds, subsetOptions(options, _parseIds));
+	            this._parseIds = _parseIds;
 	            this.resolvedWith = null;
 	        }
+	        SubsetOfCollection.of = function (masterCollection) {
+	            var getMasterCollection = commons_1.parseReference(masterCollection), typeSpec = new record_2.ChainableAttributeSpec({
+	                type: this,
+	                _attribute: SubsetOfType
+	            });
+	            typeSpec.get(function (refs) {
+	                !refs || refs.resolvedWith || refs.resolve(getMasterCollection(this));
+	                return refs;
+	            });
+	            return typeSpec;
+	        };
+	        SubsetOfCollection.prototype._validateNested = function (errors) { return 0; };
 	        SubsetOfCollection.prototype.add = function (elements, options) {
-	            return _super.prototype.add.call(this, elements, subsetOptions(options));
+	            return _super.prototype.add.call(this, elements, subsetOptions(options, this._parseIds));
 	        };
 	        SubsetOfCollection.prototype.reset = function (elements, options) {
-	            return _super.prototype.reset.call(this, elements, subsetOptions(options));
+	            return _super.prototype.reset.call(this, elements, subsetOptions(options, this._parseIds));
 	        };
 	        SubsetOfCollection.prototype._createTransaction = function (elements, options) {
-	            return _super.prototype._createTransaction.call(this, elements, subsetOptions(options));
+	            return _super.prototype._createTransaction.call(this, elements, subsetOptions(options, this._parseIds));
 	        };
 	        SubsetOfCollection.prototype.toJSON = function () {
-	            return this.refs ?
-	                this.refs.map(function (objOrId) { return objOrId.id || objOrId; }) :
-	                this.models.map(function (model) { return model.id; });
+	            if (this._parseIds) {
+	                return this.refs ?
+	                    this.refs.map(function (objOrId) { return objOrId.id || objOrId; }) :
+	                    this.models.map(function (model) { return model.id; });
+	            }
 	        };
 	        SubsetOfCollection.prototype.clone = function (owner) {
-	            var copy = new this.constructor(this.models, { model: this.model, comparator: this.comparator }, owner);
+	            var Ctor = this.constructor, copy = new Ctor(this.models, {
+	                model: this.model,
+	                comparator: this.comparator
+	            }, owner, this._parseIds);
 	            copy.resolvedWith = this.resolvedWith;
 	            copy.refs = this.refs;
 	            return copy;
