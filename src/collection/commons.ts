@@ -4,7 +4,7 @@ import { Owner, Transaction,
 
 import { eventsApi, tools } from '../object-plus'
 
-const { EventMap, trigger2, trigger3 } = eventsApi,
+const { EventMap, trigger2, trigger3, on, off } = eventsApi,
       { commit, markAsDirty } = transactionApi,
       _aquire = transactionApi.aquire, _free = transactionApi.free;
 
@@ -43,18 +43,12 @@ export function dispose( collection : CollectionCore ) : Record[]{
 
 /** @private */
 export function convertAndAquire( collection : CollectionCore, attrs : {} | Record, options ){
-    const { model } = collection;
-    let record : Record;
+    const { model } = collection,
+        record : Record = attrs instanceof model ? attrs : <Record>model.create( attrs, options );
 
-    if( attrs instanceof model ){
-        record = attrs;
-        if( collection._aggregates && !_aquire( collection, record ) ){
-            const errors = collection._aggregationError || ( collection._aggregationError = [] );
-            errors.push( record );
-        }
-    }
-    else{
-        record = <Record> model.create( attrs, options, collection );
+    if( collection._aggregates && !_aquire( collection, record ) ){
+        const errors = collection._aggregationError || ( collection._aggregationError = [] );
+        errors.push( record );
     }
 
     // Subscribe for events...

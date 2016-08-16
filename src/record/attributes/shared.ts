@@ -26,7 +26,8 @@ export class SharedType extends GenericAttribute {
     convert( value : any, options : TransactionOptions, record : Record ) : Transactional {
         if( value == null || value instanceof this.type ) return value;
 
-        tools.log.error( `[Shared Attribute] Cannot assign value of incompatible type.`, value, record );
+        // TODO: May allow conversion here - unnecessary restriction. We can do it. Or error is better?
+        tools.log.error( `[Record] Cannot assign value of incompatible type to shared attribute.`, value, record._attributes );
         
         return null;
     }

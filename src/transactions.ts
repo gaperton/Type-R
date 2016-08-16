@@ -69,21 +69,19 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
 
     // Backreference set by owner (Record, Collection, or other object)
     /** @private */
-    _owner : Owner
+    _owner : Owner = void 0;
 
     // Key supplied by owner. Used by record to identify attribute key.
     // Only collections doesn't set the key, which is used to distinguish collections.
     /** @private */  
-    _ownerKey : string
+    _ownerKey : string = void 0;
 
     // Name of the change event
     /** @private */
     _changeEventName : string
 
-    constructor( cid : string | number, owner? : Owner, ownerKey? : string ){
+    constructor( cid : string | number ){
         this.cid = this.cidPrefix + cid;
-        this._owner = owner;
-        this._ownerKey = ownerKey;
     }
 
     // Deeply clone ownership subtree
@@ -248,8 +246,6 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
 Transactional.prototype.dispose = Messenger.prototype.dispose;
 
 export interface CloneOptions {
-    owner? : Owner
-    key? : string
     // 'Pin store' shall assign this._defaultStore = this.getStore();
     pinStore? : boolean
 }
@@ -346,7 +342,7 @@ export const transactionApi = {
             // Mark transaction as closed.
             object._transaction = false;
 
-            // Notify owner on changes out of transaction scope.
+            // Notify owner on changes out of transaction scope.  
             const { _owner } = object;  
             if( _owner && !isNested ){ // If it's the nested transaction, owner is already aware there are some changes.
                 _owner._onChildrenChange( object, originalOptions );
