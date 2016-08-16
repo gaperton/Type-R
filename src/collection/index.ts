@@ -35,27 +35,40 @@ interface CollectionDefinition extends TransactionalDefinition {
     cidPrefix : 'c',
     model : Record,
     _changeEventName : 'changes',
-    _aggregates : true,
     _aggregationError : null
 })
 export class Collection extends Transactional implements CollectionCore {
     _aggregates : boolean
     _aggregationError : Record[]
 
-    static _Subset : typeof Collection
     static Subset : typeof Collection
+    static _SubsetOf : typeof Collection
     
     createSubset( models, options ){
-        var Subset = (<any>this.constructor).Subset,
-            subset   = new Subset( models, options, true );
-        
+        const SubsetOf = (<any>this.constructor).subsetOf( this ).options.type,
+            subset   = new SubsetOf( models, options );
+            
         subset.resolve( this );
         return subset;
     }
 
     static predefine() : any {
         // Cached subset collection must not be inherited.
-        this._Subset = null;
+        const Ctor = this;
+        this._SubsetOf = null;
+
+        function Subset( a, b ){
+            Ctor.call( this, a, b, true );
+        }
+
+        Subset.prototype = this.prototype;
+        Subset._attribute = TransactionalType;
+        Subset[ 'of' ] = function( path ){
+            return Ctor.subsetOf( path );
+        }
+
+        this.Subset = <any>Subset;
+
         Transactional.predefine.call( this );
         createSharedTypeSpec( this );
         return this;
@@ -173,6 +186,9 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     _validateNested( errors : {} ) : number {
+        // Don't validate if not aggregated.
+        if( !this._aggregates ) return 0;
+
         let count = 0;
 
         this.each( record => {
@@ -191,12 +207,10 @@ export class Collection extends Transactional implements CollectionCore {
     // idAttribute extracted from the model type.
     idAttribute : string
 
-    constructor( records? : ( Record | {} )[], options : CollectionOptions = {} ){
+    constructor( records? : ( Record | {} )[], options : CollectionOptions = {}, shared? : boolean ){
         super( _count++ );
         this.models = [];
         this._byId = {};
-        
-        this.idAttribute = this.model.prototype.idAttribute; //TODO: Remove?
         
         this.comparator  = this.comparator;
 
@@ -211,6 +225,10 @@ export class Collection extends Transactional implements CollectionCore {
             this.model = options.model;
             options.model = void 0;
         }
+
+        this.idAttribute = this.model.prototype.idAttribute; //TODO: Remove?
+
+        this._aggregates = !shared;
 
         if( records ){
             const elements = toElements( this, records, options );
@@ -243,7 +261,10 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     toJSON() : Object[] {
-        return this.models.map( model => model.toJSON() );
+        // Don't serialize when not aggregated
+        if( this._aggregates ){
+            return this.models.map( model => model.toJSON() );
+        }
     }
 
     // Apply bulk in-place object update in scope of ad-hoc transaction 

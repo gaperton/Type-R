@@ -20,13 +20,13 @@ describe( 'Advanced functionality', function(){
         });
 
         it( 'inherits from collection type', function(){
-            expect( Collection.Subset.prototype ).to.be.instanceOf( Collection );
+            expect( Collection.Subset.prototype ).to.equal( Collection.prototype );
 
             var M = Model.extend({});
 
             expect( M.Collection ).to.not.equal( Collection );
             expect( M.Collection.prototype ).to.be.instanceOf( Collection );
-            expect( M.Collection.Subset.prototype ).to.be.instanceOf( M.Collection ); 
+            expect( M.Collection.Subset.prototype ).to.equal( M.Collection.prototype ); 
         } );
 
         it( "doesn't take ownership on its elements", function(){
@@ -34,7 +34,7 @@ describe( 'Advanced functionality', function(){
 
             a.subset.set([ { name : '1'}, { name : '2'} ]);
             a.aggregated.set( a.subset.models );
-            expect( a.aggregated.first()._owner ).to.equal( a );
+            expect( a.aggregated.first()._owner ).to.equal( a.aggregated );
         } );
 
         it( "doesn't merge records on set", function(){
@@ -42,9 +42,9 @@ describe( 'Advanced functionality', function(){
 
             a.subset.set([ { id : 1, name : '1'}, { id : 2, name : '2'} ]);
             var f = a.subset.get( 1 );
-            a.subset.set([ { id : 1, name : '1'}, { id : 2, name : '2'} ]);
+            a.subset.set([ { id : 1, name : '3'}, { id : 2, name : '4'} ]);
             
-            expect( a.subset.get( 1 ) ).to.not.equal( f );                        
+            expect( a.subset.get( 1 ).name ).to.equal( '1' );                        
         });
     });
 });

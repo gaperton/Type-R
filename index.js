@@ -1115,12 +1115,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	var silentOptions = { silent: true };
 	var Collection = (function (_super) {
 	    __extends(Collection, _super);
-	    function Collection(records, options) {
+	    function Collection(records, options, shared) {
 	        if (options === void 0) { options = {}; }
 	        _super.call(this, _count++);
 	        this.models = [];
 	        this._byId = {};
-	        this.idAttribute = this.model.prototype.idAttribute;
 	        this.comparator = this.comparator;
 	        if (options.comparator !== void 0) {
 	            this.comparator = options.comparator;
@@ -1131,6 +1130,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.model = options.model;
 	            options.model = void 0;
 	        }
+	        this.idAttribute = this.model.prototype.idAttribute;
+	        this._aggregates = !shared;
 	        if (records) {
 	            var elements = toElements(this, records, options);
 	            set_1.emptySetTransaction(this, elements, options, true);
@@ -1140,12 +1141,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this._localEvents.subscribe(this, this);
 	    }
 	    Collection.prototype.createSubset = function (models, options) {
-	        var Subset = this.constructor.Subset, subset = new Subset(models, options, true);
+	        var SubsetOf = this.constructor.subsetOf(this).options.type, subset = new SubsetOf(models, options);
 	        subset.resolve(this);
 	        return subset;
 	    };
 	    Collection.predefine = function () {
-	        this._Subset = null;
+	        var Ctor = this;
+	        this._SubsetOf = null;
+	        function Subset(a, b) {
+	            Ctor.call(this, a, b, true);
+	        }
+	        Subset.prototype = this.prototype;
+	        Subset._attribute = record_1.TransactionalType;
+	        Subset['of'] = function (path) {
+	            return Ctor.subsetOf(path);
+	        };
+	        this.Subset = Subset;
 	        transactions_1.Transactional.predefine.call(this);
 	        record_1.createSharedTypeSpec(this);
 	        return this;
@@ -1230,6 +1241,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    };
 	    Collection.prototype._validateNested = function (errors) {
+	        if (!this._aggregates)
+	            return 0;
 	        var count = 0;
 	        this.each(function (record) {
 	            var error = record.validationError;
@@ -1260,7 +1273,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return copy;
 	    };
 	    Collection.prototype.toJSON = function () {
-	        return this.models.map(function (model) { return model.toJSON(); });
+	        if (this._aggregates) {
+	            return this.models.map(function (model) { return model.toJSON(); });
+	        }
 	    };
 	    Collection.prototype.set = function (elements, options) {
 	        if (elements === void 0) { elements = []; }
@@ -1377,7 +1392,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            cidPrefix: 'c',
 	            model: record_1.Record,
 	            _changeEventName: 'changes',
-	            _aggregates: true,
 	            _aggregationError: null
 	        })
 	    ], Collection);
@@ -3216,76 +3230,51 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	var collection_1 = __webpack_require__(6);
 	var object_plus_1 = __webpack_require__(1);
-	var record_1 = __webpack_require__(10);
 	var commons_1 = __webpack_require__(26);
-	var record_2 = __webpack_require__(10);
+	var record_1 = __webpack_require__(10);
 	var fastDefaults = object_plus_1.tools.fastDefaults;
-	Object.defineProperty(collection_1.Collection, 'Subset', {
-	    get: function () { return this._Subset || (this._Subset = defineSubsetCollection(this)); }
-	});
 	collection_1.Collection.subsetOf = function subsetOf(masterCollection) {
-	    return this.Subset.of(masterCollection);
+	    var SubsetOf = this._SubsetOf || (this._SubsetOf = defineSubsetCollection(this)), getMasterCollection = commons_1.parseReference(masterCollection), typeSpec = new record_1.ChainableAttributeSpec({
+	        type: SubsetOf
+	    });
+	    typeSpec.get(function (refs) {
+	        !refs || refs.resolvedWith || refs.resolve(getMasterCollection(this));
+	        return refs;
+	    });
+	    return typeSpec;
 	};
-	function subsetOptions(options, parseIds) {
-	    var subsetOptions = { parse: parseIds, merge: false };
+	function subsetOptions(options) {
+	    var subsetOptions = { parse: true };
 	    if (options)
 	        fastDefaults(subsetOptions, options);
 	    return subsetOptions;
 	}
-	var SubsetOfType = (function (_super) {
-	    __extends(SubsetOfType, _super);
-	    function SubsetOfType() {
-	        _super.apply(this, arguments);
-	    }
-	    SubsetOfType.prototype.convert = function (value, options, record) {
-	        return value == null || value instanceof this.type ? value : new this.type(value, options, record, true);
-	    };
-	    SubsetOfType.prototype.create = function () {
-	        return new this.type(void 0, void 0, void 0, true);
-	    };
-	    return SubsetOfType;
-	}(record_1.TransactionalType));
 	function defineSubsetCollection(CollectionConstructor) {
 	    var SubsetOfCollection = (function (_super) {
 	        __extends(SubsetOfCollection, _super);
-	        function SubsetOfCollection(recordsOrIds, options, owner, _parseIds) {
-	            _super.call(this, recordsOrIds, subsetOptions(options, _parseIds));
-	            this._parseIds = _parseIds;
+	        function SubsetOfCollection(recordsOrIds, options) {
+	            _super.call(this, recordsOrIds, subsetOptions(options), true);
 	            this.resolvedWith = null;
 	        }
-	        SubsetOfCollection.of = function (masterCollection) {
-	            var getMasterCollection = commons_1.parseReference(masterCollection), typeSpec = new record_2.ChainableAttributeSpec({
-	                type: this,
-	                _attribute: SubsetOfType
-	            });
-	            typeSpec.get(function (refs) {
-	                !refs || refs.resolvedWith || refs.resolve(getMasterCollection(this));
-	                return refs;
-	            });
-	            return typeSpec;
-	        };
-	        SubsetOfCollection.prototype._validateNested = function (errors) { return 0; };
 	        SubsetOfCollection.prototype.add = function (elements, options) {
-	            return _super.prototype.add.call(this, elements, subsetOptions(options, this._parseIds));
+	            return _super.prototype.add.call(this, elements, subsetOptions(options));
 	        };
 	        SubsetOfCollection.prototype.reset = function (elements, options) {
-	            return _super.prototype.reset.call(this, elements, subsetOptions(options, this._parseIds));
+	            return _super.prototype.reset.call(this, elements, subsetOptions(options));
 	        };
 	        SubsetOfCollection.prototype._createTransaction = function (elements, options) {
-	            return _super.prototype._createTransaction.call(this, elements, subsetOptions(options, this._parseIds));
+	            return _super.prototype._createTransaction.call(this, elements, subsetOptions(options));
 	        };
 	        SubsetOfCollection.prototype.toJSON = function () {
-	            if (this._parseIds) {
-	                return this.refs ?
-	                    this.refs.map(function (objOrId) { return objOrId.id || objOrId; }) :
-	                    this.models.map(function (model) { return model.id; });
-	            }
+	            return this.refs ?
+	                this.refs.map(function (objOrId) { return objOrId.id || objOrId; }) :
+	                this.models.map(function (model) { return model.id; });
 	        };
 	        SubsetOfCollection.prototype.clone = function (owner) {
 	            var Ctor = this.constructor, copy = new Ctor(this.models, {
 	                model: this.model,
 	                comparator: this.comparator
-	            }, owner, this._parseIds);
+	            });
 	            copy.resolvedWith = this.resolvedWith;
 	            copy.refs = this.refs;
 	            return copy;
@@ -3326,9 +3315,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return this.length ? this.reset() : this.addAll();
 	        };
 	        SubsetOfCollection = __decorate([
-	            object_plus_1.define({
-	                _aggregates: false
-	            })
+	            object_plus_1.define({})
 	        ], SubsetOfCollection);
 	        return SubsetOfCollection;
 	    }(CollectionConstructor));
