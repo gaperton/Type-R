@@ -52,6 +52,6 @@ export class SharedType extends GenericAttribute {
     initialize( options ){
         // Shared attributes are not serialized.
         this.toJSON = null;
-        options.changeHandlers.unshift( this._handleChange );
+        this.propagateChanges && options.changeHandlers.unshift( this._handleChange );
     }
 }

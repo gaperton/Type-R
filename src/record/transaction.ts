@@ -517,7 +517,7 @@ export class Record extends Transactional implements Owner {
         isRoot && commit( this );
     }
 
-    // Handle nested changes
+    // Handle nested changes. TODO: propagateChanges == false, same in transaction.
     _onChildrenChange( child : Transactional, options : TransactionOptions ) : void {        
         this.forceAttributeChange( child._ownerKey, options );
     }
