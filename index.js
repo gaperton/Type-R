@@ -2424,7 +2424,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    TransactionalType.prototype._handleChange = function (next, prev, record) {
 	        prev && free(record, prev);
 	        if (next && !aquire(record, next, this.name)) {
-	            object_plus_1.tools.log.warn('[Aggregation error] Assigned value already has an owner. Use shared attribute type.');
+	            object_plus_1.tools.log.warn("[Record] aggregated '" + this.name + "' attribute value already has an owner.", next, record._attributes);
 	        }
 	    };
 	    return TransactionalType;
