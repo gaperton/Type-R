@@ -9,11 +9,11 @@ interface AddOptions extends CollectionOptions {
 }
 
 /** @private */
-export function addTransaction( collection : CollectionCore, items, options : AddOptions ){
+export function addTransaction( collection : CollectionCore, items, options : AddOptions, merge? : boolean ){
     const isRoot = begin( collection ),
           nested = [];
 
-    var added = appendElements( collection, items, nested, options );
+    var added = appendElements( collection, items, nested, options, merge );
 
     if( added.length || nested.length ){
         let needSort = sortOrMoveElements( collection, added, options );
@@ -65,10 +65,9 @@ function moveElements( source : any[], at : number, added : any[] ) : void {
 
 // append data to model and index
 /** @private */
-function appendElements( collection : CollectionCore, a_items, nested : Transaction[], a_options ){
-    var models      = collection.models,
-        _byId       = collection._byId,
-        merge       = a_options.merge,
+function appendElements( collection : CollectionCore, a_items, nested : Transaction[], a_options, forceMerge : boolean ){
+    var { _byId, models } = collection,
+        merge       = ( forceMerge || a_options.merge ) && collection._aggregates,
         parse       = a_options.parse,
         idAttribute = collection.model.prototype.idAttribute,
         prevLength = models.length;

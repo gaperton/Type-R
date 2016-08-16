@@ -1312,7 +1312,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var elements = toElements(this, a_elements, options);
 	        if (this.models.length) {
 	            return options.remove === false ?
-	                add_1.addTransaction(this, elements, options) :
+	                add_1.addTransaction(this, elements, options, true) :
 	                set_1.setTransaction(this, elements, options);
 	        }
 	        else {
@@ -2879,9 +2879,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var transactions_1 = __webpack_require__(7);
 	var commons_1 = __webpack_require__(20);
 	var begin = transactions_1.transactionApi.begin, commit = transactions_1.transactionApi.commit, markAsDirty = transactions_1.transactionApi.markAsDirty;
-	function addTransaction(collection, items, options) {
+	function addTransaction(collection, items, options, merge) {
 	    var isRoot = begin(collection), nested = [];
-	    var added = appendElements(collection, items, nested, options);
+	    var added = appendElements(collection, items, nested, options, merge);
 	    if (added.length || nested.length) {
 	        var needSort = sortOrMoveElements(collection, added, options);
 	        if (markAsDirty(collection, options)) {
@@ -2918,8 +2918,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        source[j] = added[i];
 	    }
 	}
-	function appendElements(collection, a_items, nested, a_options) {
-	    var models = collection.models, _byId = collection._byId, merge = a_options.merge, parse = a_options.parse, idAttribute = collection.model.prototype.idAttribute, prevLength = models.length;
+	function appendElements(collection, a_items, nested, a_options, forceMerge) {
+	    var _byId = collection._byId, models = collection.models, merge = (forceMerge || a_options.merge) && collection._aggregates, parse = a_options.parse, idAttribute = collection.model.prototype.idAttribute, prevLength = models.length;
 	    for (var _i = 0, a_items_1 = a_items; _i < a_items_1.length; _i++) {
 	        var item = a_items_1[_i];
 	        var model = item ? _byId[item[idAttribute]] || _byId[item.cid] : null;
@@ -2993,7 +2993,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return removed;
 	}
 	function _reallocate(collection, source, nested, options) {
-	    var models = Array(source.length), _byId = {}, merge = options.merge == null ? true : options.merge, _prevById = collection._byId, prevModels = collection.models, idAttribute = collection.model.prototype.idAttribute, toAdd = [], orderKept = true;
+	    var models = Array(source.length), _byId = {}, merge = (options.merge == null ? true : options.merge) && collection._aggregates, _prevById = collection._byId, prevModels = collection.models, idAttribute = collection.model.prototype.idAttribute, toAdd = [], orderKept = true;
 	    for (var i = 0, j = 0; i < source.length; i++) {
 	        var item = source[i], model = null;
 	        if (item) {

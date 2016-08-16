@@ -312,7 +312,7 @@ export class Collection extends Transactional implements CollectionCore {
 
         if( this.models.length ){
             return options.remove === false ?
-                        addTransaction( this, elements, options ) :
+                        addTransaction( this, elements, options, true ) :
                         setTransaction( this, elements, options );
         }
         else{
