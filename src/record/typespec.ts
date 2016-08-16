@@ -82,6 +82,10 @@ export class ChainableAttributeSpec {
         return this;
     }
 
+    changeEvents( events : boolean ){
+        this.options.changeEvents = events;
+    }
+
     // Subsribe to events from an attribute.
     events( map : EventsDefinition ) : this {
         const eventMap = new EventMap( map );

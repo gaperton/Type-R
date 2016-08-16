@@ -15,6 +15,9 @@ export type TransactionalConstructor = MixableConstructor< Transactional >
 export type TransactionalDefinition = MessengerDefinition
 
 // Transactional object interface
+@define({
+    triggerWhenChanged : true
+})
 @mixins( Messenger )
 @extendable
 export abstract class Transactional implements Messenger, Validatable, Traversable {
@@ -79,6 +82,8 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     // Name of the change event
     /** @private */
     _changeEventName : string
+
+    triggerWhenChanged : boolean
 
     constructor( cid : string | number ){
         this.cid = this.cidPrefix + cid;

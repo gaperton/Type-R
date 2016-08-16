@@ -16,6 +16,7 @@ declare global {
 interface ExtendedAttributeDescriptor extends AttributeDescriptor {
     _attribute? : typeof GenericAttribute
     validate? : ( record : Record, value : any, key : string ) => any
+    changeEvents? : boolean
 } 
 
 export { ExtendedAttributeDescriptor as AttributeDescriptor }
@@ -123,6 +124,8 @@ export class GenericAttribute implements Attribute {
 
     options : ExtendedAttributeDescriptor
 
+    propagateChanges : boolean
+
     constructor( public name : string, a_options : ExtendedAttributeDescriptor ) {
         // Clone options.
         const options : ExtendedAttributeDescriptor = this.options = assign( { getHooks : [], transforms : [], changeHandlers : [] }, a_options );
@@ -131,12 +134,15 @@ export class GenericAttribute implements Attribute {
         options.changeHandlers = options.changeHandlers.slice();
 
         const {
-                  value, type, parse, toJSON,
+                  value, type, parse, toJSON, changeEvents,
                   validate, getHooks, transforms, changeHandlers
               } = options;
 
         this.value = value;
         this.type  = type;
+
+        // Changes must be bubbled when they are not disabled for an attribute and transactional object.
+        this.propagateChanges = changeEvents !== false && type && type.prototype.triggerWhenChanged;
 
         this.parse  = parse;
         this.toJSON = toJSON === void 0 ? this.toJSON : toJSON;

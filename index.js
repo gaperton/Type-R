@@ -1514,6 +1514,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return !this.getValidationError(key);
 	    };
 	    Transactional = __decorate([
+	        object_plus_1.define({
+	            triggerWhenChanged: true
+	        }),
 	        object_plus_1.mixins(object_plus_1.Messenger),
 	        object_plus_1.extendable
 	    ], Transactional);
@@ -2291,9 +2294,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        options.getHooks = options.getHooks.slice();
 	        options.transforms = options.transforms.slice();
 	        options.changeHandlers = options.changeHandlers.slice();
-	        var value = options.value, type = options.type, parse = options.parse, toJSON = options.toJSON, validate = options.validate, getHooks = options.getHooks, transforms = options.transforms, changeHandlers = options.changeHandlers;
+	        var value = options.value, type = options.type, parse = options.parse, toJSON = options.toJSON, changeEvents = options.changeEvents, validate = options.validate, getHooks = options.getHooks, transforms = options.transforms, changeHandlers = options.changeHandlers;
 	        this.value = value;
 	        this.type = type;
+	        this.propagateChanges = changeEvents !== false && type && type.prototype.triggerWhenChanged;
 	        this.parse = parse;
 	        this.toJSON = toJSON === void 0 ? this.toJSON : toJSON;
 	        this.validate = validate || this.validate;
@@ -2702,6 +2706,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return prev;
 	        });
 	        return this;
+	    };
+	    ChainableAttributeSpec.prototype.changeEvents = function (events) {
+	        this.options.changeEvents = events;
 	    };
 	    ChainableAttributeSpec.prototype.events = function (map) {
 	        var eventMap = new object_plus_1.EventMap(map);
