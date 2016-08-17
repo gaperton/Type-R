@@ -431,4 +431,6 @@ function toElements( collection : Collection, elements : ElementsArg, options : 
 
 const slice = Array.prototype.slice;
 
+createSharedTypeSpec( Collection );
+
 Record.Collection = <any>Collection;

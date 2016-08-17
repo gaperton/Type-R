@@ -499,6 +499,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (BaseClass.create === this.create) {
 	            this.create = Mixable.create;
 	        }
+	        this.__super__ = BaseClass.prototype;
 	        return this;
 	    };
 	    Mixable._mixinRules = { properties: 'merge' };
@@ -1403,6 +1404,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return Array.isArray(parsed) ? parsed : [parsed];
 	}
 	var slice = Array.prototype.slice;
+	record_1.createSharedTypeSpec(Collection);
 	record_1.Record.Collection = Collection;
 
 

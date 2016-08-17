@@ -200,8 +200,12 @@ export class Mixable {
             this.create = Mixable.create;
         }
 
+        this.__super__ = BaseClass.prototype;
+
         return this;
     }
+
+    static __super__ : {}
 }
 
 function toPropertyDescriptor( x : Property ) : PropertyDescriptor {
