@@ -520,8 +520,9 @@ export class Record extends Transactional implements Owner {
 
     // Handle nested changes. TODO: propagateChanges == false, same in transaction.
     _onChildrenChange( child : Transactional, options : TransactionOptions ) : void {
-        const { _ownerKey } = child;        
-        this._attributes[ _ownerKey ].propagateChanges && this.forceAttributeChange( _ownerKey, options );
+        const { _ownerKey } = child,
+              attribute = this._attributes[ _ownerKey ];        
+        if( !attribute || attribute.propagateChanges ) this.forceAttributeChange( _ownerKey, options );
     }
 
     // Simulate attribute change 

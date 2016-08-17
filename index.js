@@ -2019,8 +2019,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        isRoot && commit(this);
 	    };
 	    Record.prototype._onChildrenChange = function (child, options) {
-	        var _ownerKey = child._ownerKey;
-	        this._attributes[_ownerKey].propagateChanges && this.forceAttributeChange(_ownerKey, options);
+	        var _ownerKey = child._ownerKey, attribute = this._attributes[_ownerKey];
+	        if (!attribute || attribute.propagateChanges)
+	            this.forceAttributeChange(_ownerKey, options);
 	    };
 	    Record.prototype.forceAttributeChange = function (key, options) {
 	        if (options === void 0) { options = {}; }
@@ -2710,8 +2711,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    ChainableAttributeSpec.prototype.events = function (map) {
 	        var eventMap = new object_plus_1.EventMap(map);
 	        this.options.changeHandlers.push(function (next, prev, record) {
-	            prev && eventMap.unsubscribe(record, prev);
-	            next && eventMap.subscribe(record, next);
+	            prev && prev.trigger && eventMap.unsubscribe(record, prev);
+	            next && next.trigger && eventMap.subscribe(record, next);
 	        });
 	        return this;
 	    };

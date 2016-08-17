@@ -87,9 +87,9 @@ export class ChainableAttributeSpec {
         const eventMap = new EventMap( map );
 
         this.options.changeHandlers.push( function( next, prev, record : Record ){
-                prev && eventMap.unsubscribe( record, prev );
+                prev && prev.trigger && eventMap.unsubscribe( record, prev );
 
-                next && eventMap.subscribe( record, next );
+                next && next.trigger && eventMap.subscribe( record, next );
             });
 
         return this;
