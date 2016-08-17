@@ -40,12 +40,6 @@ export class ChainableAttributeSpec {
         return this;
     }
 
-    /** @private */
-    triggerWhenChanged( events ) : this {
-        // TODO: not clear
-        return this;
-    }
-
     watcher( ref : string | ( ( value : any, key : string ) => void ) ) : this {
         this.options._onChange = ref;
         return this;
@@ -84,6 +78,8 @@ export class ChainableAttributeSpec {
 
     changeEvents( events : boolean ){
         this.options.changeEvents = events;
+
+        return this;
     }
 
     // Subsribe to events from an attribute.

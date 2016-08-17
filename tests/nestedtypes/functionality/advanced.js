@@ -47,4 +47,37 @@ describe( 'Advanced functionality', function(){
             expect( a.subset.get( 1 ).name ).to.equal( '1' );                        
         });
     });
+
+    describe( 'Attribute .has options', function(){
+        describe( '.has.changeEvents( false )', function(){
+            var M = Model.extend({
+                attributes : {
+                    a : Model.defaults({
+                        x : 1
+                    }).has.changeEvents( false ),
+
+                    b : Model.shared.changeEvents( false )
+                },
+
+                initialize(){
+                    this.b = this.a;
+                }
+            });
+
+            it( 'disables change events for an attribute', function(){
+                var m = new M();
+                var token = m._changeToken;
+                m.a.x = 2;
+                expect( token ).to.equal( m._changeToken ); 
+            } );
+
+            it( 'disables change events in case of nested transaction', function(){
+                var m = new M();
+                var token = m._changeToken;
+                m.set({ a : { x : 2 } });
+                expect( token ).to.equal( m._changeToken ); 
+            } );
+        });
+
+    });
 });

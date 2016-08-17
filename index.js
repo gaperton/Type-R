@@ -1514,9 +1514,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return !this.getValidationError(key);
 	    };
 	    Transactional = __decorate([
-	        object_plus_1.define({
-	            triggerWhenChanged: true
-	        }),
 	        object_plus_1.mixins(object_plus_1.Messenger),
 	        object_plus_1.extendable
 	    ], Transactional);
@@ -1691,6 +1688,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return this;
 	};
 	transaction_1.Record._attribute = attributes_1.TransactionalType;
+	createSharedTypeSpec(transaction_1.Record);
 	function getAttributes(_a) {
 	    var defaults = _a.defaults, attributes = _a.attributes, idAttribute = _a.idAttribute;
 	    var definition = typeof defaults === 'function' ? defaults() : attributes || defaults || {};
@@ -1998,7 +1996,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var prev = attributes[key];
 	                if (merge && attr.canBeUpdated(prev, value)) {
 	                    var nestedTransaction = prev._createTransaction(value, options);
-	                    if (nestedTransaction) {
+	                    if (nestedTransaction && attr.propagateChanges) {
 	                        nested.push(nestedTransaction);
 	                        changes.push(key);
 	                    }
@@ -2021,7 +2019,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        isRoot && commit(this);
 	    };
 	    Record.prototype._onChildrenChange = function (child, options) {
-	        this.forceAttributeChange(child._ownerKey, options);
+	        var _ownerKey = child._ownerKey;
+	        this._attributes[_ownerKey].propagateChanges && this.forceAttributeChange(_ownerKey, options);
 	    };
 	    Record.prototype.forceAttributeChange = function (key, options) {
 	        if (options === void 0) { options = {}; }
@@ -2084,7 +2083,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var isRoot = begin(record), options = {}, attributes = record.attributes, spec = record._attributes[name], prev = attributes[name];
 	    if (spec.canBeUpdated(prev, value)) {
 	        var nestedTransaction = prev._createTransaction(value, options);
-	        if (nestedTransaction) {
+	        if (nestedTransaction && spec.propagateChanges) {
 	            nestedTransaction.commit(true);
 	            markAsDirty(record, options);
 	            trigger3(record, 'change:' + name, record, prev, options);
@@ -2297,7 +2296,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var value = options.value, type = options.type, parse = options.parse, toJSON = options.toJSON, changeEvents = options.changeEvents, validate = options.validate, getHooks = options.getHooks, transforms = options.transforms, changeHandlers = options.changeHandlers;
 	        this.value = value;
 	        this.type = type;
-	        this.propagateChanges = changeEvents !== false && type && type.prototype.triggerWhenChanged;
+	        this.propagateChanges = changeEvents !== false;
 	        this.parse = parse;
 	        this.toJSON = toJSON === void 0 ? this.toJSON : toJSON;
 	        this.validate = validate || this.validate;
@@ -2645,7 +2644,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    SharedType.prototype.initialize = function (options) {
 	        this.toJSON = null;
-	        options.changeHandlers.unshift(this._handleChange);
+	        this.propagateChanges && options.changeHandlers.unshift(this._handleChange);
 	    };
 	    return SharedType;
 	}(generic_1.GenericAttribute));
@@ -2678,9 +2677,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }) : validate;
 	        return this;
 	    };
-	    ChainableAttributeSpec.prototype.triggerWhenChanged = function (events) {
-	        return this;
-	    };
 	    ChainableAttributeSpec.prototype.watcher = function (ref) {
 	        this.options._onChange = ref;
 	        return this;
@@ -2709,6 +2705,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    ChainableAttributeSpec.prototype.changeEvents = function (events) {
 	        this.options.changeEvents = events;
+	        return this;
 	    };
 	    ChainableAttributeSpec.prototype.events = function (map) {
 	        var eventMap = new object_plus_1.EventMap(map);

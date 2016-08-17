@@ -76,6 +76,7 @@ export interface AttributeUpdatePipeline{
     transform : Transform
     isChanged( a : any, b : any ) : boolean
     handleChange : ChangeHandler
+    propagateChanges : boolean
 }
 
 export interface AttributeSerialization {
@@ -485,7 +486,7 @@ export class Record extends Transactional implements Owner {
                 // handle deep update...
                 if( merge && attr.canBeUpdated( prev, value ) ) { // todo - skip empty updates.
                     const nestedTransaction = prev._createTransaction( value, options );
-                    if( nestedTransaction ){
+                    if( nestedTransaction && attr.propagateChanges ){
                         nested.push( nestedTransaction );
                         changes.push( key );
                     }
@@ -518,8 +519,9 @@ export class Record extends Transactional implements Owner {
     }
 
     // Handle nested changes. TODO: propagateChanges == false, same in transaction.
-    _onChildrenChange( child : Transactional, options : TransactionOptions ) : void {        
-        this.forceAttributeChange( child._ownerKey, options );
+    _onChildrenChange( child : Transactional, options : TransactionOptions ) : void {
+        const { _ownerKey } = child;        
+        this._attributes[ _ownerKey ].propagateChanges && this.forceAttributeChange( _ownerKey, options );
     }
 
     // Simulate attribute change 
@@ -597,7 +599,7 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
     // handle deep update...
     if( spec.canBeUpdated( prev, value ) ) {
         const nestedTransaction = ( <Transactional> prev )._createTransaction( value, options );
-        if( nestedTransaction ){
+        if( nestedTransaction && spec.propagateChanges ){
             nestedTransaction.commit( true );
             markAsDirty( record, options );
             trigger3( record, 'change:' + name, record, prev, options );

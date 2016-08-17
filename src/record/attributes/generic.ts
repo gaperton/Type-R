@@ -142,7 +142,7 @@ export class GenericAttribute implements Attribute {
         this.type  = type;
 
         // Changes must be bubbled when they are not disabled for an attribute and transactional object.
-        this.propagateChanges = changeEvents !== false && type && type.prototype.triggerWhenChanged;
+        this.propagateChanges = changeEvents !== false;
 
         this.parse  = parse;
         this.toJSON = toJSON === void 0 ? this.toJSON : toJSON;

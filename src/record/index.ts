@@ -54,6 +54,7 @@ Record.predefine = function(){
 }
 
 Record._attribute = TransactionalType;
+createSharedTypeSpec( Record );
 
 function getAttributes({ defaults, attributes, idAttribute } : RecordDefinition ) : AttributeDescriptorMap {
     const definition = typeof defaults === 'function' ? (<any>defaults)() : attributes || defaults || {};
