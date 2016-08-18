@@ -13,7 +13,7 @@ export class TransactionalType extends GenericAttribute {
         return prev && next != null && !( next instanceof this.type );
     }
 
-    convert( value : any, options : TransactionOptions, record : Record ) : Transactional {
+    convert( value : any, options : TransactionOptions, prev : any, record : Record ) : Transactional {
         // Invoke class factory to handle abstract classes
         return value == null || value instanceof this.type ? value : this.type.create( value, options );
     }

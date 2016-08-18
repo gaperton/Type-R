@@ -23,7 +23,7 @@ export class SharedType extends GenericAttribute {
     }
 
     // Shared object can never be type casted.
-    convert( value : any, options : TransactionOptions, record : Record ) : Transactional {
+    convert( value : any, options : TransactionOptions, prev : any, record : Record ) : Transactional {
         if( value == null || value instanceof this.type ) return value;
 
         // TODO: May allow conversion here - unnecessary restriction. We can do it. Or error is better?

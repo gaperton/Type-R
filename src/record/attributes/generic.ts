@@ -45,10 +45,10 @@ export class GenericAttribute implements Attribute {
     /**
      * Stage 1. Transform stage
      */
-    transform( value, options, prev, model : Record ) { return value; }
+    transform( value, options : TransactionOptions, prev, model : Record ) { return value; }
 
-    // convert attribute type to `this.type`
-    convert( value, options, model : Record ) { return value; }
+    // convert attribute type to `this.type`.
+    convert( value, options : TransactionOptions, prev, model : Record ) { return value; }
 
     /**
      * Stage 2. Check if attr value is changed
