@@ -79,7 +79,7 @@ function _garbageCollect( collection : CollectionCore, previous : Record[] ) : R
 function _reallocate( collection : CollectionCore, source : any[], nested : Transaction[], options ){
     var models      = Array( source.length ),
         _byId : IdIndex = {},
-        merge       = ( options.merge == null ? true : options.merge ) && collection._aggregates,
+        merge       = ( options.merge == null ? true : options.merge ) && !collection._shared,
         _prevById   = collection._byId,
         prevModels  = collection.models, 
         idAttribute = collection.model.prototype.idAttribute,

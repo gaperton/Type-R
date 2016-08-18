@@ -67,7 +67,7 @@ function moveElements( source : any[], at : number, added : any[] ) : void {
 /** @private */
 function appendElements( collection : CollectionCore, a_items, nested : Transaction[], a_options, forceMerge : boolean ){
     var { _byId, models } = collection,
-        merge       = ( forceMerge || a_options.merge ) && collection._aggregates,
+        merge       = ( forceMerge || a_options.merge ) && !collection._shared,
         parse       = a_options.parse,
         idAttribute = collection.model.prototype.idAttribute,
         prevLength = models.length;

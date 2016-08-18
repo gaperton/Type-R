@@ -39,8 +39,10 @@ function defineSubsetCollection( CollectionConstructor : typeof Collection ) {
         refs : any[];
         resolvedWith : Collection = null;
 
+        _attribute : TransactionalType
+
         constructor( recordsOrIds?, options? ){
-            super( recordsOrIds, subsetOptions( options ), true );
+            super( recordsOrIds, subsetOptions( options ), 2 );
         }
 
         add( elements, options? ){

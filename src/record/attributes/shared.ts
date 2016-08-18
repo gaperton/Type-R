@@ -14,7 +14,7 @@ const { on, off } = eventsApi,
  */
 
 /** @private */
-export class SharedType extends GenericAttribute {
+export class SharedRecordType extends GenericAttribute {
     type : TransactionalConstructor
 
     // Shared object can never be updated in place.
@@ -24,12 +24,7 @@ export class SharedType extends GenericAttribute {
 
     // Shared object can never be type casted.
     convert( value : any, options : TransactionOptions, prev : any, record : Record ) : Transactional {
-        if( value == null || value instanceof this.type ) return value;
-
-        // TODO: May allow conversion here - unnecessary restriction. We can do it. Or error is better?
-        tools.log.error( `[Record] Cannot assign value of incompatible type to shared attribute.`, value, record._attributes );
-        
-        return null;
+        return value == null || value instanceof this.type ? value : this.type.create( value, options );
     }
 
     // They are validated, though.

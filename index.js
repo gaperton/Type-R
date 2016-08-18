@@ -1132,7 +1132,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            options.model = void 0;
 	        }
 	        this.idAttribute = this.model.prototype.idAttribute;
-	        this._aggregates = !shared;
+	        this._shared = shared || 0;
 	        if (records) {
 	            var elements = toElements(this, records, options);
 	            set_1.emptySetTransaction(this, elements, options, true);
@@ -1149,8 +1149,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Collection.predefine = function () {
 	        var Ctor = this;
 	        this._SubsetOf = null;
-	        function Subset(a, b) {
-	            Ctor.call(this, a, b, true);
+	        function Subset(a, b, listen) {
+	            Ctor.call(this, a, b, listen ? 1 : 2);
 	        }
 	        Subset.prototype = this.prototype;
 	        Subset._attribute = record_1.TransactionalType;
@@ -1159,7 +1159,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        };
 	        this.Subset = Subset;
 	        transactions_1.Transactional.predefine.call(this);
-	        record_1.createSharedTypeSpec(this);
+	        record_1.createSharedTypeSpec(this, SharedCollectionType);
 	        return this;
 	    };
 	    Collection.define = function (protoProps, staticProps) {
@@ -1242,7 +1242,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    };
 	    Collection.prototype._validateNested = function (errors) {
-	        if (!this._aggregates)
+	        if (this._shared)
 	            return 0;
 	        var count = 0;
 	        this.each(function (record) {
@@ -1274,7 +1274,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return copy;
 	    };
 	    Collection.prototype.toJSON = function () {
-	        if (this._aggregates) {
+	        if (!this._shared) {
 	            return this.models.map(function (model) { return model.toJSON(); });
 	        }
 	    };
@@ -1404,7 +1404,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return Array.isArray(parsed) ? parsed : [parsed];
 	}
 	var slice = Array.prototype.slice;
-	record_1.createSharedTypeSpec(Collection);
+	var SharedCollectionType = (function (_super) {
+	    __extends(SharedCollectionType, _super);
+	    function SharedCollectionType() {
+	        _super.apply(this, arguments);
+	    }
+	    SharedCollectionType.prototype.convert = function (value, options, prev, record) {
+	        return value == null || value instanceof this.type ? value : new this.type(value, options, 1);
+	    };
+	    return SharedCollectionType;
+	}(record_1.SharedRecordType));
+	record_1.createSharedTypeSpec(Collection, SharedCollectionType);
 	record_1.Record.Collection = Collection;
 
 
@@ -1686,11 +1696,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    transactions_1.Transactional.predefine.call(this);
 	    this.Collection = getBaseClass(this).Collection.extend();
 	    this.Collection.prototype.model = this;
-	    createSharedTypeSpec(this);
+	    createSharedTypeSpec(this, attributes_1.SharedRecordType);
 	    return this;
 	};
 	transaction_1.Record._attribute = attributes_1.TransactionalType;
-	createSharedTypeSpec(transaction_1.Record);
+	createSharedTypeSpec(transaction_1.Record, attributes_1.SharedRecordType);
 	function getAttributes(_a) {
 	    var defaults = _a.defaults, attributes = _a.attributes, idAttribute = _a.idAttribute;
 	    var definition = typeof defaults === 'function' ? defaults() : attributes || defaults || {};
@@ -1731,14 +1741,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	if (typeof window !== 'undefined') {
 	    window.Integer = Number.integer;
 	}
-	function createSharedTypeSpec(Constructor) {
+	function createSharedTypeSpec(Constructor, Attribute) {
 	    Constructor.hasOwnProperty('shared') ||
 	        Object.defineProperty(Constructor, 'shared', {
 	            get: function () {
 	                return new typespec_1.ChainableAttributeSpec({
 	                    value: null,
 	                    type: Constructor,
-	                    _attribute: attributes_1.SharedType
+	                    _attribute: Attribute
 	                });
 	            }
 	        });
@@ -2325,7 +2335,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return false;
 	    };
 	    GenericAttribute.prototype.transform = function (value, options, prev, model) { return value; };
-	    GenericAttribute.prototype.convert = function (value, options, model) { return value; };
+	    GenericAttribute.prototype.convert = function (value, options, prev, model) { return value; };
 	    GenericAttribute.prototype.isChanged = function (a, b) {
 	        return notEqual(a, b);
 	    };
@@ -2413,8 +2423,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    TransactionalType.prototype.canBeUpdated = function (prev, next) {
 	        return prev && next != null && !(next instanceof this.type);
 	    };
-	    TransactionalType.prototype.convert = function (value, options, record) {
-	        return value == null || value instanceof this.type ? value : this.type.create(value, options);
+	    TransactionalType.prototype.convert = function (value, options, prev, record) {
+	        if (value == null)
+	            return value;
+	        if (value instanceof this.type) {
+	            if (value._shared === 1) {
+	                object_plus_1.tools.log.warn("[Record] Aggregated attribute \"" + this.name + " : " + (this.type.name || 'Collection') + "\" is assigned with shared collection type.", value, record._attributes);
+	            }
+	            return value;
+	        }
+	        return this.type.create(value, options);
 	    };
 	    TransactionalType.prototype.validate = function (record, value) {
 	        var error = value && value.validationError;
@@ -2619,39 +2637,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	var transactions_1 = __webpack_require__(7);
 	var object_plus_1 = __webpack_require__(1);
 	var on = object_plus_1.eventsApi.on, off = object_plus_1.eventsApi.off, free = transactions_1.transactionApi.free, aquire = transactions_1.transactionApi.aquire;
-	var SharedType = (function (_super) {
-	    __extends(SharedType, _super);
-	    function SharedType() {
+	var SharedRecordType = (function (_super) {
+	    __extends(SharedRecordType, _super);
+	    function SharedRecordType() {
 	        _super.apply(this, arguments);
 	    }
-	    SharedType.prototype.canBeUpdated = function (prev, next) {
+	    SharedRecordType.prototype.canBeUpdated = function (prev, next) {
 	        return false;
 	    };
-	    SharedType.prototype.convert = function (value, options, record) {
-	        if (value == null || value instanceof this.type)
-	            return value;
-	        object_plus_1.tools.log.error("[Record] Cannot assign value of incompatible type to shared attribute.", value, record._attributes);
-	        return null;
+	    SharedRecordType.prototype.convert = function (value, options, prev, record) {
+	        return value == null || value instanceof this.type ? value : this.type.create(value, options);
 	    };
-	    SharedType.prototype.validate = function (record, value) {
+	    SharedRecordType.prototype.validate = function (record, value) {
 	        var error = value && value.validationError;
 	        if (error)
 	            return error;
 	    };
-	    SharedType.prototype.create = function () {
+	    SharedRecordType.prototype.create = function () {
 	        return null;
 	    };
-	    SharedType.prototype._handleChange = function (next, prev, record) {
+	    SharedRecordType.prototype._handleChange = function (next, prev, record) {
 	        prev && off(prev, prev._changeEventName, record._onChildrenChange, record);
 	        next && on(next, next._changeEventName, record._onChildrenChange, record);
 	    };
-	    SharedType.prototype.initialize = function (options) {
+	    SharedRecordType.prototype.initialize = function (options) {
 	        this.toJSON = null;
 	        this.propagateChanges && options.changeHandlers.unshift(this._handleChange);
 	    };
-	    return SharedType;
+	    return SharedRecordType;
 	}(generic_1.GenericAttribute));
-	exports.SharedType = SharedType;
+	exports.SharedRecordType = SharedRecordType;
 
 
 /***/ },
@@ -2689,7 +2704,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this;
 	    };
 	    ChainableAttributeSpec.prototype.toJSON = function (fun) {
-	        this.options.toJSON = fun;
+	        this.options.toJSON = fun || null;
 	        return this;
 	    };
 	    ChainableAttributeSpec.prototype.get = function (fun) {
@@ -2793,9 +2808,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.dispose = dispose;
 	function convertAndAquire(collection, attrs, options) {
 	    var model = collection.model, record = attrs instanceof model ? attrs : model.create(attrs, options);
-	    if (collection._aggregates && !_aquire(collection, record)) {
-	        var errors = collection._aggregationError || (collection._aggregationError = []);
-	        errors.push(record);
+	    if (collection._shared) {
+	        if (collection._shared === 1) {
+	            on(record, record._changeEventName, collection._onChildrenChange, collection);
+	        }
+	    }
+	    else {
+	        if (!_aquire(collection, record)) {
+	            var errors = collection._aggregationError || (collection._aggregationError = []);
+	            errors.push(record);
+	        }
 	    }
 	    var _itemEvents = collection._itemEvents;
 	    _itemEvents && _itemEvents.subscribe(collection, record);
@@ -2803,7 +2825,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	exports.convertAndAquire = convertAndAquire;
 	function free(owner, child) {
-	    _free(owner, child);
+	    if (owner._shared) {
+	        if (owner._shared === 1) {
+	            off(child, child._changeEventName, owner._onChildrenChange, owner);
+	        }
+	    }
+	    else {
+	        _free(owner, child);
+	    }
 	    var _itemEvents = owner._itemEvents;
 	    _itemEvents && _itemEvents.unsubscribe(owner, child);
 	}
@@ -2940,7 +2969,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	}
 	function appendElements(collection, a_items, nested, a_options, forceMerge) {
-	    var _byId = collection._byId, models = collection.models, merge = (forceMerge || a_options.merge) && collection._aggregates, parse = a_options.parse, idAttribute = collection.model.prototype.idAttribute, prevLength = models.length;
+	    var _byId = collection._byId, models = collection.models, merge = (forceMerge || a_options.merge) && !collection._shared, parse = a_options.parse, idAttribute = collection.model.prototype.idAttribute, prevLength = models.length;
 	    for (var _i = 0, a_items_1 = a_items; _i < a_items_1.length; _i++) {
 	        var item = a_items_1[_i];
 	        var model = item ? _byId[item[idAttribute]] || _byId[item.cid] : null;
@@ -3014,7 +3043,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return removed;
 	}
 	function _reallocate(collection, source, nested, options) {
-	    var models = Array(source.length), _byId = {}, merge = (options.merge == null ? true : options.merge) && collection._aggregates, _prevById = collection._byId, prevModels = collection.models, idAttribute = collection.model.prototype.idAttribute, toAdd = [], orderKept = true;
+	    var models = Array(source.length), _byId = {}, merge = (options.merge == null ? true : options.merge) && !collection._shared, _prevById = collection._byId, prevModels = collection.models, idAttribute = collection.model.prototype.idAttribute, toAdd = [], orderKept = true;
 	    for (var i = 0, j = 0; i < source.length; i++) {
 	        var item = source[i], model = null;
 	        if (item) {
@@ -3260,7 +3289,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var SubsetOfCollection = (function (_super) {
 	        __extends(SubsetOfCollection, _super);
 	        function SubsetOfCollection(recordsOrIds, options) {
-	            _super.call(this, recordsOrIds, subsetOptions(options), true);
+	            _super.call(this, recordsOrIds, subsetOptions(options), 2);
 	            this.resolvedWith = null;
 	        }
 	        SubsetOfCollection.prototype.add = function (elements, options) {

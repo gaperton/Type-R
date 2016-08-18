@@ -1,6 +1,6 @@
 import { define, tools, eventsApi, EventMap, EventsDefinition, Mixable } from '../object-plus'
 import { transactionApi, Transactional, CloneOptions, Transaction, TransactionOptions, TransactionalDefinition, Owner } from '../transactions'
-import { Record, TransactionalType, createSharedTypeSpec } from '../record'
+import { Record, SharedRecordType, TransactionalType, createSharedTypeSpec } from '../record'
 
 import { IdIndex, sortElements, dispose, Elements, CollectionCore, addIndex, removeIndex, Comparator, CollectionTransaction } from './commons'
 import { addTransaction } from './add'
@@ -29,7 +29,6 @@ interface CollectionDefinition extends TransactionalDefinition {
     _itemEvents? : EventMap
 }
 
-
 @define({
     // Default client id prefix 
     cidPrefix : 'c',
@@ -38,7 +37,7 @@ interface CollectionDefinition extends TransactionalDefinition {
     _aggregationError : null
 })
 export class Collection extends Transactional implements CollectionCore {
-    _aggregates : boolean
+    _shared : number
     _aggregationError : Record[]
 
     static Subset : typeof Collection
@@ -57,8 +56,8 @@ export class Collection extends Transactional implements CollectionCore {
         const Ctor = this;
         this._SubsetOf = null;
 
-        function Subset( a, b ){
-            Ctor.call( this, a, b, true );
+        function Subset( a, b, listen? ){
+            Ctor.call( this, a, b, listen ? 1 : 2 );
         }
 
         Subset.prototype = this.prototype;
@@ -70,7 +69,7 @@ export class Collection extends Transactional implements CollectionCore {
         this.Subset = <any>Subset;
 
         Transactional.predefine.call( this );
-        createSharedTypeSpec( this );
+        createSharedTypeSpec( this, SharedCollectionType );
         return this;
     }
     
@@ -187,7 +186,7 @@ export class Collection extends Transactional implements CollectionCore {
 
     _validateNested( errors : {} ) : number {
         // Don't validate if not aggregated.
-        if( !this._aggregates ) return 0;
+        if( this._shared ) return 0;
 
         let count = 0;
 
@@ -207,7 +206,7 @@ export class Collection extends Transactional implements CollectionCore {
     // idAttribute extracted from the model type.
     idAttribute : string
 
-    constructor( records? : ( Record | {} )[], options : CollectionOptions = {}, shared? : boolean ){
+    constructor( records? : ( Record | {} )[], options : CollectionOptions = {}, shared? : number ){
         super( _count++ );
         this.models = [];
         this._byId = {};
@@ -228,7 +227,7 @@ export class Collection extends Transactional implements CollectionCore {
 
         this.idAttribute = this.model.prototype.idAttribute; //TODO: Remove?
 
-        this._aggregates = !shared;
+        this._shared = shared || 0;
 
         if( records ){
             const elements = toElements( this, records, options );
@@ -262,7 +261,7 @@ export class Collection extends Transactional implements CollectionCore {
 
     toJSON() : Object[] {
         // Don't serialize when not aggregated
-        if( this._aggregates ){
+        if( !this._shared ){
             return this.models.map( model => model.toJSON() );
         }
     }
@@ -431,6 +430,15 @@ function toElements( collection : Collection, elements : ElementsArg, options : 
 
 const slice = Array.prototype.slice;
 
-createSharedTypeSpec( Collection );
+class SharedCollectionType extends SharedRecordType {
+    type : typeof Collection
+        // Shared object can never be type casted.
+    convert( value : any, options : TransactionOptions, prev : any, record : Record ) : Transactional {
+        return value == null || value instanceof this.type ? value : new this.type( value, options, 1 );
+    }
+}
+
+
+createSharedTypeSpec( Collection, SharedCollectionType );
 
 Record.Collection = <any>Collection;

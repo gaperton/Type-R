@@ -51,7 +51,7 @@ export class ChainableAttributeSpec {
     }
 
     toJSON( fun ) : this{
-        this.options.toJSON = fun;
+        this.options.toJSON = fun || null;
         return this;
     }
 

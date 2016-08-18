@@ -17,7 +17,7 @@ export interface CollectionCore extends Transactional, Owner {
     _comparator : Comparator
     get( objOrId : string | Record | Object ) : Record    
     _itemEvents? : eventsApi.EventMap
-    _aggregates : boolean
+    _shared : number
     _aggregationError : Record[]
 }
 
@@ -46,10 +46,17 @@ export function convertAndAquire( collection : CollectionCore, attrs : {} | Reco
     const { model } = collection,
         record : Record = attrs instanceof model ? attrs : <Record>model.create( attrs, options );
 
-    if( collection._aggregates && !_aquire( collection, record ) ){
-        const errors = collection._aggregationError || ( collection._aggregationError = [] );
-        errors.push( record );
+    if( collection._shared ){
+        if( collection._shared === 1 ){
+            on( record, record._changeEventName, collection._onChildrenChange, collection );
+        }
     }
+    else{
+        if( !_aquire( collection, record ) ){
+            const errors = collection._aggregationError || ( collection._aggregationError = [] );
+            errors.push( record );
+        }
+    }    
 
     // Subscribe for events...
     const { _itemEvents } = collection;
@@ -60,7 +67,14 @@ export function convertAndAquire( collection : CollectionCore, attrs : {} | Reco
 
 /** @private */
 export function free( owner : CollectionCore, child : Record ) : void {
-    _free( owner, child );
+    if( owner._shared ){
+        if( owner._shared === 1 ){
+            off( child, child._changeEventName, owner._onChildrenChange, owner );
+        }
+    }
+    else{
+        _free( owner, child );
+    }
 
     const { _itemEvents } = owner;
     _itemEvents && _itemEvents.unsubscribe( owner, child );

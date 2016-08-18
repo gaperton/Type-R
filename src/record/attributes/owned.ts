@@ -15,7 +15,17 @@ export class TransactionalType extends GenericAttribute {
 
     convert( value : any, options : TransactionOptions, prev : any, record : Record ) : Transactional {
         // Invoke class factory to handle abstract classes
-        return value == null || value instanceof this.type ? value : this.type.create( value, options );
+        if( value == null ) return value;
+        
+        if( value instanceof this.type ){
+            if( value._shared === 1 ){
+                tools.log.warn( `[Record] Aggregated attribute "${ this.name } : ${ (<any>this.type).name || 'Collection' }" is assigned with shared collection type.`, value, record._attributes );
+            }
+
+            return value;
+        }
+
+        return <any>this.type.create( value, options );
     }
 
     validate( record : Record, value : Transactional ){
