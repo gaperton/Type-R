@@ -5,6 +5,22 @@ var Nested = require( '../../../index' ),
 var Model = Nested.Model, Collection = Nested.Collection;
 
 describe( 'Advanced functionality', function(){
+    var M = Model.extend({
+        attributes : {
+            name : String
+        }
+    });
+
+    var A = Model.extend({
+        attributes : {
+            shared : M.shared
+        }
+    });
+
+    descrie( 'Model.shared', function(){
+        it( )
+    });
+
     describe( 'Collection.Subset', function(){
         var M = Model.extend({
             attributes : {
@@ -45,6 +61,12 @@ describe( 'Advanced functionality', function(){
             a.subset.set([ { id : 1, name : '3'}, { id : 2, name : '4'} ]);
             
             expect( a.subset.get( 1 ).name ).to.equal( '1' );                        
+        });
+
+        it( 'is not serializable', function(){
+            var a = new A();
+            a.aggregated = [ { name : '1' }];
+            expect( a.toJSON() ).to.eql({ aggregated : [ { name : '1' }] });
         });
     });
 
