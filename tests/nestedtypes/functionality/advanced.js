@@ -13,12 +13,63 @@ describe( 'Advanced functionality', function(){
 
     var A = Model.extend({
         attributes : {
-            shared : M.shared
+            shared : M.shared,
+            owned : M
         }
     });
 
-    descrie( 'Model.shared', function(){
-        it( )
+    describe( 'Model.shared attribute', function(){
+        it( 'initialized with null', function(){
+            var a = new A();
+            expect( a.shared ).to.equal( null );
+        } );
+
+        it( "Record don't attempt to take ownership on shared attributes", function(){
+            var a = new A();
+            var m = new M();
+            a.shared = m;
+            expect( m._owner ).to.equal( void 0 );
+        } );
+
+        it( "can be assigned with owned model", function(){
+            var a = new A(), b = new A();
+            
+            a.shared = b.owned;
+            expect( a.shared._owner ).to.equal( b );            
+        });
+
+        it( "Internal changes are tracked and cause owner 'change' event.", function(){
+            var a = new A(), b = new A();            
+            a.shared = b.owned;
+
+            var callback = sinon.spy();
+            a.on( 'change', callback );
+            b.owned.name = "Haha!";
+            expect( a.shared.name ).to.equal( 'Haha!' );
+            expect( callback ).to.be.calledOnce;
+        } );
+
+        it( "Never is updated in place", function(){
+            var a = new A(), b = new A();            
+            a.shared = b.owned;
+
+            a.set({ shared : { name : "noway" } } );
+            expect( a.shared.name ).to.equal( 'noway' );
+            expect( a.shared ).to.not.equal( b.owned );
+        } );
+
+        it( "is converted to the ownerless model on assignment", function(){
+            var a = new A();
+            a.shared = { name : 'Hey' };
+            expect( a.shared.name ).to.equal( 'Hey' );
+            expect( a.shared._owner ).to.equal( void 0 );
+        } );
+        
+        it( "is not serialized", function(){
+            var a = new A();
+            a.shared = { name : 'Hey' };
+            expect( a.toJSON() ).to.eql({ owned : { name : "" }});
+        });
     });
 
     describe( 'Collection.Subset', function(){
