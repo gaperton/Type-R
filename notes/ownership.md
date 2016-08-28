@@ -12,7 +12,9 @@ One object cannot have more than one owner, attempt to violate this rule results
 in immediate run-time error.
 
 Default Record/Collection type annotations denotes aggregation, and forms ownership tree.
-Thus, by default, all compound Record types you define are serializable. 
+Thus, by default, all compound Record types you define are serializable.
+
+There are three kinds of attributes in total. Aggregated, shared, and serializable shared attributes. 
 
 ## Owned (aggregated) attributes
 
@@ -40,23 +42,21 @@ Used when attribute is the reference to some exiting record or collection.
 - Default value is `null`.
 - Internal changes are tracked and cause owner 'change' event.
 - Never is updated in place.
-- No type convertions allowed - attribute must be assigned with a valid subtype.
+- Collections are converted to Subset with nested changes tracking.
 - Don't participate in serialization.
 
-## Collection subsets
+## Serializable shared attributes
+### Collection subsets
 
-`attr : Collection.Subset`
+`Collection.Subset`
 
-Is a subclass of `Collection` (created when referenced for the first time).
-Used when collection needs to be populated with records wich are the part of different ownership tree.
+Is the direct reference to the of `Collection` which doesn't take an ownership on its members, but observes the changes.
 
-- Have one and only one owner. But don't attempt to take ownership on its members.
-- Default value is an empty collection (`new Collection.Subset`).
-- Only collection (not enclosed record) changes are tracked and cause owner 'change' event.
-- Can be updated in place. But never update its members in place (`merge : false` transaction option).
-- Type is automatically converted on assignment (with `new Record( value )`).
-- Don't participate in serialization.
+Should not be used to create such a collections manually.
 
+When mentioned as attribute type, acts in the same way as Colleciton.shared, but defaults to an empty collection.
+
+`attr : Collection.subsetOf( 'path.to.collection.relative.to.this' )`
 `attr : Collection.Subset.of( 'path.to.collection.relative.to.this' )`
 
 Serializable version of `Subset`.
@@ -64,7 +64,7 @@ Serializable version of `Subset`.
 - Type is automatically converted on assignment. id arrays and record arrays are resolved against the given collection. 
 - Serialized as an array of record ids. 
 
-## Serializable shared records
+### Serializable shared records
 
 `attr : Record.from( 'path.to.collection.relative.to.this' )`
 
