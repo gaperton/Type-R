@@ -11,14 +11,14 @@ describe( 'Advanced functionality', function(){
         }
     });
 
-    var A = Model.extend({
-        attributes : {
-            shared : M.shared,
-            owned : M
-        }
-    });
-
     describe( 'Model.shared attribute', function(){
+        var A = Model.extend({
+            attributes : {
+                shared : M.shared,
+                owned : M
+            }
+        });
+
         it( 'initialized with null', function(){
             var a = new A();
             expect( a.shared ).to.equal( null );
@@ -69,6 +69,73 @@ describe( 'Advanced functionality', function(){
             var a = new A();
             a.shared = { name : 'Hey' };
             expect( a.toJSON() ).to.eql({ owned : { name : "" }});
+        });
+    });
+
+    describe( 'Collection.shared attribute', function(){
+        var A = Model.extend({
+            attributes : {
+                sharedC : M.Collection.shared,
+                ownedC : M.Collection
+            }
+        });
+
+        it( 'initialized with null', function(){
+            var a = new A();
+            expect( a.sharedC ).to.equal( null );
+        } );
+
+        it( "Record don't attempt to take ownership on shared attributes", function(){
+            var a = new A();
+            var m = new M.Collection();
+            a.coll = m;
+            expect( m._owner ).to.equal( void 0 );
+        } );
+
+        it( "can be assigned with owned model", function(){
+            var a = new A(), b = new A();
+            
+            a.sharedC = b.ownedC;
+            expect( a.sharedC._owner ).to.equal( b );            
+        });
+
+        it( "Internal changes are tracked and cause owner 'change' event.", function(){
+            var a = new A(), b = new A();            
+            a.sharedC = b.ownedC;
+
+            var callback = sinon.spy();
+            a.on( 'change', callback );
+            b.ownedC.add({ name : "Haha!" });
+            expect( a.sharedC.first().name ).to.equal( 'Haha!' );
+            b.ownedC.first().name = "1";
+            expect( callback ).to.be.calledTwice;
+        } );
+
+        it( "Never is updated in place", function(){
+            var a = new A(), b = new A();            
+            a.sharedC = b.ownedC;
+
+            a.set({ sharedC : [ { name : "noway" } ] } );
+            expect( a.sharedC.first().name ).to.equal( 'noway' );
+            expect( a.sharedC ).to.not.equal( b.ownedC );
+        } );
+
+        it( "is converted to the ownerless Subset collection on assignment", function(){
+            var a = new A();
+            a.sharedC = [{ name : 'Hey' }];
+            expect( a.sharedC.first().name ).to.equal( 'Hey' );
+            expect( a.sharedC._owner ).to.equal( void 0 );
+
+            var callback = sinon.spy();
+            a.on( 'change', callback );
+            a.sharedC.first().name = "Haha!";
+            expect( callback ).to.be.calledOnce;
+        } );
+        
+        it( "is not serialized", function(){
+            var a = new A();
+            a.sharedC = [{ name : 'Hey' }];
+            expect( a.toJSON() ).to.eql({ ownedC : []});
         });
     });
 
