@@ -1173,6 +1173,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return transactions_1.Transactional.define.call(this, spec, staticProps);
 	    };
+	    Object.defineProperty(Collection.prototype, "_state", {
+	        get: function () { return this.models; },
+	        enumerable: true,
+	        configurable: true
+	    });
 	    Object.defineProperty(Collection.prototype, "comparator", {
 	        get: function () { return this._comparator; },
 	        set: function (x) {
@@ -1815,6 +1820,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this.extend({ attributes: attrs });
 	    };
 	    Record.prototype.previousAttributes = function () { return new this.Attributes(this._previousAttributes); };
+	    Object.defineProperty(Record.prototype, "_state", {
+	        get: function () { return this.attributes; },
+	        enumerable: true,
+	        configurable: true
+	    });
 	    Object.defineProperty(Record.prototype, "changed", {
 	        get: function () {
 	            var changed = this._changedAttributes;
@@ -2017,12 +2027,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Record.prototype._createTransaction = function (a_values, options) {
 	        var _this = this;
 	        if (options === void 0) { options = {}; }
-	        var isRoot = begin(this), changes = [], nested = [], attributes = this.attributes, values = options.parse ? this.parse(a_values, options) : a_values, merge = !options.reset;
+	        var isRoot = begin(this), changes = [], nested = [], attributes = this.attributes, values = options.parse ? this.parse(a_values, options) : a_values;
 	        if (Object.getPrototypeOf(values) === Object.prototype) {
 	            this.forEachAttr(values, function (value, key, attr) {
 	                var prev = attributes[key];
-	                if (merge && attr.canBeUpdated(prev, value)) {
-	                    var nestedTransaction = prev._createTransaction(value, options);
+	                var update;
+	                if (update = attr.canBeUpdated(prev, value, options)) {
+	                    var nestedTransaction = prev._createTransaction(update, options);
 	                    if (nestedTransaction && attr.propagateChanges) {
 	                        nested.push(nestedTransaction);
 	                        changes.push(key);
@@ -2109,8 +2120,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	function setAttribute(record, name, value) {
 	    var isRoot = begin(record), options = {}, attributes = record.attributes, spec = record._attributes[name], prev = attributes[name];
-	    if (spec.canBeUpdated(prev, value)) {
-	        var nestedTransaction = prev._createTransaction(value, options);
+	    var update;
+	    if (update = spec.canBeUpdated(prev, value, options)) {
+	        var nestedTransaction = prev._createTransaction(update, options);
 	        if (nestedTransaction && spec.propagateChanges) {
 	            nestedTransaction.commit(true);
 	            markAsDirty(record, options);
@@ -2346,9 +2358,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var type = options.type, AttributeCtor = options._attribute || (type ? type._attribute : GenericAttribute);
 	        return new AttributeCtor(name, options);
 	    };
-	    GenericAttribute.prototype.canBeUpdated = function (prev, next) {
-	        return false;
-	    };
+	    GenericAttribute.prototype.canBeUpdated = function (prev, next, options) { };
 	    GenericAttribute.prototype.transform = function (value, options, prev, model) { return value; };
 	    GenericAttribute.prototype.convert = function (value, options, prev, model) { return value; };
 	    GenericAttribute.prototype.isChanged = function (a, b) {
@@ -2435,8 +2445,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function TransactionalType() {
 	        _super.apply(this, arguments);
 	    }
-	    TransactionalType.prototype.canBeUpdated = function (prev, next) {
-	        return prev && next != null && !(next instanceof this.type);
+	    TransactionalType.prototype.canBeUpdated = function (prev, next, options) {
+	        if (prev && next != null) {
+	            if (next instanceof this.type) {
+	                if (options.merge)
+	                    return next._state;
+	            }
+	            else {
+	                return next;
+	            }
+	        }
 	    };
 	    TransactionalType.prototype.convert = function (value, options, prev, record) {
 	        if (value == null)
@@ -2657,9 +2675,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function SharedRecordType() {
 	        _super.apply(this, arguments);
 	    }
-	    SharedRecordType.prototype.canBeUpdated = function (prev, next) {
-	        return false;
-	    };
+	    SharedRecordType.prototype.canBeUpdated = function (prev, next) { };
 	    SharedRecordType.prototype.convert = function (value, options, prev, record) {
 	        return value == null || value instanceof this.type ? value : this.type.create(value, options);
 	    };

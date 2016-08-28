@@ -8,9 +8,17 @@ const { free, aquire } = transactionApi;
 export class TransactionalType extends GenericAttribute {
     type : TransactionalConstructor
 
-    canBeUpdated( prev : Transactional, next : any ) : boolean {
+    canBeUpdated( prev : Transactional, next : any, options : TransactionOptions ) : any {
         // If an object already exists, and new value is of incompatible type, let object handle the update.
-        return prev && next != null && !( next instanceof this.type );
+        if( prev && next != null ){
+            if( next instanceof this.type ){
+                // In case if merge option explicitly specified, force merge.
+                if( options.merge ) return next._state;
+            }
+            else{
+                return next;
+            }
+        }
     }
 
     convert( value : any, options : TransactionOptions, prev : any, record : Record ) : Transactional {

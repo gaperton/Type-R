@@ -18,9 +18,7 @@ export class SharedRecordType extends GenericAttribute {
     type : TransactionalConstructor
 
     // Shared object can never be updated in place.
-    canBeUpdated( prev : Transactional, next : any ) : boolean {
-        return false;
-    }
+    canBeUpdated( prev : Transactional, next : any ) : any {}
 
     // Shared object can never be type casted.
     convert( value : any, options : TransactionOptions, prev : any, record : Record ) : Transactional {

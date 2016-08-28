@@ -38,9 +38,7 @@ export class GenericAttribute implements Attribute {
      * Stage 0. canBeUpdated( value )
      * - presence of this function implies attribute's ability to update in place.
      */
-     canBeUpdated( prev, next ) : boolean {
-         return false;
-     }
+     canBeUpdated( prev, next, options : TransactionOptions ) : any {}
 
     /**
      * Stage 1. Transform stage

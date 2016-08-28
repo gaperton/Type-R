@@ -72,7 +72,7 @@ export interface Attribute extends AttributeUpdatePipeline, AttributeSerializati
 }
 
 export interface AttributeUpdatePipeline{
-    canBeUpdated( prev : any, next : any ) : boolean
+    canBeUpdated( prev : any, next : any, options : TransactionOptions ) : any
     transform : Transform
     isChanged( a : any, b : any ) : boolean
     handleChange : ChangeHandler
@@ -131,6 +131,9 @@ export class Record extends Transactional implements Owner {
 
     // Current attributes    
     attributes : AttributesValues
+
+    // Polymorphic accessor for aggregated attribute's canBeUpdated().
+    get _state(){ return this.attributes; }
 
     // Lazily evaluated changed attributes hash
     _changedAttributes : AttributesValues
@@ -476,16 +479,16 @@ export class Record extends Transactional implements Owner {
               changes : string[] = [],
               nested : RecordTransaction[]= [],
               { attributes } = this,
-              values = options.parse ? this.parse( a_values, options ) : a_values,
-              merge = !options.reset;
+              values = options.parse ? this.parse( a_values, options ) : a_values;
 
         if( Object.getPrototypeOf( values ) === Object.prototype ){
             this.forEachAttr( values, ( value, key : string, attr : AttributeUpdatePipeline ) => {
                 const prev = attributes[ key ];
+                let update;
 
                 // handle deep update...
-                if( merge && attr.canBeUpdated( prev, value ) ) { // todo - skip empty updates.
-                    const nestedTransaction = prev._createTransaction( value, options );
+                if( update = attr.canBeUpdated( prev, value, options ) ) { // todo - skip empty updates.
+                    const nestedTransaction = prev._createTransaction( update, options );
                     if( nestedTransaction && attr.propagateChanges ){
                         nested.push( nestedTransaction );
                         changes.push( key );
@@ -597,9 +600,11 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
           spec = record._attributes[ name ],
           prev = attributes[ name ];
 
+    let update;
+
     // handle deep update...
-    if( spec.canBeUpdated( prev, value ) ) {
-        const nestedTransaction = ( <Transactional> prev )._createTransaction( value, options );
+    if( update = spec.canBeUpdated( prev, value, options ) ) {
+        const nestedTransaction = ( <Transactional> prev )._createTransaction( update, options );
         if( nestedTransaction && spec.propagateChanges ){
             nestedTransaction.commit( true );
             markAsDirty( record, options );
