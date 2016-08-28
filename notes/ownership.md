@@ -2,7 +2,7 @@
 
 `Type-R` and `NestedTypes 2.0` enforces strict ownerhip policy.
 
-*Ownership tree* - is the tree formed by nested records and collections, which is:
+*Ownership tree* is the tree formed by nested records and collections, which are:
 - serialized as nested JSON
 - can be updated _in place_ from JSON, preserving all the references to its parts.
 - all changes to the members are tracked across the tree, resulting in root change event.

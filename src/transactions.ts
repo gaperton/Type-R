@@ -36,7 +36,17 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     once : (name, callback, context) => this 
     listenToOnce : (obj : Messenger, name, callback) => this 
     trigger      : (name : string, a?, b?, c? ) => this
-    dispose() : void {}
+    
+    _disposed : boolean;
+    
+    dispose() : void {
+        this._owner = void 0;
+        this._ownerKey = void 0;
+        this.off();
+        this.stopListening();
+        this._disposed = true;
+    }
+
     initialize() : void{}
 
     /** @private */
@@ -243,8 +253,6 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
         return !this.getValidationError( key );
     }
 }
-
-Transactional.prototype.dispose = Messenger.prototype.dispose;
 
 export interface CloneOptions {
     // 'Pin store' shall assign this._defaultStore = this.getStore();

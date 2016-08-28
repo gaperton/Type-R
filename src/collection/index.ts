@@ -284,6 +284,16 @@ export class Collection extends Transactional implements CollectionCore {
         return this;    
     }
 
+    dispose(){
+        if( !this._shared ){
+            for( let record of this.models ){
+                if( record._owner === this ) record.dispose();
+            }
+        }
+
+        super.dispose();
+    }
+
     reset( a_elements : ElementsArg, options : TransactionOptions = {} ) : Record[] {
         const isRoot = begin( this ),
               previousModels = dispose( this );

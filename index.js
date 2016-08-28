@@ -1293,6 +1293,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return this;
 	    };
+	    Collection.prototype.dispose = function () {
+	        if (!this._shared) {
+	            for (var _i = 0, _a = this.models; _i < _a.length; _i++) {
+	                var record = _a[_i];
+	                if (record._owner === this)
+	                    record.dispose();
+	            }
+	        }
+	        _super.prototype.dispose.call(this);
+	    };
 	    Collection.prototype.reset = function (a_elements, options) {
 	        if (options === void 0) { options = {}; }
 	        var isRoot = begin(this), previousModels = commons_1.dispose(this);
@@ -1444,7 +1454,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this._validationError = void 0;
 	        this.cid = this.cidPrefix + cid;
 	    }
-	    Transactional.prototype.dispose = function () { };
+	    Transactional.prototype.dispose = function () {
+	        this._owner = void 0;
+	        this._ownerKey = void 0;
+	        this.off();
+	        this.stopListening();
+	        this._disposed = true;
+	    };
 	    Transactional.prototype.initialize = function () { };
 	    Transactional.prototype.transaction = function (fun, options) {
 	        if (options === void 0) { options = {}; }
@@ -1532,7 +1548,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return Transactional;
 	}());
 	exports.Transactional = Transactional;
-	Transactional.prototype.dispose = object_plus_1.Messenger.prototype.dispose;
 	exports.transactionApi = {
 	    begin: function (object) {
 	        return object._transaction ? false : (object._transaction = true);
