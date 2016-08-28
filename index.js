@@ -2463,7 +2463,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (value._shared === 1) {
 	                object_plus_1.tools.log.warn("[Record] Aggregated attribute \"" + this.name + " : " + (this.type.name || 'Collection') + "\" is assigned with shared collection type.", value, record._attributes);
 	            }
-	            return value;
+	            return options.merge ? value.clone() : value;
 	        }
 	        return this.type.create(value, options);
 	    };
@@ -2838,13 +2838,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	exports.dispose = dispose;
 	function convertAndAquire(collection, attrs, options) {
-	    var model = collection.model, record = attrs instanceof model ? attrs : model.create(attrs, options);
+	    var model = collection.model;
+	    var record;
 	    if (collection._shared) {
+	        record = attrs instanceof model ? attrs : model.create(attrs, options);
 	        if (collection._shared === 1) {
 	            on(record, record._changeEventName, collection._onChildrenChange, collection);
 	        }
 	    }
 	    else {
+	        record = attrs instanceof model ? (options.merge ? attrs.clone() : attrs) : model.create(attrs, options);
 	        if (!_aquire(collection, record)) {
 	            var errors = collection._aggregationError || (collection._aggregationError = []);
 	            errors.push(record);

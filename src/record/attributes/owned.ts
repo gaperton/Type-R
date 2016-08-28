@@ -30,7 +30,7 @@ export class TransactionalType extends GenericAttribute {
                 tools.log.warn( `[Record] Aggregated attribute "${ this.name } : ${ (<any>this.type).name || 'Collection' }" is assigned with shared collection type.`, value, record._attributes );
             }
 
-            return value;
+            return options.merge ? value.clone() : value;
         }
 
         return <any>this.type.create( value, options );

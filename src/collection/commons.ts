@@ -43,15 +43,19 @@ export function dispose( collection : CollectionCore ) : Record[]{
 
 /** @private */
 export function convertAndAquire( collection : CollectionCore, attrs : {} | Record, options ){
-    const { model } = collection,
-        record : Record = attrs instanceof model ? attrs : <Record>model.create( attrs, options );
+    const { model } = collection;
+    let record : Record;
 
     if( collection._shared ){
+        record = attrs instanceof model ? attrs : <Record>model.create( attrs, options );
+
         if( collection._shared === 1 ){
             on( record, record._changeEventName, collection._onChildrenChange, collection );
         }
     }
     else{
+        record = attrs instanceof model ? ( options.merge ? attrs.clone() : attrs ) : <Record>model.create( attrs, options );
+
         if( !_aquire( collection, record ) ){
             const errors = collection._aggregationError || ( collection._aggregationError = [] );
             errors.push( record );
