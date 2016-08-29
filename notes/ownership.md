@@ -21,14 +21,15 @@ There are three kinds of attributes in total. Aggregated, shared, and serializab
 `attr : Record` and `attr : Record.Collection`
 
 The default ownership policy for a record's attributes.
-Used when attribute is an integral part of the Record - when Record is disposed, aggregated attributes
-are disposed too.    
+Used when attribute is an integral part of the Record.    
 
 - Have one and only one owner.
 - Default value - `new Record` and `new Record.Collection`
 - Internal changes are tracked and cause owner 'change' event.  
 - Can be updated in place (`merge` global transaction's setting).
 - Type is automatically converted on assignment (with `new Record( value )`).
+- Cloned when owner is cloned.
+- Disposed when owner is disposed.
 - Are serialized as nested JSON by default.
 
 ## Shared attributes
@@ -42,6 +43,7 @@ Used when attribute is the reference to some exiting record or collection.
 - Default value is `null`.
 - Internal changes are tracked and cause owner 'change' event.
 - Never is updated in place.
+- Not cloned and not disposed.
 - Collections are converted to Subset with nested changes tracking.
 - Don't participate in serialization.
 
