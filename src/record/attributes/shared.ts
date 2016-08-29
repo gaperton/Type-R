@@ -17,6 +17,10 @@ const { on, off } = eventsApi,
 export class SharedRecordType extends GenericAttribute {
     type : TransactionalConstructor
 
+    clone( value : Transactional ){
+        return value;
+    }
+
     // Shared object can never be updated in place.
     canBeUpdated( prev : Transactional, next : any ) : any {}
 

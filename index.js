@@ -2675,6 +2675,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function SharedRecordType() {
 	        _super.apply(this, arguments);
 	    }
+	    SharedRecordType.prototype.clone = function (value) {
+	        return value;
+	    };
 	    SharedRecordType.prototype.canBeUpdated = function (prev, next) { };
 	    SharedRecordType.prototype.convert = function (value, options, prev, record) {
 	        return value == null || value instanceof this.type ? value : this.type.create(value, options);
