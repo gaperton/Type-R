@@ -2682,11 +2682,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    SharedRecordType.prototype.convert = function (value, options, prev, record) {
 	        return value == null || value instanceof this.type ? value : this.type.create(value, options);
 	    };
-	    SharedRecordType.prototype.validate = function (record, value) {
-	        var error = value && value.validationError;
-	        if (error)
-	            return error;
-	    };
+	    SharedRecordType.prototype.validate = function (model, value, name) { };
 	    SharedRecordType.prototype.create = function () {
 	        return null;
 	    };
@@ -2749,7 +2745,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.options.transforms.push(function (next, options, prev, model) {
 	            if (this.isChanged(next, prev)) {
 	                var changed = fun.call(model, next, this.name);
-	                return changed === void 0 ? prev : changed;
+	                return changed === void 0 ? prev : this.convert(changed, options, prev, model);
 	            }
 	            return prev;
 	        });
@@ -3343,6 +3339,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                this.refs.map(function (objOrId) { return objOrId.id || objOrId; }) :
 	                this.models.map(function (model) { return model.id; });
 	        };
+	        SubsetOfCollection.prototype._validateNested = function () { return 0; };
 	        SubsetOfCollection.prototype.clone = function (owner) {
 	            var Ctor = this.constructor, copy = new Ctor(this.models, {
 	                model: this.model,

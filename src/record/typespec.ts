@@ -67,7 +67,7 @@ export class ChainableAttributeSpec {
         this.options.transforms.push( function( next, options, prev, model ) {
             if( this.isChanged( next, prev ) ) {
                 var changed = fun.call( model, next, this.name );
-                return changed === void 0 ? prev : changed;
+                return changed === void 0 ? prev : this.convert( changed, options, prev, model );
             }
 
             return prev;
