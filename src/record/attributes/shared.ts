@@ -29,11 +29,8 @@ export class SharedRecordType extends GenericAttribute {
         return value == null || value instanceof this.type ? value : this.type.create( value, options );
     }
 
-    // They are validated, though.
-    validate( record : Record, value : Transactional ){
-        var error = value && value.validationError;
-        if( error ) return error;
-    }
+    // Refs are always valid.
+    validate( model, value, name ){}
 
     // They are always created as null.
     create() : Transactional {

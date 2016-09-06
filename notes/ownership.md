@@ -4,9 +4,11 @@
 
 *Ownership tree* is the tree formed by nested records and collections, which are:
 - serialized as nested JSON
+- recursively validated
+- recursively cloned
+- disposed when the root element is disposed.
 - can be updated _in place_ from JSON, preserving all the references to its parts.
 - all changes to the members are tracked across the tree, resulting in root change event.
-- disposed when the root is disposed.
 
 One object cannot have more than one owner, attempt to violate this rule results 
 in immediate run-time error.

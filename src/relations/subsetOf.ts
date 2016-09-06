@@ -64,6 +64,9 @@ function defineSubsetCollection( CollectionConstructor : typeof Collection ) {
                 this.models.map( model => model.id );
         }
 
+        // Subset is always valid.
+        _validateNested(){ return 0; }
+
         // Must be shallow copied on clone.
         clone( owner? ){
             var Ctor = (<any>this).constructor,
