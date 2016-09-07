@@ -56,7 +56,7 @@ Used when attribute is the reference to some exiting record or collection.
 
 Is the direct reference to the of `Collection` which doesn't take an ownership on its members, but observes the changes.
 
-Should not be used to create such a collections manually.
+Could be used to create such a collections manually with `new`.
 
 When mentioned as attribute type, acts in the same way as Colleciton.shared, but defaults to an empty collection.
 

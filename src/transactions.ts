@@ -29,7 +29,7 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     static define : (spec? : TransactionalDefinition, statics? : {} ) => MixableConstructor< Transactional >
     static predefine : () => typeof Messenger
 
-    on : (name, callback, context) => this
+    on : (name, callback, context?) => this
     off : (name? : string, callback? : Function, context? ) => this
     stopListening : ( obj? : Messenger, name? : string, callback? : Function ) => this
     listenTo : (obj : Messenger, name, callback? ) => this
@@ -90,6 +90,41 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     // Name of the change event
     /** @private */
     _changeEventName : string
+
+    /**
+     * Add changes watcher to an object.
+     */
+    addWatcher( handler : Function, target? : Messenger ){
+        if( target ){
+            target.listenTo( this, this._changeEventName, handler );
+        }
+        else{
+            this.on( this._changeEventName, handler );
+        }
+    }
+
+    /**
+     * Remove all watchers registered for the specified target. 
+     */
+    removeWatcher( target : Messenger )
+
+    /**
+     * Remove specific watcher function
+     */
+    removeWatcher( handler : Function, target? : Messenger )
+    removeWatcher( handler : Function | Messenger, target? : Messenger ){
+        if( typeof handler === 'function' ){
+            if( target ){
+                target.stopListening( this, this._changeEventName, <Function>handler );
+            }
+            else{
+                this.off( this._changeEventName, <Function>handler );
+            }
+        }
+        else{
+            (<Messenger>handler).stopListening( this, this._changeEventName );
+        }
+    }
 
     constructor( cid : string | number ){
         this.cid = this.cidPrefix + cid;
