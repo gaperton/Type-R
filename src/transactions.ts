@@ -3,7 +3,7 @@ import { ValidationError, Validatable, ChildrenErrors } from './validation'
 import { Traversable, resolveReference } from './traversable'
 
 const { assign } = tools,
-      { trigger2, trigger3 } = eventsApi;
+      { trigger2, trigger3, on, off } = eventsApi;
 /***
  * Abstract class implementing ownership tree, tho-phase transactions, and validation. 
  * 1. createTransaction() - apply changes to an object tree, and if there are some events to send, transaction object is created.
@@ -95,14 +95,14 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
      * Subsribe for the changes.
      */
     onChanges( handler : Function, target? : Messenger ){
-        this.on( this._changeEventName, handler, target );
+        on( this, this._changeEventName, handler, target );
     }
 
     /**
      * Unsubscribe from changes.
      */
     offChanges( handler? : Function, target? : Messenger ){
-        this.off( this._changeEventName, handler, target );
+        off( this, this._changeEventName, handler, target );
     }
 
     /**
