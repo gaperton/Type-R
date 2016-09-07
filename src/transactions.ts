@@ -92,38 +92,24 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     _changeEventName : string
 
     /**
-     * Add changes watcher to an object.
+     * Subsribe for the changes.
      */
-    addWatcher( handler : Function, target? : Messenger ){
-        if( target ){
-            target.listenTo( this, this._changeEventName, handler );
-        }
-        else{
-            this.on( this._changeEventName, handler );
-        }
+    onChanges( handler : Function, target? : Messenger ){
+        this.on( this._changeEventName, handler, target );
     }
 
     /**
-     * Remove all watchers registered for the specified target. 
+     * Unsubscribe from changes.
      */
-    removeWatcher( target : Messenger )
+    offChanges( handler? : Function, target? : Messenger ){
+        this.off( this._changeEventName, handler, target );
+    }
 
     /**
-     * Remove specific watcher function
+     * Listen to changes event. 
      */
-    removeWatcher( handler : Function, target? : Messenger )
-    removeWatcher( handler : Function | Messenger, target? : Messenger ){
-        if( typeof handler === 'function' ){
-            if( target ){
-                target.stopListening( this, this._changeEventName, <Function>handler );
-            }
-            else{
-                this.off( this._changeEventName, <Function>handler );
-            }
-        }
-        else{
-            (<Messenger>handler).stopListening( this, this._changeEventName );
-        }
+    listenToChanges( target : Transactional, handler ){
+        this.listenTo( target, target._changeEventName, handler );
     }
 
     constructor( cid : string | number ){
