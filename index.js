@@ -2510,14 +2510,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var generic_1 = __webpack_require__(14);
+	var object_plus_1 = __webpack_require__(1);
 	var DateProto = Date.prototype;
 	var DateType = (function (_super) {
 	    __extends(DateType, _super);
 	    function DateType() {
 	        _super.apply(this, arguments);
 	    }
-	    DateType.prototype.convert = function (value) {
-	        return value == null || value instanceof Date ? value : new Date(value);
+	    DateType.prototype.convert = function (value, options, prev, record) {
+	        if (value == null || value instanceof Date)
+	            return value;
+	        var date = new Date(value);
+	        if (isNaN(+date)) {
+	            object_plus_1.tools.log.warn("[Invalid Date] in " + (record.constructor.name || 'Model') + "." + this.name + " attribute.", value, record);
+	        }
+	        return date;
 	    };
 	    DateType.prototype.validate = function (model, value, name) {
 	        if (value != null && isNaN(+value))
@@ -2543,7 +2550,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                return new Date(Number(msDate[1]));
 	            }
 	        }
-	        return _super.prototype.convert.call(this, value);
+	        return DateType.prototype.convert.apply(this, arguments);
 	    };
 	    MSDateType.prototype.toJSON = function (value) { return value && "/Date(" + value.getTime() + ")/"; };
 	    return MSDateType;

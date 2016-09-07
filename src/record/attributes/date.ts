@@ -1,12 +1,21 @@
 import { GenericAttribute } from './generic'
+import { tools } from '../../object-plus'
 
 const DateProto = Date.prototype;
 
 // Date Attribute
 /** @private */
 export class DateType extends GenericAttribute {
-    convert( value ) {
-        return value == null || value instanceof Date ? value : new Date( value );
+    convert( value : any, options : {}, prev : any, record : any ){
+        if( value == null || value instanceof Date ) return value;
+        
+        const date = new Date( value );
+        
+        if( isNaN( +date ) ){
+            tools.log.warn(`[Invalid Date] in ${ record.constructor.name || 'Model' }.${ this.name } attribute.`, value, record );
+        }
+
+        return date;
     }
 
     validate( model, value, name ) {
@@ -33,7 +42,7 @@ export class MSDateType extends DateType {
             }
         }
 
-        return super.convert( value );
+        return DateType.prototype.convert.apply( this, arguments );
     }
 
     toJSON( value ) { return value && `/Date(${ value.getTime() })/`; }
