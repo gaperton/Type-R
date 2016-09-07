@@ -82,7 +82,7 @@ export abstract class Messenger implements Mixins.Mixable {
     /** Bind an event to a `callback` function. Passing `"all"` will bind
      *  the callback to all events fired.
      */
-    on(name, callback, context) : this  {
+    on(name, callback, context?) : this  {
         return <this>internalOn(this, name, callback, context);
     }
 

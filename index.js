@@ -1447,7 +1447,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var object_plus_1 = __webpack_require__(1);
 	var validation_1 = __webpack_require__(8);
 	var traversable_1 = __webpack_require__(9);
-	var assign = object_plus_1.tools.assign, trigger2 = object_plus_1.eventsApi.trigger2, trigger3 = object_plus_1.eventsApi.trigger3;
+	var assign = object_plus_1.tools.assign, trigger2 = object_plus_1.eventsApi.trigger2, trigger3 = object_plus_1.eventsApi.trigger3, on = object_plus_1.eventsApi.on, off = object_plus_1.eventsApi.off;
 	var Transactional = (function () {
 	    function Transactional(cid) {
 	        this._events = void 0;
@@ -1467,6 +1467,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this._disposed = true;
 	    };
 	    Transactional.prototype.initialize = function () { };
+	    Transactional.prototype.onChanges = function (handler, target) {
+	        on(this, this._changeEventName, handler, target);
+	    };
+	    Transactional.prototype.offChanges = function (handler, target) {
+	        off(this, this._changeEventName, handler, target);
+	    };
+	    Transactional.prototype.listenToChanges = function (target, handler) {
+	        this.listenTo(target, target._changeEventName, handler);
+	    };
 	    Transactional.prototype.transaction = function (fun, options) {
 	        if (options === void 0) { options = {}; }
 	        var isRoot = exports.transactionApi.begin(this);
