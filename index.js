@@ -2703,12 +2703,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return null;
 	    };
 	    SharedRecordType.prototype._handleChange = function (next, prev, record) {
-	        prev && off(prev, prev._changeEventName, record._onChildrenChange, record);
-	        next && on(next, next._changeEventName, record._onChildrenChange, record);
+	        prev && off(prev, prev._changeEventName, this._onChange, record);
+	        next && on(next, next._changeEventName, this._onChange, record);
 	    };
 	    SharedRecordType.prototype.initialize = function (options) {
 	        this.toJSON = null;
-	        this.propagateChanges && options.changeHandlers.unshift(this._handleChange);
+	        if (this.propagateChanges) {
+	            var attribute_1 = this;
+	            this._onChange = function (child, options) {
+	                this.forceAttributeChange(attribute_1.name, options);
+	            };
+	            options.changeHandlers.unshift(this._handleChange);
+	        }
 	    };
 	    return SharedRecordType;
 	}(generic_1.GenericAttribute));
