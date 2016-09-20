@@ -60,6 +60,8 @@ export class Collection extends Transactional implements CollectionCore {
             Ctor.call( this, a, b, listen ? 1 : 2 );
         }
 
+        Mixable.mixTo( Subset );
+        
         Subset.prototype = this.prototype;
         Subset._attribute = TransactionalType;
         Subset[ 'of' ] = function( path ){

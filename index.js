@@ -1152,6 +1152,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        function Subset(a, b, listen) {
 	            Ctor.call(this, a, b, listen ? 1 : 2);
 	        }
+	        object_plus_1.Mixable.mixTo(Subset);
 	        Subset.prototype = this.prototype;
 	        Subset._attribute = record_1.TransactionalType;
 	        Subset['of'] = function (path) {
