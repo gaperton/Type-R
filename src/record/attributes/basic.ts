@@ -44,7 +44,7 @@ export class NumericType extends PrimitiveType {
     convert( value ) {
         const num = value == null ? value : this.type( value );
         
-        if( isNaN( num ) ){
+        if( num !== num ){
             const record = arguments[ 3 ];
             tools.log.warn(`[Invalid Number] in ${ record.constructor.name || 'Model' }.${ this.name } attribute.`, value, record );
         }

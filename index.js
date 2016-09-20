@@ -2651,7 +2651,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    NumericType.prototype.convert = function (value) {
 	        var num = value == null ? value : this.type(value);
-	        if (isNaN(num)) {
+	        if (num !== num) {
 	            var record = arguments[3];
 	            object_plus_1.tools.log.warn("[Invalid Number] in " + (record.constructor.name || 'Model') + "." + this.name + " attribute.", value, record);
 	        }
