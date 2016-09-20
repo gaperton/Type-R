@@ -3455,9 +3455,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Store.prototype.getStore = function () { return this; };
 	    Store.prototype.get = function (name) {
 	        var local = this[name];
-	        if (local || this === _store)
+	        if (local || this === this._defaultStore)
 	            return local;
-	        return this._owner ? this._owner.get(name) : _store[name];
+	        return this._owner ? this._owner.get(name) : this._defaultStore.get(name);
 	    };
 	    Object.defineProperty(Store, "global", {
 	        get: function () { return _store; },
