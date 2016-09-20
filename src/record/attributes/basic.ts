@@ -42,13 +42,10 @@ export class NumericType extends PrimitiveType {
     type : NumberConstructor
 
     convert( value ) {
-        const num = value == null ? value : this.type( value );
-        
-        if( num !== num ){
-            const record = arguments[ 3 ];
-            tools.log.warn(`[Invalid Number] in ${ record.constructor.name || 'Model' }.${ this.name } attribute.`, value, record );
-        }
+        const num = value == null ? value : this.type( value );        
 
+        if( num !== num ) logInvalidNumber( this, value, arguments[ 3 ] );
+        
         return num;
     }
 
@@ -58,6 +55,10 @@ export class NumericType extends PrimitiveType {
             return name + ' is not valid number';
         }
     }
+}
+
+function logInvalidNumber( attribute, value, record ){
+    tools.log.warn(`[Invalid Number] in ${ record.constructor.name || 'Model' }.${ attribute.name } attribute.`, value, record );
 }
 
 Number._attribute = NumericType;

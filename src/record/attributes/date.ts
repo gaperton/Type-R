@@ -11,10 +11,7 @@ export class DateType extends GenericAttribute {
         
         const date = new Date( value );
         
-        if( isNaN( +date ) ){
-            const record = arguments[ 3 ];
-            tools.log.warn(`[Invalid Date] in ${ record.constructor.name || 'Model' }.${ this.name } attribute.`, value, record );
-        }
+        if( isNaN( +date ) ) logInvalidDate( this, value, arguments[ 3 ] );
 
         return date;
     }
@@ -28,6 +25,10 @@ export class DateType extends GenericAttribute {
     isChanged( a, b ) { return ( a && +a ) !== ( b && +b ); }
 
     clone( value ) { return value && new Date( +value ); }
+}
+
+function logInvalidDate( attribute, value, record ){
+    tools.log.warn(`[Invalid Date] in ${ record.constructor.name || 'Model' }.${ attribute.name } attribute.`, value, record );
 }
 
 Date._attribute = DateType;

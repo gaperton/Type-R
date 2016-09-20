@@ -2522,10 +2522,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (value == null || value instanceof Date)
 	            return value;
 	        var date = new Date(value);
-	        if (isNaN(+date)) {
-	            var record = arguments[3];
-	            object_plus_1.tools.log.warn("[Invalid Date] in " + (record.constructor.name || 'Model') + "." + this.name + " attribute.", value, record);
-	        }
+	        if (isNaN(+date))
+	            logInvalidDate(this, value, arguments[3]);
 	        return date;
 	    };
 	    DateType.prototype.validate = function (model, value, name) {
@@ -2538,6 +2536,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return DateType;
 	}(generic_1.GenericAttribute));
 	exports.DateType = DateType;
+	function logInvalidDate(attribute, value, record) {
+	    object_plus_1.tools.log.warn("[Invalid Date] in " + (record.constructor.name || 'Model') + "." + attribute.name + " attribute.", value, record);
+	}
 	Date._attribute = DateType;
 	var msDatePattern = /\/Date\(([0-9]+)\)\//;
 	var MSDateType = (function (_super) {
@@ -2651,10 +2652,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    NumericType.prototype.convert = function (value) {
 	        var num = value == null ? value : this.type(value);
-	        if (num !== num) {
-	            var record = arguments[3];
-	            object_plus_1.tools.log.warn("[Invalid Number] in " + (record.constructor.name || 'Model') + "." + this.name + " attribute.", value, record);
-	        }
+	        if (num !== num)
+	            logInvalidNumber(this, value, arguments[3]);
 	        return num;
 	    };
 	    NumericType.prototype.validate = function (model, value, name) {
@@ -2665,6 +2664,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return NumericType;
 	}(PrimitiveType));
 	exports.NumericType = NumericType;
+	function logInvalidNumber(attribute, value, record) {
+	    object_plus_1.tools.log.warn("[Invalid Number] in " + (record.constructor.name || 'Model') + "." + attribute.name + " attribute.", value, record);
+	}
 	Number._attribute = NumericType;
 	var ArrayType = (function (_super) {
 	    __extends(ArrayType, _super);
