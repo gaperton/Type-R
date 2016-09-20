@@ -2517,11 +2517,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function DateType() {
 	        _super.apply(this, arguments);
 	    }
-	    DateType.prototype.convert = function (value, options, prev, record) {
+	    DateType.prototype.convert = function (value) {
 	        if (value == null || value instanceof Date)
 	            return value;
 	        var date = new Date(value);
 	        if (isNaN(+date)) {
+	            var record = arguments[3];
 	            object_plus_1.tools.log.warn("[Invalid Date] in " + (record.constructor.name || 'Model') + "." + this.name + " attribute.", value, record);
 	        }
 	        return date;
@@ -2613,6 +2614,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var generic_1 = __webpack_require__(14);
+	var object_plus_1 = __webpack_require__(1);
 	var ConstructorType = (function (_super) {
 	    __extends(ConstructorType, _super);
 	    function ConstructorType() {
@@ -2646,6 +2648,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function NumericType() {
 	        _super.apply(this, arguments);
 	    }
+	    NumericType.prototype.convert = function (value) {
+	        var num = value == null ? value : this.type(value);
+	        if (isNaN(num)) {
+	            var record = arguments[3];
+	            object_plus_1.tools.log.warn("[Invalid Number] in " + (record.constructor.name || 'Model') + "." + this.name + " attribute.", value, record);
+	        }
+	        return num;
+	    };
 	    NumericType.prototype.validate = function (model, value, name) {
 	        if (value != null && !isFinite(value)) {
 	            return name + ' is not valid number';

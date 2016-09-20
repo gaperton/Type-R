@@ -41,6 +41,17 @@ Boolean._attribute = String._attribute = PrimitiveType;
 export class NumericType extends PrimitiveType {
     type : NumberConstructor
 
+    convert( value ) {
+        const num = value == null ? value : this.type( value );
+        
+        if( isNaN( num ) ){
+            const record = arguments[ 3 ];
+            tools.log.warn(`[Invalid Number] in ${ record.constructor.name || 'Model' }.${ this.name } attribute.`, value, record );
+        }
+
+        return num;
+    }
+
     validate( model, value, name ) {
         // Whatever is not symmetrically serializable to JSON, is not valid by default.
         if( value != null && !isFinite( value ) ) {

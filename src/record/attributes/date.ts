@@ -6,12 +6,13 @@ const DateProto = Date.prototype;
 // Date Attribute
 /** @private */
 export class DateType extends GenericAttribute {
-    convert( value : any, options : {}, prev : any, record : any ){
+    convert( value : any ){
         if( value == null || value instanceof Date ) return value;
         
         const date = new Date( value );
         
         if( isNaN( +date ) ){
+            const record = arguments[ 3 ];
             tools.log.warn(`[Invalid Date] in ${ record.constructor.name || 'Model' }.${ this.name } attribute.`, value, record );
         }
 
