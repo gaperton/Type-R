@@ -1651,13 +1651,19 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports) {
 
 	"use strict";
-	var referenceMask = /\~|\^|([^.]+)/g;
+	var referenceMask = /\^|([^.]+)/g;
 	var CompiledReference = (function () {
 	    function CompiledReference(reference, splitTail) {
 	        if (splitTail === void 0) { splitTail = false; }
 	        var path = reference
 	            .match(referenceMask)
-	            .map(function (key) { return key === '~' ? 'getStore()' : (key === '^' ? 'getOwner()' : key); });
+	            .map(function (key) {
+	            if (key === '^')
+	                return 'getOwner()';
+	            if (key[0] === '~')
+	                return "getStore().get(\"" + key.substr(1) + "\")";
+	            return key;
+	        });
 	        this.tail = splitTail && path.pop();
 	        this.local = !path.length;
 	        path.unshift('self');
