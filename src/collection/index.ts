@@ -257,7 +257,7 @@ export class Collection extends Transactional implements CollectionCore {
     // Deeply clone collection, optionally setting new owner.
     clone( options : CloneOptions = {} ) : this {
         const models = this.map( model => model.clone() ),
-              copy : this = new (<any>this.constructor)( models, { model : this.model, comparator : this.comparator } );
+              copy : this = new (<any>this.constructor)( models, { model : this.model, comparator : this.comparator }, this._shared );
         
         if( options.pinStore ) copy._defaultStore = this.getStore();
         
