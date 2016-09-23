@@ -98,8 +98,8 @@ function defineSubsetCollection( CollectionConstructor : typeof Collection ) {
                     if( record ) records.push( record );
                 }
             }
-            else{
-                this.refs = raw;
+            else if( elements.length ){
+                this.refs = elements;
             }
 
             return records;

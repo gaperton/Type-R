@@ -3405,8 +3405,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        records.push(record);
 	                }
 	            }
-	            else {
-	                this.refs = raw;
+	            else if (elements.length) {
+	                this.refs = elements;
 	            }
 	            return records;
 	        };
