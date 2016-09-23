@@ -1158,7 +1158,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        Subset['of'] = function (path) {
 	            return Ctor.subsetOf(path);
 	        };
-	        this.Subset = Subset;
+	        this.Set = this.Subset = Subset;
 	        transactions_1.Transactional.predefine.call(this);
 	        record_1.createSharedTypeSpec(this, SharedCollectionType);
 	        return this;
@@ -3387,7 +3387,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                comparator: this.comparator
 	            });
 	            copy.resolvedWith = this.resolvedWith;
-	            copy.refs = this.refs;
+	            copy.refs || (copy.refs = this.refs);
 	            return copy;
 	        };
 	        SubsetOfCollection.prototype.parse = function (raw) {

@@ -76,7 +76,7 @@ function defineSubsetCollection( CollectionConstructor : typeof Collection ) {
                 });
 
             copy.resolvedWith = this.resolvedWith;
-            copy.refs         = this.refs;
+            copy.refs || ( copy.refs = this.refs );
 
             return copy;
         }

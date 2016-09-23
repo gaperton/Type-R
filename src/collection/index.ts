@@ -41,6 +41,7 @@ export class Collection extends Transactional implements CollectionCore {
     _aggregationError : Record[]
 
     static Subset : typeof Collection
+    static Set : typeof Collection
     static _SubsetOf : typeof Collection
     
     createSubset( models, options ){
@@ -68,7 +69,7 @@ export class Collection extends Transactional implements CollectionCore {
             return Ctor.subsetOf( path );
         }
 
-        this.Subset = <any>Subset;
+        this.Set = this.Subset = <any>Subset;
 
         Transactional.predefine.call( this );
         createSharedTypeSpec( this, SharedCollectionType );
