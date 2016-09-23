@@ -3382,12 +3382,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        };
 	        SubsetOfCollection.prototype._validateNested = function () { return 0; };
 	        SubsetOfCollection.prototype.clone = function (owner) {
-	            var Ctor = this.constructor, copy = new Ctor(this.models, {
+	            var Ctor = this.constructor, copy = new Ctor([], {
 	                model: this.model,
 	                comparator: this.comparator
 	            });
-	            copy.resolvedWith = this.resolvedWith;
-	            copy.refs || (copy.refs = this.refs);
+	            if (this.resolvedWith) {
+	                copy.resolvedWith = this.resolvedWith;
+	                copy.reset(this.models, { silent: true });
+	            }
+	            else {
+	                copy.refs = this.refs;
+	            }
 	            return copy;
 	        };
 	        SubsetOfCollection.prototype.parse = function (raw) {
