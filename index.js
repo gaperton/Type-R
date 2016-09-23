@@ -589,8 +589,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var name_1 = _a[_i];
 	        if (name_1 === 'constructor')
 	            continue;
-	        var sourceProp = Object.getOwnPropertyDescriptor(source, name_1), destProp = tools_1.getPropertyDescriptor(target, name_1), value = destProp.value;
-	        if (destProp && value != null) {
+	        var sourceProp = Object.getOwnPropertyDescriptor(source, name_1), destProp = tools_1.getPropertyDescriptor(target, name_1), value = destProp && destProp.value;
+	        if (value != null) {
 	            var rule = rules[name_1];
 	            if (rule) {
 	                target[name_1] = typeof rule === 'object' ?
