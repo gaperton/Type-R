@@ -364,5 +364,5 @@ function onceMap(map, name, callback, offer) {
 /** @hidden */
 function _fireEventAll( events : _eventsApi.EventHandler[], a ) : void {
     for( let ev of events )
-        ev.callback.call( ev.ctx, a );
+        ev.callback.apply( ev.ctx, a );
 }
