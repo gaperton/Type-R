@@ -355,13 +355,13 @@ function mergeProps< T extends {} >( target : T, source : {}, rules : MixinRules
         if( name === 'constructor' ) continue;
         
         const sourceProp = Object.getOwnPropertyDescriptor( source, name ),
-              destProp   = getPropertyDescriptor( target, name ); // Shouldn't be own
+              destProp   = getPropertyDescriptor( target, name ), // Shouldn't be own
+              { value } = destProp;
 
-        if( destProp ) {
-            const rule  = rules[ name ],
-                  value = destProp.value;
-
-            if( rule && value ) {
+        if( destProp && value != null ) {
+            const rule  = rules[ name ];
+            
+            if( rule ) {
                 target[ name ] = typeof rule === 'object' ?
                     mergeObjects( value, sourceProp.value, rule ) :(
                         rule === 'merge' ?
