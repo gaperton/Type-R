@@ -350,7 +350,7 @@ const mergeFunctions : IMergeFunctions = {
 };
 
 /** @hidden */
-function mergeProps< T extends {} >( target : T, source : {}, rules : MixinRules = {}) : T {
+export function mergeProps< T extends {} >( target : T, source : {}, rules : MixinRules = {}) : T {
     for( let name of Object.keys( source ) ) {
         if( name === 'constructor' ) continue;
         

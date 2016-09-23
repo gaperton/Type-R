@@ -605,6 +605,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    return target;
 	}
+	exports.mergeProps = mergeProps;
 
 
 /***/ },
