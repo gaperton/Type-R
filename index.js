@@ -720,7 +720,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var _events = this._events;
 	                var queue = _events[name];
 	                if (queue)
-	                    _fireEventAll(queue, allArgs.splice(0, 1));
+	                    _fireEventAll(queue, allArgs.slice(1));
 	                if (queue = _events.all)
 	                    _fireEventAll(queue, allArgs);
 	        }
