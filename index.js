@@ -414,7 +414,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var tools_1 = __webpack_require__(2);
 	var Mixable = (function () {
 	    function Mixable() {
+	        this.initialize();
 	    }
+	    Mixable.prototype.initialize = function () { };
 	    Mixable.create = function (a, b) {
 	        return new this(a, b);
 	    };

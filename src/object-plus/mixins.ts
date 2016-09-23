@@ -79,6 +79,9 @@ export interface MixableConstructor< T > extends Constructor< T >{
  *      class A extends Mixable {}
  */ 
 export class Mixable {
+    constructor(){ this.initialize(); }
+    initialize() : void {}
+
     /** Generic class factory. May be overridden for abstract classes. Not inherited. */
     static create( a : any, b? : any ) : Mixable {
         return new (<any>this)( a, b );
