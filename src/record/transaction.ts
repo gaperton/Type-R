@@ -612,7 +612,7 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
         //TODO: Why not just forward the transaction, without telling that it's nested?
         const nestedTransaction = ( <Transactional> prev )._createTransaction( update, options );
         if( nestedTransaction ){
-            nestedTransaction.commit( this ); // <- false here, and no need to handle changes. Work with shared and aggregated.
+            nestedTransaction.commit( this ); // <- null here, and no need to handle changes. Work with shared and aggregated.
 
             if( spec.propagateChanges ){
                 markAsDirty( record, options );

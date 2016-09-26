@@ -285,7 +285,7 @@ export interface CloneOptions {
 // Owner must accept children update events. It's an only way children communicates with an owner.
 /** @private */
 export interface Owner extends Traversable, Messenger {
-    _onChildrenChange( child : Transactional, options : TransactionOptions ) : void;
+    _onChildrenChange( child : Transactional, options : TransactionOptions, initiator? : Transactional ) : void;
     getOwner() : Owner
     getStore() : Transactional
 }
@@ -368,7 +368,7 @@ export const transactionApi = {
             while( object._isDirty ){
                 const options = object._isDirty;
                 object._isDirty = null; 
-                trigger2( object, object._changeEventName, object, options );
+                trigger3( object, object._changeEventName, object, options, initiator );
             }
             
             // Mark transaction as closed.

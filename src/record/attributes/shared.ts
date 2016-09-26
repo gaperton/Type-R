@@ -43,7 +43,7 @@ export class SharedRecordType extends GenericAttribute {
         next && on( next, next._changeEventName, this._onChange, record );
     }
 
-    _onChange : ( child : Transactional, options : TransactionOptions ) => void 
+    _onChange : ( child : Transactional, options : TransactionOptions, initiator : Transactional ) => void 
 
     initialize( options ){
         // Shared attributes are not serialized.
@@ -51,8 +51,8 @@ export class SharedRecordType extends GenericAttribute {
         if( this.propagateChanges ){
             // Create change event handler which knows current attribute name. 
             const attribute = this;
-            this._onChange = function( child, options ){
-                this.forceAttributeChange( attribute.name, options );
+            this._onChange = function( child, options, initiator ){
+                this === initiator || this.forceAttributeChange( attribute.name, options );
             }
 
             options.changeHandlers.unshift( this._handleChange );

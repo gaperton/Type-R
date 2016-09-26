@@ -134,6 +134,13 @@ export function removeIndex( index : IdIndex, model : Record ) : void {
     }
 }
 
+export function updateIndex( index : IdIndex, model : Record ){
+    delete index[ model.previous( model.idAttribute ) ];
+
+    const { id } = model;
+    id == null || ( index[ id ] = model );
+}
+
 /***
  * In Collections, transactions appears only when
  * add remove or change events might be emitted.

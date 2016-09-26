@@ -1,5 +1,5 @@
 import { Transaction, transactionApi } from '../transactions'
-import { CollectionTransaction, logAggregationError, sortElements, convertAndAquire, free, CollectionOptions, addIndex, CollectionCore } from './commons'
+import { CollectionTransaction, logAggregationError, sortElements, convertAndAquire, free, CollectionOptions, addIndex, updateIndex, CollectionCore } from './commons'
 import { Record } from '../record'
 
 const { begin, commit, markAsDirty } = transactionApi;
@@ -80,6 +80,10 @@ function appendElements( collection : CollectionCore, a_items, nested : Transact
                 var attrs = item.attributes || item;
                 const transaction = model._createTransaction( attrs, a_options );
                 transaction && nested.push( transaction );
+
+                if( model.hasChanged( idAttribute ) ){
+                    updateIndex( _byId, model );
+                }
             }
         }
         else{
