@@ -280,7 +280,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        discard[arguments[i]] = true;
 	    }
 	    for (var name in source) {
-	        if (!discard[name] && source.hasOwnProperty(name)) {
+	        if (!discard.hasOwnProperty(name) && source.hasOwnProperty(name)) {
 	            dest[name] = source[name];
 	        }
 	    }
