@@ -285,7 +285,7 @@ export interface CloneOptions {
 // Owner must accept children update events. It's an only way children communicates with an owner.
 /** @private */
 export interface Owner extends Traversable, Messenger {
-    _onChildrenChange( child : Transactional, options : TransactionOptions, initiator? : Transactional ) : void;
+    _onChildrenChange( child : Transactional, options : TransactionOptions ) : void;
     getOwner() : Owner
     getStore() : Transactional
 }
