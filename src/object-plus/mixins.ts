@@ -242,6 +242,8 @@ export class Mixable {
     static __super__ : {}
 }
 
+Mixable.prototype.toString = Mixable.prototype.valueOf = void 0;
+  
 /** @hidden */
 function toPropertyDescriptor( x : Property ) : PropertyDescriptor {
     if( x ){

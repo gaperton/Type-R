@@ -275,6 +275,8 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     }
 }
 
+Transactional.prototype.toString = Transactional.prototype.valueOf = void 0;
+
 export interface CloneOptions {
     // 'Pin store' shall assign this._defaultStore = this.getStore();
     pinStore? : boolean
