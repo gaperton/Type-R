@@ -489,9 +489,10 @@ export class Record extends Transactional implements Owner {
                 // handle deep update...
                 if( update = attr.canBeUpdated( prev, value, options ) ) { // todo - skip empty updates.
                     const nestedTransaction = prev._createTransaction( update, options );
-                    if( nestedTransaction && attr.propagateChanges ){
+                    if( nestedTransaction ){
                         nested.push( nestedTransaction );
-                        changes.push( key );
+                        
+                        if( attr.propagateChanges ) changes.push( key );
                     }
 
                     return;
@@ -513,11 +514,15 @@ export class Record extends Transactional implements Owner {
             log.error( '[Type Error]', this, 'Record update rejected (', values, '). Incompatible type.' );
         }
 
-        if( ( nested.length || changes.length ) && markAsDirty( this, options ) ){
+        if( changes.length && markAsDirty( this, options ) ){
             return new RecordTransaction( this, isRoot, nested, changes );
         }
         
         // No changes
+        for( let pendingTransaction of nested ){
+            pendingTransaction.commit( true );
+        }
+
         isRoot && commit( this );
     }
 
@@ -605,10 +610,13 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
     // handle deep update...
     if( update = spec.canBeUpdated( prev, value, options ) ) {
         const nestedTransaction = ( <Transactional> prev )._createTransaction( update, options );
-        if( nestedTransaction && spec.propagateChanges ){
+        if( nestedTransaction ){
             nestedTransaction.commit( true );
-            markAsDirty( record, options );
-            trigger3( record, 'change:' + name, record, prev, options );
+
+            if( spec.propagateChanges ){
+                markAsDirty( record, options );
+                trigger3( record, 'change:' + name, record, prev, options );
+            }
         }
     }
     else {

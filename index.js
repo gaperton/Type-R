@@ -2056,9 +2056,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var update;
 	                if (update = attr.canBeUpdated(prev, value, options)) {
 	                    var nestedTransaction = prev._createTransaction(update, options);
-	                    if (nestedTransaction && attr.propagateChanges) {
+	                    if (nestedTransaction) {
 	                        nested.push(nestedTransaction);
-	                        changes.push(key);
+	                        if (attr.propagateChanges)
+	                            changes.push(key);
 	                    }
 	                    return;
 	                }
@@ -2073,8 +2074,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        else {
 	            log.error('[Type Error]', this, 'Record update rejected (', values, '). Incompatible type.');
 	        }
-	        if ((nested.length || changes.length) && markAsDirty(this, options)) {
+	        if (changes.length && markAsDirty(this, options)) {
 	            return new RecordTransaction(this, isRoot, nested, changes);
+	        }
+	        for (var _i = 0, nested_1 = nested; _i < nested_1.length; _i++) {
+	            var pendingTransaction = nested_1[_i];
+	            pendingTransaction.commit(true);
 	        }
 	        isRoot && commit(this);
 	    };
@@ -2145,10 +2150,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var update;
 	    if (update = spec.canBeUpdated(prev, value, options)) {
 	        var nestedTransaction = prev._createTransaction(update, options);
-	        if (nestedTransaction && spec.propagateChanges) {
+	        if (nestedTransaction) {
 	            nestedTransaction.commit(true);
-	            markAsDirty(record, options);
-	            trigger3(record, 'change:' + name, record, prev, options);
+	            if (spec.propagateChanges) {
+	                markAsDirty(record, options);
+	                trigger3(record, 'change:' + name, record, prev, options);
+	            }
 	        }
 	    }
 	    else {
@@ -2172,8 +2179,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    RecordTransaction.prototype.commit = function (isNested) {
 	        var _a = this, nested = _a.nested, object = _a.object, changes = _a.changes;
-	        for (var _i = 0, nested_1 = nested; _i < nested_1.length; _i++) {
-	            var transaction = nested_1[_i];
+	        for (var _i = 0, nested_2 = nested; _i < nested_2.length; _i++) {
+	            var transaction = nested_2[_i];
 	            transaction.commit(true);
 	        }
 	        var attributes = object.attributes, _isDirty = object._isDirty;
