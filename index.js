@@ -1729,7 +1729,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        dynamicMixin.properties = {};
 	    }
 	    assign(dynamicMixin.properties, protoProps.properties || {});
-	    defaults(dynamicMixin, omit(definition, 'attributes', 'collection'));
+	    assign(dynamicMixin, omit(definition, 'attributes', 'collection', 'defaults', 'properties', 'forEachAttr'));
 	    object_plus_1.Mixable.define.call(this, dynamicMixin, staticProps);
 	    defineCollection.call(this, definition.collection || definition.Collection);
 	    return this;

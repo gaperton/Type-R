@@ -35,7 +35,7 @@ Record.define = function( protoProps : RecordDefinition = {}, staticProps ){
     assign( dynamicMixin.properties, protoProps.properties || {} );
 
     // Merge in definition.
-    defaults( dynamicMixin, omit( definition, 'attributes', 'collection' ) );            
+    assign( dynamicMixin, omit( definition, 'attributes', 'collection', 'defaults', 'properties', 'forEachAttr' ) );            
     Mixable.define.call( this, dynamicMixin, staticProps );
     defineCollection.call( this, definition.collection || definition.Collection );
 
