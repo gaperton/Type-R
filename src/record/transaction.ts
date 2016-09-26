@@ -518,9 +518,9 @@ export class Record extends Transactional implements Owner {
             return new RecordTransaction( this, isRoot, nested, changes );
         }
         
-        // No changes
+        // No changes, but there might be silent attributes with open transactions.
         for( let pendingTransaction of nested ){
-            pendingTransaction.commit( true );
+            pendingTransaction.commit( this );
         }
 
         isRoot && commit( this );
@@ -609,9 +609,10 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
 
     // handle deep update...
     if( update = spec.canBeUpdated( prev, value, options ) ) {
+        //TODO: Why not just forward the transaction, without telling that it's nested?
         const nestedTransaction = ( <Transactional> prev )._createTransaction( update, options );
         if( nestedTransaction ){
-            nestedTransaction.commit( true );
+            nestedTransaction.commit( this ); // <- false here, and no need to handle changes. Work with shared and aggregated.
 
             if( spec.propagateChanges ){
                 markAsDirty( record, options );
@@ -647,12 +648,12 @@ class RecordTransaction implements Transaction {
                  public changes : string[] ){}
 
     // commit transaction
-    commit( isNested? : boolean ) : void {
+    commit( initiator? : Record ) : void {
         const { nested, object, changes } = this;
 
         // Commit all pending nested transactions...
         for( let transaction of nested ){ 
-            transaction.commit( true );
+            transaction.commit( object );
         }
 
         // Notify listeners on attribute changes...
@@ -662,6 +663,6 @@ class RecordTransaction implements Transaction {
             trigger3( object, 'change:' + key, object, attributes[ key ], _isDirty );
         }
 
-        this.isRoot && commit( object, isNested );
+        this.isRoot && commit( object, initiator );
     }
 }
