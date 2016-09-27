@@ -49,13 +49,13 @@ describe( 'Advanced functionality', function(){
             expect( callback ).to.be.calledOnce;
         } );
 
-        it( "Never is updated in place", function(){
+        it( "Can be updated in place", function(){
             var a = new A(), b = new A();            
             a.shared = b.owned;
 
             a.set({ shared : { name : "noway" } } );
             expect( a.shared.name ).to.equal( 'noway' );
-            expect( a.shared ).to.not.equal( b.owned );
+            expect( a.shared ).to.equal( b.owned );
         } );
 
         it( "is converted to the ownerless model on assignment", function(){
@@ -111,13 +111,13 @@ describe( 'Advanced functionality', function(){
             expect( callback ).to.be.calledTwice;
         } );
 
-        it( "Never is updated in place", function(){
+        it( "Can be updated in place", function(){
             var a = new A(), b = new A();            
             a.sharedC = b.ownedC;
 
             a.set({ sharedC : [ { name : "noway" } ] } );
             expect( a.sharedC.first().name ).to.equal( 'noway' );
-            expect( a.sharedC ).to.not.equal( b.ownedC );
+            expect( a.sharedC ).to.equal( b.ownedC );
         } );
 
         it( "is converted to the ownerless Subset collection on assignment", function(){

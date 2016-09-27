@@ -2726,7 +2726,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	    SharedRecordType.prototype.clone = function (value) {
 	        return value;
 	    };
-	    SharedRecordType.prototype.canBeUpdated = function (prev, next) { };
+	    SharedRecordType.prototype.canBeUpdated = function (prev, next, options) {
+	        if (prev && next != null) {
+	            if (next instanceof this.type) {
+	                if (options.merge)
+	                    return next._state;
+	            }
+	            else {
+	                return next;
+	            }
+	        }
+	    };
 	    SharedRecordType.prototype.convert = function (value, options, prev, record) {
 	        return value == null || value instanceof this.type ? value : this.type.create(value, options);
 	    };

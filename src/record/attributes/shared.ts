@@ -21,10 +21,21 @@ export class SharedRecordType extends GenericAttribute {
         return value;
     }
 
-    // Shared object can never be updated in place.
-    canBeUpdated( prev : Transactional, next : any ) : any {}
+    // TODO: Remove shared code?
+    canBeUpdated( prev : Transactional, next : any, options : TransactionOptions ) : any {
+        // If an object already exists, and new value is of incompatible type, let object handle the update.
+        if( prev && next != null ){
+            if( next instanceof this.type ){
+                // In case if merge option explicitly specified, force merge.
+                if( options.merge ) return next._state;
+            }
+            else{
+                return next;
+            }
+        }
+    }
 
-    // Shared object can never be type casted.
+    
     convert( value : any, options : TransactionOptions, prev : any, record : Record ) : Transactional {
         return value == null || value instanceof this.type ? value : this.type.create( value, options );
     }
