@@ -21,10 +21,21 @@ export class SharedRecordType extends GenericAttribute {
         return value;
     }
 
-    // Shared object can never be updated in place.
-    canBeUpdated( prev : Transactional, next : any ) : any {}
+    // TODO: Remove shared code?
+    canBeUpdated( prev : Transactional, next : any, options : TransactionOptions ) : any {
+        // If an object already exists, and new value is of incompatible type, let object handle the update.
+        if( prev && next != null ){
+            if( next instanceof this.type ){
+                // In case if merge option explicitly specified, force merge.
+                if( options.merge ) return next._state;
+            }
+            else{
+                return next;
+            }
+        }
+    }
 
-    // Shared object can never be type casted.
+    
     convert( value : any, options : TransactionOptions, prev : any, record : Record ) : Transactional {
         return value == null || value instanceof this.type ? value : this.type.create( value, options );
     }
@@ -43,7 +54,7 @@ export class SharedRecordType extends GenericAttribute {
         next && on( next, next._changeEventName, this._onChange, record );
     }
 
-    _onChange : ( child : Transactional, options : TransactionOptions ) => void 
+    _onChange : ( child : Transactional, options : TransactionOptions, initiator : Transactional ) => void 
 
     initialize( options ){
         // Shared attributes are not serialized.
@@ -51,8 +62,8 @@ export class SharedRecordType extends GenericAttribute {
         if( this.propagateChanges ){
             // Create change event handler which knows current attribute name. 
             const attribute = this;
-            this._onChange = function( child, options ){
-                this.forceAttributeChange( attribute.name, options );
+            this._onChange = function( child, options, initiator ){
+                this === initiator || this.forceAttributeChange( attribute.name, options );
             }
 
             options.changeHandlers.unshift( this._handleChange );

@@ -300,7 +300,7 @@ export interface Transaction {
 
     // Send out change events, process update triggers, and close transaction.
     // Nested transactions must be marked with isNested flag (it suppress owner notification).
-    commit( isNested? : boolean )
+    commit( initiator? : Transactional )
 }
 
 // Options for distributed transaction  
@@ -360,7 +360,7 @@ export const transactionApi = {
     // Commit transaction. Send out change event and notify owner. Returns true if there were changes.
     // Must be executed for the root transaction only.
     /** @private */
-    commit( object : Transactional, isNested? : boolean ){
+    commit( object : Transactional, initiator? : Transactional ){
         let originalOptions = object._isDirty;
 
         if( originalOptions ){
@@ -368,7 +368,7 @@ export const transactionApi = {
             while( object._isDirty ){
                 const options = object._isDirty;
                 object._isDirty = null; 
-                trigger2( object, object._changeEventName, object, options );
+                trigger3( object, object._changeEventName, object, options, initiator );
             }
             
             // Mark transaction as closed.
@@ -376,7 +376,7 @@ export const transactionApi = {
 
             // Notify owner on changes out of transaction scope.  
             const { _owner } = object;  
-            if( _owner && !isNested ){ // If it's the nested transaction, owner is already aware there are some changes.
+            if( _owner && _owner !== <any> initiator ){ // If it's the nested transaction, owner is already aware there are some changes.
                 _owner._onChildrenChange( object, originalOptions );
             }
         }

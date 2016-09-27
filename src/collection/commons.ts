@@ -134,6 +134,13 @@ export function removeIndex( index : IdIndex, model : Record ) : void {
     }
 }
 
+export function updateIndex( index : IdIndex, model : Record ){
+    delete index[ model.previous( model.idAttribute ) ];
+
+    const { id } = model;
+    id == null || ( index[ id ] = model );
+}
+
 /***
  * In Collections, transactions appears only when
  * add remove or change events might be emitted.
@@ -159,13 +166,13 @@ export class CollectionTransaction implements Transaction {
                     public sorted : boolean ){}
 
     // commit transaction
-    commit( isNested? : boolean ){
+    commit( initiator? : Transactional ){
         const { nested, object } = this,
               { _isDirty } = object;
 
         // Commit all nested transactions...
         for( let transaction of nested ){
-            transaction.commit( true );
+            transaction.commit( object );
         }
 
         if( object._aggregationError ){
@@ -201,7 +208,7 @@ export class CollectionTransaction implements Transaction {
             trigger2( object, 'update', object, _isDirty );
         }
 
-        this.isRoot && commit( object, isNested );
+        this.isRoot && commit( object, initiator );
     }
 }
 
