@@ -2151,7 +2151,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (update = spec.canBeUpdated(prev, value, options)) {
 	        var nestedTransaction = prev._createTransaction(update, options);
 	        if (nestedTransaction) {
-	            nestedTransaction.commit(this);
+	            nestedTransaction.commit(record);
 	            if (spec.propagateChanges) {
 	                markAsDirty(record, options);
 	                trigger3(record, 'change:' + name, record, prev, options);

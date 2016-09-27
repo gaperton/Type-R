@@ -28,9 +28,11 @@
         }
     } );
 
-    require( [ 'require', 'sinon', 'chai', 'chai-as-promised', 'sinon-chai', 'mocha', '../../../index', 'underscore' ],
-            function( require, sinon, chai, sinonChai ){
+    require( [ 'require', 'sinon', 'chai', 'sinon-chai', '../../../index', 'chai-as-promised', 'mocha', 'underscore' ],
+            function( require, sinon, chai, sinonChai, Nested ){
                 // Chai
+                Nested.Model.prototype.toString = Nested.Collection.prototype.toString = Object.prototype.toString;
+
                 chai.should();
                 chai.use( sinonChai );
 

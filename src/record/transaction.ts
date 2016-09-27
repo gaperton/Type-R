@@ -529,8 +529,9 @@ export class Record extends Transactional implements Owner {
     // Handle nested changes. TODO: propagateChanges == false, same in transaction.
     _onChildrenChange( child : Transactional, options : TransactionOptions ) : void {
         const { _ownerKey } = child,
-              attribute = this._attributes[ _ownerKey ];        
-        if( !attribute || attribute.propagateChanges ) this.forceAttributeChange( _ownerKey, options );
+              attribute = this._attributes[ _ownerKey ];
+
+        if( !attribute /* TODO: Must be an opposite, likely the bug */ || attribute.propagateChanges ) this.forceAttributeChange( _ownerKey, options );
     }
 
     // Simulate attribute change 
@@ -612,7 +613,7 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
         //TODO: Why not just forward the transaction, without telling that it's nested?
         const nestedTransaction = ( <Transactional> prev )._createTransaction( update, options );
         if( nestedTransaction ){
-            nestedTransaction.commit( this ); // <- null here, and no need to handle changes. Work with shared and aggregated.
+            nestedTransaction.commit( record ); // <- null here, and no need to handle changes. Work with shared and aggregated.
 
             if( spec.propagateChanges ){
                 markAsDirty( record, options );
