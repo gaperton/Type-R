@@ -211,8 +211,6 @@ export abstract class Messenger implements Mixins.Mixable {
     }
 }
 
-Messenger.prototype.toString = Messenger.prototype.valueOf = void 0;
-
 /** @hidden */
 const slice = Array.prototype.slice;
 
