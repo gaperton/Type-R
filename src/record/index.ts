@@ -21,7 +21,7 @@ Record.define = function( protoProps : RecordDefinition = {}, staticProps ){
           definition = assign( staticsDefinition, protoProps );
 
     if( 'Collection' in this && this.Collection === void 0 ){
-        tools.log.error( `[Model.define] Model.Collection is undefined. It must be defined _before_ the model.`, definition );
+        tools.log.error( `[Model Definition] ${ this.prototype.getClassName() }.Collection is undefined. It must be defined _before_ the model.`, definition );
     }
 
     // Compile attributes spec, creating definition mixin.

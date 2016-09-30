@@ -273,6 +273,18 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     isValid( key : string ) : boolean {
         return !this.getValidationError( key );
     }
+
+    valueOf(){ return this.cid; }
+    toString(){ return this.cid; }
+
+    // Get class name for an object instance. Works fine with ES6 classes definitions (not in IE).
+    getClassName() : string {
+        const { name : string } = <any>this.constructor;
+        if( name !== 'Subclass' ) return name;
+    }
+
+    // Logging interface for run time errors and warnings.
+    abstract _log( level : string, text : string, value : any ) : void;
 }
 
 export interface CloneOptions {

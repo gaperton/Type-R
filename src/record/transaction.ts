@@ -246,9 +246,9 @@ export class Record extends Transactional implements Owner {
 
     // Attribute keys
     _keys : string[]
-    
+
     // Attributes object copy constructor
-//    Attributes : CloneAttributesCtor
+    // Attributes : CloneAttributesCtor
     Attributes( x : AttributesValues ) : void { this.id = x.id; }
 
     // forEach function for traversing through attributes, with protective default implementation
@@ -265,12 +265,12 @@ export class Record extends Transactional implements Owner {
             }
             else{
                 unknown || ( unknown = [] );
-                unknown.push( name );
+                unknown.push( `'${ name }'` );
             }
         }
 
         if( unknown ){
-            log.warn( `[Record] Unknown attributes are ignored (${ unknown.join(', ')}). Record:`,  _attributes, 'Attributes:', attrs );
+            this._log( 'warn', `attributes ${ unknown.join(', ')} are not defined`, attrs );
         }
 
         // TODO: try this versus object traversal.
@@ -511,7 +511,7 @@ export class Record extends Transactional implements Owner {
             } );
         }
         else{
-            log.error( '[Type Error]', this, 'Record update rejected (', values, '). Incompatible type.' );
+            this._log( 'error', 'incompatible argument type', values );
         }
 
         if( changes.length && markAsDirty( this, options ) ){
@@ -560,6 +560,14 @@ export class Record extends Transactional implements Owner {
         });
 
         super.dispose();
+    }
+
+    _log( level : string, text : string, value ) : void {
+        tools.log[ level ]( `[Model Update] ${ this.getClassName() }: ` + text, value, 'Attributes spec:', this._attributes );
+    }
+
+    getClassName() : string {
+        return super.getClassName() || 'Model';
     }
 };
 

@@ -275,7 +275,7 @@ export class Collection extends Transactional implements CollectionCore {
     // Apply bulk in-place object update in scope of ad-hoc transaction 
     set( elements : ElementsArg = [], options : TransactionOptions = {} ) : this {
         if( (<any>options).add !== void 0 ){
-            log.error("Collection.set doesn't support 'add' option, behaving as if options.add === true.");
+            this._log( 'warn', "Collection.set doesn't support 'add' option, behaving as if options.add === true.", options );
         }
 
         // Handle reset option here - no way it will be populated from the top as nested transaction.
@@ -433,6 +433,14 @@ export class Collection extends Transactional implements CollectionCore {
         }
 
         return next;
+    }
+
+    _log( level : string, text : string, value ) : void {
+        tools.log[ level ]( `[Collection Update] ${ this.model.prototype.getClassName() }.${ this.getClassName() }: ` + text, value, 'Attributes spec:', this.model.prototype._attributes );
+    }
+
+    getClassName() : string {
+        return super.getClassName() || 'Collection';
     }
 }
 

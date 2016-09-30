@@ -19,6 +19,8 @@ export interface CollectionCore extends Transactional, Owner {
     _itemEvents? : eventsApi.EventMap
     _shared : number
     _aggregationError : Record[]
+
+    _log( level : string, text : string, value )
 }
 
 // Collection's manipulation methods elements
@@ -213,6 +215,6 @@ export class CollectionTransaction implements Transaction {
 }
 
 export function logAggregationError( collection : CollectionCore ){
-    tools.log.warn( '[Collection] Added records which already has an owner:', collection._aggregationError, collection );
+    collection._log( 'error', 'added records already have an owner', collection._aggregationError );
     collection._aggregationError = void 0;
 }

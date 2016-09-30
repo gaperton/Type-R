@@ -174,7 +174,7 @@ export class Mixable {
     static define( definition : ClassDefinition = {}, staticProps? : {} ) : typeof Mixable {
         // That actually might happen when we're using @define decorator... 
         if( !this.define ){
-            log.error( "[Class.define] Class must have class extensions to use @define decorator. Use '@extendable' before @define, or extend the base class with class extensions.", definition );
+            log.error( "[Class Defininition] Class must have class extensions to use @define decorator. Use '@extendable' before @define, or extend the base class with class extensions.", definition );
             return this;
         }
 

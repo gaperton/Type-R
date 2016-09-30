@@ -27,7 +27,7 @@ export class TransactionalType extends GenericAttribute {
         
         if( value instanceof this.type ){
             if( value._shared === 1 ){
-                tools.log.warn( `[Record] Aggregated attribute "${ this.name } : ${ (<any>this.type).name || 'Collection' }" is assigned with shared collection type.`, value, record._attributes );
+                this._log( 'error', 'aggregated attribute is assigned with shared collection type', value, record );
             }
 
             return options.merge ? value.clone() : value; // TODO: looks like clone is never called. Remove.
@@ -53,7 +53,7 @@ export class TransactionalType extends GenericAttribute {
         prev && free( record, prev );
         
         if( next && !aquire( record, next, this.name ) ){
-            tools.log.warn( `[Record] aggregated '${this.name}' attribute value already has an owner.`, next, record._attributes );
+            this._log( 'error', 'aggregated attribute assigned with object which is aggregated somewhere else', next, record );
         }
     }
 }

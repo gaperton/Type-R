@@ -124,6 +124,10 @@ export class GenericAttribute implements Attribute {
 
     propagateChanges : boolean
 
+    _log( level : string, text : string, value, record : Record ){
+        tools.log[ level ]( `[Attribute Update] ${ record.getClassName() }.${ this.name }: ` + text, value, 'Attributes spec:', record._attributes );
+    }
+
     constructor( public name : string, a_options : ExtendedAttributeDescriptor ) {
         // Clone options.
         const options : ExtendedAttributeDescriptor = this.options = assign( { getHooks : [], transforms : [], changeHandlers : [] }, a_options );
