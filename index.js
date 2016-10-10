@@ -2706,6 +2706,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    ArrayType.prototype.convert = function (value) {
 	        if (value == null || Array.isArray(value))
 	            return value;
+	        this._log('warn', 'assigned with non-array', value, arguments[3]);
 	        return [];
 	    };
 	    return ArrayType;

@@ -70,7 +70,8 @@ export class ArrayType extends GenericAttribute {
         // Fix incompatible constructor behaviour of Array...
         if( value == null || Array.isArray( value ) ) return value;
 
-        // todo: log an error.
+        this._log( 'warn', 'assigned with non-array', value, arguments[ 3 ] );
+
         return [];
     }
 }
