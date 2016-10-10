@@ -3409,6 +3409,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            _super.call(this, recordsOrIds, subsetOptions(options), 2);
 	            this.resolvedWith = null;
 	        }
+	        Object.defineProperty(SubsetOfCollection.prototype, "_state", {
+	            get: function () { return this.refs || this.models; },
+	            enumerable: true,
+	            configurable: true
+	        });
 	        SubsetOfCollection.prototype.add = function (elements, options) {
 	            return _super.prototype.add.call(this, elements, subsetOptions(options));
 	        };

@@ -41,6 +41,8 @@ function defineSubsetCollection( CollectionConstructor : typeof Collection ) {
 
         _attribute : TransactionalType
 
+        get _state(){ return this.refs || this.models; }
+
         constructor( recordsOrIds?, options? ){
             super( recordsOrIds, subsetOptions( options ), 2 );
         }
