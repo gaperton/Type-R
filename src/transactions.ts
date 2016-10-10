@@ -279,7 +279,7 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
 
     // Get class name for an object instance. Works fine with ES6 classes definitions (not in IE).
     getClassName() : string {
-        const { name : string } = <any>this.constructor;
+        const { name } = <any>this.constructor;
         if( name !== 'Subclass' ) return name;
     }
 
