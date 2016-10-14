@@ -26,7 +26,7 @@ export class TransactionalType extends GenericAttribute {
         if( value == null ) return value;
         
         if( value instanceof this.type ){
-            if( value._shared === 1 ){
+            if( value._shared ){
                 this._log( 'error', 'aggregated attribute is assigned with shared collection type', value, record );
             }
 
