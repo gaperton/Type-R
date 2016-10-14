@@ -42,7 +42,7 @@ export class TransactionalType extends GenericAttribute {
     }
 
     create() : Transactional {
-        return new (<any>this.type)(); // this the subclass of Transactional here.
+        return (<any>this.type).create(); // this the subclass of Transactional here.
     }
 
     initialize( options ){
