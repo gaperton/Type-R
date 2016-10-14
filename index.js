@@ -2507,7 +2507,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (value == null)
 	            return value;
 	        if (value instanceof this.type) {
-	            if (value._shared) {
+	            if (value._shared === 1) {
 	                this._log('error', 'aggregated attribute is assigned with shared collection type', value, record);
 	            }
 	            return options.merge ? value.clone() : value;
