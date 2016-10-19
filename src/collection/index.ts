@@ -300,7 +300,7 @@ export class Collection extends Transactional implements CollectionCore {
         super.dispose();
     }
 
-    reset( a_elements : ElementsArg, options : TransactionOptions = {} ) : Record[] {
+    reset( a_elements? : ElementsArg, options : TransactionOptions = {} ) : Record[] {
         const isRoot = begin( this ),
               previousModels = dispose( this );
 
