@@ -64,6 +64,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	__export(__webpack_require__(10));
 	var _1 = __webpack_require__(1);
 	exports.on = _1.Events.on, exports.off = _1.Events.off, exports.trigger = _1.Events.trigger, exports.once = _1.Events.once, exports.listenTo = _1.Events.listenTo, exports.stopListening = _1.Events.stopListening, exports.listenToOnce = _1.Events.listenToOnce;
+	var underscore_mixin_1 = __webpack_require__(29);
+	var collection_2 = __webpack_require__(6);
 	var record_2 = __webpack_require__(10);
 	exports.Model = record_2.Record;
 	var _2 = __webpack_require__(1);
@@ -88,6 +90,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	}
 	exports.transaction = transaction;
+	function use(_) {
+	    var UnderscoreMixin = underscore_mixin_1.default(_);
+	    record_2.Record.mixins(UnderscoreMixin.Model);
+	    collection_2.Collection.mixins(UnderscoreMixin.Collection);
+	}
+	exports.use = use;
 
 
 /***/ },
@@ -3527,6 +3535,120 @@ return /******/ (function(modules) { // webpackBootstrap
 	}(record_1.Record));
 	exports.Store = Store;
 	Store.global = new Store();
+
+
+/***/ },
+/* 29 */
+/***/ function(module, exports) {
+
+	"use strict";
+	function default_1(_) {
+	    var slice = Array.prototype.slice;
+	    var Model = {
+	        pick: function () {
+	            var args = [];
+	            for (var _i = 0; _i < arguments.length; _i++) {
+	                args[_i - 0] = arguments[_i];
+	            }
+	            return _.pick(this, args);
+	        },
+	        escape: function (attr) {
+	            return _.escape(this[attr]);
+	        },
+	        matches: function (attrs) {
+	            return !!_.iteratee(attrs, this)(this);
+	        },
+	        omit: function () {
+	            var keys = [];
+	            for (var _i = 0; _i < arguments.length; _i++) {
+	                keys[_i - 0] = arguments[_i];
+	            }
+	            return this.mapObject(function (value, key) {
+	                if (keys.indexOf(key) < 0) {
+	                    return value;
+	                }
+	            });
+	        },
+	        invert: function () {
+	            var inverted = {};
+	            this.each(function (value, key) { return inverted[value] = key; });
+	            return inverted;
+	        },
+	        pairs: function () {
+	            return this.map(function (value, key) { return [key, value]; });
+	        },
+	        isEmpty: function () {
+	            return !this.values().length;
+	        },
+	        chain: function () {
+	            return _.chain(this.mapObject(function (x) { return x; }));
+	        }
+	    };
+	    var Collection = {
+	        where: function (attrs, first) {
+	            return this[first ? 'find' : 'filter'](attrs);
+	        },
+	        findWhere: function (attrs) {
+	            return this.where(attrs, true);
+	        }
+	    };
+	    addUnderscoreMethods(Collection, 'models', {
+	        forEach: 3, each: 3, map: 3, collect: 3, reduce: 4,
+	        foldl: 4, inject: 4, reduceRight: 4, foldr: 4, find: 3, findIndex: 3, findLastIndex: 3, detect: 3, filter: 3,
+	        select: 3, reject: 3, every: 3, all: 3, some: 3, any: 3, include: 3, includes: 3,
+	        contains: 3, invoke: 0, max: 3, min: 3, toArray: 1, size: 1, first: 3,
+	        head: 3, take: 3, initial: 3, rest: 3, tail: 3, drop: 3, last: 3,
+	        without: 0, difference: 0, indexOf: 3, shuffle: 1, lastIndexOf: 3,
+	        isEmpty: 1, chain: 1, sample: 3, partition: 3, groupBy: 3, countBy: 3,
+	        sortBy: 3, indexBy: 3
+	    });
+	    function addUnderscoreMethods(Mixin, attribute, methods) {
+	        _.each(methods, function (length, method) {
+	            if (_[method])
+	                Mixin[method] = addMethod(length, method, attribute);
+	        });
+	    }
+	    function addMethod(length, method, attribute) {
+	        switch (length) {
+	            case 1: return function () {
+	                return _[method](this[attribute]);
+	            };
+	            case 2: return function (value) {
+	                return _[method](this[attribute], value);
+	            };
+	            case 3: return function (iteratee, context) {
+	                var value = this[attribute], callback = cb(iteratee, this);
+	                return arguments.length > 1 ?
+	                    _[method](value, callback, context)
+	                    : _[method](value, callback);
+	            };
+	            case 4: return function (iteratee, defaultVal, context) {
+	                var value = this[attribute], callback = cb(iteratee, this);
+	                return arguments.length > 1 ?
+	                    _[method](value, callback, defaultVal, context)
+	                    : _[method](value, callback);
+	            };
+	            default: return function () {
+	                var args = slice.call(arguments);
+	                args.unshift(this[attribute]);
+	                return _[method].apply(_, args);
+	            };
+	        }
+	    }
+	    function cb(iteratee, instance) {
+	        switch (typeof iteratee) {
+	            case 'function': return iteratee;
+	            case 'string': return function (model) { return model.get(iteratee); };
+	            case 'object':
+	                if (!(iteratee instanceof instance.model))
+	                    return _.matches(iteratee);
+	        }
+	        return iteratee;
+	    }
+	    return { Model: Model, Collection: Collection };
+	}
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = default_1;
 
 
 /***/ }
