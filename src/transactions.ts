@@ -38,6 +38,12 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     trigger      : (name : string, a?, b?, c? ) => this
     
     _disposed : boolean;
+
+    // State accessor. 
+    readonly _state : any;
+
+    // Shared modifier (used by collections of shared models)
+    _shared? : number; 
     
     dispose() : void {
         this._owner = void 0;

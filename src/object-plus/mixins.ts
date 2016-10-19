@@ -55,8 +55,8 @@ export interface Constructor< T >{
  * Generic interface to reference constructor function of any Mixable type T.
  */
 export interface MixableConstructor< T > extends Constructor< T >{
-    prototype : Mixable
-    create( a : any, b? : any ) : Mixable
+    prototype : T
+    create( a : any, b? : any ) : T
     mixins( ...mixins : ( Constructor<any> | {} )[] ) : MixableConstructor< T >
     mixinRules( mixinRules : MixinRules ) : MixableConstructor< T >
     mixTo( ...args : Constructor<any>[] ) : MixableConstructor< T >
