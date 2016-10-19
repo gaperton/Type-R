@@ -90,12 +90,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	}
 	exports.transaction = transaction;
-	function use(_) {
+	function useUnderscore(_) {
 	    var UnderscoreMixin = underscore_mixin_1.default(_);
 	    record_2.Record.mixins(UnderscoreMixin.Model);
 	    collection_2.Collection.mixins(UnderscoreMixin.Collection);
+	    return this;
 	}
-	exports.use = use;
+	exports.useUnderscore = useUnderscore;
 
 
 /***/ },
@@ -3543,7 +3544,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	function default_1(_) {
-	    var slice = Array.prototype.slice;
 	    var Model = {
 	        pick: function () {
 	            var args = [];
@@ -3629,7 +3629,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    : _[method](value, callback);
 	            };
 	            default: return function () {
-	                var args = slice.call(arguments);
+	                var args = [];
+	                for (var _i = 0; _i < arguments.length; _i++) {
+	                    args[_i - 0] = arguments[_i];
+	                }
 	                args.unshift(this[attribute]);
 	                return _[method].apply(_, args);
 	            };

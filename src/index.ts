@@ -38,8 +38,10 @@ export function transaction< F extends Function >( method : F ) : F {
     }
 }
 
-export function use( _ ) {
+export function useUnderscore( _ ) {
     const UnderscoreMixin = createUnderscoreMixin( _ ); 
     Model.mixins( UnderscoreMixin.Model );
     Collection.mixins( UnderscoreMixin.Collection );
+
+    return this;
 }

@@ -1,6 +1,4 @@
 export default function( _ ) : { Model : {}, Collection : {} } {
-    var slice = Array.prototype.slice;
-    
     const Model = {
         pick( ...args : any[] ){
             return _.pick( this, args );
@@ -99,8 +97,7 @@ export default function( _ ) : { Model : {}, Collection : {} } {
                     _[method]( value, callback, defaultVal, context )
                     : _[method](value, callback );
             };
-            default: return function() {
-                var args = slice.call(arguments);
+            default: return function( ...args : any[] ) {
                 args.unshift(this[attribute]);
                 return _[method].apply(_, args);
             };
