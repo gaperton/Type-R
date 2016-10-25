@@ -1,4 +1,4 @@
-NestedTypes has powerful declarative validation tools, allowing
+`Type-R` has powerful declarative validation tools, allowing
 you to express complex business rules for the models, collections, and model attributes.  
 
 ```javascript
