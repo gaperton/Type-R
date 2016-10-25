@@ -25,7 +25,8 @@ export class ChainableAttributeSpec {
     check( check : AttributeCheck, error : any ) : this {
         function validate( model, value, name ){
             if( !check.call( model, value, name ) ){
-                return error || check.error || name + ' is not valid';
+                const msg = error || check.error || name + ' is not valid';
+                return typeof msg === 'function' ? msg.call( model, name ) : msg;
             }
         }
 
