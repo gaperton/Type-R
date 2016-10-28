@@ -325,6 +325,12 @@ const mergeFunctions : IMergeFunctions = {
         }
     },
 
+    mergeSequence( a : Function, b : Function ) : Function {
+        return function() : Object {
+            return defaults( a.call( this ), b.call( this ) );
+        }
+    },
+
     sequence( a : Function, b : Function ){
         return function() : void {
             a.apply( this, arguments );

@@ -218,6 +218,18 @@ describe( 'Advanced functionality', function(){
                 expect( token ).to.equal( m._changeToken ); 
             } );
         });
+    });
 
+    it( 'can filter aggregated collection', function(){
+        const c = new M.Collection( { name : 'a' }, { name : 'b' } );
+        c.reset( c.last() );
+        expect( c.first()._owner ).to.equal( c );
+    });
+
+    it( 'model.clone() should clean up an owner', function(){
+        const c = new M.Collection( { name : 'a' }, { name : 'b' } );
+        
+        expect( c.first()._owner ).to.be.eql( c );
+        expect( c.first().clone()._owner ).to.be.eql( void 0 );
     });
 });

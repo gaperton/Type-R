@@ -571,6 +571,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return a.call(this, b.call(this, x));
 	        };
 	    },
+	    mergeSequence: function (a, b) {
+	        return function () {
+	            return tools_1.defaults(a.call(this), b.call(this));
+	        };
+	    },
 	    sequence: function (a, b) {
 	        return function () {
 	            a.apply(this, arguments);
