@@ -481,7 +481,7 @@ export class Record extends Transactional implements Owner {
               { attributes } = this,
               values = options.parse ? this.parse( a_values, options ) : a_values;
 
-        if( Object.getPrototypeOf( values ) === Object.prototype ){
+        if( values && values.constructor === Object ){
             this.forEachAttr( values, ( value, key : string, attr : AttributeUpdatePipeline ) => {
                 const prev = attributes[ key ];
                 let update;

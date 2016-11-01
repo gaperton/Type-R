@@ -2074,7 +2074,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var _this = this;
 	        if (options === void 0) { options = {}; }
 	        var isRoot = begin(this), changes = [], nested = [], attributes = this.attributes, values = options.parse ? this.parse(a_values, options) : a_values;
-	        if (Object.getPrototypeOf(values) === Object.prototype) {
+	        if (values && values.constructor === Object) {
 	            this.forEachAttr(values, function (value, key, attr) {
 	                var prev = attributes[key];
 	                var update;
@@ -2723,6 +2723,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this._log('warn', 'assigned with non-array', value, arguments[3]);
 	        return [];
 	    };
+	    ArrayType.prototype.clone = function (value) { return value && value.slice(); };
 	    return ArrayType;
 	}(generic_1.GenericAttribute));
 	exports.ArrayType = ArrayType;

@@ -74,6 +74,8 @@ export class ArrayType extends GenericAttribute {
 
         return [];
     }
+
+    clone( value ){ return value && value.slice(); }
 }
 
 Array._attribute = ArrayType;
