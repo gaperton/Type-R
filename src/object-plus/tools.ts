@@ -338,6 +338,15 @@ export function defaults< T >( dest : T, source : Object ) : T {
     return dest;
 }
 
+// Polyfill for IE10. Should fix problems with babel and statics inheritance.
+declare global {
+    interface ObjectConstructor {
+        setPrototypeOf( target : Object, proto : Object );
+    }
+}
+
+Object.setPrototypeOf || ( Object.setPrototypeOf = defaults ); 
+
 /** Similar to underscore `_.keys` */
 export function keys( o : any ) : string[]{
     return o ? Object.keys( o ) : [];

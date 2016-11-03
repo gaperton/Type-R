@@ -46,6 +46,7 @@ export function dispose( collection : CollectionCore ) : Record[]{
 /** @private */
 export function convertAndAquire( collection : CollectionCore, attrs : {} | Record, options ){
     const { model } = collection;
+    
     let record : Record;
 
     if( collection._shared ){
