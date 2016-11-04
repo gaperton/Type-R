@@ -1,6 +1,6 @@
 import { Record } from '../transaction' 
 import { GenericAttribute } from './generic'
-import { Owner, transactionApi, Transactional, TransactionOptions, TransactionalConstructor } from '../../transactions'
+import { Owner, transactionApi, Transactional, ItemsBehavior, TransactionOptions, TransactionalConstructor } from '../../transactions'
 import { tools } from '../../object-plus' 
 
 const { free, aquire } = transactionApi;
@@ -26,7 +26,7 @@ export class TransactionalType extends GenericAttribute {
         if( value == null ) return value;
         
         if( value instanceof this.type ){
-            if( value._shared === 1 ){ // TODO: think more about shared types assignment compatibility. 
+            if( value._shared && !( value._shared & ItemsBehavior.persistent ) ) { // TODO: think more about shared types assignment compatibility. 
                 this._log( 'error', 'aggregated attribute is assigned with shared collection type', value, record );
             }
 
