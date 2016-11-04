@@ -34,7 +34,6 @@ export class SharedRecordType extends GenericAttribute {
             }
         }
     }
-
     
     convert( value : any, options : TransactionOptions, prev : any, record : Record ) : Transactional {
         return value == null || value instanceof this.type ? value : this.type.create( value, options );

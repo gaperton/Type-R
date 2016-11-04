@@ -458,9 +458,20 @@ class SharedCollectionType extends SharedRecordType {
     type : typeof Collection
         // Shared object can never be type casted.
     convert( value : any, options : TransactionOptions, prev : any, record : Record ) : Transactional {
-        return value == null || value instanceof this.type ?
-                    value :
-                    new this.type( value, options, implicitShareListen );
+        if( value == null || value instanceof this.type ){
+            if( value._shared & ItemsBehavior.implicit ){
+                // TODO: use owner mark for proper handling of such collections.
+                // It can be disposed, if the one who created it is disposed.
+                // Or - consider usage of aggregated Collection.Refs here, which seems more appropriate.
+                // handleChange needs to be adjusted to take care of both cases then. Not that big deal.
+                this._log( 'warn', "Reassigning collection from Collection.shared.value([]) breaks disposal algorithm", value, record );
+            }
+
+            return value;
+        }
+
+        // Convert type using implicitly created shared collection.
+        return new this.type( value, options, implicitShareListen );
     }
 
     dispose( record : Record, value : Collection ){
