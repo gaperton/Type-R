@@ -85,6 +85,8 @@ export class GenericAttribute implements Attribute {
         return value;
     }
 
+    dispose( record : Record, value : any ){}
+
     validate( record : Record, value : any, key : string ){}
 
     toJSON( value, key ) {

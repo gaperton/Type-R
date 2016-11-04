@@ -14,8 +14,14 @@ const { assign } = tools,
 export type TransactionalConstructor = MixableConstructor< Transactional >
 export type TransactionalDefinition = MessengerDefinition
 
-// Transactional object interface
+export enum ItemsBehavior {
+    share       = 0b0001,
+    listen      = 0b0010,
+    implicit    = 0b0100,
+    persistent  = 0b1000
+}
 
+// Transactional object interface
 @mixins( Messenger )
 @extendable
 export abstract class Transactional implements Messenger, Validatable, Traversable {

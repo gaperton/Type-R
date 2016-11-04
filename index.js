@@ -1167,16 +1167,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Collection.predefine = function () {
 	        var Ctor = this;
 	        this._SubsetOf = null;
-	        function Subset(a, b, listen) {
-	            Ctor.call(this, a, b, listen ? 1 : 2);
+	        function RefsCollection(a, b, listen) {
+	            Ctor.call(this, a, b, transactions_1.ItemsBehavior.share | (listen ? transactions_1.ItemsBehavior.listen : 0));
 	        }
-	        object_plus_1.Mixable.mixTo(Subset);
-	        Subset.prototype = this.prototype;
-	        Subset._attribute = record_1.TransactionalType;
-	        Subset['of'] = function (path) {
-	            return Ctor.subsetOf(path);
-	        };
-	        this.Set = this.Subset = Subset;
+	        object_plus_1.Mixable.mixTo(RefsCollection);
+	        RefsCollection.prototype = this.prototype;
+	        RefsCollection._attribute = record_1.TransactionalType;
+	        this.Refs = this.Subset = RefsCollection;
 	        transactions_1.Transactional.predefine.call(this);
 	        record_1.createSharedTypeSpec(this, SharedCollectionType);
 	        return this;
@@ -1318,12 +1315,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this;
 	    };
 	    Collection.prototype.dispose = function () {
-	        if (!this._shared) {
-	            for (var _i = 0, _a = this.models; _i < _a.length; _i++) {
-	                var record = _a[_i];
-	                if (record._owner === this)
-	                    record.dispose();
-	            }
+	        var aggregated = !this._shared;
+	        for (var _i = 0, _a = this.models; _i < _a.length; _i++) {
+	            var record = _a[_i];
+	            commons_1.free(this, record);
+	            if (aggregated)
+	                record.dispose();
 	        }
 	        _super.prototype.dispose.call(this);
 	    };
@@ -1443,14 +1440,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var parsed = options.parse ? collection.parse(elements, options) : elements;
 	    return Array.isArray(parsed) ? parsed : [parsed];
 	}
-	var slice = Array.prototype.slice;
+	var slice = Array.prototype.slice, implicitShareListen = transactions_1.ItemsBehavior.listen | transactions_1.ItemsBehavior.implicit | transactions_1.ItemsBehavior.share;
 	var SharedCollectionType = (function (_super) {
 	    __extends(SharedCollectionType, _super);
 	    function SharedCollectionType() {
 	        _super.apply(this, arguments);
 	    }
 	    SharedCollectionType.prototype.convert = function (value, options, prev, record) {
-	        return value == null || value instanceof this.type ? value : new this.type(value, options, 1);
+	        return value == null || value instanceof this.type ?
+	            value :
+	            new this.type(value, options, implicitShareListen);
+	    };
+	    SharedCollectionType.prototype.dispose = function (record, value) {
+	        if (value && value._shared === transactions_1.ItemsBehavior.implicit) {
+	            value.dispose();
+	        }
 	    };
 	    return SharedCollectionType;
 	}(record_1.SharedRecordType));
@@ -1473,6 +1477,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	var validation_1 = __webpack_require__(8);
 	var traversable_1 = __webpack_require__(9);
 	var assign = object_plus_1.tools.assign, trigger2 = object_plus_1.eventsApi.trigger2, trigger3 = object_plus_1.eventsApi.trigger3, on = object_plus_1.eventsApi.on, off = object_plus_1.eventsApi.off;
+	(function (ItemsBehavior) {
+	    ItemsBehavior[ItemsBehavior["share"] = 1] = "share";
+	    ItemsBehavior[ItemsBehavior["listen"] = 2] = "listen";
+	    ItemsBehavior[ItemsBehavior["implicit"] = 4] = "implicit";
+	    ItemsBehavior[ItemsBehavior["persistent"] = 8] = "persistent";
+	})(exports.ItemsBehavior || (exports.ItemsBehavior = {}));
+	var ItemsBehavior = exports.ItemsBehavior;
 	var Transactional = (function () {
 	    function Transactional(cid) {
 	        this._events = void 0;
@@ -2130,10 +2141,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	    Record.prototype.dispose = function () {
 	        var _this = this;
-	        this.forEachAttr(this.attributes, function (value, key) {
-	            if (value && _this === value._owner) {
-	                value.dispose();
-	            }
+	        this.forEachAttr(this.attributes, function (value, key, attribute) {
+	            attribute.dispose(_this, value);
 	        });
 	        _super.prototype.dispose.call(this);
 	    };
@@ -2437,6 +2446,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return value;
 	    };
+	    GenericAttribute.prototype.dispose = function (record, value) { };
 	    GenericAttribute.prototype.validate = function (record, value, key) { };
 	    GenericAttribute.prototype.toJSON = function (value, key) {
 	        return value && value.toJSON ? value.toJSON() : value;
@@ -2528,6 +2538,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return options.merge ? value.clone() : value;
 	        }
 	        return this.type.create(value, options);
+	    };
+	    TransactionalType.prototype.dispose = function (record, value) {
+	        if (value) {
+	            free(record, value);
+	            value.dispose();
+	        }
 	    };
 	    TransactionalType.prototype.validate = function (record, value) {
 	        var error = value && value.validationError;
@@ -2772,8 +2788,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return null;
 	    };
 	    SharedRecordType.prototype._handleChange = function (next, prev, record) {
-	        prev && off(prev, prev._changeEventName, this._onChange, record);
-	        next && on(next, next._changeEventName, this._onChange, record);
+	        if (prev)
+	            off(prev, prev._changeEventName, this._onChange, record);
+	        if (next)
+	            on(next, next._changeEventName, this._onChange, record);
+	    };
+	    SharedRecordType.prototype.dispose = function (record, value) {
+	        if (value)
+	            off(value, value._changeEventName, this._onChange, record);
 	    };
 	    SharedRecordType.prototype.initialize = function (options) {
 	        this.toJSON = null;
@@ -2933,7 +2955,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var record;
 	    if (collection._shared) {
 	        record = attrs instanceof model ? attrs : model.create(attrs, options);
-	        if (collection._shared === 1) {
+	        if (collection._shared & transactions_1.ItemsBehavior.listen) {
 	            on(record, record._changeEventName, collection._onChildrenChange, collection);
 	        }
 	    }
@@ -2951,7 +2973,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.convertAndAquire = convertAndAquire;
 	function free(owner, child) {
 	    if (owner._shared) {
-	        if (owner._shared === 1) {
+	        if (owner._shared & transactions_1.ItemsBehavior.listen) {
 	            off(child, child._changeEventName, owner._onChildrenChange, owner);
 	        }
 	    }
@@ -3402,6 +3424,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var object_plus_1 = __webpack_require__(1);
 	var commons_1 = __webpack_require__(26);
 	var record_1 = __webpack_require__(10);
+	var transactions_1 = __webpack_require__(7);
 	var fastDefaults = object_plus_1.tools.fastDefaults;
 	collection_1.Collection.subsetOf = function subsetOf(masterCollection) {
 	    var SubsetOf = this._SubsetOf || (this._SubsetOf = defineSubsetCollection(this)), getMasterCollection = commons_1.parseReference(masterCollection), typeSpec = new record_1.ChainableAttributeSpec({
@@ -3419,11 +3442,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        fastDefaults(subsetOptions, options);
 	    return subsetOptions;
 	}
+	var subsetOfBehavior = transactions_1.ItemsBehavior.share | transactions_1.ItemsBehavior.persistent;
 	function defineSubsetCollection(CollectionConstructor) {
 	    var SubsetOfCollection = (function (_super) {
 	        __extends(SubsetOfCollection, _super);
 	        function SubsetOfCollection(recordsOrIds, options) {
-	            _super.call(this, recordsOrIds, subsetOptions(options), 2);
+	            _super.call(this, recordsOrIds, subsetOptions(options), subsetOfBehavior);
 	            this.resolvedWith = null;
 	        }
 	        Object.defineProperty(SubsetOfCollection.prototype, "_state", {

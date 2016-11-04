@@ -36,6 +36,13 @@ export class TransactionalType extends GenericAttribute {
         return <any>this.type.create( value, options );
     }
 
+    dispose ( record : Record, value : Transactional ){
+        if( value ){
+            free( record, value );
+            value.dispose();
+        }
+    }
+
     validate( record : Record, value : Transactional ){
         var error = value && value.validationError;
         if( error ) return error;

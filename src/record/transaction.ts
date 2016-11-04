@@ -68,6 +68,7 @@ export interface AttributesSpec {
 export interface Attribute extends AttributeUpdatePipeline, AttributeSerialization {
     clone( value : any ) : any
     create() : any
+    dispose( record : Record, value : any ) : void
     validate( record : Record, value : any, key : string )
 }
 
@@ -553,10 +554,8 @@ export class Record extends Transactional implements Owner {
 
     // Dispose object and all childrens
     dispose(){
-        this.forEachAttr( this.attributes, ( value, key ) => {
-            if( value && this === value._owner ){
-                value.dispose(); 
-            }
+        this.forEachAttr( this.attributes, ( value, key, attribute ) => {
+            attribute.dispose( this, value );
         });
 
         super.dispose();

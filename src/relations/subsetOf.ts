@@ -3,7 +3,7 @@ import { tools, define } from '../object-plus'
 import { Record, TransactionalType } from '../record'
 import { parseReference, CollectionReference } from './commons'
 import { ChainableAttributeSpec } from '../record'
-import { Transactional, TransactionOptions } from '../transactions'
+import { Transactional, ItemsBehavior, TransactionOptions } from '../transactions'
 
 const { fastDefaults } = tools;
 
@@ -33,6 +33,8 @@ function subsetOptions( options : CollectionOptions ){
     return subsetOptions;
 }
 
+const subsetOfBehavior = ItemsBehavior.share | ItemsBehavior.persistent;
+
 function defineSubsetCollection( CollectionConstructor : typeof Collection ) {
     @define({})
     class SubsetOfCollection extends CollectionConstructor {
@@ -44,7 +46,7 @@ function defineSubsetCollection( CollectionConstructor : typeof Collection ) {
         get _state(){ return this.refs || this.models; }
 
         constructor( recordsOrIds?, options? ){
-            super( recordsOrIds, subsetOptions( options ), 2 );
+            super( recordsOrIds, subsetOptions( options ), subsetOfBehavior );
         }
 
         add( elements, options? ){

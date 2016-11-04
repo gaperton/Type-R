@@ -1,8 +1,8 @@
 import { define, tools, eventsApi, EventMap, EventsDefinition, Mixable } from '../object-plus'
-import { transactionApi, Transactional, CloneOptions, Transaction, TransactionOptions, TransactionalDefinition, Owner } from '../transactions'
+import { ItemsBehavior, transactionApi, Transactional, CloneOptions, Transaction, TransactionOptions, TransactionalDefinition, Owner } from '../transactions'
 import { Record, SharedRecordType, TransactionalType, createSharedTypeSpec } from '../record'
 
-import { IdIndex, sortElements, dispose, Elements, CollectionCore, addIndex, removeIndex, updateIndex, Comparator, CollectionTransaction } from './commons'
+import { IdIndex, free, sortElements, dispose, Elements, CollectionCore, addIndex, removeIndex, updateIndex, Comparator, CollectionTransaction } from './commons'
 import { addTransaction } from './add'
 import { setTransaction, emptySetTransaction } from './set'
 import { removeOne, removeMany } from './remove'
@@ -41,7 +41,7 @@ export class Collection extends Transactional implements CollectionCore {
     _aggregationError : Record[]
 
     static Subset : typeof Collection
-    static Set : typeof Collection
+    static Refs : typeof Collection
     static _SubsetOf : typeof Collection
     
     createSubset( models, options ){
@@ -57,19 +57,16 @@ export class Collection extends Transactional implements CollectionCore {
         const Ctor = this;
         this._SubsetOf = null;
 
-        function Subset( a, b, listen? ){
-            Ctor.call( this, a, b, listen ? 1 : 2 );
+        function RefsCollection( a, b, listen? ){
+            Ctor.call( this, a, b, ItemsBehavior.share | ( listen ? ItemsBehavior.listen : 0 ) );
         }
 
-        Mixable.mixTo( Subset );
+        Mixable.mixTo( RefsCollection );
         
-        Subset.prototype = this.prototype;
-        Subset._attribute = TransactionalType;
-        Subset[ 'of' ] = function( path ){
-            return Ctor.subsetOf( path );
-        }
+        RefsCollection.prototype = this.prototype;
+        RefsCollection._attribute = TransactionalType;
 
-        this.Set = this.Subset = <any>Subset;
+        this.Refs = this.Subset = <any>RefsCollection;
 
         Transactional.predefine.call( this );
         createSharedTypeSpec( this, SharedCollectionType );
@@ -291,10 +288,12 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     dispose(){
-        if( !this._shared ){
-            for( let record of this.models ){
-                if( record._owner === this ) record.dispose();
-            }
+        const aggregated = !this._shared;
+
+        for( let record of this.models ){
+            free( this, record );
+
+            if( aggregated ) record.dispose();
         }
 
         super.dispose();
@@ -452,16 +451,25 @@ function toElements( collection : Collection, elements : ElementsArg, options : 
     return Array.isArray( parsed ) ? parsed : [ parsed ];
 }
 
-const slice = Array.prototype.slice;
+const slice = Array.prototype.slice,
+      implicitShareListen = ItemsBehavior.listen | ItemsBehavior.implicit | ItemsBehavior.share;
 
 class SharedCollectionType extends SharedRecordType {
     type : typeof Collection
         // Shared object can never be type casted.
     convert( value : any, options : TransactionOptions, prev : any, record : Record ) : Transactional {
-        return value == null || value instanceof this.type ? value : new this.type( value, options, 1 );
+        return value == null || value instanceof this.type ?
+                    value :
+                    new this.type( value, options, implicitShareListen );
+    }
+
+    dispose( record : Record, value : Collection ){
+        // If the collection was implicitly created, dispose it.
+        if( value && value._shared === ItemsBehavior.implicit ){
+            value.dispose();
+        }
     }
 }
-
 
 createSharedTypeSpec( Collection, SharedCollectionType );
 

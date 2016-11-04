@@ -1,5 +1,5 @@
 import { Record } from '../record'
-import { Owner, Transaction,
+import { Owner, Transaction, ItemsBehavior,
         TransactionOptions, Transactional, transactionApi } from '../transactions'
 
 import { eventsApi, tools } from '../object-plus'
@@ -52,7 +52,7 @@ export function convertAndAquire( collection : CollectionCore, attrs : {} | Reco
     if( collection._shared ){
         record = attrs instanceof model ? attrs : <Record>model.create( attrs, options );
 
-        if( collection._shared === 1 ){
+        if( collection._shared & ItemsBehavior.listen ){
             on( record, record._changeEventName, collection._onChildrenChange, collection );
         }
     }
@@ -75,7 +75,7 @@ export function convertAndAquire( collection : CollectionCore, attrs : {} | Reco
 /** @private */
 export function free( owner : CollectionCore, child : Record ) : void {
     if( owner._shared ){
-        if( owner._shared === 1 ){
+        if( owner._shared & ItemsBehavior.listen ){
             off( child, child._changeEventName, owner._onChildrenChange, owner );
         }
     }

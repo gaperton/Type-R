@@ -50,8 +50,13 @@ export class SharedRecordType extends GenericAttribute {
 
     // Listening to the change events
     _handleChange( next : Transactional, prev : Transactional, record : Record ){
-        prev && off( prev, prev._changeEventName, this._onChange, record );
-        next && on( next, next._changeEventName, this._onChange, record );
+        if( prev ) off( prev, prev._changeEventName, this._onChange, record );
+        if( next ) on( next, next._changeEventName, this._onChange, record );
+    }
+
+    dispose( record : Record, value : Transactional ){
+        // Unsubscribe from change events. Do not dispose object.
+        if( value ) off( value, value._changeEventName, this._onChange, record );
     }
 
     _onChange : ( child : Transactional, options : TransactionOptions, initiator : Transactional ) => void 
