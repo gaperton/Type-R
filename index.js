@@ -1452,7 +1452,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            new this.type(value, options, implicitShareListen);
 	    };
 	    SharedCollectionType.prototype.dispose = function (record, value) {
-	        if (value && value._shared === transactions_1.ItemsBehavior.implicit) {
+	        if (value && (value._shared & transactions_1.ItemsBehavior.implicit)) {
 	            value.dispose();
 	        }
 	    };
@@ -2532,7 +2532,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (value == null)
 	            return value;
 	        if (value instanceof this.type) {
-	            if (value._shared === 1) {
+	            if (value._shared && !(value._shared & transactions_1.ItemsBehavior.persistent)) {
 	                this._log('error', 'aggregated attribute is assigned with shared collection type', value, record);
 	            }
 	            return options.merge ? value.clone() : value;

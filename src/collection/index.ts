@@ -465,7 +465,7 @@ class SharedCollectionType extends SharedRecordType {
 
     dispose( record : Record, value : Collection ){
         // If the collection was implicitly created, dispose it.
-        if( value && value._shared === ItemsBehavior.implicit ){
+        if( value && ( value._shared & ItemsBehavior.implicit ) ){
             value.dispose();
         }
     }

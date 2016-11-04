@@ -25,8 +25,10 @@ describe( 'Memory management', function(){
         m.ref = singleton;
         m.refs = [ singleton ];
 
+        expect( singleton._events.change ).to.be.array;
+
         m.dispose();
 
-        expect( singleton._events ).to.be.empty;
+        expect( singleton._events.change ).to.be.empty;
     } );
 });
