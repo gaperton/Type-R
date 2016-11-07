@@ -58,11 +58,11 @@ describe( 'Advanced functionality', function(){
             expect( a.shared ).to.equal( b.owned );
         } );
 
-        it( "is converted to the ownerless model on assignment", function(){
+        it( "is converted to the aggregated model on assignment", function(){
             var a = new A();
             a.shared = { name : 'Hey' };
             expect( a.shared.name ).to.equal( 'Hey' );
-            expect( a.shared._owner ).to.equal( void 0 );
+            expect( a.shared._owner ).to.equal( a );
         } );
         
         it( "is not serialized", function(){
@@ -124,7 +124,7 @@ describe( 'Advanced functionality', function(){
             var a = new A();
             a.sharedC = [{ name : 'Hey' }];
             expect( a.sharedC.first().name ).to.equal( 'Hey' );
-            expect( a.sharedC._owner ).to.equal( void 0 );
+            expect( a.sharedC._owner ).to.equal( a );
 
             var callback = sinon.spy();
             a.on( 'change', callback );

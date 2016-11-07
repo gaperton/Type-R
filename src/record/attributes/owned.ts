@@ -1,12 +1,16 @@
 import { Record } from '../transaction' 
 import { GenericAttribute } from './generic'
-import { Owner, transactionApi, Transactional, TransactionOptions, TransactionalConstructor } from '../../transactions'
+import { Owner, transactionApi, Transactional, ItemsBehavior, TransactionOptions, TransactionalConstructor } from '../../transactions'
 import { tools } from '../../object-plus' 
 
 const { free, aquire } = transactionApi;
 
-export class TransactionalType extends GenericAttribute {
+export class AggregatedType extends GenericAttribute {
     type : TransactionalConstructor
+
+    clone( value : Transactional ) : Transactional {
+        return value ? value.clone() : value;
+    }
 
     canBeUpdated( prev : Transactional, next : any, options : TransactionOptions ) : any {
         // If an object already exists, and new value is of incompatible type, let object handle the update.
@@ -26,7 +30,7 @@ export class TransactionalType extends GenericAttribute {
         if( value == null ) return value;
         
         if( value instanceof this.type ){
-            if( value._shared === 1 ){ // TODO: think more about shared types assignment compatibility. 
+            if( value._shared && !( value._shared & ItemsBehavior.persistent ) ) { // TODO: think more about shared types assignment compatibility. 
                 this._log( 'error', 'aggregated attribute is assigned with shared collection type', value, record );
             }
 
@@ -34,6 +38,13 @@ export class TransactionalType extends GenericAttribute {
         }
 
         return <any>this.type.create( value, options );
+    }
+
+    dispose ( record : Record, value : Transactional ){
+        if( value ){
+            free( record, value );
+            value.dispose();
+        }
     }
 
     validate( record : Record, value : Transactional ){
@@ -58,4 +69,4 @@ export class TransactionalType extends GenericAttribute {
     }
 }
 
-Record._attribute = TransactionalType;
+Record._attribute = AggregatedType;

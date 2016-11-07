@@ -12,7 +12,7 @@ class ConstructorType extends GenericAttribute {
 
     clone( value ) {
         // delegate to clone function or deep clone through serialization
-        return value.clone ? value.clone() : this.convert( JSON.parse( JSON.stringify( value ) ) );
+        return value && value.clone ? value.clone() : this.convert( JSON.parse( JSON.stringify( value ) ) );
     }
 }
 

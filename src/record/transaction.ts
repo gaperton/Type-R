@@ -66,8 +66,9 @@ export interface AttributesSpec {
 }
 
 export interface Attribute extends AttributeUpdatePipeline, AttributeSerialization {
-    clone( value : any ) : any
+    clone( value : any, record : Record ) : any
     create() : any
+    dispose( record : Record, value : any ) : void
     validate( record : Record, value : any, key : string )
 }
 
@@ -553,10 +554,10 @@ export class Record extends Transactional implements Owner {
 
     // Dispose object and all childrens
     dispose(){
-        this.forEachAttr( this.attributes, ( value, key ) => {
-            if( value && this === value._owner ){
-                value.dispose(); 
-            }
+        if( this._disposed ) return;
+        
+        this.forEachAttr( this.attributes, ( value, key, attribute ) => {
+            attribute.dispose( this, value );
         });
 
         super.dispose();
@@ -599,7 +600,7 @@ function cloneAttributes( record : Record, a_attributes : AttributesValues ) : A
     const attributes = new record.Attributes( a_attributes );
 
     record.forEachAttr( attributes, function( value, name, attr : Attribute ){
-        attributes[ name ] = attr.clone( value ); //TODO: Add owner?
+        attributes[ name ] = attr.clone( value, record );
     } );
 
     return attributes;

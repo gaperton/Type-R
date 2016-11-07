@@ -1,13 +1,13 @@
 import { define, tools, eventsApi, EventMap, EventsDefinition, Mixable } from '../object-plus'
-import { transactionApi, Transactional, CloneOptions, Transaction, TransactionOptions, TransactionalDefinition, Owner } from '../transactions'
-import { Record, SharedRecordType, TransactionalType, createSharedTypeSpec } from '../record'
+import { ItemsBehavior, transactionApi, Transactional, CloneOptions, Transaction, TransactionOptions, TransactionalDefinition, Owner } from '../transactions'
+import { Record, SharedType, AggregatedType, createSharedTypeSpec } from '../record'
 
-import { IdIndex, sortElements, dispose, Elements, CollectionCore, addIndex, removeIndex, updateIndex, Comparator, CollectionTransaction } from './commons'
+import { IdIndex, free, sortElements, dispose, Elements, CollectionCore, addIndex, removeIndex, updateIndex, Comparator, CollectionTransaction } from './commons'
 import { addTransaction } from './add'
 import { setTransaction, emptySetTransaction } from './set'
 import { removeOne, removeMany } from './remove'
 
-const { trigger2 } = eventsApi,
+const { trigger2, on, off } = eventsApi,
     { begin, commit, markAsDirty } = transactionApi,
     { omit, log, assign, defaults } = tools;
 
@@ -29,6 +29,8 @@ interface CollectionDefinition extends TransactionalDefinition {
     _itemEvents? : EventMap
 }
 
+const slice = Array.prototype.slice;
+
 @define({
     // Default client id prefix 
     cidPrefix : 'c',
@@ -41,7 +43,7 @@ export class Collection extends Transactional implements CollectionCore {
     _aggregationError : Record[]
 
     static Subset : typeof Collection
-    static Set : typeof Collection
+    static Refs : typeof Collection
     static _SubsetOf : typeof Collection
     
     createSubset( models, options ){
@@ -57,22 +59,19 @@ export class Collection extends Transactional implements CollectionCore {
         const Ctor = this;
         this._SubsetOf = null;
 
-        function Subset( a, b, listen? ){
-            Ctor.call( this, a, b, listen ? 1 : 2 );
+        function RefsCollection( a, b, listen? ){
+            Ctor.call( this, a, b, ItemsBehavior.share | ( listen ? ItemsBehavior.listen : 0 ) );
         }
 
-        Mixable.mixTo( Subset );
+        Mixable.mixTo( RefsCollection );
         
-        Subset.prototype = this.prototype;
-        Subset._attribute = TransactionalType;
-        Subset[ 'of' ] = function( path ){
-            return Ctor.subsetOf( path );
-        }
+        RefsCollection.prototype = this.prototype;
+        RefsCollection._attribute = AggregatedType;
 
-        this.Set = this.Subset = <any>Subset;
+        this.Refs = this.Subset = <any>RefsCollection;
 
         Transactional.predefine.call( this );
-        createSharedTypeSpec( this, SharedCollectionType );
+        createSharedTypeSpec( this, SharedType );
         return this;
     }
     
@@ -257,7 +256,7 @@ export class Collection extends Transactional implements CollectionCore {
 
     // Deeply clone collection, optionally setting new owner.
     clone( options : CloneOptions = {} ) : this {
-        const models = this.map( model => model.clone() ),
+        const models = this._shared & ItemsBehavior.share ? this.models : this.map( model => model.clone() ),
               copy : this = new (<any>this.constructor)( models, { model : this.model, comparator : this.comparator }, this._shared );
         
         if( options.pinStore ) copy._defaultStore = this.getStore();
@@ -290,11 +289,15 @@ export class Collection extends Transactional implements CollectionCore {
         return this;    
     }
 
-    dispose(){
-        if( !this._shared ){
-            for( let record of this.models ){
-                if( record._owner === this ) record.dispose();
-            }
+    dispose() : void {
+        if( this._disposed ) return;
+
+        const aggregated = !this._shared;
+
+        for( let record of this.models ){
+            free( this, record );
+
+            if( aggregated ) record.dispose();
         }
 
         super.dispose();
@@ -356,7 +359,7 @@ export class Collection extends Transactional implements CollectionCore {
         }
     }
 
-    static _attribute = TransactionalType;
+    static _attribute = AggregatedType;
 
     /***********************************
      * Collection manipulation methods
@@ -452,17 +455,6 @@ function toElements( collection : Collection, elements : ElementsArg, options : 
     return Array.isArray( parsed ) ? parsed : [ parsed ];
 }
 
-const slice = Array.prototype.slice;
-
-class SharedCollectionType extends SharedRecordType {
-    type : typeof Collection
-        // Shared object can never be type casted.
-    convert( value : any, options : TransactionOptions, prev : any, record : Record ) : Transactional {
-        return value == null || value instanceof this.type ? value : new this.type( value, options, 1 );
-    }
-}
-
-
-createSharedTypeSpec( Collection, SharedCollectionType );
+createSharedTypeSpec( Collection, SharedType );
 
 Record.Collection = <any>Collection;

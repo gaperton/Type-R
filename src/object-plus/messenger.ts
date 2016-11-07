@@ -205,9 +205,15 @@ export abstract class Messenger implements Mixins.Mixable {
      * Destructor. Stops messenger from listening to all objects,
      * and stop others from listening to the messenger. 
      */
+    _disposed : boolean
+
     dispose() : void {
+        if( this._disposed ) return;
+
         this.stopListening();
         this.off();
+
+        this._disposed = true;
     }
 }
 

@@ -69,7 +69,7 @@ export class GenericAttribute implements Attribute {
 
     // generic clone function for typeless attributes
     // Must be overriden in sublass
-    clone( value ) {
+    clone( value : any, record : Record ) {
         if( value && typeof value === 'object' ) {
             // delegate to object's clone(), if it exist...
             if( value.clone ) return value.clone();
@@ -84,6 +84,8 @@ export class GenericAttribute implements Attribute {
 
         return value;
     }
+
+    dispose( record : Record, value : any ){}
 
     validate( record : Record, value : any, key : string ){}
 
