@@ -17,8 +17,7 @@ export type TransactionalDefinition = MessengerDefinition
 export enum ItemsBehavior {
     share       = 0b0001,
     listen      = 0b0010,
-    implicit    = 0b0100,
-    persistent  = 0b1000
+    persistent  = 0b0100
 }
 
 // Transactional object interface

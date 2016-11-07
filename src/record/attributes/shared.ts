@@ -10,10 +10,11 @@ const { on, off } = eventsApi,
  * Shared attribute definition.
  * - Not serialized.
  * - Listening to the changes.
- * - Doesn't take ownership.
+ * - Doesn't take ownership when assigned with object of proper type.
+ * - Takes ownership on objects which are converted.
  */
 
-const shareAndListen = ItemsBehavior.listen | ItemsBehavior.implicit | ItemsBehavior.share;
+const shareAndListen = ItemsBehavior.listen | ItemsBehavior.share;
 
 /** @private */
 export class SharedType extends GenericAttribute {
@@ -47,12 +48,12 @@ export class SharedType extends GenericAttribute {
         if( value == null || value instanceof this.type ) return value;
 
         // Convert type using implicitly created rtransactional object.
-        const implicitCollection = new this.type( value, options, shareAndListen );
+        const implicitObject = new this.type( value, options, shareAndListen );
 
         // To prevent a leak, we need to take an ownership on it.
-        aquire( record, implicitCollection, this.name );
+        aquire( record, implicitObject, this.name );
 
-        return implicitCollection;
+        return implicitObject;
     }
 
     // Refs are always valid.
