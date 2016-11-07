@@ -1463,8 +1463,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	(function (ItemsBehavior) {
 	    ItemsBehavior[ItemsBehavior["share"] = 1] = "share";
 	    ItemsBehavior[ItemsBehavior["listen"] = 2] = "listen";
-	    ItemsBehavior[ItemsBehavior["implicit"] = 4] = "implicit";
-	    ItemsBehavior[ItemsBehavior["persistent"] = 8] = "persistent";
+	    ItemsBehavior[ItemsBehavior["persistent"] = 4] = "persistent";
 	})(exports.ItemsBehavior || (exports.ItemsBehavior = {}));
 	var ItemsBehavior = exports.ItemsBehavior;
 	var Transactional = (function () {
@@ -2747,7 +2746,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var transactions_1 = __webpack_require__(7);
 	var object_plus_1 = __webpack_require__(1);
 	var on = object_plus_1.eventsApi.on, off = object_plus_1.eventsApi.off, free = transactions_1.transactionApi.free, aquire = transactions_1.transactionApi.aquire;
-	var shareAndListen = transactions_1.ItemsBehavior.listen | transactions_1.ItemsBehavior.implicit | transactions_1.ItemsBehavior.share;
+	var shareAndListen = transactions_1.ItemsBehavior.listen | transactions_1.ItemsBehavior.share;
 	var SharedType = (function (_super) {
 	    __extends(SharedType, _super);
 	    function SharedType() {
@@ -2774,9 +2773,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    SharedType.prototype.convert = function (value, options, prev, record) {
 	        if (value == null || value instanceof this.type)
 	            return value;
-	        var implicitCollection = new this.type(value, options, shareAndListen);
-	        aquire(record, implicitCollection, this.name);
-	        return implicitCollection;
+	        var implicitObject = new this.type(value, options, shareAndListen);
+	        aquire(record, implicitObject, this.name);
+	        return implicitObject;
 	    };
 	    SharedType.prototype.validate = function (model, value, name) { };
 	    SharedType.prototype.create = function () {
