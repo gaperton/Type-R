@@ -18,7 +18,7 @@
           'chai-as-promised'   : 'node_modules/chai-as-promised/lib/chai-as-promised',
           'sinon'         : 'node_modules/sinon/lib/sinon',
           'sinon-chai'    : 'node_modules/sinon-chai/lib/sinon-chai',
-          '../nestedtypes'   : '../../index'
+          '../../../index' : '../../index'
         },
 
         shim : {
@@ -28,9 +28,11 @@
         }
     } );
 
-    require( [ 'require', 'sinon', 'chai', 'chai-as-promised', 'sinon-chai', 'mocha', '../nestedtypes', 'underscore' ],
-            function( require, sinon, chai, sinonChai ){
+    require( [ 'require', 'sinon', 'chai', 'sinon-chai', '../../../index', 'chai-as-promised', 'mocha', 'underscore' ],
+            function( require, sinon, chai, sinonChai, Nested ){
                 // Chai
+                Nested.Model.prototype.toString = Nested.Collection.prototype.toString = Object.prototype.toString;
+
                 chai.should();
                 chai.use( sinonChai );
 
@@ -38,7 +40,7 @@
                 mocha.setup( 'bdd' );
 
                 var search = window.location.search;
-                require( [ 'functionality/basic', 'functionality/types', 'functionality/backboneTypes', 'functionality/relations' ], function(){
+                require( [ 'functionality/memory', 'functionality/basic', 'functionality/advanced', 'functionality/types', 'functionality/backboneTypes', 'functionality/relations' ], function(){
                     mocha.run();
                 } );
             }

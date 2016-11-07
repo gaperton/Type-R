@@ -12,7 +12,7 @@ export interface Traversable {
     get( key : string ) : any 
 }
 
-const referenceMask =  /\~|\^|([^.]+)/g;
+const referenceMask =  /\^|([^.]+)/g;
 
 // Compile reference to function
 export type ResolveReference = ( root : Traversable ) => any;  
@@ -25,7 +25,13 @@ export class CompiledReference {
     constructor( reference : string, splitTail : boolean = false ){
         const path = reference
                         .match( referenceMask )
-                        .map( key => key === '~' ? 'getStore()' : ( key === '^' ? 'getOwner()' : key ) );
+                        .map( key => {
+                            if( key === '^' ) return 'getOwner()';
+
+                            if( key[ 0 ] === '~' ) return `getStore().get("${ key.substr( 1 ) }")`;
+                            
+                            return key;
+                        } );
                
         this.tail = splitTail && path.pop();
         this.local = !path.length;
@@ -54,22 +60,5 @@ export function resolveReference( root : Traversable, reference : string, action
         if( !self ) return;
     }
 
-    action( self, path[ skip ] );
-    return self;
-}
-
-// Construct object reference { a : { b : { c : 0 } } }
-export function referenceToObject( reference, value ){
-    const path = reference.split( '.' ),
-          root = {},
-          last = path.length - 1;
-    let current = root;
-
-    for( let i = 0; i < last; i++ ){
-        current = current[ path[ i ] ] = {};
-    }
-
-    current[ path[ last ] ] = value;
-
-    return root;
+    return action( self, path[ skip ] );
 }

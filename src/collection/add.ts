@@ -1,5 +1,5 @@
 import { Transaction, transactionApi } from '../transactions'
-import { CollectionTransaction, sortElements, aquire, free, CollectionOptions, toModel, addIndex, CollectionCore } from './commons'
+import { CollectionTransaction, logAggregationError, sortElements, convertAndAquire, free, CollectionOptions, addIndex, updateIndex, CollectionCore } from './commons'
 import { Record } from '../record'
 
 const { begin, commit, markAsDirty } = transactionApi;
@@ -9,17 +9,19 @@ interface AddOptions extends CollectionOptions {
 }
 
 /** @private */
-export function addTransaction( collection : CollectionCore, items, options : AddOptions ){
+export function addTransaction( collection : CollectionCore, items, options : AddOptions, merge? : boolean ){
     const isRoot = begin( collection ),
           nested = [];
 
-    var added = appendElements( collection, items, nested, options );
+    var added = appendElements( collection, items, nested, options, merge );
 
     if( added.length || nested.length ){
         let needSort = sortOrMoveElements( collection, added, options );
         if( markAsDirty( collection, options ) ){
             return new CollectionTransaction( collection, isRoot, added, [], nested, needSort );
         }
+
+        if( collection._aggregationError ) logAggregationError( collection );
     }
 
     // No changes...
@@ -63,10 +65,9 @@ function moveElements( source : any[], at : number, added : any[] ) : void {
 
 // append data to model and index
 /** @private */
-function appendElements( collection : CollectionCore, a_items, nested : Transaction[], a_options ){
-    var models      = collection.models,
-        _byId       = collection._byId,
-        merge       = a_options.merge,
+function appendElements( collection : CollectionCore, a_items, nested : Transaction[], a_options, forceMerge : boolean ){
+    var { _byId, models } = collection,
+        merge       = ( forceMerge || a_options.merge ) && !collection._shared,
         parse       = a_options.parse,
         idAttribute = collection.model.prototype.idAttribute,
         prevLength = models.length;
@@ -79,13 +80,15 @@ function appendElements( collection : CollectionCore, a_items, nested : Transact
                 var attrs = item.attributes || item;
                 const transaction = model._createTransaction( attrs, a_options );
                 transaction && nested.push( transaction );
+
+                if( model.hasChanged( idAttribute ) ){
+                    updateIndex( _byId, model );
+                }
             }
         }
         else{
-            model = toModel( collection, item, a_options );
-
+            model = convertAndAquire( collection, item, a_options );
             models.push( model );
-            aquire( collection, model );
             addIndex( _byId, model );
         }
     }

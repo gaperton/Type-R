@@ -12,10 +12,10 @@ export class Store extends Record {
         let local = this[ name ];
 
         // If something is found or it's the global store, return result.
-        if( local || this === _store ) return local;
+        if( local || this === this._defaultStore ) return local;
 
         // Forward failed lookup to owner or global store.
-        return this._owner ? this._owner.get( name ) : _store[ name ]; 
+        return this._owner ? this._owner.get( name ) : this._defaultStore.get( name ); 
     }
 
     static get global(){ return _store; }

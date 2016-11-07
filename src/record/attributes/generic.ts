@@ -16,6 +16,7 @@ declare global {
 interface ExtendedAttributeDescriptor extends AttributeDescriptor {
     _attribute? : typeof GenericAttribute
     validate? : ( record : Record, value : any, key : string ) => any
+    changeEvents? : boolean
 } 
 
 export { ExtendedAttributeDescriptor as AttributeDescriptor }
@@ -37,17 +38,15 @@ export class GenericAttribute implements Attribute {
      * Stage 0. canBeUpdated( value )
      * - presence of this function implies attribute's ability to update in place.
      */
-     canBeUpdated( prev, next ) : boolean {
-         return false;
-     }
+     canBeUpdated( prev, next, options : TransactionOptions ) : any {}
 
     /**
      * Stage 1. Transform stage
      */
-    transform( value, options, prev, model ) { return value; }
+    transform( value, options : TransactionOptions, prev, model : Record ) { return value; }
 
-    // convert attribute type to `this.type`
-    convert( value, options, model ) { return value; }
+    // convert attribute type to `this.type`.
+    convert( value, options : TransactionOptions, prev, model : Record ) { return value; }
 
     /**
      * Stage 2. Check if attr value is changed
@@ -59,7 +58,7 @@ export class GenericAttribute implements Attribute {
     /**
      * Stage 3. Handle attribute change
      */
-    handleChange( next, prev, model ) {}
+    handleChange( next, prev, model : Record ) {}
 
     /**
      * End update pipeline definitions.
@@ -70,25 +69,23 @@ export class GenericAttribute implements Attribute {
 
     // generic clone function for typeless attributes
     // Must be overriden in sublass
-    clone( value, options : { deep? : boolean } = {} ) {
+    clone( value : any, record : Record ) {
         if( value && typeof value === 'object' ) {
             // delegate to object's clone(), if it exist...
-            if( value.clone ) {
-                return value.clone( options );
-            }
+            if( value.clone ) return value.clone();
 
-            if( options.deep ){
-                const proto = Object.getPrototypeOf( value );
+            const proto = Object.getPrototypeOf( value );
 
-                // attempt to deep copy raw objects, assuming they are JSON
-                if( proto === Object.prototype || proto === Array.prototype ){
-                    return JSON.parse( JSON.stringify( value ) );
-                }
+            // attempt to deep copy raw objects, assuming they are JSON 
+            if( proto === Object.prototype || proto === Array.prototype ){
+                return JSON.parse( JSON.stringify( value ) ); // FIXME! This cloning will not work for Dates.
             }
         }
 
         return value;
     }
+
+    dispose( record : Record, value : any ){}
 
     validate( record : Record, value : any, key : string ){}
 
@@ -125,17 +122,31 @@ export class GenericAttribute implements Attribute {
 
     initialize( name : string, options ){}
 
-    constructor( public name : string, public options : ExtendedAttributeDescriptor ) {
+    options : ExtendedAttributeDescriptor
+
+    propagateChanges : boolean
+
+    _log( level : string, text : string, value, record : Record ){
+        tools.log[ level ]( `[Attribute Update] ${ record.getClassName() }.${ this.name }: ` + text, value, 'Attributes spec:', record._attributes );
+    }
+
+    constructor( public name : string, a_options : ExtendedAttributeDescriptor ) {
+        // Clone options.
+        const options : ExtendedAttributeDescriptor = this.options = assign( { getHooks : [], transforms : [], changeHandlers : [] }, a_options );
+        options.getHooks = options.getHooks.slice();
+        options.transforms = options.transforms.slice();
+        options.changeHandlers = options.changeHandlers.slice();
+
         const {
-                  value, type, parse, toJSON,
-                  getHooks = [],
-                  transforms = [],
-                  changeHandlers = [],
-                  validate
+                  value, type, parse, toJSON, changeEvents,
+                  validate, getHooks, transforms, changeHandlers
               } = options;
 
         this.value = value;
         this.type  = type;
+
+        // Changes must be bubbled when they are not disabled for an attribute and transactional object.
+        this.propagateChanges = changeEvents !== false;
 
         this.parse  = parse;
         this.toJSON = toJSON === void 0 ? this.toJSON : toJSON;

@@ -1,20 +1,39 @@
 /**
- * Simple overridable logging stubs, writing to `console` by default. Log levels:
+ * Simple overridable logging stubs, writing to `console` by default.
  * Node.js users might want to redirect logging somewhere.
  * 
- * - 0 - errors only.
- * - 1 - errors and warnings.
- * - 2 - errors, warnings, and some (important) information.
- * - 3 - Everything, including debugging and troubleshooting logging.
+ * This is the singleton avaliable globally through `Object.log` or 
+ * exported [[log]] variable.
  */
 export class Log {
+    /** Logging level.
+     * - *0* - turn off everything.
+     * - *1* - `log.error()` only;
+     * - *2* - (_default_) `log.error()` and `log.warn()`;
+     * - *3* - `error()`, `warn()`, and `info()`;
+     * - *4* - all of above + `debug()`.
+     */
     level : number
+
+    /** Stop in debugger on specified logging events. 
+     * 
+     *      Object.log.stops.error = true;
+     */
     stops : LogOptions = {}
+
+    /** Throw exceptions for specified logging events.
+     *  
+     *      Object.log.throws.error = true;
+     */
     throws : LogOptions = {}
+
+    /** Logging events counter. Can be used for test assertions. */
     counts : { error : number, warn : number, info : number, debug : number }
+
+    /** Overridable logger API. Defaults to `window.console` */
     logger : Logger
 
-    doLogging( type, args : any[] ){
+    private doLogging( type, args : any[] ){
         const { logger } = this,
               logMethod = logger && logger[ type ];
 
@@ -26,40 +45,50 @@ export class Log {
         this.counts[ type ]++;
     }
 
-    reset(){
+    /** Reset logger to default settings. */
+    reset() : this {
         this.level = 2;
         this.counts = { error : 0, warn : 0, info : 0, debug : 0 };
         this.stops = {};
         return this;
     }
 
-    developer( trueDeveloper? : boolean ){
+    /** Show info, stop on errors.
+     * @param trueDeveloper Stop on warnings as well.
+     */
+    developer( trueDeveloper? : boolean ) : this {
         this.level = 3;
         this.stops = { error : true, warn : Boolean( trueDeveloper ) };
         return this;
     }
 
+    /** @hidden */
     constructor(){
         this.logger = typeof console !== 'undefined' ? console : null;
         this.reset();
     }
 
+    /** Similar to the `console.error`. Logging level 1. */
     error( ...args : any[] ) : void {
         if( this.level > 0 ) this.doLogging( 'error', args );
     }
 
+    /** Similar to the `console.warn`. Logging level 2 (default). */
     warn( ...args : any[] ) : void {
         if( this.level > 1 ) this.doLogging( 'warn', args );
     }
 
+    /** Similar to the `console.info`. Logging level 3. */
     info( ...args : any[] ){
         if( this.level > 2 ) this.doLogging( 'info', args );
     }
 
+    /** Similar to the `console.debug`. Logging level 4. */
     debug( ...args : any[] ){
         if( this.level > 3 ) this.doLogging( 'debug', args );
     }
 
+    /** `Object.log.state` - can be used to inspect logger state in the console. */
     get state() : string {
         return (`
 Object.log - Object+ Logging and Debugging Utility
@@ -83,6 +112,7 @@ Object.log.throws: Throws expection on some certain event types
     }
 }
 
+/** Interface [[Log.logger]] must implement. */
 export interface Logger {
     error( ...args : any[] ) : void
     warn( ...args : any[] ) : void
@@ -90,6 +120,7 @@ export interface Logger {
     debug( ...args : any[] ) : void
 }
 
+/** Logger options used by [[Log.stop]] and [[Log.throws]]. */
 export interface LogOptions {
     error? : boolean
     warn? : boolean
@@ -97,9 +128,12 @@ export interface LogOptions {
     debug? : boolean
 }
 
+/** Logger singleton.
+ * @see [[Log]] for API.
+ */
 export let log = new Log();
 
-/** Check if value is valid JSON */
+/** Check if value is raw JSON */
 export function isValidJSON( value : any ) : boolean {
     if( value === null ){
         return true;
@@ -122,16 +156,19 @@ export function isValidJSON( value : any ) : boolean {
     return false;
 }
 
-/**
- * Object manipulation helpers...
+/** Get the base class constructor function.
+ * @param Class Subclass constructor function.
+ * @returns Base class constructor function.
  */
-
-/** Get the base class constructor function */
-export function getBaseClass( Class : Function ){
+export function getBaseClass( Class : Function ) {
     return Object.getPrototypeOf( Class.prototype ).constructor
 }
 
-/** Get a hash of static (constructor) properties which have not been inherited */
+/** Get a hash of static (constructor) properties which have not been inherited.
+ * @param Ctor class constructor function.
+ * @param names comma-separated list of static property names to compare.
+ * @returns hash of listed statics which are added or overriden in the class.
+ */
 export function getChangedStatics( Ctor : Function, ...names : string[] ) : {}{
     const Base = getBaseClass( Ctor ),
           props = {};
@@ -146,6 +183,7 @@ export function getChangedStatics( Ctor : Function, ...names : string[] ) : {}{
     return props;
 }
 
+/** Checks whenever given object is an empty hash `{}` */
 export function isEmpty( obj : {} ) : boolean {
     if( obj ){
         for( let key in obj ){
@@ -160,6 +198,7 @@ export function isEmpty( obj : {} ) : boolean {
 
 type Iteratee = ( value : any, key? : string | number ) => any;
 
+/** @hidden */
 function someArray( arr : any[], fun : Iteratee ) : any {
     let result;
 
@@ -170,6 +209,7 @@ function someArray( arr : any[], fun : Iteratee ) : any {
     }
 }
 
+/** @hidden */
 function someObject( obj : {}, fun : Iteratee ) : any {
     let result;
 
@@ -182,6 +222,7 @@ function someObject( obj : {}, fun : Iteratee ) : any {
     }
 }
 
+/** Similar to underscore `_.some` */
 export function some( obj, fun : Iteratee ) : any {
     if( Object.getPrototypeOf( obj ) === ArrayProto ){
         return someArray( obj, fun );
@@ -191,10 +232,12 @@ export function some( obj, fun : Iteratee ) : any {
     }
 }
 
+/** Similar to underscore `_.every` */
 export function every( obj : { }, predicate : Iteratee ) : boolean {
     return !some( obj, x => !predicate( x ) );
 }
 
+/** Similar to `getOwnPropertyDescriptor`, but traverse the whole prototype chain. */
 export function getPropertyDescriptor( obj : {}, prop : string ) : PropertyDescriptor {
     let desc : PropertyDescriptor;
 
@@ -205,6 +248,7 @@ export function getPropertyDescriptor( obj : {}, prop : string ) : PropertyDescr
     return desc;
 }
 
+/** Similar to underscore `_.omit` */
 export function omit( source : {}, ...rest : string[] ) : {}
 export function omit( source ) : {} {
     const dest = {}, discard = {};
@@ -214,7 +258,7 @@ export function omit( source ) : {} {
     }
 
     for( var name in source ) {
-        if( !discard[ name ] && source.hasOwnProperty( name ) ) {
+        if( !discard.hasOwnProperty( name ) && source.hasOwnProperty( name ) ) {
             dest[ name ] = source[ name ];
         }
     }
@@ -222,6 +266,9 @@ export function omit( source ) : {} {
     return dest;
 }
 
+/** map `source` object properties with a given function, and assign the result to the `dest` object.
+ * When `fun` returns `undefined`, skip this value. 
+ */
 export function transform< A, B >( dest : { [ key : string ] : A }, source : { [ key : string ] : B }, fun : ( value : B, key : string ) => A | void ) : { [ key : string ] : A } {
     for( var name in source ) {
         if( source.hasOwnProperty( name ) ) {
@@ -233,6 +280,7 @@ export function transform< A, B >( dest : { [ key : string ] : A }, source : { [
     return dest;
 }
 
+/** @hidden */
 export function fastAssign< A, B >( dest : A, source : B ) : A & B {
     for( var name in source ) {
         dest[ name ] = source[ name ];
@@ -241,6 +289,7 @@ export function fastAssign< A, B >( dest : A, source : B ) : A & B {
     return <A & B >dest;
 }
 
+/** @hidden */
 export function fastDefaults<A, B>( dest : A, source : B ) : A & B {
     for( var name in source ) {
         if( dest[ name ] === void 0 ){
@@ -251,6 +300,7 @@ export function fastDefaults<A, B>( dest : A, source : B ) : A & B {
     return <A & B >dest;
 }
 
+/** Similar to underscore `_.extend` and `Object.assign` */
 export function assign< T >( dest : T, ...sources : Object[] ) : T
 export function assign< T >( dest : T, source : Object ) : T {
     for( var name in source ) {
@@ -269,6 +319,7 @@ export function assign< T >( dest : T, source : Object ) : T {
     return dest;
 }
 
+/** Similar to underscore `_.defaults` */
 export function defaults< T >( dest : T, ...sources : Object[] ) : T
 export function defaults< T >( dest : T, source : Object ) : T {
     for( var name in source ) {
@@ -287,10 +338,21 @@ export function defaults< T >( dest : T, source : Object ) : T {
     return dest;
 }
 
+// Polyfill for IE10. Should fix problems with babel and statics inheritance.
+declare global {
+    interface ObjectConstructor {
+        setPrototypeOf( target : Object, proto : Object );
+    }
+}
+
+Object.setPrototypeOf || ( Object.setPrototypeOf = defaults ); 
+
+/** Similar to underscore `_.keys` */
 export function keys( o : any ) : string[]{
     return o ? Object.keys( o ) : [];
 }
 
+/** Similar to underscore `_.once` */
 export function once( func : Function ) : Function {
     var memo, first = true;
     return function() {
@@ -303,15 +365,15 @@ export function once( func : Function ) : Function {
     };
 }
 
-/**
- * notEqual( a, b ) function, for deep JSON comparison
- * Optimized for primitive types
- */
-
 const ArrayProto = Array.prototype,
       DateProto = Date.prototype,
       ObjectProto = Object.prototype;
 
+/**
+ * Determine whenever two values are not equal, deeply traversing 
+ * arrays and plain JS objects (hashes). Dates are compared by enclosed timestamps, all other
+ * values are compared with strict comparison.
+ */
 export function notEqual( a : any, b : any) : boolean {
     if( a === b ) return false;
 
@@ -332,6 +394,7 @@ export function notEqual( a : any, b : any) : boolean {
     return true;
 }
 
+/** @hidden */
 function objectsNotEqual( a, b ) {
     const keysA = Object.keys( a );
 
@@ -348,6 +411,7 @@ function objectsNotEqual( a, b ) {
     return false;
 }
 
+/** @hidden */
 function arraysNotEqual( a, b ) {
     if( a.length !== b.length ) return true;
 

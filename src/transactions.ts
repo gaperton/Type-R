@@ -3,7 +3,7 @@ import { ValidationError, Validatable, ChildrenErrors } from './validation'
 import { Traversable, resolveReference } from './traversable'
 
 const { assign } = tools,
-      { trigger2, trigger3 } = eventsApi;
+      { trigger2, trigger3, on, off } = eventsApi;
 /***
  * Abstract class implementing ownership tree, tho-phase transactions, and validation. 
  * 1. createTransaction() - apply changes to an object tree, and if there are some events to send, transaction object is created.
@@ -13,6 +13,12 @@ const { assign } = tools,
 /** @private */
 export type TransactionalConstructor = MixableConstructor< Transactional >
 export type TransactionalDefinition = MessengerDefinition
+
+export enum ItemsBehavior {
+    share       = 0b0001,
+    listen      = 0b0010,
+    persistent  = 0b0100
+}
 
 // Transactional object interface
 @mixins( Messenger )
@@ -28,14 +34,32 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     static define : (spec? : TransactionalDefinition, statics? : {} ) => MixableConstructor< Transactional >
     static predefine : () => typeof Messenger
 
-    on : (name, callback, context) => this
+    on : (name, callback, context?) => this
     off : (name? : string, callback? : Function, context? ) => this
     stopListening : ( obj? : Messenger, name? : string, callback? : Function ) => this
     listenTo : (obj : Messenger, name, callback? ) => this
     once : (name, callback, context) => this 
     listenToOnce : (obj : Messenger, name, callback) => this 
     trigger      : (name : string, a?, b?, c? ) => this
-    dispose() : void {}
+    
+    _disposed : boolean;
+
+    // State accessor. 
+    readonly _state : any;
+
+    // Shared modifier (used by collections of shared models)
+    _shared? : number; 
+    
+    dispose() : void {
+        if( this._disposed ) return;
+        
+        this._owner = void 0;
+        this._ownerKey = void 0;
+        this.off();
+        this.stopListening();
+        this._disposed = true;
+    }
+
     initialize() : void{}
 
     /** @private */
@@ -69,27 +93,44 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
 
     // Backreference set by owner (Record, Collection, or other object)
     /** @private */
-    _owner : Owner
+    _owner : Owner = void 0;
 
     // Key supplied by owner. Used by record to identify attribute key.
     // Only collections doesn't set the key, which is used to distinguish collections.
     /** @private */  
-    _ownerKey : string
+    _ownerKey : string = void 0;
 
     // Name of the change event
     /** @private */
     _changeEventName : string
 
-    constructor( cid : string | number, owner? : Owner, ownerKey? : string ){
-        this.cid = this.cidPrefix + cid;
-        this._owner = owner;
-        this._ownerKey = ownerKey;
+    /**
+     * Subsribe for the changes.
+     */
+    onChanges( handler : Function, target? : Messenger ){
+        on( this, this._changeEventName, handler, target );
     }
 
-    // Deeply clone ownership subtree, optionally setting the new owner
-    // (TODO: Do we really need it? Record must ignore events with empty keys)
-    // 'Pin store' shall assign this._defaultStore = this.getStore();
-    abstract clone( options? : { owner? : Owner, key? : string, pinStore? : boolean }) : this
+    /**
+     * Unsubscribe from changes.
+     */
+    offChanges( handler? : Function, target? : Messenger ){
+        off( this, this._changeEventName, handler, target );
+    }
+
+    /**
+     * Listen to changes event. 
+     */
+    listenToChanges( target : Transactional, handler ){
+        this.listenTo( target, target._changeEventName, handler );
+    }
+
+    constructor( cid : string | number ){
+        this.cid = this.cidPrefix + cid;
+    }
+
+    // Deeply clone ownership subtree
+    abstract clone( options? : CloneOptions ) : this
     
     // Execute given function in the scope of ad-hoc transaction.
     transaction( fun : ( self : this ) => void, options : TransactionOptions = {} ) : void{
@@ -137,7 +178,7 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
 
     // Get object member by symbolic reference.
     deepGet( reference : string ) : any {
-        return resolveReference( this, reference, ( object, key ) => object.get( key ) );
+        return resolveReference( this, reference, ( object, key ) => object.get ? object.get( key ) : object[ key ] );
     }
 
     //_isCollection : boolean
@@ -217,15 +258,6 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
         return error.length ? error : null; 
     }
 
-    /** @private */
-    _invalidate( options : { validate? : boolean } ) : boolean {
-        var error;
-        if( options.validate && ( error = this.validationError ) ){
-            this.trigger( 'invalid', this, error, assign( { validationError : error }, options ) );
-            return true;
-        }
-    }
-
     // Validate nested members. Returns errors count.
     /** @private */
     abstract _validateNested( errors : ChildrenErrors ) : number
@@ -254,9 +286,24 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     isValid( key : string ) : boolean {
         return !this.getValidationError( key );
     }
+
+    valueOf(){ return this.cid; }
+    toString(){ return this.cid; }
+
+    // Get class name for an object instance. Works fine with ES6 classes definitions (not in IE).
+    getClassName() : string {
+        const { name } = <any>this.constructor;
+        if( name !== 'Subclass' ) return name;
+    }
+
+    // Logging interface for run time errors and warnings.
+    abstract _log( level : string, text : string, value : any ) : void;
 }
 
-Transactional.prototype.dispose = Messenger.prototype.dispose;
+export interface CloneOptions {
+    // 'Pin store' shall assign this._defaultStore = this.getStore();
+    pinStore? : boolean
+}
 
 // Owner must accept children update events. It's an only way children communicates with an owner.
 /** @private */
@@ -276,7 +323,7 @@ export interface Transaction {
 
     // Send out change events, process update triggers, and close transaction.
     // Nested transactions must be marked with isNested flag (it suppress owner notification).
-    commit( isNested? : boolean )
+    commit( initiator? : Transactional )
 }
 
 // Options for distributed transaction  
@@ -336,7 +383,7 @@ export const transactionApi = {
     // Commit transaction. Send out change event and notify owner. Returns true if there were changes.
     // Must be executed for the root transaction only.
     /** @private */
-    commit( object : Transactional, isNested? : boolean ){
+    commit( object : Transactional, initiator? : Transactional ){
         let originalOptions = object._isDirty;
 
         if( originalOptions ){
@@ -344,15 +391,15 @@ export const transactionApi = {
             while( object._isDirty ){
                 const options = object._isDirty;
                 object._isDirty = null; 
-                trigger2( object, object._changeEventName, object, options );
+                trigger3( object, object._changeEventName, object, options, initiator );
             }
             
             // Mark transaction as closed.
             object._transaction = false;
 
-            // Notify owner on changes out of transaction scope.
+            // Notify owner on changes out of transaction scope.  
             const { _owner } = object;  
-            if( _owner && !isNested ){ // If it's the nested transaction, owner is already aware there are some changes.
+            if( _owner && _owner !== <any> initiator ){ // If it's the nested transaction, owner is already aware there are some changes.
                 _owner._onChildrenChange( object, originalOptions );
             }
         }
@@ -376,7 +423,7 @@ export const transactionApi = {
             return true;
         }
 
-        return false;
+        return child._owner === owner;
     },
 
     // Remove reference to the record.

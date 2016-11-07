@@ -25,7 +25,8 @@ export class ChainableAttributeSpec {
     check( check : AttributeCheck, error : any ) : this {
         function validate( model, value, name ){
             if( !check.call( model, value, name ) ){
-                return error || check.error || name + ' is not valid';
+                const msg = error || check.error || name + ' is not valid';
+                return typeof msg === 'function' ? msg.call( model, name ) : msg;
             }
         }
 
@@ -40,12 +41,6 @@ export class ChainableAttributeSpec {
         return this;
     }
 
-    /** @private */
-    triggerWhenChanged( events ) : this {
-        // TODO: not clear
-        return this;
-    }
-
     watcher( ref : string | ( ( value : any, key : string ) => void ) ) : this {
         this.options._onChange = ref;
         return this;
@@ -57,7 +52,7 @@ export class ChainableAttributeSpec {
     }
 
     toJSON( fun ) : this{
-        this.options.toJSON = fun;
+        this.options.toJSON = fun || null;
         return this;
     }
 
@@ -72,12 +67,18 @@ export class ChainableAttributeSpec {
     set( fun ) : this {
         this.options.transforms.push( function( next, options, prev, model ) {
             if( this.isChanged( next, prev ) ) {
-                var changed = fun.call( model, next, name );
-                return changed === void 0 ? prev : changed;
+                var changed = fun.call( model, next, this.name );
+                return changed === void 0 ? prev : this.convert( changed, options, prev, model );
             }
 
             return prev;
         } );
+
+        return this;
+    }
+
+    changeEvents( events : boolean ){
+        this.options.changeEvents = events;
 
         return this;
     }
@@ -87,9 +88,9 @@ export class ChainableAttributeSpec {
         const eventMap = new EventMap( map );
 
         this.options.changeHandlers.push( function( next, prev, record : Record ){
-                prev && eventMap.unsubscribe( record, prev );
+                prev && prev.trigger && eventMap.unsubscribe( record, prev );
 
-                next && eventMap.subscribe( record, next );
+                next && next.trigger && eventMap.subscribe( record, next );
             });
 
         return this;

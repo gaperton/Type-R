@@ -1,5 +1,5 @@
 import { Transaction, transactionApi } from '../transactions'
-import { CollectionTransaction, IdIndex, aquire, free, sortElements, CollectionOptions, toModel, addIndex, CollectionCore, Elements, freeAll } from './commons'
+import { CollectionTransaction, logAggregationError, IdIndex, convertAndAquire, free, sortElements, CollectionOptions, addIndex, CollectionCore, Elements, freeAll } from './commons'
 import { Record } from '../record'
 
 const { begin, commit, markAsDirty } = transactionApi;
@@ -20,6 +20,8 @@ export function emptySetTransaction( collection : CollectionCore, items : Elemen
             // 'added' is the reference to this.models. Need to copy it.
             return new CollectionTransaction( collection, isRoot, added.slice(), [], [], needSort );
         }
+
+        if( collection._aggregationError ) logAggregationError( collection );
     }
 
     // No changes...
@@ -47,6 +49,8 @@ export function setTransaction( collection, items, options ){
         if( markAsDirty( collection, options ) ){ 
             return new CollectionTransaction( collection, isRoot, added, removed, nested, sorted );
         }
+
+        if( collection._aggregationError ) logAggregationError( collection );
     }
 
     isRoot && commit( collection );
@@ -75,7 +79,7 @@ function _garbageCollect( collection : CollectionCore, previous : Record[] ) : R
 function _reallocate( collection : CollectionCore, source : any[], nested : Transaction[], options ){
     var models      = Array( source.length ),
         _byId : IdIndex = {},
-        merge       = options.merge == null ? true : options.merge,
+        merge       = ( options.merge == null ? true : options.merge ) && !collection._shared,
         _prevById   = collection._byId,
         prevModels  = collection.models, 
         idAttribute = collection.model.prototype.idAttribute,
@@ -106,8 +110,7 @@ function _reallocate( collection : CollectionCore, source : any[], nested : Tran
             }
         }
         else{
-            model = toModel( collection, item, options );
-            aquire( collection, model );
+            model = convertAndAquire( collection, item, options );
             toAdd.push( model );
         }
 
@@ -138,12 +141,9 @@ function _reallocateEmpty( self, source, options ){
             continue;
         }
 
-        var model = toModel( self, src, options );
-
-        aquire( self, model );
+        var model = convertAndAquire( self, src, options );
         models[ j++ ] = model;
         addIndex( _byId, model );
-
     }
 
     models.length = j;

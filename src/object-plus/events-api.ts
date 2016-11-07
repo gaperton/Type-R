@@ -7,21 +7,21 @@
  * Type-R solely depends on that API for managing events subscriptions.
  */
 
-/** @private */
+/** @hide */
 export const eventSplitter = /\s+/;
 
-/** @private Main interface object must conform to in order to send events */
+/** @hide Main interface object must conform to in order to send events */
 export interface EventSource {
     _events : EventsSubscription
 }
 
-/** @private Internal hash holding events subscription */
+/** @hide Internal hash holding events subscription */
 export interface EventsSubscription {
     all? : EventHandler[]
     [ eventName : string ] : EventHandler[]
 }
 
-/** @private Event handler data structure, with a shape expected by Backbone 1.2 Events */
+/** @hide Event handler data structure, with a shape expected by Backbone 1.2 Events */
 export class EventHandler {
     constructor(
         public context,
@@ -37,7 +37,7 @@ export class EventHandler {
     }
 }
 
-/** @private Callback structure, with a shape expected by Backbone 1.2 Events */
+/** @hide Callback structure, with a shape expected by Backbone 1.2 Events */
 export interface Callback extends Function{
     _callback? : any
 }
@@ -52,12 +52,12 @@ export interface Callback extends Function{
  *      'executedInNativeContext' : '^props.handler' 
  * })
  */
-/** @private */
+/** @hide */
 export interface EventsDefinition {
     [ events : string ] : Function | string | boolean
 }
 
-/** @private */
+/** @hide */
 export class EventMap {
     handlers : EventDescriptor[] = [];
 
@@ -113,6 +113,7 @@ export class EventMap {
     }
 }
 
+/** @hide */
 class EventDescriptor {
     callback : Function
 
@@ -140,13 +141,13 @@ class EventDescriptor {
  * Subscription API 
  */
 
-/** @private */
+/** @hide */
 export function on( self : EventSource, name : string, callback : Function, context? ){
     const _events = self._events || ( self._events = {} );
     _on( _events, name, callback, context );
 }
 
-/** @private */
+/** @hide */
 export function off( self : EventSource, name : string, callback : Function, context : {} ){
     const { _events } = self;
     _events && _off( _events, name, callback, context );
@@ -155,7 +156,7 @@ export function off( self : EventSource, name : string, callback : Function, con
 /*********************************
  * Event-triggering API 
  */
-/** @private */
+/** @hide */
 export function trigger0( self : EventSource, name : string ) : void {
     const { _events } = self;
     if( _events ){
@@ -167,7 +168,7 @@ export function trigger0( self : EventSource, name : string ) : void {
     }
 };
 
-/** @private */
+/** @hide */
 export function trigger1( self : EventSource, name : string, a : any ) : void {
     const { _events } = self;
     if( _events ){
@@ -179,7 +180,7 @@ export function trigger1( self : EventSource, name : string, a : any ) : void {
     }
 };
 
-/** @private */
+/** @hide */
 export function trigger2( self : EventSource, name : string, a, b ) : void {
     const { _events } = self;
     if( _events ){
@@ -191,7 +192,7 @@ export function trigger2( self : EventSource, name : string, a, b ) : void {
     }
 };
 
-/** @private */
+/** @hide */
 export function trigger3( self : EventSource, name : string, a, b, c ) : void{
     const { _events } = self;
     if( _events ){
@@ -205,32 +206,38 @@ export function trigger3( self : EventSource, name : string, a, b, c ) : void{
 
 // Specialized functions with events triggering loops.
 // JS JIT loves these small functions and code duplication.
+/** @hide */
 function _fireEvent0( events : EventHandler[] ) : void {
     for( let ev of events )
         ev.callback.call( ev.ctx );
 }
 
+/** @hide */
 function _fireEvent1( events : EventHandler[], a ) : void {
     for( let ev of events )
         ev.callback.call( ev.ctx, a );
 }
 
+/** @hide */
 function _fireEvent2( events : EventHandler[], a, b ) : void {
     for( let ev of events )
         ev.callback.call( ev.ctx, a, b );
 }
 
+/** @hide */
 function _fireEvent3( events : EventHandler[], a, b, c ) : void {
     for( let ev of events )
         ev.callback.call( ev.ctx, a, b, c );
 }
 
+/** @hide */
 function _fireEvent4( events : EventHandler[], a, b, c, d ) : void {
     for( let ev of events )
         ev.callback.call( ev.ctx, a, b, c, d );
 }
 
 // Subscrive for the single event
+/** @hide */
 function _on( _events : EventsSubscription, name : string, callback : Function, context : Object, ctx? : Object ){
     const events = _events[ name ],
           handler = new EventHandler( context, ctx || context, null, callback );
@@ -243,7 +250,8 @@ function _on( _events : EventsSubscription, name : string, callback : Function, 
     }
 };
 
-// Remove all events with a given name and context, or callback, if its provided. 
+// Remove all events with a given name and context, or callback, if its provided.
+/** @hide */ 
 function _off( _events : EventsSubscription, name : string, callback : Function, context : {} ) {
     const events = _events[ name ];
 
@@ -260,8 +268,10 @@ function _off( _events : EventsSubscription, name : string, callback : Function,
     }
 };
 
+/** @hide */
 const _bubblingHandlers = {};
 
+/** @hide */
 function getBubblingHandler( event : string ){
     return _bubblingHandlers[ event ] || (
         _bubblingHandlers[ event ] = function( a, b, c ){

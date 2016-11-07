@@ -10,6 +10,9 @@ export * from './record'
 import { Events } from './object-plus/'
 export const { on, off, trigger, once, listenTo, stopListening, listenToOnce } = Events;
 
+import createUnderscoreMixin from './underscore-mixin'
+import { Collection } from './collection'
+
 // Define synonims for NestedTypes backward compatibility.
 import { Record as Model } from './record' 
 import { Mixable as Class } from './object-plus/'
@@ -33,4 +36,12 @@ export function transaction< F extends Function >( method : F ) : F {
         
         return result;
     }
+}
+
+export function useUnderscore( _ ) {
+    const UnderscoreMixin = createUnderscoreMixin( _ ); 
+    Model.mixins( UnderscoreMixin.Model );
+    Collection.mixins( UnderscoreMixin.Collection );
+
+    return this;
 }

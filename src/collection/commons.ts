@@ -1,10 +1,10 @@
 import { Record } from '../record'
-import { Owner, Transaction,
+import { Owner, Transaction, ItemsBehavior,
         TransactionOptions, Transactional, transactionApi } from '../transactions'
 
-import { eventsApi } from '../object-plus'
+import { eventsApi, tools } from '../object-plus'
 
-const { EventMap, trigger2, trigger3 } = eventsApi,
+const { EventMap, trigger2, trigger3, on, off } = eventsApi,
       { commit, markAsDirty } = transactionApi,
       _aquire = transactionApi.aquire, _free = transactionApi.free;
 
@@ -17,6 +17,10 @@ export interface CollectionCore extends Transactional, Owner {
     _comparator : Comparator
     get( objOrId : string | Record | Object ) : Record    
     _itemEvents? : eventsApi.EventMap
+    _shared : number
+    _aggregationError : Record[]
+
+    _log( level : string, text : string, value )
 }
 
 // Collection's manipulation methods elements
@@ -40,16 +44,44 @@ export function dispose( collection : CollectionCore ) : Record[]{
 }
 
 /** @private */
-export function aquire( owner : CollectionCore, child : Record ) : void {
-    _aquire( owner, child );
+export function convertAndAquire( collection : CollectionCore, attrs : {} | Record, options ){
+    const { model } = collection;
+    
+    let record : Record;
 
-    const { _itemEvents } = owner;
-    _itemEvents && _itemEvents.subscribe( owner, child );
+    if( collection._shared ){
+        record = attrs instanceof model ? attrs : <Record>model.create( attrs, options );
+
+        if( collection._shared & ItemsBehavior.listen ){
+            on( record, record._changeEventName, collection._onChildrenChange, collection );
+        }
+    }
+    else{
+        record = attrs instanceof model ? ( options.merge ? attrs.clone() : attrs ) : <Record>model.create( attrs, options );
+
+        if( !_aquire( collection, record ) ){
+            const errors = collection._aggregationError || ( collection._aggregationError = [] );
+            errors.push( record );
+        }
+    }    
+
+    // Subscribe for events...
+    const { _itemEvents } = collection;
+    _itemEvents && _itemEvents.subscribe( collection, record );
+
+    return record;
 }
 
 /** @private */
 export function free( owner : CollectionCore, child : Record ) : void {
-    _free( owner, child );
+    if( owner._shared ){
+        if( owner._shared & ItemsBehavior.listen ){
+            off( child, child._changeEventName, owner._onChildrenChange, owner );
+        }
+    }
+    else{
+        _free( owner, child );
+    }
 
     const { _itemEvents } = owner;
     _itemEvents && _itemEvents.unsubscribe( owner, child );
@@ -105,19 +137,11 @@ export function removeIndex( index : IdIndex, model : Record ) : void {
     }
 }
 
-/** @private Convert argument to record. Return false if fails. */
-export function toModel( collection : CollectionCore, attrs, options ){
-    const { model } = collection;
-    return attrs instanceof model ? attrs : model.create( attrs, options, collection );
-}
+export function updateIndex( index : IdIndex, model : Record ){
+    delete index[ model.previous( model.idAttribute ) ];
 
-/** @private */
-export function convertAndAquire( collection : CollectionCore, attrs, options ){
-    const { model } = collection,
-    	  record = attrs instanceof model ? attrs : model.create( attrs, options, collection );
-
-    aquire( collection, record );
-    return record;
+    const { id } = model;
+    id == null || ( index[ id ] = model );
 }
 
 /***
@@ -145,13 +169,17 @@ export class CollectionTransaction implements Transaction {
                     public sorted : boolean ){}
 
     // commit transaction
-    commit( isNested? : boolean ){
+    commit( initiator? : Transactional ){
         const { nested, object } = this,
               { _isDirty } = object;
 
         // Commit all nested transactions...
         for( let transaction of nested ){
-            transaction.commit( true );
+            transaction.commit( object );
+        }
+
+        if( object._aggregationError ){
+            logAggregationError( object );
         }
 
         // Just trigger 'change' on collection, it must be already triggered for models during nested commits.
@@ -183,6 +211,11 @@ export class CollectionTransaction implements Transaction {
             trigger2( object, 'update', object, _isDirty );
         }
 
-        this.isRoot && commit( object, isNested );
+        this.isRoot && commit( object, initiator );
     }
+}
+
+export function logAggregationError( collection : CollectionCore ){
+    collection._log( 'error', 'added records already have an owner', collection._aggregationError );
+    collection._aggregationError = void 0;
 }

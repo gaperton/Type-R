@@ -10,9 +10,9 @@ class ConstructorType extends GenericAttribute {
         return value == null || value instanceof this.type ? value : new this.type( value );
     }
 
-    clone( value, options ) {
+    clone( value ) {
         // delegate to clone function or deep clone through serialization
-        return value.clone ? value.clone( value, options ) : this.convert( JSON.parse( JSON.stringify( value ) ) );
+        return value && value.clone ? value.clone() : this.convert( JSON.parse( JSON.stringify( value ) ) );
     }
 }
 
@@ -41,6 +41,14 @@ Boolean._attribute = String._attribute = PrimitiveType;
 export class NumericType extends PrimitiveType {
     type : NumberConstructor
 
+    convert( value ) {
+        const num = value == null ? value : this.type( value );        
+
+        if( num !== num ) this._log( 'warn', 'assigned with Invalid Number', value, arguments[ 3 ] );
+        
+        return num;
+    }
+
     validate( model, value, name ) {
         // Whatever is not symmetrically serializable to JSON, is not valid by default.
         if( value != null && !isFinite( value ) ) {
@@ -62,9 +70,12 @@ export class ArrayType extends GenericAttribute {
         // Fix incompatible constructor behaviour of Array...
         if( value == null || Array.isArray( value ) ) return value;
 
-        // todo: log an error.
+        this._log( 'warn', 'assigned with non-array', value, arguments[ 3 ] );
+
         return [];
     }
+
+    clone( value ){ return value && value.slice(); }
 }
 
 Array._attribute = ArrayType;

@@ -25,7 +25,7 @@ export class ValidationError {
         }
     }
 
-    each( iteratee : ( value : any, key : string ) => void ){
+    each( iteratee : ( value : any, key : string ) => void ) : void {
         const { error, nested } = this;
 
         if( error ) iteratee( error, null );
@@ -35,10 +35,10 @@ export class ValidationError {
         }
     }
 
-    eachError( iteratee : ( error : any, key : string, object : Validatable ) => void, object : Validatable ){
-        this.each( ( value, key ) => {
+    eachError( iteratee : ( error : any, key : string, object : Validatable ) => void, object : Validatable ) : void {
+        this.each( ( value : any, key : string ) => {
             if( value instanceof ValidationError ){
-                value._traverse( iteratee, object.get( key ) );
+                (<ValidationError>value).eachError( iteratee, object.get( key ) );
             }
             else{
                 iteratee( value, key, object );

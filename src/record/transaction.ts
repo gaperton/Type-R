@@ -5,7 +5,7 @@
 
 import { tools, eventsApi, Mixable, ClassDefinition, Constructor, define } from '../object-plus'
 
-import { transactionApi, Transactional, Transaction, TransactionOptions, Owner } from '../transactions'
+import { transactionApi, CloneOptions, Transactional, Transaction, TransactionOptions, Owner } from '../transactions'
 import { ChildrenErrors } from '../validation'
 
 const { trigger3 } = eventsApi,
@@ -21,6 +21,7 @@ export interface RecordDefinition extends ClassDefinition {
     attributes? : AttributeDescriptorMap
     defaults? : AttributeDescriptorMap | ( () => AttributeDescriptorMap )
     collection? : typeof Transactional | {}
+    Collection? : typeof Transactional
 }
 
 export interface AttributeDescriptorMap {
@@ -65,16 +66,18 @@ export interface AttributesSpec {
 }
 
 export interface Attribute extends AttributeUpdatePipeline, AttributeSerialization {
-    clone( value : any ) : any
+    clone( value : any, record : Record ) : any
     create() : any
+    dispose( record : Record, value : any ) : void
     validate( record : Record, value : any, key : string )
 }
 
 export interface AttributeUpdatePipeline{
-    canBeUpdated( prev : any, next : any ) : boolean
+    canBeUpdated( prev : any, next : any, options : TransactionOptions ) : any
     transform : Transform
     isChanged( a : any, b : any ) : boolean
     handleChange : ChangeHandler
+    propagateChanges : boolean
 }
 
 export interface AttributeSerialization {
@@ -129,6 +132,9 @@ export class Record extends Transactional implements Owner {
 
     // Current attributes    
     attributes : AttributesValues
+
+    // Polymorphic accessor for aggregated attribute's canBeUpdated().
+    get _state(){ return this.attributes; }
 
     // Lazily evaluated changed attributes hash
     _changedAttributes : AttributesValues
@@ -190,7 +196,7 @@ export class Record extends Transactional implements Owner {
     }
 
     isNew() : boolean {
-        return this.id === void 0;
+        return this.id == null;
     }
 
     has( key : string ) : boolean {
@@ -202,9 +208,11 @@ export class Record extends Transactional implements Owner {
         return this; 
     }
 
-    clear( options ) : this {
+    clear( options? ) : this {
+        const nullify = options && options.nullify;
+
         this.transaction( () =>{
-            this.forEachAttr( this.attributes, ( value, key ) => this[ key ] = void 0 );
+            this.forEachAttr( this.attributes, ( value, key ) => this[ key ] = nullify ? null : void 0 );
         }, options );
 
         return this;
@@ -239,15 +247,16 @@ export class Record extends Transactional implements Owner {
 
     // Attribute keys
     _keys : string[]
-    
+
     // Attributes object copy constructor
-//    Attributes : CloneAttributesCtor
+    // Attributes : CloneAttributesCtor
     Attributes( x : AttributesValues ) : void { this.id = x.id; }
 
     // forEach function for traversing through attributes, with protective default implementation
     // Overriden by dynamically compiled loop unrolled function in define.ts
     forEachAttr( attrs : {}, iteratee : ( value : any, key? : string, spec? : Attribute ) => void ) : void {
         const { _attributes } = this;
+        let unknown : string[];
 
         for( let name in attrs ){
             const spec = _attributes[ name ];
@@ -256,8 +265,13 @@ export class Record extends Transactional implements Owner {
                 iteratee( attrs[ name ], name, spec );
             }
             else{
-                log.warn( '[Unknown Attribute]', this, 'Unknown record attribute "' + name + '" is ignored:', attrs );
+                unknown || ( unknown = [] );
+                unknown.push( `'${ name }'` );
             }
+        }
+
+        if( unknown ){
+            this._log( 'warn', `attributes ${ unknown.join(', ')} are not defined`, attrs );
         }
 
         // TODO: try this versus object traversal.
@@ -295,9 +309,10 @@ export class Record extends Transactional implements Owner {
      * Record construction
      */
     // Create record, optionally setting an owner
-    constructor( a_values? : {}, a_options? : ConstructorOptions, owner? : Owner ){
-        super( _cidCounter++, owner );
-
+    constructor( a_values? : {}, a_options? : ConstructorOptions ){
+        super( _cidCounter++ );
+        this.attributes = {};
+        
         const options = a_options || {},
               values = ( options.parse ? this.parse( a_values, options ) :  a_values ) || {};
 
@@ -321,9 +336,16 @@ export class Record extends Transactional implements Owner {
     initialize( values?, options? ){}
 
     // Deeply clone record, optionally setting new owner.
-    clone( owner? : any ) : this {
-        return new (<any>this.constructor)( this.attributes, { clone : true }, owner );
+    clone( options : CloneOptions = {} ) : this {
+        const copy : this = new (<any>this.constructor)( this.attributes, { clone : true } );
+        
+        if( options.pinStore ) copy._defaultStore = this.getStore();
+
+        return copy;
     }
+
+    // Deprecated, every clone is the deep one now.
+    deepClone() : this { return this.clone() };
 
     // Validate attributes.
     _validateNested( errors : ChildrenErrors ) : number {
@@ -357,8 +379,11 @@ export class Record extends Transactional implements Owner {
         this.forEachAttr( this.attributes, ( value, key : string, { toJSON } : AttributeSerialization ) =>{
             // If attribute serialization is not disabled, and its value is not undefined...
             if( toJSON && value !== void 0 ){
-                // ...serialize it according with its spec.
-                json[ key ] = toJSON.call( this, value, key );
+                // ...serialize it according to its spec.
+                const asJson = toJSON.call( this, value, key );
+
+                // ...skipping undefined values. Such an attributes are excluded.
+                if( asJson !== void 0 ) json[ key ] = asJson; 
             }
         });
 
@@ -393,6 +418,55 @@ export class Record extends Transactional implements Owner {
         }
     }
 
+    deepSet( name : string, value : any, options? ){
+        // Operation might involve series of nested object updates, thus it's wrapped in transaction.
+        this.transaction( () => {
+            const path  = name.split( '.' ),
+                l     = path.length - 1,
+                attr  = path[ l ];
+
+            let model = this;
+
+            // Locate the model, traversing the path.
+            for( let i = 0; i < l; i++ ){
+                const key = path[ i ];
+
+                // There might be collections in path, so use `get`.
+                let next    = model.get ? model.get( key ) : model[ key ];
+
+                // Create models, if they are not exist.
+                if( !next ){
+                    const attrSpecs = model._attributes;
+                    if( attrSpecs ){
+                        // If current object is model, create default attribute
+                        var newModel = attrSpecs[ key ].create();
+
+                        // If created object is model, nullify attributes when requested
+                        if( options && options.nullify && newModel._attributes ){
+                            newModel.clear( options );
+                        }
+
+                        model[ key ] = next = newModel;
+                    }
+                    // Silently fail in other case.
+                    else return;
+                }
+                
+                model = next;
+            }
+
+            // Set model attribute.
+            if( model.set ){
+                model.set( attr, value, options );
+            }
+            else{
+                model[ attr ] = value;
+            }
+        });
+
+        return this;
+    }
+
     // Need to override it here, since begin/end transaction brackets are overriden. 
     transaction( fun : ( self : this ) => void, options : TransactionOptions = {} ) : void{
         const isRoot = begin( this );
@@ -406,19 +480,20 @@ export class Record extends Transactional implements Owner {
               changes : string[] = [],
               nested : RecordTransaction[]= [],
               { attributes } = this,
-              values = options.parse ? this.parse( a_values, options ) : a_values,
-              merge = !options.reset;
+              values = options.parse ? this.parse( a_values, options ) : a_values;
 
-        if( Object.getPrototypeOf( values ) === Object.prototype ){
+        if( values && values.constructor === Object ){
             this.forEachAttr( values, ( value, key : string, attr : AttributeUpdatePipeline ) => {
                 const prev = attributes[ key ];
+                let update;
 
                 // handle deep update...
-                if( merge && attr.canBeUpdated( prev, value ) ) { // todo - skip empty updates.
-                    const nestedTransaction = prev._createTransaction( value, options );
+                if( update = attr.canBeUpdated( prev, value, options ) ) { // todo - skip empty updates.
+                    const nestedTransaction = prev._createTransaction( update, options );
                     if( nestedTransaction ){
                         nested.push( nestedTransaction );
-                        changes.push( key );
+                        
+                        if( attr.propagateChanges ) changes.push( key );
                     }
 
                     return;
@@ -437,20 +512,27 @@ export class Record extends Transactional implements Owner {
             } );
         }
         else{
-            log.error( '[Type Error]', this, 'Record update rejected (', values, '). Incompatible type.' );
+            this._log( 'error', 'incompatible argument type', values );
         }
 
-        if( ( nested.length || changes.length ) && markAsDirty( this, options ) ){
+        if( changes.length && markAsDirty( this, options ) ){
             return new RecordTransaction( this, isRoot, nested, changes );
         }
         
-        // No changes
+        // No changes, but there might be silent attributes with open transactions.
+        for( let pendingTransaction of nested ){
+            pendingTransaction.commit( this );
+        }
+
         isRoot && commit( this );
     }
 
-    // Handle nested changes
-    _onChildrenChange( child : Transactional, options : TransactionOptions ) : void {        
-        this.forceAttributeChange( child._ownerKey, options );
+    // Handle nested changes. TODO: propagateChanges == false, same in transaction.
+    _onChildrenChange( child : Transactional, options : TransactionOptions ) : void {
+        const { _ownerKey } = child,
+              attribute = this._attributes[ _ownerKey ];
+
+        if( !attribute /* TODO: Must be an opposite, likely the bug */ || attribute.propagateChanges ) this.forceAttributeChange( _ownerKey, options );
     }
 
     // Simulate attribute change 
@@ -472,13 +554,21 @@ export class Record extends Transactional implements Owner {
 
     // Dispose object and all childrens
     dispose(){
-        this.forEachAttr( this.attributes, ( value, key ) => {
-            if( value && this === value._owner ){
-                value.dispose();
-            }
+        if( this._disposed ) return;
+        
+        this.forEachAttr( this.attributes, ( value, key, attribute ) => {
+            attribute.dispose( this, value );
         });
 
         super.dispose();
+    }
+
+    _log( level : string, text : string, value ) : void {
+        tools.log[ level ]( `[Model Update] ${ this.getClassName() }: ` + text, value, 'Attributes spec:', this._attributes );
+    }
+
+    getClassName() : string {
+        return super.getClassName() || 'Model';
     }
 };
 
@@ -510,7 +600,7 @@ function cloneAttributes( record : Record, a_attributes : AttributesValues ) : A
     const attributes = new record.Attributes( a_attributes );
 
     record.forEachAttr( attributes, function( value, name, attr : Attribute ){
-        attributes[ name ] = attr.clone( value ); //TODO: Add owner?
+        attributes[ name ] = attr.clone( value, record );
     } );
 
     return attributes;
@@ -525,13 +615,19 @@ export function setAttribute( record : Record, name : string, value : any ) : vo
           spec = record._attributes[ name ],
           prev = attributes[ name ];
 
+    let update;
+
     // handle deep update...
-    if( spec.canBeUpdated( prev, value ) ) {
-        const nestedTransaction = ( <Transactional> prev )._createTransaction( value, options );
+    if( update = spec.canBeUpdated( prev, value, options ) ) {
+        //TODO: Why not just forward the transaction, without telling that it's nested?
+        const nestedTransaction = ( <Transactional> prev )._createTransaction( update, options );
         if( nestedTransaction ){
-            nestedTransaction.commit( true );
-            markAsDirty( record, options );
-            trigger3( record, 'change:' + name, record, prev, options );
+            nestedTransaction.commit( record ); // <- null here, and no need to handle changes. Work with shared and aggregated.
+
+            if( spec.propagateChanges ){
+                markAsDirty( record, options );
+                trigger3( record, 'change:' + name, record, prev, options );
+            }
         }
     }
     else {
@@ -562,12 +658,12 @@ class RecordTransaction implements Transaction {
                  public changes : string[] ){}
 
     // commit transaction
-    commit( isNested? : boolean ) : void {
+    commit( initiator? : Record ) : void {
         const { nested, object, changes } = this;
 
         // Commit all pending nested transactions...
         for( let transaction of nested ){ 
-            transaction.commit( true );
+            transaction.commit( object );
         }
 
         // Notify listeners on attribute changes...
@@ -577,6 +673,6 @@ class RecordTransaction implements Transaction {
             trigger3( object, 'change:' + key, object, attributes[ key ], _isDirty );
         }
 
-        this.isRoot && commit( object, isNested );
+        this.isRoot && commit( object, initiator );
     }
 }
