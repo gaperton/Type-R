@@ -17,7 +17,7 @@ const { on, off } = eventsApi,
 export class SharedRecordType extends GenericAttribute {
     type : TransactionalConstructor
 
-    clone( value : Transactional ){
+    clone( value : Transactional, record : Record ) : Transactional {
         return value;
     }
 
@@ -63,6 +63,7 @@ export class SharedRecordType extends GenericAttribute {
     initialize( options ){
         // Shared attributes are not serialized.
         this.toJSON = null;
+        
         if( this.propagateChanges ){
             // Create change event handler which knows current attribute name. 
             const attribute = this;

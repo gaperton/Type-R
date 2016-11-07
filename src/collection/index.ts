@@ -7,7 +7,7 @@ import { addTransaction } from './add'
 import { setTransaction, emptySetTransaction } from './set'
 import { removeOne, removeMany } from './remove'
 
-const { trigger2 } = eventsApi,
+const { trigger2, on, off } = eventsApi,
     { begin, commit, markAsDirty } = transactionApi,
     { omit, log, assign, defaults } = tools;
 
@@ -254,7 +254,7 @@ export class Collection extends Transactional implements CollectionCore {
 
     // Deeply clone collection, optionally setting new owner.
     clone( options : CloneOptions = {} ) : this {
-        const models = this.map( model => model.clone() ),
+        const models = this._shared & ItemsBehavior.share ? this.models : this.map( model => model.clone() ),
               copy : this = new (<any>this.constructor)( models, { model : this.model, comparator : this.comparator }, this._shared );
         
         if( options.pinStore ) copy._defaultStore = this.getStore();
@@ -452,32 +452,62 @@ function toElements( collection : Collection, elements : ElementsArg, options : 
 }
 
 const slice = Array.prototype.slice,
-      implicitShareListen = ItemsBehavior.listen | ItemsBehavior.implicit | ItemsBehavior.share;
+      implicitShareListen = ItemsBehavior.listen | ItemsBehavior.implicit | ItemsBehavior.share,
+      _aquire = transactionApi.aquire,
+      _free   = transactionApi.free;
 
 class SharedCollectionType extends SharedRecordType {
     type : typeof Collection
-        // Shared object can never be type casted.
+    
+    clone( value : Transactional, record : Record ){
+        if( !value || value._owner !== record ) return value;
+
+        const clone = value.clone();
+        _aquire( record, clone, this.name );
+        return clone;
+    }
+
     convert( value : any, options : TransactionOptions, prev : any, record : Record ) : Transactional {
-        if( value == null || value instanceof this.type ){
-            if( value._shared & ItemsBehavior.implicit ){
-                // TODO: use owner mark for proper handling of such collections.
-                // It can be disposed, if the one who created it is disposed.
-                // Or - consider usage of aggregated Collection.Refs here, which seems more appropriate.
-                // handleChange needs to be adjusted to take care of both cases then. Not that big deal.
-                this._log( 'warn', "Reassigning collection from Collection.shared.value([]) breaks disposal algorithm", value, record );
+        if( value == null || value instanceof this.type ) return value;
+
+        // Convert type using implicitly created Refs collection.
+        const implicitCollection = new this.type( value, options, implicitShareListen );
+
+        // To prevent a leak, we need to take an ownership on it.
+        _aquire( record, implicitCollection, this.name );
+
+        return implicitCollection;
+    }
+
+    _handleChange( next : Transactional, prev : Transactional, record : Record ){
+        // If there was implicit collection, remove an ownership.
+        if( prev ){
+            if( prev._owner === record ){
+                _free( record, prev );
             }
-
-            return value;
-        }
-
-        // Convert type using implicitly created shared collection.
-        return new this.type( value, options, implicitShareListen );
+            else{
+                off( prev, prev._changeEventName, this._onChange, record );
+            }
+        }  
+ 
+        if( next ){
+            // No need to take an ownership for an implicit collection - already done in convert.
+            if( next._owner !== record ){
+                on( next, next._changeEventName, this._onChange, record );
+            }
+        } 
     }
 
     dispose( record : Record, value : Collection ){
-        // If the collection was implicitly created, dispose it.
-        if( value && ( value._shared & ItemsBehavior.implicit ) ){
-            value.dispose();
+        if( value ){
+            // If the collection was implicitly created, dispose it.
+            if( value._owner === record ){
+                _free( record, value );
+                value.dispose();
+            }
+            else{
+                off( value, value._changeEventName, this._onChange, record );
+            }
         }
     }
 }

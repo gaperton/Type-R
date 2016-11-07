@@ -1129,7 +1129,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var add_1 = __webpack_require__(21);
 	var set_1 = __webpack_require__(22);
 	var remove_1 = __webpack_require__(23);
-	var trigger2 = object_plus_1.eventsApi.trigger2, begin = transactions_1.transactionApi.begin, commit = transactions_1.transactionApi.commit, markAsDirty = transactions_1.transactionApi.markAsDirty, omit = object_plus_1.tools.omit, log = object_plus_1.tools.log, assign = object_plus_1.tools.assign, defaults = object_plus_1.tools.defaults;
+	var trigger2 = object_plus_1.eventsApi.trigger2, on = object_plus_1.eventsApi.on, off = object_plus_1.eventsApi.off, begin = transactions_1.transactionApi.begin, commit = transactions_1.transactionApi.commit, markAsDirty = transactions_1.transactionApi.markAsDirty, omit = object_plus_1.tools.omit, log = object_plus_1.tools.log, assign = object_plus_1.tools.assign, defaults = object_plus_1.tools.defaults;
 	var _count = 0;
 	var silentOptions = { silent: true };
 	var Collection = (function (_super) {
@@ -1289,7 +1289,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Collection.prototype.clone = function (options) {
 	        if (options === void 0) { options = {}; }
-	        var models = this.map(function (model) { return model.clone(); }), copy = new this.constructor(models, { model: this.model, comparator: this.comparator }, this._shared);
+	        var models = this._shared & transactions_1.ItemsBehavior.share ? this.models : this.map(function (model) { return model.clone(); }), copy = new this.constructor(models, { model: this.model, comparator: this.comparator }, this._shared);
 	        if (options.pinStore)
 	            copy._defaultStore = this.getStore();
 	        return copy;
@@ -1440,20 +1440,50 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var parsed = options.parse ? collection.parse(elements, options) : elements;
 	    return Array.isArray(parsed) ? parsed : [parsed];
 	}
-	var slice = Array.prototype.slice, implicitShareListen = transactions_1.ItemsBehavior.listen | transactions_1.ItemsBehavior.implicit | transactions_1.ItemsBehavior.share;
+	var slice = Array.prototype.slice, implicitShareListen = transactions_1.ItemsBehavior.listen | transactions_1.ItemsBehavior.implicit | transactions_1.ItemsBehavior.share, _aquire = transactions_1.transactionApi.aquire, _free = transactions_1.transactionApi.free;
 	var SharedCollectionType = (function (_super) {
 	    __extends(SharedCollectionType, _super);
 	    function SharedCollectionType() {
 	        _super.apply(this, arguments);
 	    }
+	    SharedCollectionType.prototype.clone = function (value, record) {
+	        if (!value || value._owner !== record)
+	            return value;
+	        var clone = value.clone();
+	        _aquire(record, clone, this.name);
+	        return clone;
+	    };
 	    SharedCollectionType.prototype.convert = function (value, options, prev, record) {
-	        return value == null || value instanceof this.type ?
-	            value :
-	            new this.type(value, options, implicitShareListen);
+	        if (value == null || value instanceof this.type)
+	            return value;
+	        var implicitCollection = new this.type(value, options, implicitShareListen);
+	        _aquire(record, implicitCollection, this.name);
+	        return implicitCollection;
+	    };
+	    SharedCollectionType.prototype._handleChange = function (next, prev, record) {
+	        if (prev) {
+	            if (prev._owner === record) {
+	                _free(record, prev);
+	            }
+	            else {
+	                off(prev, prev._changeEventName, this._onChange, record);
+	            }
+	        }
+	        if (next) {
+	            if (next._owner !== record) {
+	                on(next, next._changeEventName, this._onChange, record);
+	            }
+	        }
 	    };
 	    SharedCollectionType.prototype.dispose = function (record, value) {
-	        if (value && (value._shared & transactions_1.ItemsBehavior.implicit)) {
-	            value.dispose();
+	        if (value) {
+	            if (value._owner === record) {
+	                _free(record, value);
+	                value.dispose();
+	            }
+	            else {
+	                off(value, value._changeEventName, this._onChange, record);
+	            }
 	        }
 	    };
 	    return SharedCollectionType;
@@ -2181,7 +2211,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function cloneAttributes(record, a_attributes) {
 	    var attributes = new record.Attributes(a_attributes);
 	    record.forEachAttr(attributes, function (value, name, attr) {
-	        attributes[name] = attr.clone(value);
+	        attributes[name] = attr.clone(value, record);
 	    });
 	    return attributes;
 	}
@@ -2435,7 +2465,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    GenericAttribute.prototype.handleChange = function (next, prev, model) { };
 	    GenericAttribute.prototype.create = function () { return new this.type(); };
-	    GenericAttribute.prototype.clone = function (value) {
+	    GenericAttribute.prototype.clone = function (value, record) {
 	        if (value && typeof value === 'object') {
 	            if (value.clone)
 	                return value.clone();
@@ -2517,6 +2547,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function TransactionalType() {
 	        _super.apply(this, arguments);
 	    }
+	    TransactionalType.prototype.clone = function (value) {
+	        return value ? value.clone() : value;
+	    };
 	    TransactionalType.prototype.canBeUpdated = function (prev, next, options) {
 	        if (prev && next != null) {
 	            if (next instanceof this.type) {
@@ -2689,7 +2722,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return value == null || value instanceof this.type ? value : new this.type(value);
 	    };
 	    ConstructorType.prototype.clone = function (value) {
-	        return value.clone ? value.clone() : this.convert(JSON.parse(JSON.stringify(value)));
+	        return value && value.clone ? value.clone() : this.convert(JSON.parse(JSON.stringify(value)));
 	    };
 	    return ConstructorType;
 	}(generic_1.GenericAttribute));
@@ -2766,7 +2799,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function SharedRecordType() {
 	        _super.apply(this, arguments);
 	    }
-	    SharedRecordType.prototype.clone = function (value) {
+	    SharedRecordType.prototype.clone = function (value, record) {
 	        return value;
 	    };
 	    SharedRecordType.prototype.canBeUpdated = function (prev, next, options) {

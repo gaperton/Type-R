@@ -8,6 +8,10 @@ const { free, aquire } = transactionApi;
 export class TransactionalType extends GenericAttribute {
     type : TransactionalConstructor
 
+    clone( value : Transactional ) : Transactional {
+        return value ? value.clone() : value;
+    }
+
     canBeUpdated( prev : Transactional, next : any, options : TransactionOptions ) : any {
         // If an object already exists, and new value is of incompatible type, let object handle the update.
         if( prev && next != null ){

@@ -66,7 +66,7 @@ export interface AttributesSpec {
 }
 
 export interface Attribute extends AttributeUpdatePipeline, AttributeSerialization {
-    clone( value : any ) : any
+    clone( value : any, record : Record ) : any
     create() : any
     dispose( record : Record, value : any ) : void
     validate( record : Record, value : any, key : string )
@@ -598,7 +598,7 @@ function cloneAttributes( record : Record, a_attributes : AttributesValues ) : A
     const attributes = new record.Attributes( a_attributes );
 
     record.forEachAttr( attributes, function( value, name, attr : Attribute ){
-        attributes[ name ] = attr.clone( value ); //TODO: Add owner?
+        attributes[ name ] = attr.clone( value, record );
     } );
 
     return attributes;
