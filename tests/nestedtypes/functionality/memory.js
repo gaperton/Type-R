@@ -20,6 +20,10 @@ describe( 'Memory management', function(){
 
     var singleton = new M();
 
+    it( 'Aggregated values are recursively disposed', function(){
+        var m = new M();
+    } );
+
     it( 'Shared refs do not create a leak', function(){
         var m = new M();
         m.ref = singleton;
@@ -28,7 +32,11 @@ describe( 'Memory management', function(){
         expect( singleton._events.change ).to.be.array;
 
         m.dispose();
+        expect( m._disposed ).to.be.true;
 
         expect( singleton._events.change ).to.be.empty;
+        expect( singleton._disposed ).to.be.undefined;
     } );
+
+
 });

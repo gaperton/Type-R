@@ -744,8 +744,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this;
 	    };
 	    Messenger.prototype.dispose = function () {
+	        if (this._disposed)
+	            return;
 	        this.stopListening();
 	        this.off();
+	        this._disposed = true;
 	    };
 	    Messenger = __decorate([
 	        extendable
@@ -1316,6 +1319,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this;
 	    };
 	    Collection.prototype.dispose = function () {
+	        if (this._disposed)
+	            return;
 	        var aggregated = !this._shared;
 	        for (var _i = 0, _a = this.models; _i < _a.length; _i++) {
 	            var record = _a[_i];
@@ -1478,6 +1483,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.cid = this.cidPrefix + cid;
 	    }
 	    Transactional.prototype.dispose = function () {
+	        if (this._disposed)
+	            return;
 	        this._owner = void 0;
 	        this._ownerKey = void 0;
 	        this.off();
@@ -2123,6 +2130,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	    Record.prototype.dispose = function () {
 	        var _this = this;
+	        if (this._disposed)
+	            return;
 	        this.forEachAttr(this.attributes, function (value, key, attribute) {
 	            attribute.dispose(_this, value);
 	        });

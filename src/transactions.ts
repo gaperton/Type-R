@@ -51,6 +51,8 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     _shared? : number; 
     
     dispose() : void {
+        if( this._disposed ) return;
+        
         this._owner = void 0;
         this._ownerKey = void 0;
         this.off();

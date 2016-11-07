@@ -289,7 +289,9 @@ export class Collection extends Transactional implements CollectionCore {
         return this;    
     }
 
-    dispose(){
+    dispose() : void {
+        if( this._disposed ) return;
+
         const aggregated = !this._shared;
 
         for( let record of this.models ){
