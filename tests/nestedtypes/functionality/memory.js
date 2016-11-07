@@ -9,7 +9,7 @@ describe( 'Memory management', function(){
     
     M.define({
         attributes : {
-            x : Integer,
+            x : Number.integer,
             agg : M.value( null ),
             ref : M.shared,
             col : M.Collection,
