@@ -1,6 +1,6 @@
 import { Collection, CollectionOptions } from '../collection'
 import { tools, define } from '../object-plus'
-import { Record, TransactionalType } from '../record'
+import { Record, AggregatedType } from '../record'
 import { parseReference, CollectionReference } from './commons'
 import { ChainableAttributeSpec } from '../record'
 import { Transactional, ItemsBehavior, TransactionOptions } from '../transactions'
@@ -41,7 +41,7 @@ function defineSubsetCollection( CollectionConstructor : typeof Collection ) {
         refs : any[];
         resolvedWith : Collection = null;
 
-        _attribute : TransactionalType
+        _attribute : AggregatedType
 
         get _state(){ return this.refs || this.models; }
 

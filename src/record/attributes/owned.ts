@@ -5,7 +5,7 @@ import { tools } from '../../object-plus'
 
 const { free, aquire } = transactionApi;
 
-export class TransactionalType extends GenericAttribute {
+export class AggregatedType extends GenericAttribute {
     type : TransactionalConstructor
 
     clone( value : Transactional ) : Transactional {
@@ -69,4 +69,4 @@ export class TransactionalType extends GenericAttribute {
     }
 }
 
-Record._attribute = TransactionalType;
+Record._attribute = AggregatedType;

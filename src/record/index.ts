@@ -4,7 +4,7 @@ import { compile, AttributesSpec } from './define'
 import { ChainableAttributeSpec } from './typespec'
 import { Transactional } from '../transactions'
 
-import { TransactionalType, MSDateType, TimestampType, NumericType, SharedRecordType } from './attributes'
+import { AggregatedType, MSDateType, TimestampType, NumericType, SharedType } from './attributes'
 
 export * from './attributes'
 export { Record, ChainableAttributeSpec }
@@ -48,13 +48,13 @@ Record.predefine = function(){
     this.Collection = getBaseClass( this ).Collection.extend();
     this.Collection.prototype.model = this;
 
-    createSharedTypeSpec( this, SharedRecordType );
+    createSharedTypeSpec( this, SharedType );
 
     return this;
 }
 
-Record._attribute = TransactionalType;
-createSharedTypeSpec( Record, SharedRecordType );
+Record._attribute = AggregatedType;
+createSharedTypeSpec( Record, SharedType );
 
 function getAttributes({ defaults, attributes, idAttribute } : RecordDefinition ) : AttributeDescriptorMap {
     const definition = typeof defaults === 'function' ? (<any>defaults)() : attributes || defaults || {};

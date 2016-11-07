@@ -1,6 +1,6 @@
 import { define, tools, eventsApi, EventMap, EventsDefinition, Mixable } from '../object-plus'
 import { ItemsBehavior, transactionApi, Transactional, CloneOptions, Transaction, TransactionOptions, TransactionalDefinition, Owner } from '../transactions'
-import { Record, SharedRecordType, TransactionalType, createSharedTypeSpec } from '../record'
+import { Record, SharedType, AggregatedType, createSharedTypeSpec } from '../record'
 
 import { IdIndex, free, sortElements, dispose, Elements, CollectionCore, addIndex, removeIndex, updateIndex, Comparator, CollectionTransaction } from './commons'
 import { addTransaction } from './add'
@@ -28,6 +28,8 @@ interface CollectionDefinition extends TransactionalDefinition {
     itemEvents? : EventsDefinition
     _itemEvents? : EventMap
 }
+
+const slice = Array.prototype.slice;
 
 @define({
     // Default client id prefix 
@@ -64,12 +66,12 @@ export class Collection extends Transactional implements CollectionCore {
         Mixable.mixTo( RefsCollection );
         
         RefsCollection.prototype = this.prototype;
-        RefsCollection._attribute = TransactionalType;
+        RefsCollection._attribute = AggregatedType;
 
         this.Refs = this.Subset = <any>RefsCollection;
 
         Transactional.predefine.call( this );
-        createSharedTypeSpec( this, SharedCollectionType );
+        createSharedTypeSpec( this, SharedType );
         return this;
     }
     
@@ -355,7 +357,7 @@ export class Collection extends Transactional implements CollectionCore {
         }
     }
 
-    static _attribute = TransactionalType;
+    static _attribute = AggregatedType;
 
     /***********************************
      * Collection manipulation methods
@@ -451,67 +453,6 @@ function toElements( collection : Collection, elements : ElementsArg, options : 
     return Array.isArray( parsed ) ? parsed : [ parsed ];
 }
 
-const slice = Array.prototype.slice,
-      implicitShareListen = ItemsBehavior.listen | ItemsBehavior.implicit | ItemsBehavior.share,
-      _aquire = transactionApi.aquire,
-      _free   = transactionApi.free;
-
-class SharedCollectionType extends SharedRecordType {
-    type : typeof Collection
-    
-    clone( value : Transactional, record : Record ){
-        if( !value || value._owner !== record ) return value;
-
-        const clone = value.clone();
-        _aquire( record, clone, this.name );
-        return clone;
-    }
-
-    convert( value : any, options : TransactionOptions, prev : any, record : Record ) : Transactional {
-        if( value == null || value instanceof this.type ) return value;
-
-        // Convert type using implicitly created Refs collection.
-        const implicitCollection = new this.type( value, options, implicitShareListen );
-
-        // To prevent a leak, we need to take an ownership on it.
-        _aquire( record, implicitCollection, this.name );
-
-        return implicitCollection;
-    }
-
-    _handleChange( next : Transactional, prev : Transactional, record : Record ){
-        // If there was implicit collection, remove an ownership.
-        if( prev ){
-            if( prev._owner === record ){
-                _free( record, prev );
-            }
-            else{
-                off( prev, prev._changeEventName, this._onChange, record );
-            }
-        }  
- 
-        if( next ){
-            // No need to take an ownership for an implicit collection - already done in convert.
-            if( next._owner !== record ){
-                on( next, next._changeEventName, this._onChange, record );
-            }
-        } 
-    }
-
-    dispose( record : Record, value : Collection ){
-        if( value ){
-            // If the collection was implicitly created, dispose it.
-            if( value._owner === record ){
-                _free( record, value );
-                value.dispose();
-            }
-            else{
-                off( value, value._changeEventName, this._onChange, record );
-            }
-        }
-    }
-}
-
-createSharedTypeSpec( Collection, SharedCollectionType );
+createSharedTypeSpec( Collection, SharedType );
 
 Record.Collection = <any>Collection;
