@@ -212,12 +212,11 @@ describe( 'Advanced functionality', function(){
     });
 
     describe( 'Attribute .has options', function(){
-        it( 'Creates a copy of attribute descriptor', function(){
+        it( 'Pass through an attribute descriptor', function(){
             var T = Number.has,
                 T2 = T.has;
 
-            expect( T ).to.not.equal( T2 );
-            expect( T.options ).to.deep.equal( T2.options );
+            expect( T ).to.equal( T2 );
         } );
 
         describe( '.has.changeEvents( false )', function(){

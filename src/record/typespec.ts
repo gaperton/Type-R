@@ -17,16 +17,13 @@ export interface AttributeCheck {
 export class ChainableAttributeSpec {
     options : AttributeDescriptor;
 
-    constructor( options : AttributeDescriptor = {} ) {
-        this.options = assign( {}, options );
-
-        const { getHooks = [], transforms = [], changeHandlers = [] } = options;
-        this.options.getHooks = getHooks.slice();
-        this.options.transforms = transforms.slice();
-        this.options.changeHandlers = changeHandlers.slice();
+    constructor( options : AttributeDescriptor ) {
+        // Shallow copy options, fill it with defaults.
+        this.options = { getHooks : [], transforms : [], changeHandlers : []};
+        if( options ) assign( this.options, options );
     }
 
-    check( check : AttributeCheck, error : any ) : this {
+    check( check : AttributeCheck, error : any ) : ChainableAttributeSpec {
         function validate( model, value, name ){
             if( !check.call( model, value, name ) ){
                 const msg = error || check.error || name + ' is not valid';
@@ -36,73 +33,78 @@ export class ChainableAttributeSpec {
 
         const prev = this.options.validate;
 
-        this.options.validate = prev ? (
-            function( model, value, name ){
-                return prev( model, value, name ) || validate( model, value, name );
-            }
-        ) : validate;
-
-        return this;
+        return this._set({
+            validate : prev ? (
+                            function( model, value, name ){
+                                return prev( model, value, name ) || validate( model, value, name );
+                            }
+                       ) : validate
+        });
     }
 
-    watcher( ref : string | ( ( value : any, key : string ) => void ) ) : this {
-        this.options._onChange = ref;
-        return this;
+    watcher( ref : string | ( ( value : any, key : string ) => void ) ) : ChainableAttributeSpec {
+        return this._set({ _onChange : ref });
     }
 
-    parse( fun ) : this {
-        this.options.parse = fun;
-        return this;
+    parse( fun ) : ChainableAttributeSpec {
+        return this._set({ parse : fun });
     }
 
-    toJSON( fun ) : this{
-        this.options.toJSON = fun || null;
-        return this;
+    toJSON( fun ) : ChainableAttributeSpec {
+        return this._set({ toJSON : fun || null });
     }
 
     // Attribute get hook.
-    get( fun ) : this {
-        this.options.getHooks.push( fun );
-
-        return this;
+    get( fun ) : ChainableAttributeSpec {
+        return this._set({
+            getHooks : this.options.getHooks.concat( fun )
+        });
     }
 
     // Attribute set hook.
-    set( fun ) : this {
-        this.options.transforms.push( function( next, options, prev, model ) {
+    set( fun ) : ChainableAttributeSpec {
+        function handleSetHook( next, options, prev, model ) {
             if( this.isChanged( next, prev ) ) {
                 var changed = fun.call( model, next, this.name );
                 return changed === void 0 ? prev : this.convert( changed, options, prev, model );
             }
 
             return prev;
-        } );
+        }
 
-        return this;
+        return this._set({
+            transforms : this.options.transforms.concat( handleSetHook )
+        });
     }
 
-    changeEvents( events : boolean ){
-        this.options.changeEvents = events;
-
-        return this;
+    changeEvents( events : boolean ) : ChainableAttributeSpec {
+        return this._set({ changeEvents : events });
     }
 
     // Subsribe to events from an attribute.
-    events( map : EventsDefinition ) : this {
+    events( map : EventsDefinition ) : ChainableAttributeSpec {
         const eventMap = new EventMap( map );
 
-        this.options.changeHandlers.push( function( next, prev, record : Record ){
-                prev && prev.trigger && eventMap.unsubscribe( record, prev );
+        function handleEventsSubscribtion( next, prev, record : Record ){
+            prev && prev.trigger && eventMap.unsubscribe( record, prev );
 
-                next && next.trigger && eventMap.subscribe( record, next );
-            });
+            next && next.trigger && eventMap.subscribe( record, next );
+        }
 
-        return this;
+        return this._set({
+            changeHandlers : this.options.changeHandlers.concat( handleEventsSubscribtion )
+        });
     }
 
     // Creates a copy of the spec.
     get has() : ChainableAttributeSpec {
-        return new ChainableAttributeSpec( this.options );
+        return this;
+    }
+
+    private _set( options : AttributeDescriptor ) : ChainableAttributeSpec {
+        const cloned = new ChainableAttributeSpec( this.options );
+        assign( cloned.options, options );
+        return cloned;
     }
 
     /*
@@ -111,9 +113,8 @@ export class ChainableAttributeSpec {
         return this;
     }*/
 
-    value( x ) : this {
-        this.options.value = x;
-        return this;
+    value( x ) : ChainableAttributeSpec {
+        return this._set({ value : x });
     }
 }
 

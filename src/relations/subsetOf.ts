@@ -16,14 +16,12 @@ Collection.subsetOf = function subsetOf( masterCollection : CollectionReference 
             type : SubsetOf
         });
 
-    typeSpec.get(
+    return typeSpec.get(
         function( refs ){
             !refs || refs.resolvedWith || refs.resolve( getMasterCollection( this ) );
             return refs;
         }
     );
-
-    return typeSpec;
 };
 
 /** @private */

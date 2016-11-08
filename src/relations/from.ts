@@ -49,7 +49,7 @@ Record.from = function from( masterCollection : CollectionReference ) : Chainabl
         _attribute : RecordRefAttribute
     });
     
-    typeSpec
+    return typeSpec
         .get( function( objOrId : RecordRefValue, name : string ) : Record {
             if( typeof objOrId === 'object' ) return objOrId;
 
@@ -69,6 +69,4 @@ Record.from = function from( masterCollection : CollectionReference ) : Chainabl
 
             return record;
         });
-
-    return typeSpec;
 };
