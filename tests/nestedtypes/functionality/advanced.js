@@ -120,7 +120,7 @@ describe( 'Advanced functionality', function(){
             expect( a.sharedC ).to.equal( b.ownedC );
         } );
 
-        it( "is converted to the ownerless Subset collection on assignment", function(){
+        it( "is converted to the owned Refs collection on assignment", function(){
             var a = new A();
             a.sharedC = [{ name : 'Hey' }];
             expect( a.sharedC.first().name ).to.equal( 'Hey' );
@@ -139,7 +139,7 @@ describe( 'Advanced functionality', function(){
         });
     });
 
-    describe( 'Collection.Subset', function(){
+    describe( 'Collection.Refs', function(){
         var M = Model.extend({
             attributes : {
                 name : String
@@ -148,7 +148,7 @@ describe( 'Advanced functionality', function(){
 
         var A = Model.extend({
             attributes : {
-                subset : M.Collection.Subset,
+                subset : M.Collection.Refs,
                 aggregated : M.Collection
             }
         });
@@ -171,6 +171,29 @@ describe( 'Advanced functionality', function(){
             expect( a.aggregated.first()._owner ).to.equal( a.aggregated );
         } );
 
+        it( 'is owned by parent', function(){
+            var a = new A();
+            expect( a.subset._owner ).to.equal( a );
+        });
+
+        it( 'behaves as shared type', function(){
+            var a = new A();
+
+            var { subset } = a;
+            a.subset = a.aggregated;
+
+            expect( subset._owner ).to.be.undefined;
+
+            a.subset = new M.Collection();
+
+            expect( a.subset._owner ).to.be.undefined;
+
+            a.subset = null;
+            a.subset = [];
+
+            expect( a.subset._owner ).to.equal( a );
+        });
+
         it( "doesn't merge records on set", function(){
             var a = new A();
 
@@ -189,6 +212,14 @@ describe( 'Advanced functionality', function(){
     });
 
     describe( 'Attribute .has options', function(){
+        it( 'Creates a copy of attribute descriptor', function(){
+            var T = Number.has,
+                T2 = T.has;
+
+            expect( T ).to.not.equal( T2 );
+            expect( T.options ).to.deep.equal( T2.options );
+        } );
+
         describe( '.has.changeEvents( false )', function(){
             var M = Model.extend({
                 attributes : {

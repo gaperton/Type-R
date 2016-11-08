@@ -116,6 +116,10 @@ export class GenericAttribute implements Attribute {
     }
 
     value : any
+
+    // Used as global default value for the given metatype  
+    static defaultValue : any;
+
     type : Constructor< any >
 
     parse : ( value, key : string ) => any

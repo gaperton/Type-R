@@ -66,7 +66,7 @@ export class Collection extends Transactional implements CollectionCore {
         Mixable.mixTo( RefsCollection );
         
         RefsCollection.prototype = this.prototype;
-        RefsCollection._attribute = AggregatedType;
+        RefsCollection._attribute = CollectionRefsType;
 
         this.Refs = this.Subset = <any>RefsCollection;
 
@@ -453,6 +453,10 @@ type ElementsArg = Object | Record | Object[] | Record[];
 function toElements( collection : Collection, elements : ElementsArg, options : CollectionOptions ) : Elements {
     const parsed = options.parse ? collection.parse( elements, options ) : elements; 
     return Array.isArray( parsed ) ? parsed : [ parsed ];
+}
+
+class CollectionRefsType extends SharedType {
+    static defaultValue = [];
 }
 
 createSharedTypeSpec( Collection, SharedType );

@@ -18,8 +18,12 @@ export class ChainableAttributeSpec {
     options : AttributeDescriptor;
 
     constructor( options : AttributeDescriptor = {} ) {
-        this.options = { getHooks : [], transforms : [], changeHandlers : []};
-        assign( this.options, options );
+        this.options = assign( {}, options );
+
+        const { getHooks = [], transforms = [], changeHandlers = [] } = options;
+        this.options.getHooks = getHooks.slice();
+        this.options.transforms = transforms.slice();
+        this.options.changeHandlers = changeHandlers.slice();
     }
 
     check( check : AttributeCheck, error : any ) : this {
@@ -96,7 +100,10 @@ export class ChainableAttributeSpec {
         return this;
     }
 
-    get has() : this { return this; }
+    // Creates a copy of the spec.
+    get has() : ChainableAttributeSpec {
+        return new ChainableAttributeSpec( this.options );
+    }
 
     /*
     get isRequired() {
@@ -142,7 +149,7 @@ export function toAttributeDescriptor( spec : any ) : AttributeDescriptor {
     let attrSpec : ChainableAttributeSpec;
 
     if( typeof spec === 'function' ) {
-        attrSpec = new ChainableAttributeSpec({ type : <any> spec });
+        attrSpec = new ChainableAttributeSpec({ type : spec, value : spec._attribute.defaultValue });
     }
     else if( spec && spec instanceof ChainableAttributeSpec ) {
         attrSpec = spec;
