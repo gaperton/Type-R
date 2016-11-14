@@ -77,7 +77,7 @@ export class Collection extends Transactional implements CollectionCore {
     
     static define( protoProps : CollectionDefinition = {}, staticProps? ){
                 // Extract record definition from static members, if any.
-        const   staticsDefinition : CollectionDefinition = tools.getChangedStatics( this, 'model', 'itemEvents' ),
+        const   staticsDefinition : CollectionDefinition = tools.getChangedStatics( this, 'comparator', 'model', 'itemEvents' ),
                 // Definition can be made either through statics or define argument.
                 // Merge them together, so we won't care about it below. 
                 definition = assign( staticsDefinition, protoProps );

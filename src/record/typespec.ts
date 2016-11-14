@@ -42,6 +42,10 @@ export class ChainableAttributeSpec {
         });
     }
 
+    get isRequired() : ChainableAttributeSpec {
+        return this._set({ isRequired : true }); 
+    }
+
     watcher( ref : string | ( ( value : any, key : string ) => void ) ) : ChainableAttributeSpec {
         return this._set({ _onChange : ref });
     }

@@ -16,6 +16,7 @@ declare global {
 interface ExtendedAttributeDescriptor extends AttributeDescriptor {
     _attribute? : typeof GenericAttribute
     validate? : ( record : Record, value : any, key : string ) => any
+    isRequired? : boolean
     changeEvents? : boolean
 } 
 
@@ -155,7 +156,11 @@ export class GenericAttribute implements Attribute {
         this.parse  = parse;
         this.toJSON = toJSON === void 0 ? this.toJSON : toJSON;
 
-        this.validate = validate || this.validate; 
+        this.validate = validate || this.validate;
+        
+        if( options.isRequired ){
+            this.validate = wrapIsRequired( this.validate );
+        }
 
         /**
          * Assemble pipelines...
@@ -210,5 +215,11 @@ function chainGetHooks( prevHook : GetHook, nextHook : GetHook ) : GetHook {
 function chainTransforms( prevTransform : Transform, nextTransform : Transform ) : Transform {
     return function( value, options, prev, model ) {
         return nextTransform.call( this, prevTransform.call( this, value, options, prev, model ), options, prev, model );
+    }
+}
+
+function wrapIsRequired( validate ){
+    return function( record : Record, value : any, key : string ){
+        return value ? validate.call( this, record, value, key ) : 'Required';
     }
 }
