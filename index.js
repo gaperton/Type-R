@@ -2944,7 +2944,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	Object.defineProperty(Function.prototype, 'has', {
 	    get: function () {
-	        return this._has || new ChainableAttributeSpec({ type: this });
+	        return this._has || new ChainableAttributeSpec({ type: this, value: this._attribute.defaultValue });
 	    },
 	    set: function (value) { this._has = value; }
 	});

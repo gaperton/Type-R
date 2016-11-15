@@ -144,7 +144,7 @@ Object.defineProperty( Function.prototype, 'isRequired', {
 Object.defineProperty( Function.prototype, 'has', {
     get() {
         // workaround for sinon.js and other libraries overriding 'has'
-        return this._has || new ChainableAttributeSpec( { type : this } );
+        return this._has || new ChainableAttributeSpec( { type : this, value : this._attribute.defaultValue } );
     },
 
     set( value ) { this._has = value; }
