@@ -33,7 +33,7 @@ export class ChainableAttributeSpec {
 
         const prev = this.options.validate;
 
-        return this._set({
+        return this.metadata({
             validate : prev ? (
                             function( model, value, name ){
                                 return prev( model, value, name ) || validate( model, value, name );
@@ -43,24 +43,24 @@ export class ChainableAttributeSpec {
     }
 
     get isRequired() : ChainableAttributeSpec {
-        return this._set({ isRequired : true }); 
+        return this.metadata({ isRequired : true }); 
     }
 
     watcher( ref : string | ( ( value : any, key : string ) => void ) ) : ChainableAttributeSpec {
-        return this._set({ _onChange : ref });
+        return this.metadata({ _onChange : ref });
     }
 
     parse( fun ) : ChainableAttributeSpec {
-        return this._set({ parse : fun });
+        return this.metadata({ parse : fun });
     }
 
     toJSON( fun ) : ChainableAttributeSpec {
-        return this._set({ toJSON : fun || null });
+        return this.metadata({ toJSON : fun || null });
     }
 
     // Attribute get hook.
     get( fun ) : ChainableAttributeSpec {
-        return this._set({
+        return this.metadata({
             getHooks : this.options.getHooks.concat( fun )
         });
     }
@@ -76,13 +76,13 @@ export class ChainableAttributeSpec {
             return prev;
         }
 
-        return this._set({
+        return this.metadata({
             transforms : this.options.transforms.concat( handleSetHook )
         });
     }
 
     changeEvents( events : boolean ) : ChainableAttributeSpec {
-        return this._set({ changeEvents : events });
+        return this.metadata({ changeEvents : events });
     }
 
     // Subsribe to events from an attribute.
@@ -95,7 +95,7 @@ export class ChainableAttributeSpec {
             next && next.trigger && eventMap.subscribe( record, next );
         }
 
-        return this._set({
+        return this.metadata({
             changeHandlers : this.options.changeHandlers.concat( handleEventsSubscribtion )
         });
     }
@@ -105,20 +105,14 @@ export class ChainableAttributeSpec {
         return this;
     }
 
-    private _set( options : AttributeDescriptor ) : ChainableAttributeSpec {
+    metadata( options : AttributeDescriptor ) : ChainableAttributeSpec {
         const cloned = new ChainableAttributeSpec( this.options );
         assign( cloned.options, options );
         return cloned;
     }
 
-    /*
-    get isRequired() {
-        this.options.isRequired = true;
-        return this;
-    }*/
-
     value( x ) : ChainableAttributeSpec {
-        return this._set({ value : x });
+        return this.metadata({ value : x });
     }
 }
 
@@ -134,12 +128,9 @@ Function.prototype.value = function( x ) {
     return new ChainableAttributeSpec( { type : this, value : x } );
 };
 
-/*
 Object.defineProperty( Function.prototype, 'isRequired', {
-    get() {
-        return new ChainableAttributeSpec( { type : this, isRequired : true } );
-    } 
-});*/
+    get() { return this.has.isRequired; }
+});
 
 Object.defineProperty( Function.prototype, 'has', {
     get() {
@@ -154,7 +145,7 @@ export function toAttributeDescriptor( spec : any ) : AttributeDescriptor {
     let attrSpec : ChainableAttributeSpec;
 
     if( typeof spec === 'function' ) {
-        attrSpec = new ChainableAttributeSpec({ type : spec, value : spec._attribute.defaultValue });
+        attrSpec = spec.has;
     }
     else if( spec && spec instanceof ChainableAttributeSpec ) {
         attrSpec = spec;
