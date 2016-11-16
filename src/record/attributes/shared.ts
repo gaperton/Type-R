@@ -1,5 +1,5 @@
 import { Record } from '../transaction'
-import { GenericAttribute } from './generic'
+import { AnyType } from './generic'
 import { ItemsBehavior, Owner, transactionApi, Transactional, TransactionOptions, TransactionalConstructor } from '../../transactions' 
 import { tools, eventsApi } from '../../object-plus'
 
@@ -17,7 +17,7 @@ const { on, off } = eventsApi,
 const shareAndListen = ItemsBehavior.listen | ItemsBehavior.share;
 
 /** @private */
-export class SharedType extends GenericAttribute {
+export class SharedType extends AnyType {
     type : TransactionalConstructor
 
     clone( value : Transactional, record : Record ) : Transactional {

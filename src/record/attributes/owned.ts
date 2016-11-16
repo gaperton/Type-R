@@ -1,11 +1,11 @@
 import { Record } from '../transaction' 
-import { GenericAttribute } from './generic'
+import { AnyType } from './generic'
 import { Owner, transactionApi, Transactional, ItemsBehavior, TransactionOptions, TransactionalConstructor } from '../../transactions'
 import { tools } from '../../object-plus' 
 
 const { free, aquire } = transactionApi;
 
-export class AggregatedType extends GenericAttribute {
+export class AggregatedType extends AnyType {
     type : TransactionalConstructor
 
     clone( value : Transactional ) : Transactional {

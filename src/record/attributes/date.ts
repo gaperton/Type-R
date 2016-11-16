@@ -1,11 +1,11 @@
-import { GenericAttribute } from './generic'
+import { AnyType } from './generic'
 import { tools } from '../../object-plus'
 
 const DateProto = Date.prototype;
 
 // Date Attribute
 /** @private */
-export class DateType extends GenericAttribute {
+export class DateType extends AnyType {
     convert( value : any ){
         if( value == null || value instanceof Date ) return value;
         

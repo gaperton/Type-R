@@ -1,4 +1,4 @@
-import { GenericAttribute } from './attributes';
+import { AnyType } from './attributes';
 import { Attribute, AttributesValues, AttributeDescriptorMap, CloneAttributesCtor } from './transaction'
 import { tools, eventsApi } from '../object-plus'
 import { toAttributeDescriptor } from './typespec'
@@ -23,7 +23,7 @@ export interface DynamicMixin {
 // Refine AttributesSpec definition.
 /** @private */
 export interface AttributesSpec {
-    [ key : string ] : GenericAttribute
+    [ key : string ] : AnyType
 }
 
 type ForEach   = ( obj : {}, iteratee : ( val : any, key? : string, spec? : Attribute ) => void ) => void;
@@ -63,7 +63,7 @@ export function compile( rawSpecs : AttributeDescriptorMap, baseAttributes : Att
 // Create attribute from the type spec.
 /** @private */
 function createAttribute( spec, name ){
-    return GenericAttribute.create( toAttributeDescriptor( spec ), name );
+    return AnyType.create( toAttributeDescriptor( spec ), name );
 }
 
 // Build events map for attribute change events.

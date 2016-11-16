@@ -9,12 +9,12 @@ export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | str
 
 declare global {
     interface Function {
-        _attribute : typeof GenericAttribute
+        _attribute : typeof AnyType
     }
 }
 
 interface ExtendedAttributeDescriptor extends AttributeDescriptor {
-    _attribute? : typeof GenericAttribute
+    _attribute? : typeof AnyType
     validate? : ( record : Record, value : any, key : string ) => any
     isRequired? : boolean
     changeEvents? : boolean
@@ -24,11 +24,11 @@ export { ExtendedAttributeDescriptor as AttributeDescriptor }
 
 // TODO: interface differs from options, do something obout it
 /** @private */
-export class GenericAttribute implements Attribute {
+export class AnyType implements Attribute {
     // Factory method to create attribute from options 
-    static create( options : ExtendedAttributeDescriptor, name : string ) : GenericAttribute {
+    static create( options : ExtendedAttributeDescriptor, name : string ) : AnyType {
         const type = options.type,
-              AttributeCtor = options._attribute || ( type ? type._attribute : GenericAttribute );
+              AttributeCtor = options._attribute || ( type ? type._attribute : AnyType );
 
         return new AttributeCtor( name, options );
     }
@@ -193,7 +193,7 @@ export class GenericAttribute implements Attribute {
     get : ( value, key : string ) => any
 }
 
-Record.prototype._attributes = { id : GenericAttribute.create({ value : void 0 }, 'id' )};
+Record.prototype._attributes = { id : AnyType.create({ value : void 0 }, 'id' )};
 Record.prototype.defaults = function( attrs : { id? : string } = {} ){ return { id : attrs.id } };
 
 /** @private */

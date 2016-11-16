@@ -1,9 +1,9 @@
-import { GenericAttribute } from './generic'
+import { AnyType } from './generic'
 import { tools } from '../../object-plus'
 
 // Default attribute type for all constructor functions...
 /** @private */
-class ConstructorType extends GenericAttribute {
+class ConstructorType extends AnyType {
     type : new ( value : any ) => {}
 
     convert( value ) {
@@ -20,7 +20,7 @@ Function.prototype._attribute = ConstructorType;
 
 // Primitive Types.
 /** @private */
-export class PrimitiveType extends GenericAttribute {
+export class PrimitiveType extends AnyType {
     type : NumberConstructor | StringConstructor | BooleanConstructor
 
     create() { return this.type(); }
@@ -63,7 +63,7 @@ Number._attribute = NumericType;
  * Compatibility wrapper for Array type.
  * @private
  */ 
-export class ArrayType extends GenericAttribute {
+export class ArrayType extends AnyType {
     toJSON( value ) { return value; }
 
     convert( value ) {
