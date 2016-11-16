@@ -2943,7 +2943,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return new ChainableAttributeSpec({ type: this, value: x });
 	};
 	Object.defineProperty(Function.prototype, 'isRequired', {
-	    get: function () { return this.has.isRequired; }
+	    get: function () { return this._isRequired || this.has.isRequired; },
+	    set: function (x) { this._isRequired = x; }
 	});
 	Object.defineProperty(Function.prototype, 'has', {
 	    get: function () {

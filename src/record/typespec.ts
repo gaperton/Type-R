@@ -129,7 +129,8 @@ Function.prototype.value = function( x ) {
 };
 
 Object.defineProperty( Function.prototype, 'isRequired', {
-    get() { return this.has.isRequired; }
+    get() { return this._isRequired || this.has.isRequired; },
+    set( x ){ this._isRequired = x; }
 });
 
 Object.defineProperty( Function.prototype, 'has', {
