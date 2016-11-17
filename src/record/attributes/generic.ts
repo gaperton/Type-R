@@ -207,7 +207,7 @@ function chainChangeHandlers( prevHandler : ChangeHandler, nextHandler : ChangeH
 /** @private */
 function chainGetHooks( prevHook : GetHook, nextHook : GetHook ) : GetHook {
     return function( value, name ) {
-        return nextHook.call( prevHook.call( value, name ), name );
+        return nextHook.call( this, prevHook.call( this, value, name ), name );
     }
 }
 

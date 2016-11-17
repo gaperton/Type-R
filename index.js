@@ -2490,7 +2490,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	function chainGetHooks(prevHook, nextHook) {
 	    return function (value, name) {
-	        return nextHook.call(prevHook.call(value, name), name);
+	        return nextHook.call(this, prevHook.call(this, value, name), name);
 	    };
 	}
 	function chainTransforms(prevTransform, nextTransform) {
