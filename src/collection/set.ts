@@ -43,7 +43,8 @@ export function setTransaction( collection, items, options ){
                     ) : [];                    
     
     const addedOrChanged = nested.length || added.length,
-          sorted = ( addedOrChanged && sortElements( collection, options ) ) || added.length || options.sorted;
+          // As we are reallocating models array, it needs to be sorted even if there are no changes.
+          sorted = ( sortElements( collection, options ) && addedOrChanged ) || added.length || options.sorted;
 
     if( addedOrChanged || removed.length || sorted ){
         if( markAsDirty( collection, options ) ){ 

@@ -262,4 +262,27 @@ describe( 'Advanced functionality', function(){
         expect( c.first()._owner ).to.be.eql( c );
         expect( c.first().clone()._owner ).to.be.eql( void 0 );
     });
+
+    describe( 'Different bugs', function(){
+        const M = Model.extend({
+            attributes : {
+                name : ''
+            },
+
+            collection : {
+                comparator : 'name'
+            }
+        });
+
+        it( 'Collection sorts on set when nothing changed', function(){
+            const c = new M.Collection();
+
+            c.set( [ { id : 1, name : 'b' }, { id : 2, name : 'a' } ] );
+            expect( c.first().name ).to.be.equal( 'a' );
+
+            c.set( [ { id : 1, name : 'b' }, { id : 2, name : 'a' } ] );
+            expect( c.first().name ).to.be.equal( 'a' );
+        });
+
+    });
 });
