@@ -30,6 +30,8 @@ export class SharedType extends AnyType {
         return clone;
     }
 
+    // Do not serialize by default.
+    toJSON(){}
 
     canBeUpdated( prev : Transactional, next : any, options : TransactionOptions ) : any {
         // If an object already exists, and new value is of incompatible type, let object handle the update.
@@ -100,9 +102,6 @@ export class SharedType extends AnyType {
     _onChange : ( child : Transactional, options : TransactionOptions, initiator : Transactional ) => void 
 
     initialize( options ){
-        // Shared attributes are not serialized.
-        this.toJSON = null;
-
         if( this.propagateChanges ){
             // Create change event handler which knows current attribute name. 
             const attribute = this;

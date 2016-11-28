@@ -55,7 +55,9 @@ export class ChainableAttributeSpec {
     }
 
     toJSON( fun ) : ChainableAttributeSpec {
-        return this.metadata({ toJSON : fun || null });
+        return this.metadata({
+            toJSON : typeof fun === 'function' ? fun : ( fun ? x => x && x.toJSON() : emptyFunction ) 
+        });
     }
 
     // Attribute get hook.
@@ -115,6 +117,8 @@ export class ChainableAttributeSpec {
         return this.metadata({ value : x });
     }
 }
+
+function emptyFunction(){}
 
 declare global {
     interface Function{

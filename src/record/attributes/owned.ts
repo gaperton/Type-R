@@ -12,6 +12,8 @@ export class AggregatedType extends AnyType {
         return value ? value.clone() : value;
     }
 
+    toJSON( x ){ return x && x.toJSON(); }
+
     canBeUpdated( prev : Transactional, next : any, options : TransactionOptions ) : any {
         // If an object already exists, and new value is of incompatible type, let object handle the update.
         if( prev && next != null ){

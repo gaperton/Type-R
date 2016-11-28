@@ -265,10 +265,7 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     toJSON() : Object[] {
-        // Don't serialize when not aggregated
-        if( !this._shared ){
-            return this.models.map( model => model.toJSON() );
-        }
+        return this.models.map( model => model.toJSON() );
     }
 
     // Apply bulk in-place object update in scope of ad-hoc transaction 

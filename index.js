@@ -1299,9 +1299,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return copy;
 	    };
 	    Collection.prototype.toJSON = function () {
-	        if (!this._shared) {
-	            return this.models.map(function (model) { return model.toJSON(); });
-	        }
+	        return this.models.map(function (model) { return model.toJSON(); });
 	    };
 	    Collection.prototype.set = function (elements, options) {
 	        if (elements === void 0) { elements = []; }
@@ -2016,7 +2014,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var json = {};
 	        this.forEachAttr(this.attributes, function (value, key, _a) {
 	            var toJSON = _a.toJSON;
-	            if (toJSON && value !== void 0) {
+	            if (value !== void 0) {
 	                var asJson = toJSON.call(_this, value, key);
 	                if (asJson !== void 0)
 	                    json[key] = asJson;
@@ -2527,6 +2525,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    AggregatedType.prototype.clone = function (value) {
 	        return value ? value.clone() : value;
 	    };
+	    AggregatedType.prototype.toJSON = function (x) { return x && x.toJSON(); };
 	    AggregatedType.prototype.canBeUpdated = function (prev, next, options) {
 	        if (prev && next != null) {
 	            if (next instanceof this.type) {
@@ -2784,6 +2783,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        aquire(record, clone, this.name);
 	        return clone;
 	    };
+	    SharedType.prototype.toJSON = function () { };
 	    SharedType.prototype.canBeUpdated = function (prev, next, options) {
 	        if (prev && next != null) {
 	            if (next instanceof this.type) {
@@ -2833,7 +2833,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    };
 	    SharedType.prototype.initialize = function (options) {
-	        this.toJSON = null;
 	        if (this.propagateChanges) {
 	            var attribute_1 = this;
 	            this._onChange = function (child, options, initiator) {
@@ -2889,7 +2888,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this.metadata({ parse: fun });
 	    };
 	    ChainableAttributeSpec.prototype.toJSON = function (fun) {
-	        return this.metadata({ toJSON: fun || null });
+	        return this.metadata({
+	            toJSON: typeof fun === 'function' ? fun : (fun ? function (x) { return x && x.toJSON(); } : emptyFunction)
+	        });
 	    };
 	    ChainableAttributeSpec.prototype.get = function (fun) {
 	        return this.metadata({
@@ -2939,6 +2940,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return ChainableAttributeSpec;
 	}());
 	exports.ChainableAttributeSpec = ChainableAttributeSpec;
+	function emptyFunction() { }
 	Function.prototype.value = function (x) {
 	    return new ChainableAttributeSpec({ type: this, value: x });
 	};

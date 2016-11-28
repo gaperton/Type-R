@@ -378,7 +378,7 @@ export class Record extends Transactional implements Owner {
 
         this.forEachAttr( this.attributes, ( value, key : string, { toJSON } : AttributeSerialization ) =>{
             // If attribute serialization is not disabled, and its value is not undefined...
-            if( toJSON && value !== void 0 ){
+            if( value !== void 0 ){
                 // ...serialize it according to its spec.
                 const asJson = toJSON.call( this, value, key );
 
