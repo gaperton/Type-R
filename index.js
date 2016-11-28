@@ -2833,17 +2833,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    };
 	    SharedType.prototype.initialize = function (options) {
-	        if (this.propagateChanges) {
-	            var attribute_1 = this;
-	            this._onChange = function (child, options, initiator) {
-	                this === initiator || this.forceAttributeChange(attribute_1.name, options);
-	            };
-	            options.changeHandlers.unshift(this._handleChange);
-	        }
+	        var attribute = this;
+	        this._onChange = this.propagateChanges ? function (child, options, initiator) {
+	            this === initiator || this.forceAttributeChange(attribute.name, options);
+	        } : ignore;
+	        options.changeHandlers.unshift(this._handleChange);
 	    };
 	    return SharedType;
 	}(generic_1.AnyType));
 	exports.SharedType = SharedType;
+	function ignore() { }
 
 
 /***/ },

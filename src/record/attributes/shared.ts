@@ -102,14 +102,14 @@ export class SharedType extends AnyType {
     _onChange : ( child : Transactional, options : TransactionOptions, initiator : Transactional ) => void 
 
     initialize( options ){
-        if( this.propagateChanges ){
-            // Create change event handler which knows current attribute name. 
-            const attribute = this;
-            this._onChange = function( child, options, initiator ){
-                this === initiator || this.forceAttributeChange( attribute.name, options );
-            }
+        // Create change event handler which knows current attribute name. 
+        const attribute = this;
+        this._onChange = this.propagateChanges ? function( child, options, initiator ){
+            this === initiator || this.forceAttributeChange( attribute.name, options );
+        } : ignore;
 
-            options.changeHandlers.unshift( this._handleChange );
-        }
+        options.changeHandlers.unshift( this._handleChange );
     }
 }
+
+function ignore(){}
