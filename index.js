@@ -577,6 +577,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return tools_1.defaults(a.call(this), b.call(this));
 	        };
 	    },
+	    overwrite: function (a, b) {
+	        return b;
+	    },
 	    sequence: function (a, b) {
 	        return function () {
 	            a.apply(this, arguments);

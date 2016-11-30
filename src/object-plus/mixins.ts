@@ -331,6 +331,10 @@ const mergeFunctions : IMergeFunctions = {
         }
     },
 
+    overwrite( a, b ){
+        return b;
+    },
+
     sequence( a : Function, b : Function ){
         return function() : void {
             a.apply( this, arguments );
