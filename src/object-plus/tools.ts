@@ -323,7 +323,7 @@ export function assign< T >( dest : T, source : Object ) : T {
 export function defaults< T >( dest : T, ...sources : Object[] ) : T
 export function defaults< T >( dest : T, source : Object ) : T {
     for( var name in source ) {
-        if( source.hasOwnProperty( name ) && dest[ name ] === void 0 ) {
+        if( source.hasOwnProperty( name ) && !dest.hasOwnProperty( name ) ) {
             dest[ name ] = source[ name ];
         }
     }
