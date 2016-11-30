@@ -242,7 +242,7 @@ export function getPropertyDescriptor( obj : {}, prop : string ) : PropertyDescr
     let desc : PropertyDescriptor;
 
     for( let proto = obj; !desc && proto; proto = Object.getPrototypeOf( proto ) ) {
-        desc = Object.getOwnPropertyDescriptor( obj, prop );
+        desc = Object.getOwnPropertyDescriptor( proto, prop );
     }
 
     return desc;

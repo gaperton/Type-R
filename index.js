@@ -278,7 +278,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function getPropertyDescriptor(obj, prop) {
 	    var desc;
 	    for (var proto = obj; !desc && proto; proto = Object.getPrototypeOf(proto)) {
-	        desc = Object.getOwnPropertyDescriptor(obj, prop);
+	        desc = Object.getOwnPropertyDescriptor(proto, prop);
 	    }
 	    return desc;
 	}
