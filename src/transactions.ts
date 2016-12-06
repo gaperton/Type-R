@@ -1,4 +1,4 @@
-import { Messenger, CallbacksByEvents, CallbackSpec, MessengersByCid, MixinRules, MessengerDefinition, tools, extendable, mixins, eventsApi, define, Constructor, MixableConstructor } from './object-plus'
+import { Messenger, CallbacksByEvents, MessengersByCid, MixinRules, MessengerDefinition, tools, extendable, mixins, eventsApi, define, Constructor, MixableConstructor } from './object-plus'
 import { ValidationError, Validatable, ChildrenErrors } from './validation'
 import { Traversable, resolveReference } from './traversable'
 
@@ -39,9 +39,9 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     off : ( events? : string | CallbacksByEvents, callback?, context? ) => this
     trigger      : (name : string, a?, b?, c? ) => this
 
-    stopListening : ( source? : Messenger, a? : string | CallbacksByEvents, b? : CallbackSpec ) => this
-    listenTo : ( source : Messenger, a : string | CallbacksByEvents, b? : CallbackSpec ) => this
-    listenToOnce : ( source : Messenger, a : string | CallbacksByEvents, b? : CallbackSpec ) => this
+    stopListening : ( source? : Messenger, a? : string | CallbacksByEvents, b? : Function ) => this
+    listenTo : ( source : Messenger, a : string | CallbacksByEvents, b? : Function ) => this
+    listenToOnce : ( source : Messenger, a : string | CallbacksByEvents, b? : Function ) => this
     
     _disposed : boolean;
 

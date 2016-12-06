@@ -128,24 +128,28 @@ interface Callback extends Function {
 }
 
 export function on( source : EventSource, name : string, callback : Callback, context? : any ) : void {
-    const _events = source._events || ( source._events = Object.create( null ) ),
-          handlers = _events[ name ],
-          handler = new EventHandler( callback, context );
+    if( callback ){
+        const _events = source._events || ( source._events = Object.create( null ) ),
+            handlers = _events[ name ],
+            handler = new EventHandler( callback, context );
 
-    if( handlers )
-        handlers.push( handler );
-    else
-        _events[ name ] = [ handler ];
+        if( handlers )
+            handlers.push( handler );
+        else
+            _events[ name ] = [ handler ];
+    }
 }
 
 export function once( source : EventSource, name : string, callback : Callback, context? : any ) : void {
-    const once : Callback = function(){
-        off( source, name, once );
-        callback.apply(this, arguments);
-    }
+    if( callback ){
+        const once : Callback = function(){
+            off( source, name, once );
+            callback.apply(this, arguments);
+        }
 
-    once._callback = callback;
-    on( source, name, once, context );
+        once._callback = callback;
+        on( source, name, once, context );
+    }
 }
 
 export function off( source : EventSource, name? : string, callback? : Callback, context? : any ) : void {
@@ -193,9 +197,7 @@ export interface EventSource {
 
 const eventSplitter = /\s+/;
 
-export function strings( api : ApiEntry, source : EventSource, events : string, a_callback : Callback | string, context ){
-    const callback = typeof a_callback === 'string' ? context[ a_callback ] : a_callback;
-
+export function strings( api : ApiEntry, source : EventSource, events : string, callback : Callback, context ){
     if( eventSplitter.test( events ) ){
         const names = events.split( eventSplitter );
         for( let name of names ) api( source, name, callback, context );

@@ -27,9 +27,7 @@ export interface MessengersByCid {
     [ cid : string ] : Messenger
 }
 
-
-export type CallbackSpec = Function | string
-export type CallbacksByEvents = { [ events : string ] : CallbackSpec }
+export type CallbacksByEvents = { [ events : string ] : Function }
 
 /*************************
  * Messenger is mixable class with capabilities of sending and receiving synchronous events.
@@ -130,21 +128,21 @@ export abstract class Messenger implements Mixins.Mixable, EventSource {
         return this;
     }
 
-    listenTo( source : Messenger, a : string | CallbacksByEvents, b? : CallbackSpec ) : this {
+    listenTo( source : Messenger, a : string | CallbacksByEvents, b? : Function ) : this {
         addReference( this, source );
-        source.on( a, b || this, this );
+        source.on( a, !b && typeof a === 'object' ? this : b, this );
 
         return this;
     }
 
-    listenToOnce( source : Messenger, a : string | CallbacksByEvents, b? : CallbackSpec ) : this {
+    listenToOnce( source : Messenger, a : string | CallbacksByEvents, b? : Function ) : this {
         addReference( this, source );
-        source.once( a, b || this, this );
+        source.once( a, !b && typeof a === 'object' ? this : b, this );
 
         return this;
     }
 
-    stopListening( a_source? : Messenger, a? : string | CallbacksByEvents, b? : CallbackSpec ) : this {
+    stopListening( a_source? : Messenger, a? : string | CallbacksByEvents, b? : Function ) : this {
         const { _listeningTo } = this;
         if( _listeningTo ){
             const removeAll = !( a || b ),

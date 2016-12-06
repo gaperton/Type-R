@@ -622,7 +622,7 @@
   QUnit.test("Off during iteration with once.", function(assert) {
     assert.expect(2);
     var obj = _.extend({}, Backbone.Events);
-    var f = function(){ this.off('event', f); };
+    var f = function(){ obj.off('event', f); };
     obj.on('event', f);
     obj.once('event', function(){});
     obj.on('event', function(){ assert.ok(true); });

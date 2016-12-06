@@ -722,12 +722,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    Messenger.prototype.listenTo = function (source, a, b) {
 	        addReference(this, source);
-	        source.on(a, b || this, this);
+	        source.on(a, !b && typeof a === 'object' ? this : b, this);
 	        return this;
 	    };
 	    Messenger.prototype.listenToOnce = function (source, a, b) {
 	        addReference(this, source);
-	        source.once(a, b || this, this);
+	        source.once(a, !b && typeof a === 'object' ? this : b, this);
 	        return this;
 	    };
 	    Messenger.prototype.stopListening = function (a_source, a, b) {
@@ -878,20 +878,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	}());
 	exports.EventHandler = EventHandler;
 	function on(source, name, callback, context) {
-	    var _events = source._events || (source._events = Object.create(null)), handlers = _events[name], handler = new EventHandler(callback, context);
-	    if (handlers)
-	        handlers.push(handler);
-	    else
-	        _events[name] = [handler];
+	    if (callback) {
+	        var _events = source._events || (source._events = Object.create(null)), handlers = _events[name], handler = new EventHandler(callback, context);
+	        if (handlers)
+	            handlers.push(handler);
+	        else
+	            _events[name] = [handler];
+	    }
 	}
 	exports.on = on;
 	function once(source, name, callback, context) {
-	    var once = function () {
-	        off(source, name, once);
-	        callback.apply(this, arguments);
-	    };
-	    once._callback = callback;
-	    on(source, name, once, context);
+	    if (callback) {
+	        var once_1 = function () {
+	            off(source, name, once_1);
+	            callback.apply(this, arguments);
+	        };
+	        once_1._callback = callback;
+	        on(source, name, once_1, context);
+	    }
 	}
 	exports.once = once;
 	function off(source, name, callback, context) {
@@ -927,8 +931,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	}
 	var eventSplitter = /\s+/;
-	function strings(api, source, events, a_callback, context) {
-	    var callback = typeof a_callback === 'string' ? context[a_callback] : a_callback;
+	function strings(api, source, events, callback, context) {
 	    if (eventSplitter.test(events)) {
 	        var names = events.split(eventSplitter);
 	        for (var _i = 0, names_1 = names; _i < names_1.length; _i++) {
