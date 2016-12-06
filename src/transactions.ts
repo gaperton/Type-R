@@ -1,4 +1,4 @@
-import { Messenger, Listeners, ListeningToMap, MixinRules, MessengerDefinition, tools, extendable, mixins, eventsApi, define, Constructor, MixableConstructor } from './object-plus'
+import { Messenger, CallbacksByEvents, CallbackSpec, MessengersByCid, MixinRules, MessengerDefinition, tools, extendable, mixins, eventsApi, define, Constructor, MixableConstructor } from './object-plus'
 import { ValidationError, Validatable, ChildrenErrors } from './validation'
 import { Traversable, resolveReference } from './traversable'
 
@@ -34,13 +34,14 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     static define : (spec? : TransactionalDefinition, statics? : {} ) => MixableConstructor< Transactional >
     static predefine : () => typeof Messenger
 
-    on : (name, callback, context?) => this
-    off : (name? : string, callback? : Function, context? ) => this
-    stopListening : ( obj? : Messenger, name? : string, callback? : Function ) => this
-    listenTo : (obj : Messenger, name, callback? ) => this
-    once : (name, callback, context) => this 
-    listenToOnce : (obj : Messenger, name, callback) => this 
+    on : ( events : string | CallbacksByEvents, callback, context? ) => this
+    once : ( events : string | CallbacksByEvents, callback, context? ) => this
+    off : ( events? : string | CallbacksByEvents, callback?, context? ) => this
     trigger      : (name : string, a?, b?, c? ) => this
+
+    stopListening : ( source? : Messenger, a? : string | CallbacksByEvents, b? : CallbackSpec ) => this
+    listenTo : ( source : Messenger, a : string | CallbacksByEvents, b? : CallbackSpec ) => this
+    listenToOnce : ( source : Messenger, a : string | CallbacksByEvents, b? : CallbackSpec ) => this
     
     _disposed : boolean;
 
@@ -63,13 +64,10 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     initialize() : void{}
 
     /** @private */
-    _events : eventsApi.EventsSubscription = void 0;
-    
-    /** @private */
-    _listeners : Listeners
+    _events : eventsApi.HandlersByEvent = void 0;
 
     /** @private */
-    _listeningTo : ListeningToMap
+    _listeningTo : MessengersByCid
 
     /** @private */
     _localEvents : eventsApi.EventMap

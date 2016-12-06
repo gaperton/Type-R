@@ -2,7 +2,7 @@ import * as tools from './tools'
 export { tools }
 export * from './mixins'
 export * from './messenger'
-import * as eventsApi from './events-api'
+import * as eventsApi from './eventsource'
 export { eventsApi }
 
 import { Mixable, MixableConstructor } from './mixins'
