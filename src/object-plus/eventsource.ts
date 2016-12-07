@@ -1,3 +1,5 @@
+import { once as _once } from './tools'
+
 /*******************
  * Prebuilt events map, used for optimized bulk event subscriptions.
  * 
@@ -134,7 +136,8 @@ export function on( source : EventSource, name : string, callback : Callback, co
             handler = new EventHandler( callback, context );
 
         if( handlers )
-            handlers.push( handler );
+            if( name === 'all' ) _events.all = handlers.concat( handler );  
+            else handlers.push( handler );
         else
             _events[ name ] = [ handler ];
     }
@@ -142,10 +145,10 @@ export function on( source : EventSource, name : string, callback : Callback, co
 
 export function once( source : EventSource, name : string, callback : Callback, context? : any ) : void {
     if( callback ){
-        const once : Callback = function(){
+        const once : Callback = _once( function(){
             off( source, name, once );
             callback.apply(this, arguments);
-        }
+        });
 
         once._callback = callback;
         on( source, name, once, context );
@@ -273,29 +276,35 @@ export function trigger3( self : EventSource, name : string, a, b, c ) : void{
 // JS JIT loves these small functions and code duplication.
 /** @hide */
 function _fireEvent0( events : EventHandler[] ) : void {
-    for( let ev of events ) ev.callback.call( ev.context );
+    let i = -1, l = events.length, ev;
+    while( ++i < l ) ( ev = events[ i ] ).callback.call( ev.context );
 }
 
 /** @hide */
 function _fireEvent1( events : EventHandler[], a ) : void {
-    for( let ev of events ) ev.callback.call( ev.context, a );
+    let i = -1, l = events.length, ev;
+    while( ++i < l ) ( ev = events[ i ] ).callback.call( ev.context, a );
 }
 
 /** @hide */
 function _fireEvent2( events : EventHandler[], a, b ) : void {
-    for( let ev of events ) ev.callback.call( ev.context, a, b );
+    let i = -1, l = events.length, ev;
+    while( ++i < l ) ( ev = events[ i ] ).callback.call( ev.context, a, b );
 }
 
 /** @hide */
 function _fireEvent3( events : EventHandler[], a, b, c ) : void {
-    for( let ev of events ) ev.callback.call( ev.context, a, b, c );
+    let i = -1, l = events.length, ev;
+    while( ++i < l ) ( ev = events[ i ] ).callback.call( ev.context, a, b, c );
 }
 
 /** @hide */
 function _fireEvent4( events : EventHandler[], a, b, c, d ) : void {
-    for( let ev of events ) ev.callback.call( ev.context, a, b, c, d );
+    let i = -1, l = events.length, ev;
+    while( ++i < l ) ( ev = events[ i ] ).callback.call( ev.context, a, b, c, d );
 }
 
 function _fireEvent( events : EventHandler[], a : any[] ) : void {
-    for( let ev of events ) ev.callback.apply( ev.context, a );
+    let i = -1, l = events.length, ev;
+    while( ++i < l ) ( ev = events[ i ] ).callback.apply( ev.context, a );
 }

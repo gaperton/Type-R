@@ -774,9 +774,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 5 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	var tools_1 = __webpack_require__(2);
 	var EventMap = (function () {
 	    function EventMap(map) {
 	        this.handlers = [];
@@ -881,7 +882,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (callback) {
 	        var _events = source._events || (source._events = Object.create(null)), handlers = _events[name], handler = new EventHandler(callback, context);
 	        if (handlers)
-	            handlers.push(handler);
+	            if (name === 'all')
+	                _events.all = handlers.concat(handler);
+	            else
+	                handlers.push(handler);
 	        else
 	            _events[name] = [handler];
 	    }
@@ -889,10 +893,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.on = on;
 	function once(source, name, callback, context) {
 	    if (callback) {
-	        var once_1 = function () {
+	        var once_1 = tools_1.once(function () {
 	            off(source, name, once_1);
 	            callback.apply(this, arguments);
-	        };
+	        });
 	        once_1._callback = callback;
 	        on(source, name, once_1, context);
 	    }
@@ -1003,40 +1007,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.trigger3 = trigger3;
 	;
 	function _fireEvent0(events) {
-	    for (var _i = 0, events_1 = events; _i < events_1.length; _i++) {
-	        var ev = events_1[_i];
-	        ev.callback.call(ev.context);
-	    }
+	    var i = -1, l = events.length, ev;
+	    while (++i < l)
+	        (ev = events[i]).callback.call(ev.context);
 	}
 	function _fireEvent1(events, a) {
-	    for (var _i = 0, events_2 = events; _i < events_2.length; _i++) {
-	        var ev = events_2[_i];
-	        ev.callback.call(ev.context, a);
-	    }
+	    var i = -1, l = events.length, ev;
+	    while (++i < l)
+	        (ev = events[i]).callback.call(ev.context, a);
 	}
 	function _fireEvent2(events, a, b) {
-	    for (var _i = 0, events_3 = events; _i < events_3.length; _i++) {
-	        var ev = events_3[_i];
-	        ev.callback.call(ev.context, a, b);
-	    }
+	    var i = -1, l = events.length, ev;
+	    while (++i < l)
+	        (ev = events[i]).callback.call(ev.context, a, b);
 	}
 	function _fireEvent3(events, a, b, c) {
-	    for (var _i = 0, events_4 = events; _i < events_4.length; _i++) {
-	        var ev = events_4[_i];
-	        ev.callback.call(ev.context, a, b, c);
-	    }
+	    var i = -1, l = events.length, ev;
+	    while (++i < l)
+	        (ev = events[i]).callback.call(ev.context, a, b, c);
 	}
 	function _fireEvent4(events, a, b, c, d) {
-	    for (var _i = 0, events_5 = events; _i < events_5.length; _i++) {
-	        var ev = events_5[_i];
-	        ev.callback.call(ev.context, a, b, c, d);
-	    }
+	    var i = -1, l = events.length, ev;
+	    while (++i < l)
+	        (ev = events[i]).callback.call(ev.context, a, b, c, d);
 	}
 	function _fireEvent(events, a) {
-	    for (var _i = 0, events_6 = events; _i < events_6.length; _i++) {
-	        var ev = events_6[_i];
-	        ev.callback.apply(ev.context, a);
-	    }
+	    var i = -1, l = events.length, ev;
+	    while (++i < l)
+	        (ev = events[i]).callback.apply(ev.context, a);
 	}
 
 
