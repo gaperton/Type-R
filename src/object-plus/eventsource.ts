@@ -17,12 +17,12 @@ export interface EventsDefinition {
 
 /** @hide */
 export class EventMap {
-    handlers : EventDescriptor[] = [];
+    handlers : EventDescriptor = null;
 
     constructor( map? : EventsDefinition | EventMap ){
         if( map ){
             if( map instanceof EventMap ){
-                this.handlers = map.handlers.slice();
+                this.handlers = map.handlers.clone();
             }
             else{
                 map && this.addEventsMap( map );
@@ -31,7 +31,11 @@ export class EventMap {
     }
 
     merge( map : EventMap ){
-        this.handlers = this.handlers.concat( map.handlers );
+        const tail = this.handlers.tail(),
+              next = map.handlers.clone();
+              
+        if( tail ) tail.next = next;
+        else this.handlers = next;
     }
 
     addEventsMap( map : EventsDefinition ){
@@ -47,21 +51,19 @@ export class EventMap {
     }
 
     addEvent( names : string, callback : Function | string | boolean ){
-        const { handlers } = this;
-
         for( let name of names.split( eventSplitter ) ){
-            handlers.push( new EventDescriptor( name, callback ) );
+            this.handlers = new EventDescriptor( name, callback, this.handlers );
         }
     }
 
     subscribe( target : {}, source : EventSource ){
-        for( let event of this.handlers ){
+        for( let event = this.handlers; event; event = event.next ){
             on( source, event.name, event.callback, target );
         }
     }
 
     unsubscribe( target : {}, source : EventSource ){
-        for( let event of this.handlers ){
+        for( let event = this.handlers; event; event = event.next ){
             off( source, event.name, event.callback, target );
         }
     }
@@ -73,7 +75,8 @@ class EventDescriptor {
 
     constructor(
         public name : string,
-        callback : Function | string | boolean
+        callback : Function | string | boolean,
+        public next : EventDescriptor = null  
     ){
         if( callback === true ){
             this.callback = getBubblingHandler( name );
@@ -89,8 +92,18 @@ class EventDescriptor {
             this.callback = <Function>callback;
         }
     }
-}
 
+    clone(){
+        const next = this.next.clone();
+        return new EventDescriptor( this.name, this.callback, next );
+    }
+
+    tail(){
+        let tail;
+        for( tail = this; tail.next; tail = tail.next );
+        return tail;
+    }
+}
 
 /** @hide */
 const _bubblingHandlers = {};
