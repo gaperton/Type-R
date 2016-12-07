@@ -224,7 +224,7 @@
   });
 
   QUnit.test("stopListening cleans up references", function(assert) {
-    assert.expect(12);
+    assert.expect(10);
     var a = _.extend({}, Backbone.Events);
     var b = _.extend({}, Backbone.Events);
     var fn = function() {};
@@ -238,17 +238,17 @@
     assert.equal(_.size(b._events.event), 1);
     assert.equal(_.size(b._listeners), 0);
     a.listenTo(b, 'event', fn).stopListening(b, 'event');
-    assert.equal(_.size(a._listeningTo), 0);
+    //assert.equal(_.size(a._listeningTo), 0);
     assert.equal(_.size(b._events.event), 1);
     assert.equal(_.size(b._listeners), 0);
     a.listenTo(b, 'event', fn).stopListening(b, 'event', fn);
-    assert.equal(_.size(a._listeningTo), 0);
+    //assert.equal(_.size(a._listeningTo), 0);
     assert.equal(_.size(b._events.event), 1);
     assert.equal(_.size(b._listeners), 0);
   });
 
   QUnit.test("stopListening cleans up references from listenToOnce", function(assert) {
-    assert.expect(12);
+    assert.expect(10);
     var a = _.extend({}, Backbone.Events);
     var b = _.extend({}, Backbone.Events);
     var fn = function() {};
@@ -262,11 +262,11 @@
     assert.equal(_.size(b._events.event), 1);
     assert.equal(_.size(b._listeners), 0);
     a.listenToOnce(b, 'event', fn).stopListening(b, 'event');
-    assert.equal(_.size(a._listeningTo), 0);
+    //assert.equal(_.size(a._listeningTo), 0); We do not count references.
     assert.equal(_.size(b._events.event), 1);
     assert.equal(_.size(b._listeners), 0);
     a.listenToOnce(b, 'event', fn).stopListening(b, 'event', fn);
-    assert.equal(_.size(a._listeningTo), 0);
+    //assert.equal(_.size(a._listeningTo), 0);
     assert.equal(_.size(b._events.event), 1);
     assert.equal(_.size(b._listeners), 0);
   });
