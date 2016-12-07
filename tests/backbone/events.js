@@ -277,23 +277,24 @@
     var b = _.extend({}, Backbone.Events);
     var fn = function() {};
     a.listenTo(b, 'event', fn);
-    b.off();
+    a.stopListening( b );
     assert.equal(_.size(a._listeningTo), 0);
     assert.equal(_.size(b._listeners), 0);
     a.listenTo(b, 'event', fn);
     b.off('event');
-    assert.equal(_.size(a._listeningTo), 0);
+    assert.equal(_.size(a._listeningTo), 1);
     assert.equal(_.size(b._listeners), 0);
     a.listenTo(b, 'event', fn);
     b.off(null, fn);
-    assert.equal(_.size(a._listeningTo), 0);
+    assert.equal(_.size(a._listeningTo), 1);
     assert.equal(_.size(b._listeners), 0);
     a.listenTo(b, 'event', fn);
-    b.off(null, null, a);
+    a.stopListening( b );
     assert.equal(_.size(a._listeningTo), 0);
     assert.equal(_.size(b._listeners), 0);
   });
 
+/* Do not support this.
   QUnit.test("listenTo and stopListening cleaning up references", function(assert) {
     assert.expect(2);
     var a = _.extend({}, Backbone.Events);
@@ -314,6 +315,8 @@
     b.trigger('anything');
     assert.equal(_.size(a._listeningTo), 0);
   });
+
+  */
 
   QUnit.test("listenToOnce with event maps cleans up references", function(assert) {
     assert.expect(2);

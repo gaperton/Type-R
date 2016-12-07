@@ -17,12 +17,12 @@ export interface EventsDefinition {
 
 /** @hide */
 export class EventMap {
-    handlers : EventDescriptor = null;
+    head : EventDescriptor = null;
 
     constructor( map? : EventsDefinition | EventMap ){
         if( map ){
             if( map instanceof EventMap ){
-                this.handlers = map.handlers.clone();
+                this.head = EventDescriptor.clone( map.head );
             }
             else{
                 map && this.addEventsMap( map );
@@ -31,11 +31,10 @@ export class EventMap {
     }
 
     merge( map : EventMap ){
-        const tail = this.handlers.tail(),
-              next = map.handlers.clone();
+        const next = EventDescriptor.clone( map.head );
               
-        if( tail ) tail.next = next;
-        else this.handlers = next;
+        if( this.head ) EventDescriptor.tail( this.head ).next = next;
+        else this.head = next;
     }
 
     addEventsMap( map : EventsDefinition ){
@@ -52,18 +51,18 @@ export class EventMap {
 
     addEvent( names : string, callback : Function | string | boolean ){
         for( let name of names.split( eventSplitter ) ){
-            this.handlers = new EventDescriptor( name, callback, this.handlers );
+            this.head = new EventDescriptor( name, callback, this.head );
         }
     }
 
     subscribe( target : {}, source : EventSource ){
-        for( let event = this.handlers; event; event = event.next ){
+        for( let event = this.head; event; event = event.next ){
             on( source, event.name, event.callback, target );
         }
     }
 
     unsubscribe( target : {}, source : EventSource ){
-        for( let event = this.handlers; event; event = event.next ){
+        for( let event = this.head; event; event = event.next ){
             off( source, event.name, event.callback, target );
         }
     }
@@ -93,15 +92,19 @@ class EventDescriptor {
         }
     }
 
-    clone(){
-        const next = this.next.clone();
-        return new EventDescriptor( this.name, this.callback, next );
+    static clone( list : EventDescriptor ) : EventDescriptor {
+        if( list ){
+            const next = EventDescriptor.clone( list.next );
+            return new EventDescriptor( list.name, list.callback, next );
+        }
     }
 
-    tail(){
-        let tail;
-        for( tail = this; tail.next; tail = tail.next );
-        return tail;
+    static tail( list : EventDescriptor ) : EventDescriptor {
+        if( list ){
+            let tail : EventDescriptor;
+            for( tail = list; tail.next; tail = tail.next );
+            return tail;
+        }
     }
 }
 
