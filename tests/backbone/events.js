@@ -231,19 +231,19 @@
     b.on('event', fn);
     a.listenTo(b, 'event', fn).stopListening();
     assert.equal(_.size(a._listeningTo), 0);
-    assert.equal(_.size(b._events.event), 1);
+    assert.equal( b._events.event.context, void 0 );
     assert.equal(_.size(b._listeners), 0);
     a.listenTo(b, 'event', fn).stopListening(b);
     assert.equal(_.size(a._listeningTo), 0);
-    assert.equal(_.size(b._events.event), 1);
+    assert.equal( b._events.event.context, void 0 );
     assert.equal(_.size(b._listeners), 0);
     a.listenTo(b, 'event', fn).stopListening(b, 'event');
     //assert.equal(_.size(a._listeningTo), 0);
-    assert.equal(_.size(b._events.event), 1);
+    assert.equal( b._events.event.context, void 0 );
     assert.equal(_.size(b._listeners), 0);
     a.listenTo(b, 'event', fn).stopListening(b, 'event', fn);
     //assert.equal(_.size(a._listeningTo), 0);
-    assert.equal(_.size(b._events.event), 1);
+    assert.equal( b._events.event.context, void 0 );
     assert.equal(_.size(b._listeners), 0);
   });
 
@@ -255,19 +255,19 @@
     b.on('event', fn);
     a.listenToOnce(b, 'event', fn).stopListening();
     assert.equal(_.size(a._listeningTo), 0);
-    assert.equal(_.size(b._events.event), 1);
+    assert.equal( b._events.event.context, void 0 );
     assert.equal(_.size(b._listeners), 0);
     a.listenToOnce(b, 'event', fn).stopListening(b);
     assert.equal(_.size(a._listeningTo), 0);
-    assert.equal(_.size(b._events.event), 1);
+    assert.equal( b._events.event.context, void 0 );
     assert.equal(_.size(b._listeners), 0);
     a.listenToOnce(b, 'event', fn).stopListening(b, 'event');
     //assert.equal(_.size(a._listeningTo), 0); We do not count references.
-    assert.equal(_.size(b._events.event), 1);
+    assert.equal( b._events.event.context, void 0 );
     assert.equal(_.size(b._listeners), 0);
     a.listenToOnce(b, 'event', fn).stopListening(b, 'event', fn);
     //assert.equal(_.size(a._listeningTo), 0);
-    assert.equal(_.size(b._events.event), 1);
+    assert.equal( b._events.event.context, void 0 );
     assert.equal(_.size(b._listeners), 0);
   });
 
