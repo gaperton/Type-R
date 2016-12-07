@@ -83,14 +83,14 @@ export abstract class Messenger implements Mixins.Mixable, EventSource {
     
     on( events : string | CallbacksByEvents, callback, context? ) : this {
         if( typeof events === 'string' ) strings( on, this, events, callback, context );
-        else for( let name in events ) strings( on, this, name, events[ name ], callback );
+        else for( let name in events ) strings( on, this, name, events[ name ], context || callback );
 
         return this;
     }
 
     once( events : string | CallbacksByEvents, callback, context? ) : this {
         if( typeof events === 'string' ) strings( once, this, events, callback, context );
-        else for( let name in events ) strings( once, this, name, events[ name ], callback );
+        else for( let name in events ) strings( once, this, name, events[ name ], context || callback );
 
         return this;
     }
@@ -98,7 +98,7 @@ export abstract class Messenger implements Mixins.Mixable, EventSource {
     off( events? : string | CallbacksByEvents, callback?, context? ) : this {
         if( !events ) off( this, void 0, callback, context );
         else if( typeof events === 'string' ) strings( off, this, events, callback, context );
-        else for( let name in events ) strings( off, this, name, events[ name ], callback );
+        else for( let name in events ) strings( off, this, name, events[ name ], context || callback );
 
         return this;
     }

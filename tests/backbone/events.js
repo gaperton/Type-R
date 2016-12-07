@@ -73,7 +73,7 @@
     _.extend(obj, Backbone.Events);
 
     var increment = function() {
-      this.counter += 1;
+      obj.counter += 1;
     };
 
     obj.on({

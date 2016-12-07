@@ -676,7 +676,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            strings(on, this, events, callback, context);
 	        else
 	            for (var name_1 in events)
-	                strings(on, this, name_1, events[name_1], callback);
+	                strings(on, this, name_1, events[name_1], context || callback);
 	        return this;
 	    };
 	    Messenger.prototype.once = function (events, callback, context) {
@@ -684,7 +684,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            strings(once, this, events, callback, context);
 	        else
 	            for (var name_2 in events)
-	                strings(once, this, name_2, events[name_2], callback);
+	                strings(once, this, name_2, events[name_2], context || callback);
 	        return this;
 	    };
 	    Messenger.prototype.off = function (events, callback, context) {
@@ -694,7 +694,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            strings(off, this, events, callback, context);
 	        else
 	            for (var name_3 in events)
-	                strings(off, this, name_3, events[name_3], callback);
+	                strings(off, this, name_3, events[name_3], context || callback);
 	        return this;
 	    };
 	    Messenger.prototype.trigger = function (name, a, b, c) {
