@@ -2,12 +2,12 @@ import { once as _once } from './tools'
 
 /*******************
  * Prebuilt events map, used for optimized bulk event subscriptions.
- * 
+ *
  * const events = new EventMap({
  *      'change' : true, // Resend this event from self as it is.
  *      'change:attr' : 'localTargetFunction',
  *      'executedInTargetContext' : function(){ ... }
- *      'executedInNativeContext' : '^props.handler' 
+ *      'executedInNativeContext' : '^props.handler'
  * })
  */
 /** @hide */
@@ -47,11 +47,11 @@ export class EventMap {
     }
 
     addEvent( names : string, callback : Function | string | boolean ){
-        const { handlers } = this;   
-        
+        const { handlers } = this;
+
         for( let name of names.split( eventSplitter ) ){
             handlers.push( new EventDescriptor( name, callback ) );
-        }        
+        }
     }
 
     subscribe( target : {}, source : EventSource ){
@@ -79,9 +79,9 @@ class EventDescriptor {
             this.callback = getBubblingHandler( name );
         }
         else if( typeof callback === 'string' ){
-            this.callback = 
+            this.callback =
                 function localCallback(){
-                    const handler = this[ callback ]; 
+                    const handler = this[ callback ];
                     handler && handler.apply( this, arguments );
                 };
         }
@@ -118,11 +118,48 @@ function getBubblingHandler( event : string ){
 }
 
 export interface HandlersByEvent {
-    [ name : string ] : EventHandler[] 
+    [ name : string ] : EventHandler
 }
 
 export class EventHandler {
-    constructor( public callback : Callback, public context : any ){}
+    constructor( public callback : Callback, public context : any, public next = null ){}
+}
+
+function listOff( head : EventHandler, callback : Callback, context : any ) : EventHandler {
+    let res;
+
+    for( let ev = head; ev; ev = ev.next ){
+        if( ( callback && callback !== ev.callback && callback !== ev.callback._callback ) ||
+            ( context && context !== ev.context ) ){
+            res = new EventHandler( ev.callback, ev.context, res );
+        }
+    }
+
+    return res;
+}
+
+function listSend( head : EventHandler, args ){
+    for( let ev = head; ev; ev = ev.next ) ev.callback.apply( ev.context, args );
+}
+
+function listSend0( head : EventHandler, ){
+    for( let ev = head; ev; ev = ev.next ) ev.callback.call( ev.context );
+}
+
+function listSend1( head : EventHandler, a ){
+    for( let ev = head; ev; ev = ev.next ) ev.callback.call( ev.context, a );
+}
+
+function listSend2( head : EventHandler, a, b ){
+    for( let ev = head; ev; ev = ev.next ) ev.callback.call( ev.context, a, b );
+}
+
+function listSend3( head : EventHandler, a, b, c ){
+    for( let ev = head; ev; ev = ev.next ) ev.callback.call( ev.context, a, b, c );
+}
+
+function listSend4( head : EventHandler, a, b, c, d ){
+    for( let ev = head; ev; ev = ev.next ) ev.callback.call( ev.context, a, b, c, d );
 }
 
 interface Callback extends Function {
@@ -131,15 +168,8 @@ interface Callback extends Function {
 
 export function on( source : EventSource, name : string, callback : Callback, context? : any ) : void {
     if( callback ){
-        const _events = source._events || ( source._events = Object.create( null ) ),
-            handlers = _events[ name ],
-            handler = new EventHandler( callback, context );
-
-        if( handlers )
-            if( name === 'all' ) _events.all = handlers.concat( handler );  
-            else handlers.push( handler );
-        else
-            _events[ name ] = [ handler ];
+        const _events = source._events || ( source._events = Object.create( null ) );
+        _events[ name ] = new EventHandler( callback, context, _events[ name ] );
     }
 }
 
@@ -160,13 +190,13 @@ export function off( source : EventSource, name? : string, callback? : Callback,
     if( _events ){
         if( callback || context ) {
             if( name ){
-                _events[ name ] = removeHandlers( _events[ name ], callback, context );
+                _events[ name ] = listOff( _events[ name ], callback, context );
             }
             else{
                 const filteredEvents = Object.create( null );
 
                 for( let name in _events ){
-                    const queue = removeHandlers( _events[ name ], callback, context );
+                    const queue = listOff( _events[ name ], callback, context );
                     queue && ( filteredEvents[ name ] = queue );
                 }
 
@@ -179,18 +209,6 @@ export function off( source : EventSource, name? : string, callback? : Callback,
         else{
             source._events = void 0;
         }
-    }
-}
-
-function removeHandlers( handlers : EventHandler[], callback : Callback, context : any ) : EventHandler[] {
-    if( handlers ){
-        const res = handlers.filter( ev => (
-                (context && context !== ev.context) ||
-                (callback && callback !== ev.callback && callback !== ev.callback._callback)
-            )
-        );
-        
-        return res.length ? res : void 0;
     }
 }
 
@@ -208,10 +226,10 @@ export function strings( api : ApiEntry, source : EventSource, events : string, 
     else api( source, events, callback, context );
 }
 
-export type ApiEntry = ( source : EventSource, event : string, callback : Callback, context? : any ) => void 
+export type ApiEntry = ( source : EventSource, event : string, callback : Callback, context? : any ) => void
 
 /*********************************
- * Event-triggering API 
+ * Event-triggering API
  */
 export function trigger( self : EventSource, name : string, args : any[] ) : void {
     const { _events } = self;
@@ -219,8 +237,8 @@ export function trigger( self : EventSource, name : string, args : any[] ) : voi
         const queue = _events[ name ],
             { all } = _events;
 
-        if( queue ) _fireEvent( queue, args );
-        if( all ) _fireEvent( all, [ name ].concat( args ) );
+        listSend( queue, args );
+        listSend( all, [ name ].concat( args ) );
     }
 }
 
@@ -231,8 +249,8 @@ export function trigger0( self : EventSource, name : string ) : void {
         const queue = _events[ name ],
             { all } = _events;
 
-        if( queue ) _fireEvent0( queue );
-        if( all ) _fireEvent1( all, name );
+        listSend0( queue );
+        listSend1( all, name );
     }
 };
 
@@ -243,8 +261,8 @@ export function trigger1( self : EventSource, name : string, a : any ) : void {
         const queue = _events[ name ],
             { all } = _events;
 
-        if( queue ) _fireEvent1( queue, a );
-        if( all ) _fireEvent2( all, name, a );
+        listSend1( queue, a );
+        listSend2( all, name, a );
     }
 };
 
@@ -255,8 +273,8 @@ export function trigger2( self : EventSource, name : string, a, b ) : void {
         const queue = _events[ name ],
             { all } = _events;
 
-        if( queue ) _fireEvent2( queue, a, b );
-        if( all ) _fireEvent3( all, name, a, b );
+        listSend2( queue, a, b );
+        listSend3( all, name, a, b );
     }
 };
 
@@ -267,44 +285,7 @@ export function trigger3( self : EventSource, name : string, a, b, c ) : void{
         const queue = _events[ name ],
             { all } = _events;
 
-        if( queue ) _fireEvent3( queue, a, b, c );
-        if( all ) _fireEvent4( all, name, a, b, c );
+        listSend3( queue, a, b, c );
+        listSend4( all, name, a, b, c );
     }
 };
-
-// Specialized functions with events triggering loops.
-// JS JIT loves these small functions and code duplication.
-/** @hide */
-function _fireEvent0( events : EventHandler[] ) : void {
-    let i = -1, l = events.length, ev;
-    while( ++i < l ) ( ev = events[ i ] ).callback.call( ev.context );
-}
-
-/** @hide */
-function _fireEvent1( events : EventHandler[], a ) : void {
-    let i = -1, l = events.length, ev;
-    while( ++i < l ) ( ev = events[ i ] ).callback.call( ev.context, a );
-}
-
-/** @hide */
-function _fireEvent2( events : EventHandler[], a, b ) : void {
-    let i = -1, l = events.length, ev;
-    while( ++i < l ) ( ev = events[ i ] ).callback.call( ev.context, a, b );
-}
-
-/** @hide */
-function _fireEvent3( events : EventHandler[], a, b, c ) : void {
-    let i = -1, l = events.length, ev;
-    while( ++i < l ) ( ev = events[ i ] ).callback.call( ev.context, a, b, c );
-}
-
-/** @hide */
-function _fireEvent4( events : EventHandler[], a, b, c, d ) : void {
-    let i = -1, l = events.length, ev;
-    while( ++i < l ) ( ev = events[ i ] ).callback.call( ev.context, a, b, c, d );
-}
-
-function _fireEvent( events : EventHandler[], a : any[] ) : void {
-    let i = -1, l = events.length, ev;
-    while( ++i < l ) ( ev = events[ i ] ).callback.apply( ev.context, a );
-}

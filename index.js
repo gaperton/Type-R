@@ -65,14 +65,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _1 = __webpack_require__(1);
 	exports.on = _1.Events.on, exports.off = _1.Events.off, exports.trigger = _1.Events.trigger, exports.once = _1.Events.once, exports.listenTo = _1.Events.listenTo, exports.stopListening = _1.Events.stopListening, exports.listenToOnce = _1.Events.listenToOnce;
 	var underscore_mixin_1 = __webpack_require__(29);
-	var collection_2 = __webpack_require__(6);
-	var record_2 = __webpack_require__(10);
-	exports.Model = record_2.Record;
+	var collection_1 = __webpack_require__(6);
+	var record_1 = __webpack_require__(10);
+	exports.Model = record_1.Record;
 	var _2 = __webpack_require__(1);
 	exports.Class = _2.Mixable;
-	var record_3 = __webpack_require__(10);
+	var record_2 = __webpack_require__(10);
 	function value(x) {
-	    return new record_3.ChainableAttributeSpec({ value: x });
+	    return new record_2.ChainableAttributeSpec({ value: x });
 	}
 	exports.value = value;
 	function transaction(method) {
@@ -92,8 +92,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.transaction = transaction;
 	function useUnderscore(_) {
 	    var UnderscoreMixin = underscore_mixin_1.default(_);
-	    record_2.Record.mixins(UnderscoreMixin.Model);
-	    collection_2.Collection.mixins(UnderscoreMixin.Collection);
+	    record_1.Record.mixins(UnderscoreMixin.Model);
+	    collection_1.Collection.mixins(UnderscoreMixin.Collection);
 	    return this;
 	}
 	exports.useUnderscore = useUnderscore;
@@ -113,8 +113,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	__export(__webpack_require__(4));
 	var eventsApi = __webpack_require__(5);
 	exports.eventsApi = eventsApi;
-	var mixins_2 = __webpack_require__(3);
-	Object.extend = function (protoProps, staticProps) { return mixins_2.Mixable.extend(protoProps, staticProps); };
+	var mixins_1 = __webpack_require__(3);
+	Object.extend = function (protoProps, staticProps) { return mixins_1.Mixable.extend(protoProps, staticProps); };
 	Object.assign || (Object.assign = tools.assign);
 	Object.log = tools.log;
 
@@ -497,11 +497,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        else {
 	            Subclass = (function (_super) {
-	                __extends(Subclass, _super);
-	                function Subclass() {
-	                    _super.apply(this, arguments);
+	                __extends(_Subclass, _super);
+	                function _Subclass() {
+	                    return _super.apply(this, arguments) || this;
 	                }
-	                return Subclass;
+	                return _Subclass;
 	            }(this));
 	        }
 	        return spec ? Subclass.define(spec, statics) : Subclass.predefine();
@@ -514,10 +514,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.__super__ = BaseClass.prototype;
 	        return this;
 	    };
-	    Mixable._mixinRules = { properties: 'merge' };
 	    return Mixable;
 	}());
 	exports.Mixable = Mixable;
+	Mixable._mixinRules = { properties: 'merge' };
 	function toPropertyDescriptor(x) {
 	    if (x) {
 	        return typeof x === 'function' ? { get: x } : x;
@@ -758,11 +758,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.off();
 	        this._disposed = true;
 	    };
-	    Messenger = __decorate([
-	        extendable
-	    ], Messenger);
 	    return Messenger;
 	}());
+	Messenger = __decorate([
+	    extendable
+	], Messenger);
 	exports.Messenger = Messenger;
 	var slice = Array.prototype.slice;
 	exports.Events = tools_1.omit(Messenger.prototype, 'constructor', 'initialize');
@@ -871,23 +871,53 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	}
 	var EventHandler = (function () {
-	    function EventHandler(callback, context) {
+	    function EventHandler(callback, context, next) {
+	        if (next === void 0) { next = null; }
 	        this.callback = callback;
 	        this.context = context;
+	        this.next = next;
 	    }
 	    return EventHandler;
 	}());
 	exports.EventHandler = EventHandler;
+	function listOff(head, callback, context) {
+	    var res;
+	    for (var ev = head; ev; ev = ev.next) {
+	        if ((callback && callback !== ev.callback && callback !== ev.callback._callback) ||
+	            (context && context !== ev.context)) {
+	            res = new EventHandler(ev.callback, ev.context, res);
+	        }
+	    }
+	    return res;
+	}
+	function listSend(head, args) {
+	    for (var ev = head; ev; ev = ev.next)
+	        ev.callback.apply(ev.context, args);
+	}
+	function listSend0(head) {
+	    for (var ev = head; ev; ev = ev.next)
+	        ev.callback.call(ev.context);
+	}
+	function listSend1(head, a) {
+	    for (var ev = head; ev; ev = ev.next)
+	        ev.callback.call(ev.context, a);
+	}
+	function listSend2(head, a, b) {
+	    for (var ev = head; ev; ev = ev.next)
+	        ev.callback.call(ev.context, a, b);
+	}
+	function listSend3(head, a, b, c) {
+	    for (var ev = head; ev; ev = ev.next)
+	        ev.callback.call(ev.context, a, b, c);
+	}
+	function listSend4(head, a, b, c, d) {
+	    for (var ev = head; ev; ev = ev.next)
+	        ev.callback.call(ev.context, a, b, c, d);
+	}
 	function on(source, name, callback, context) {
 	    if (callback) {
-	        var _events = source._events || (source._events = Object.create(null)), handlers = _events[name], handler = new EventHandler(callback, context);
-	        if (handlers)
-	            if (name === 'all')
-	                _events.all = handlers.concat(handler);
-	            else
-	                handlers.push(handler);
-	        else
-	            _events[name] = [handler];
+	        var _events = source._events || (source._events = Object.create(null));
+	        _events[name] = new EventHandler(callback, context, _events[name]);
 	    }
 	}
 	exports.on = on;
@@ -907,12 +937,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (_events) {
 	        if (callback || context) {
 	            if (name) {
-	                _events[name] = removeHandlers(_events[name], callback, context);
+	                _events[name] = listOff(_events[name], callback, context);
 	            }
 	            else {
 	                var filteredEvents = Object.create(null);
 	                for (var name_3 in _events) {
-	                    var queue = removeHandlers(_events[name_3], callback, context);
+	                    var queue = listOff(_events[name_3], callback, context);
 	                    queue && (filteredEvents[name_3] = queue);
 	                }
 	                source._events = filteredEvents;
@@ -927,13 +957,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	}
 	exports.off = off;
-	function removeHandlers(handlers, callback, context) {
-	    if (handlers) {
-	        var res = handlers.filter(function (ev) { return ((context && context !== ev.context) ||
-	            (callback && callback !== ev.callback && callback !== ev.callback._callback)); });
-	        return res.length ? res : void 0;
-	    }
-	}
 	var eventSplitter = /\s+/;
 	function strings(api, source, events, callback, context) {
 	    if (eventSplitter.test(events)) {
@@ -951,10 +974,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var _events = self._events;
 	    if (_events) {
 	        var queue = _events[name], all = _events.all;
-	        if (queue)
-	            _fireEvent(queue, args);
-	        if (all)
-	            _fireEvent(all, [name].concat(args));
+	        listSend(queue, args);
+	        listSend(all, [name].concat(args));
 	    }
 	}
 	exports.trigger = trigger;
@@ -962,10 +983,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var _events = self._events;
 	    if (_events) {
 	        var queue = _events[name], all = _events.all;
-	        if (queue)
-	            _fireEvent0(queue);
-	        if (all)
-	            _fireEvent1(all, name);
+	        listSend0(queue);
+	        listSend1(all, name);
 	    }
 	}
 	exports.trigger0 = trigger0;
@@ -974,10 +993,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var _events = self._events;
 	    if (_events) {
 	        var queue = _events[name], all = _events.all;
-	        if (queue)
-	            _fireEvent1(queue, a);
-	        if (all)
-	            _fireEvent2(all, name, a);
+	        listSend1(queue, a);
+	        listSend2(all, name, a);
 	    }
 	}
 	exports.trigger1 = trigger1;
@@ -986,10 +1003,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var _events = self._events;
 	    if (_events) {
 	        var queue = _events[name], all = _events.all;
-	        if (queue)
-	            _fireEvent2(queue, a, b);
-	        if (all)
-	            _fireEvent3(all, name, a, b);
+	        listSend2(queue, a, b);
+	        listSend3(all, name, a, b);
 	    }
 	}
 	exports.trigger2 = trigger2;
@@ -998,44 +1013,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var _events = self._events;
 	    if (_events) {
 	        var queue = _events[name], all = _events.all;
-	        if (queue)
-	            _fireEvent3(queue, a, b, c);
-	        if (all)
-	            _fireEvent4(all, name, a, b, c);
+	        listSend3(queue, a, b, c);
+	        listSend4(all, name, a, b, c);
 	    }
 	}
 	exports.trigger3 = trigger3;
 	;
-	function _fireEvent0(events) {
-	    var i = -1, l = events.length, ev;
-	    while (++i < l)
-	        (ev = events[i]).callback.call(ev.context);
-	}
-	function _fireEvent1(events, a) {
-	    var i = -1, l = events.length, ev;
-	    while (++i < l)
-	        (ev = events[i]).callback.call(ev.context, a);
-	}
-	function _fireEvent2(events, a, b) {
-	    var i = -1, l = events.length, ev;
-	    while (++i < l)
-	        (ev = events[i]).callback.call(ev.context, a, b);
-	}
-	function _fireEvent3(events, a, b, c) {
-	    var i = -1, l = events.length, ev;
-	    while (++i < l)
-	        (ev = events[i]).callback.call(ev.context, a, b, c);
-	}
-	function _fireEvent4(events, a, b, c, d) {
-	    var i = -1, l = events.length, ev;
-	    while (++i < l)
-	        (ev = events[i]).callback.call(ev.context, a, b, c, d);
-	}
-	function _fireEvent(events, a) {
-	    var i = -1, l = events.length, ev;
-	    while (++i < l)
-	        (ev = events[i]).callback.apply(ev.context, a);
-	}
 
 
 /***/ },
@@ -1069,28 +1052,29 @@ return /******/ (function(modules) { // webpackBootstrap
 	    __extends(Collection, _super);
 	    function Collection(records, options, shared) {
 	        if (options === void 0) { options = {}; }
-	        _super.call(this, _count++);
-	        this.models = [];
-	        this._byId = {};
-	        this.comparator = this.comparator;
+	        var _this = _super.call(this, _count++) || this;
+	        _this.models = [];
+	        _this._byId = {};
+	        _this.comparator = _this.comparator;
 	        if (options.comparator !== void 0) {
-	            this.comparator = options.comparator;
+	            _this.comparator = options.comparator;
 	            options.comparator = void 0;
 	        }
-	        this.model = this.model;
+	        _this.model = _this.model;
 	        if (options.model) {
-	            this.model = options.model;
+	            _this.model = options.model;
 	            options.model = void 0;
 	        }
-	        this.idAttribute = this.model.prototype.idAttribute;
-	        this._shared = shared || 0;
+	        _this.idAttribute = _this.model.prototype.idAttribute;
+	        _this._shared = shared || 0;
 	        if (records) {
-	            var elements = toElements(this, records, options);
-	            set_1.emptySetTransaction(this, elements, options, true);
+	            var elements = toElements(_this, records, options);
+	            set_1.emptySetTransaction(_this, elements, options, true);
 	        }
-	        this.initialize.apply(this, arguments);
-	        if (this._localEvents)
-	            this._localEvents.subscribe(this, this);
+	        _this.initialize.apply(_this, arguments);
+	        if (_this._localEvents)
+	            _this._localEvents.subscribe(_this, _this);
+	        return _this;
 	    }
 	    Collection.prototype.createSubset = function (models, options) {
 	        var SubsetOf = this.constructor.subsetOf(this).options.type, subset = new SubsetOf(models, options);
@@ -1352,22 +1336,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return next;
 	    };
 	    Collection.prototype._log = function (level, text, value) {
-	        object_plus_1.tools.log[level](("[Collection Update] " + this.model.prototype.getClassName() + "." + this.getClassName() + ": ") + text, value, 'Attributes spec:', this.model.prototype._attributes);
+	        object_plus_1.tools.log[level]("[Collection Update] " + this.model.prototype.getClassName() + "." + this.getClassName() + ": " + text, value, 'Attributes spec:', this.model.prototype._attributes);
 	    };
 	    Collection.prototype.getClassName = function () {
 	        return _super.prototype.getClassName.call(this) || 'Collection';
 	    };
-	    Collection._attribute = record_1.AggregatedType;
-	    Collection = __decorate([
-	        object_plus_1.define({
-	            cidPrefix: 'c',
-	            model: record_1.Record,
-	            _changeEventName: 'changes',
-	            _aggregationError: null
-	        })
-	    ], Collection);
 	    return Collection;
 	}(transactions_1.Transactional));
+	Collection._attribute = record_1.AggregatedType;
+	Collection = __decorate([
+	    object_plus_1.define({
+	        cidPrefix: 'c',
+	        model: record_1.Record,
+	        _changeEventName: 'changes',
+	        _aggregationError: null
+	    })
+	], Collection);
 	exports.Collection = Collection;
 	function toElements(collection, elements, options) {
 	    var parsed = options.parse ? collection.parse(elements, options) : elements;
@@ -1376,11 +1360,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	var CollectionRefsType = (function (_super) {
 	    __extends(CollectionRefsType, _super);
 	    function CollectionRefsType() {
-	        _super.apply(this, arguments);
+	        return _super.apply(this, arguments) || this;
 	    }
-	    CollectionRefsType.defaultValue = [];
 	    return CollectionRefsType;
 	}(record_1.SharedType));
+	CollectionRefsType.defaultValue = [];
 	record_1.createSharedTypeSpec(Collection, record_1.SharedType);
 	record_1.Record.Collection = Collection;
 
@@ -1522,12 +1506,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (name !== 'Subclass')
 	            return name;
 	    };
-	    Transactional = __decorate([
-	        object_plus_1.mixins(object_plus_1.Messenger),
-	        object_plus_1.extendable
-	    ], Transactional);
 	    return Transactional;
 	}());
+	Transactional = __decorate([
+	    object_plus_1.mixins(object_plus_1.Messenger),
+	    object_plus_1.extendable
+	], Transactional);
 	exports.Transactional = Transactional;
 	exports.transactionApi = {
 	    begin: function (object) {
@@ -1781,19 +1765,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Record = (function (_super) {
 	    __extends(Record, _super);
 	    function Record(a_values, a_options) {
-	        var _this = this;
-	        _super.call(this, _cidCounter++);
-	        this.attributes = {};
-	        var options = a_options || {}, values = (options.parse ? this.parse(a_values, options) : a_values) || {};
-	        var attributes = options.clone ? cloneAttributes(this, values) : this.defaults(values);
-	        this.forEachAttr(attributes, function (value, key, attr) {
+	        var _this = _super.call(this, _cidCounter++) || this;
+	        _this.attributes = {};
+	        var options = a_options || {}, values = (options.parse ? _this.parse(a_values, options) : a_values) || {};
+	        var attributes = options.clone ? cloneAttributes(_this, values) : _this.defaults(values);
+	        _this.forEachAttr(attributes, function (value, key, attr) {
 	            var next = attributes[key] = attr.transform(value, options, void 0, _this);
 	            attr.handleChange(next, void 0, _this);
 	        });
-	        this.attributes = this._previousAttributes = attributes;
-	        this.initialize(a_values, a_options);
-	        if (this._localEvents)
-	            this._localEvents.subscribe(this, this);
+	        _this.attributes = _this._previousAttributes = attributes;
+	        _this.initialize(a_values, a_options);
+	        if (_this._localEvents)
+	            _this._localEvents.subscribe(_this, _this);
+	        return _this;
 	    }
 	    Record.define = function (protoProps, staticProps) {
 	        return transactions_1.Transactional.define(protoProps, staticProps);
@@ -2073,21 +2057,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _super.prototype.dispose.call(this);
 	    };
 	    Record.prototype._log = function (level, text, value) {
-	        object_plus_1.tools.log[level](("[Model Update] " + this.getClassName() + ": ") + text, value, 'Attributes spec:', this._attributes);
+	        object_plus_1.tools.log[level]("[Model Update] " + this.getClassName() + ": " + text, value, 'Attributes spec:', this._attributes);
 	    };
 	    Record.prototype.getClassName = function () {
 	        return _super.prototype.getClassName.call(this) || 'Model';
 	    };
-	    Record = __decorate([
-	        object_plus_1.define({
-	            cidPrefix: 'm',
-	            _changeEventName: 'change',
-	            idAttribute: 'id',
-	            _keys: ['id']
-	        })
-	    ], Record);
 	    return Record;
 	}(transactions_1.Transactional));
+	Record = __decorate([
+	    object_plus_1.define({
+	        cidPrefix: 'm',
+	        _changeEventName: 'change',
+	        idAttribute: 'id',
+	        _keys: ['id']
+	    })
+	], Record);
 	exports.Record = Record;
 	;
 	function begin(record) {
@@ -2399,7 +2383,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    AnyType.prototype.initialize = function (name, options) { };
 	    AnyType.prototype._log = function (level, text, value, record) {
-	        object_plus_1.tools.log[level](("[Attribute Update] " + record.getClassName() + "." + this.name + ": ") + text, value, 'Attributes spec:', record._attributes);
+	        object_plus_1.tools.log[level]("[Attribute Update] " + record.getClassName() + "." + this.name + ": " + text, value, 'Attributes spec:', record._attributes);
 	    };
 	    return AnyType;
 	}());
@@ -2449,7 +2433,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var AggregatedType = (function (_super) {
 	    __extends(AggregatedType, _super);
 	    function AggregatedType() {
-	        _super.apply(this, arguments);
+	        return _super.apply(this, arguments) || this;
 	    }
 	    AggregatedType.prototype.clone = function (value) {
 	        return value ? value.clone() : value;
@@ -2521,7 +2505,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var DateType = (function (_super) {
 	    __extends(DateType, _super);
 	    function DateType() {
-	        _super.apply(this, arguments);
+	        return _super.apply(this, arguments) || this;
 	    }
 	    DateType.prototype.convert = function (value) {
 	        if (value == null || value instanceof Date)
@@ -2546,7 +2530,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var MSDateType = (function (_super) {
 	    __extends(MSDateType, _super);
 	    function MSDateType() {
-	        _super.apply(this, arguments);
+	        return _super.apply(this, arguments) || this;
 	    }
 	    MSDateType.prototype.convert = function (value) {
 	        if (typeof value === 'string') {
@@ -2564,7 +2548,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var TimestampType = (function (_super) {
 	    __extends(TimestampType, _super);
 	    function TimestampType() {
-	        _super.apply(this, arguments);
+	        return _super.apply(this, arguments) || this;
 	    }
 	    TimestampType.prototype.toJSON = function (value) { return value.getTime(); };
 	    return TimestampType;
@@ -2621,7 +2605,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var ConstructorType = (function (_super) {
 	    __extends(ConstructorType, _super);
 	    function ConstructorType() {
-	        _super.apply(this, arguments);
+	        return _super.apply(this, arguments) || this;
 	    }
 	    ConstructorType.prototype.convert = function (value) {
 	        return value == null || value instanceof this.type ? value : new this.type(value);
@@ -2635,7 +2619,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var PrimitiveType = (function (_super) {
 	    __extends(PrimitiveType, _super);
 	    function PrimitiveType() {
-	        _super.apply(this, arguments);
+	        return _super.apply(this, arguments) || this;
 	    }
 	    PrimitiveType.prototype.create = function () { return this.type(); };
 	    PrimitiveType.prototype.toJSON = function (value) { return value; };
@@ -2649,7 +2633,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var NumericType = (function (_super) {
 	    __extends(NumericType, _super);
 	    function NumericType() {
-	        _super.apply(this, arguments);
+	        return _super.apply(this, arguments) || this;
 	    }
 	    NumericType.prototype.convert = function (value) {
 	        var num = value == null ? value : this.type(value);
@@ -2669,7 +2653,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var ArrayType = (function (_super) {
 	    __extends(ArrayType, _super);
 	    function ArrayType() {
-	        _super.apply(this, arguments);
+	        return _super.apply(this, arguments) || this;
 	    }
 	    ArrayType.prototype.toJSON = function (value) { return value; };
 	    ArrayType.prototype.convert = function (value) {
@@ -2703,7 +2687,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var SharedType = (function (_super) {
 	    __extends(SharedType, _super);
 	    function SharedType() {
-	        _super.apply(this, arguments);
+	        return _super.apply(this, arguments) || this;
 	    }
 	    SharedType.prototype.clone = function (value, record) {
 	        if (!value || value._owner !== record)
@@ -3330,7 +3314,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var RecordRefType = (function (_super) {
 	    __extends(RecordRefType, _super);
 	    function RecordRefType() {
-	        _super.apply(this, arguments);
+	        return _super.apply(this, arguments) || this;
 	    }
 	    RecordRefType.prototype.toJSON = function (value) {
 	        return value && typeof value === 'object' ? value.id : value;
@@ -3380,7 +3364,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        case 'object':
 	            return function () { return collectionRef; };
 	        case 'string':
-	            var resolve = (new traversable_1.CompiledReference(collectionRef)).resolve;
+	            var resolve = new traversable_1.CompiledReference(collectionRef).resolve;
 	            return resolve;
 	    }
 	}
@@ -3429,8 +3413,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var SubsetOfCollection = (function (_super) {
 	        __extends(SubsetOfCollection, _super);
 	        function SubsetOfCollection(recordsOrIds, options) {
-	            _super.call(this, recordsOrIds, subsetOptions(options), subsetOfBehavior);
-	            this.resolvedWith = null;
+	            var _this = _super.call(this, recordsOrIds, subsetOptions(options), subsetOfBehavior) || this;
+	            _this.resolvedWith = null;
+	            return _this;
 	        }
 	        Object.defineProperty(SubsetOfCollection.prototype, "_state", {
 	            get: function () { return this.refs || this.models; },
@@ -3501,11 +3486,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        SubsetOfCollection.prototype.toggleAll = function () {
 	            return this.length ? this.reset() : this.addAll();
 	        };
-	        SubsetOfCollection = __decorate([
-	            object_plus_1.define({})
-	        ], SubsetOfCollection);
 	        return SubsetOfCollection;
 	    }(CollectionConstructor));
+	    SubsetOfCollection = __decorate([
+	        object_plus_1.define({})
+	    ], SubsetOfCollection);
 	    return SubsetOfCollection;
 	}
 
@@ -3526,7 +3511,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Store = (function (_super) {
 	    __extends(Store, _super);
 	    function Store() {
-	        _super.apply(this, arguments);
+	        return _super.apply(this, arguments) || this;
 	    }
 	    Store.prototype.getStore = function () { return this; };
 	    Store.prototype.get = function (name) {
