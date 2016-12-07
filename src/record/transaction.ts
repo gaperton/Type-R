@@ -283,7 +283,16 @@ export class Record extends Transactional implements Owner {
                   value = attrs[ name ];
 
             value && iteratee( value, name, spec );
-        }*/
+        }
+        
+        // TODO: Try using list of specs instead of _keys.
+        // Try to inline this code to the hot spots.
+        for( let spec = this._head; spec; spec = spec.next ){
+            const value = attrs[ name ];
+            value && iteratee( value, name, spec );
+        }
+        
+        */
     }
 
     each( iteratee : ( value? : any, key? : string ) => void, context? : any ){
