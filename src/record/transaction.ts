@@ -287,7 +287,7 @@ export class Record extends Transactional implements Owner {
     }
 
     each( iteratee : ( value? : any, key? : string ) => void, context? : any ){
-        const fun = arguments.length === 2 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
+        const fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
             { attributes, _keys } = this;
 
         for( const key of _keys ){

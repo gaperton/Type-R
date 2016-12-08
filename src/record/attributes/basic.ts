@@ -41,10 +41,12 @@ Boolean._attribute = String._attribute = PrimitiveType;
 export class NumericType extends PrimitiveType {
     type : NumberConstructor
 
-    convert( value ) {
+    convert( value, a?, b?, record? ) {
         const num = value == null ? value : this.type( value );        
 
-        if( num !== num ) this._log( 'warn', 'assigned with Invalid Number', value, arguments[ 3 ] );
+        if( num !== num ){
+            this._log( 'warn', 'assigned with Invalid Number', value, record );
+        }
         
         return num;
     }
@@ -66,11 +68,11 @@ Number._attribute = NumericType;
 export class ArrayType extends AnyType {
     toJSON( value ) { return value; }
 
-    convert( value ) {
+    convert( value, a?, b?, record? ) {
         // Fix incompatible constructor behaviour of Array...
         if( value == null || Array.isArray( value ) ) return value;
 
-        this._log( 'warn', 'assigned with non-array', value, arguments[ 3 ] );
+        this._log( 'warn', 'assigned with non-array', value, record );
 
         return [];
     }

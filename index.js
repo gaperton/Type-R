@@ -1264,7 +1264,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    };
 	    Collection.prototype.each = function (iteratee, context) {
-	        var fun = arguments.length === 2 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, models = this.models;
+	        var fun = context !== void 0 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, models = this.models;
 	        for (var i = 0; i < models.length; i++) {
 	            fun(models[i], i);
 	        }
@@ -1540,7 +1540,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return _owner ? _owner.getStore() : this._defaultStore;
 	    };
 	    Transactional.prototype.map = function (iteratee, context) {
-	        var arr = [], fun = arguments.length === 2 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee;
+	        var arr = [], fun = context !== void 0 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee;
 	        this.each(function (val, key) {
 	            var result = fun(val, key);
 	            if (result !== void 0)
@@ -1549,7 +1549,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return arr;
 	    };
 	    Transactional.prototype.mapObject = function (iteratee, context) {
-	        var obj = {}, fun = arguments.length === 2 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee;
+	        var obj = {}, fun = context !== void 0 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee;
 	        this.each(function (val, key) {
 	            var result = iteratee(val, key);
 	            if (result !== void 0)
@@ -1976,7 +1976,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    };
 	    Record.prototype.each = function (iteratee, context) {
-	        var fun = arguments.length === 2 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, _a = this, attributes = _a.attributes, _keys = _a._keys;
+	        var fun = context !== void 0 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, _a = this, attributes = _a.attributes, _keys = _a._keys;
 	        for (var _i = 0, _keys_1 = _keys; _i < _keys_1.length; _i++) {
 	            var key = _keys_1[_i];
 	            var value = attributes[key];
@@ -2597,12 +2597,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function DateType() {
 	        _super.apply(this, arguments);
 	    }
-	    DateType.prototype.convert = function (value) {
+	    DateType.prototype.convert = function (value, a, b, record) {
 	        if (value == null || value instanceof Date)
 	            return value;
 	        var date = new Date(value);
-	        if (isNaN(+date))
-	            this._log('warn', 'assigned with Invalid Date', value, arguments[3]);
+	        if (isNaN(+date)) {
+	            this._log('warn', 'assigned with Invalid Date', value, record);
+	        }
 	        return date;
 	    };
 	    DateType.prototype.validate = function (model, value, name) {
@@ -2725,10 +2726,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function NumericType() {
 	        _super.apply(this, arguments);
 	    }
-	    NumericType.prototype.convert = function (value) {
+	    NumericType.prototype.convert = function (value, a, b, record) {
 	        var num = value == null ? value : this.type(value);
-	        if (num !== num)
-	            this._log('warn', 'assigned with Invalid Number', value, arguments[3]);
+	        if (num !== num) {
+	            this._log('warn', 'assigned with Invalid Number', value, record);
+	        }
 	        return num;
 	    };
 	    NumericType.prototype.validate = function (model, value, name) {
@@ -2746,10 +2748,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _super.apply(this, arguments);
 	    }
 	    ArrayType.prototype.toJSON = function (value) { return value; };
-	    ArrayType.prototype.convert = function (value) {
+	    ArrayType.prototype.convert = function (value, a, b, record) {
 	        if (value == null || Array.isArray(value))
 	            return value;
-	        this._log('warn', 'assigned with non-array', value, arguments[3]);
+	        this._log('warn', 'assigned with non-array', value, record);
 	        return [];
 	    };
 	    ArrayType.prototype.clone = function (value) { return value && value.slice(); };

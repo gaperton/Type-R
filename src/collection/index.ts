@@ -181,7 +181,7 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     each( iteratee : ( val : Record, key : number ) => void, context? : any ){
-        const fun = arguments.length === 2 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
+        const fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
             { models } = this;
 
         for( let i = 0; i < models.length; i++ ){
