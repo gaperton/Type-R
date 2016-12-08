@@ -281,23 +281,23 @@ export function transform< A, B >( dest : { [ key : string ] : A }, source : { [
 }
 
 /** @hidden */
-export function fastAssign< A, B >( dest : A, source : B ) : A & B {
+export function fastAssign< A >( dest : A, source : {} ) : A {
     for( var name in source ) {
         dest[ name ] = source[ name ];
     }
 
-    return <A & B >dest;
+    return dest;
 }
 
 /** @hidden */
-export function fastDefaults<A, B>( dest : A, source : B ) : A & B {
+export function fastDefaults< A >( dest : A, source : {} ) : A {
     for( var name in source ) {
         if( dest[ name ] === void 0 ){
             dest[ name ] = source[ name ];
         }
     }
 
-    return <A & B >dest;
+    return dest;
 }
 
 /** Similar to underscore `_.extend` and `Object.assign` */
