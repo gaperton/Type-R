@@ -1498,8 +1498,8 @@
         assert.deepEqual( coll.find( { a : 4 } ), model );
         assert.equal( coll.find( 'd' ), undefined );
         assert.deepEqual( coll.find( 'e' ), model );
-        assert.equal( coll.filter( { a : 0 } ), false );
-        assert.deepEqual( coll.filter( { a : 4 } ), [ model ] );
+        assert.equal( coll.filter( function( x ){ return x.a === 0 } ), false );
+        assert.deepEqual( coll.filter( function( x ){ return x.a === 4 } ), [ model ] );
         assert.equal( coll.some( { a : 0 } ), false );
         assert.equal( coll.some( { a : 1 } ), true );
         assert.equal( coll.reject( { a : 0 } ).length, 4 );

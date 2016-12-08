@@ -305,6 +305,18 @@ export class Record extends Transactional implements Owner {
         }
     }
 
+    // Get array of attribute keys (Record) or record ids (Collection) 
+    keys() : string[] {
+        return this.map( ( value, key ) => {
+            if( value !== void 0 ) return <string>key;
+        });
+    }
+
+    // Get array of attribute values (Record) or records (Collection)
+    values() : any[] {
+        return this.map( value => value );
+    }
+
     // Attributes-level serialization
     _toJSON(){ return {}; }
 

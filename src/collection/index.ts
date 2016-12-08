@@ -189,6 +189,23 @@ export class Collection extends Transactional implements CollectionCore {
         }
     }
 
+    map< T >( iteratee : ( val : Record, key : number ) => T, context? : any ) : T[]{
+        const fun = arguments.length === 2 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
+            { models } = this,
+            mapped = Array( models.length );
+
+        let j = 0;
+
+        for( let i = 0; i < models.length; i++ ){
+            const x = fun( models[ i ], i );
+            x === void 0 || ( mapped[ j++ ] = x ); 
+        }
+
+        mapped.length = j;
+
+        return mapped;
+    }
+
     _validateNested( errors : {} ) : number {
         // Don't validate if not aggregated.
         if( this._shared ) return 0;

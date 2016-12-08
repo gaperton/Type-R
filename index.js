@@ -1195,6 +1195,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	            fun(models[i], i);
 	        }
 	    };
+	    Collection.prototype.map = function (iteratee, context) {
+	        var fun = arguments.length === 2 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, models = this.models, mapped = Array(models.length);
+	        var j = 0;
+	        for (var i = 0; i < models.length; i++) {
+	            var x = fun(models[i], i);
+	            x === void 0 || (mapped[j++] = x);
+	        }
+	        mapped.length = j;
+	        return mapped;
+	    };
 	    Collection.prototype._validateNested = function (errors) {
 	        if (this._shared)
 	            return 0;
@@ -1482,15 +1492,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	                obj[key] = result;
 	        });
 	        return obj;
-	    };
-	    Transactional.prototype.keys = function () {
-	        return this.map(function (value, key) {
-	            if (value !== void 0)
-	                return key;
-	        });
-	    };
-	    Transactional.prototype.values = function () {
-	        return this.map(function (value) { return value; });
 	    };
 	    Object.defineProperty(Transactional.prototype, "validationError", {
 	        get: function () {
@@ -1909,6 +1910,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (value !== void 0)
 	                fun(value, key);
 	        }
+	    };
+	    Record.prototype.keys = function () {
+	        return this.map(function (value, key) {
+	            if (value !== void 0)
+	                return key;
+	        });
+	    };
+	    Record.prototype.values = function () {
+	        return this.map(function (value) { return value; });
 	    };
 	    Record.prototype._toJSON = function () { return {}; };
 	    Record.prototype._parse = function (data) { return data; };

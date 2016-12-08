@@ -205,7 +205,7 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     abstract each( iteratee : ( val : any, key : string | number ) => void, context? : any )
 
     // Map members to an array
-    map<T>( iteratee : ( val : any, key : string ) => T, context? : any ) : T[]{
+    map<T>( iteratee : ( val : any, key : string | number ) => T, context? : any ) : T[]{
         const arr : T[] = [],
               fun = arguments.length === 2 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee;
         
@@ -228,18 +228,6 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
         } );
 
         return obj;
-    }
-
-    // Get array of attribute keys (Record) or record ids (Collection) 
-    keys() : string[] {
-        return this.map( ( value, key ) => {
-            if( value !== void 0 ) return key;
-        });
-    }
-
-    // Get array of attribute values (Record) or records (Collection)
-    values() : any[] {
-        return this.map( value => value );
     }
     
     /*********************************
