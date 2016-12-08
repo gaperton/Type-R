@@ -37,7 +37,7 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     on : ( events : string | CallbacksByEvents, callback, context? ) => this
     once : ( events : string | CallbacksByEvents, callback, context? ) => this
     off : ( events? : string | CallbacksByEvents, callback?, context? ) => this
-    trigger      : (name : string, a?, b?, c? ) => this
+    trigger      : (name : string, a?, b?, c?, d?, e? ) => this
 
     stopListening : ( source? : Messenger, a? : string | CallbacksByEvents, b? : Function ) => this
     listenTo : ( source : Messenger, a : string | CallbacksByEvents, b? : Function ) => this

@@ -97,21 +97,10 @@ const _bubblingHandlers = {};
 /** @hide */
 function getBubblingHandler( event : string ){
     return _bubblingHandlers[ event ] || (
-        _bubblingHandlers[ event ] = function( a, b, c ){
-            switch( arguments.length ){
-                // Forward call to monomorphic fast-path functions.
-                case 0 : trigger0( this, event ); break;
-                case 1 : trigger1( this, event, a ); break;
-                case 2 : trigger2( this, event, a, b ); break;
-                case 3 : trigger3( this, event, a, b, c ); break;
-                default :
-                    const args = Array( arguments.length );
-                    for( let i = 0; i < arguments.length; i++ ){
-                        args[ i ] = arguments[ i ];
-                    }
-
-                    trigger( this, event, args );
-            }
+        _bubblingHandlers[ event ] = function( a?, b?, c?, d?, e? ){
+            if( d !== void 0 || e !== void 0 ) trigger5( this, event, a, b, c, d, e );
+            if( c !== void 0 ) trigger3( this, event, a, b, c );
+            else trigger2( this, event, a, b );
         }
     );
 }
@@ -146,18 +135,6 @@ function listOff( _events : HandlersByEvent, name : string, callback : Callback,
     if( head !== filteredHead ) _events[ name ] = filteredHead;
 }
 
-function listSend( head : EventHandler, args ){
-    for( let ev = head; ev; ev = ev.next ) ev.callback.apply( ev.context, args );
-}
-
-function listSend0( head : EventHandler, ){
-    for( let ev = head; ev; ev = ev.next ) ev.callback.call( ev.context );
-}
-
-function listSend1( head : EventHandler, a ){
-    for( let ev = head; ev; ev = ev.next ) ev.callback.call( ev.context, a );
-}
-
 function listSend2( head : EventHandler, a, b ){
     for( let ev = head; ev; ev = ev.next ) ev.callback.call( ev.context, a, b );
 }
@@ -168,6 +145,14 @@ function listSend3( head : EventHandler, a, b, c ){
 
 function listSend4( head : EventHandler, a, b, c, d ){
     for( let ev = head; ev; ev = ev.next ) ev.callback.call( ev.context, a, b, c, d );
+}
+
+function listSend5( head : EventHandler, a, b, c, d, e ){
+    for( let ev = head; ev; ev = ev.next ) ev.callback.call( ev.context, a, b, c, d, e );
+}
+
+function listSend6( head : EventHandler, a, b, c, d, e, f ){
+    for( let ev = head; ev; ev = ev.next ) ev.callback.call( ev.context, a, b, c, d, e, f );
 }
 
 interface Callback extends Function {
@@ -234,40 +219,6 @@ export type ApiEntry = ( source : EventSource, event : string, callback : Callba
 /*********************************
  * Event-triggering API
  */
-export function trigger( self : EventSource, name : string, args : any[] ) : void {
-    const { _events } = self;
-    if( _events ){
-        const queue = _events[ name ],
-            { all } = _events;
-
-        listSend( queue, args );
-        listSend( all, [ name ].concat( args ) );
-    }
-}
-
-/** @hide */
-export function trigger0( self : EventSource, name : string ) : void {
-    const { _events } = self;
-    if( _events ){
-        const queue = _events[ name ],
-            { all } = _events;
-
-        listSend0( queue );
-        listSend1( all, name );
-    }
-};
-
-/** @hide */
-export function trigger1( self : EventSource, name : string, a : any ) : void {
-    const { _events } = self;
-    if( _events ){
-        const queue = _events[ name ],
-            { all } = _events;
-
-        listSend1( queue, a );
-        listSend2( all, name, a );
-    }
-};
 
 /** @hide */
 export function trigger2( self : EventSource, name : string, a, b ) : void {
@@ -290,5 +241,16 @@ export function trigger3( self : EventSource, name : string, a, b, c ) : void{
 
         listSend3( queue, a, b, c );
         listSend4( all, name, a, b, c );
+    }
+};
+
+export function trigger5( self : EventSource, name : string, a, b, c, d, e ) : void{
+    const { _events } = self;
+    if( _events ){
+        const queue = _events[ name ],
+            { all } = _events;
+
+        listSend5( queue, a, b, c, d, e );
+        listSend6( all, name, a, b, c, d, e );
     }
 };

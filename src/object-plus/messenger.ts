@@ -5,7 +5,7 @@ import * as _eventsApi from './eventsource'
 
 const { mixins, define, extendable } = Mixins,
       // Force extranction to the local variabled.
-      { EventHandler, strings, on, off, once, trigger, trigger0, trigger1, trigger2, trigger3 } = _eventsApi;
+      { EventHandler, strings, on, off, once, trigger5, trigger2, trigger3 } = _eventsApi;
 
 // Regular expression used to split event strings.
 const eventSplitter = /\s+/;
@@ -107,24 +107,10 @@ export abstract class Messenger implements Mixins.Mixable, EventSource {
     // passed the same arguments as `trigger` is, apart from the event name
     // (unless you're listening on `"all"`, which will cause your callback to
     // receive the true name of the event as the first argument).
-    trigger(name : string, a?, b?, c? ) : this {
-        switch( arguments.length ){
-            // Forward call to monomorphic fast-path functions.
-            case 1 : trigger0( this, name ); return this;
-            case 2 : trigger1( this, name, a ); return this;
-            case 3 : trigger2( this, name, a, b ); return this;
-            case 4 : trigger3( this, name, a, b, c ); return this;
-            
-            default :
-                // Passing arguments around killing performance. Convert it to array.
-                const args = Array( arguments.length - 1 );
-                for( let i = 1; i < arguments.length; i++ ){
-                    args[ i - 1 ] = arguments[ i ];
-                }
-
-                trigger( this, name, args );                      
-        }
-
+    trigger(name : string, a?, b?, c?, d?, e? ) : this {
+        if( d !== void 0 || e !== void 0 ) trigger5( this, name, a, b, c, d, e );
+        if( c !== void 0 ) trigger3( this, name, a, b, c );
+        else trigger2( this, name, a, b );
         return this;
     }
 
