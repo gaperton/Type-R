@@ -9,6 +9,82 @@ define( function( require, exports, module ){
         Nested.tools.log.level = 1;
     }
 
+    describe( 'Events ', function(){
+        this.timeout( 100000 );
+
+        var FlatModel = Model.extend({
+            attributes : {
+                a0 : Number.has.watcher( 'watcher' ),
+                a1 : Number.has.watcher( 'watcher' ),
+                a2 : Number.has.watcher( 'watcher' ),
+                a3 : Number.has.watcher( 'watcher' ),
+                a4 : Number.has.watcher( 'watcher' ),
+                a5 : Number.has.watcher( 'watcher' ),
+                a6 : Number.has.watcher( 'watcher' ),
+                a7 : Number.has.watcher( 'watcher' ),
+                a8 : Number.has.watcher( 'watcher' ),
+                a9 : Number.has.watcher( 'watcher' )
+            },
+
+            _couter : 0,
+
+            watcher(){ this._counter++; }
+        });
+
+        describe( 'Watchers', function(){
+            it( 'Create and dispose 500K models', function(){
+                for( var i = 0; i < 500000; i++ ){
+                    var model = new FlatModel();
+                    model.stopListening();
+                }
+            } );
+
+            it( 'Make 5M changes', function(){
+                var model = new FlatModel();
+
+                for( var i = 0; i < 5000000; i++ ){
+                    model.a0 = i;    
+                }
+            } );
+
+            it( 'Fire 5M events', function(){
+                var model = new FlatModel();
+
+                for( var i = 0; i < 5000000; i++ ){
+                    model.trigger( 'change:a0', model, i, {} );    
+                }
+            } );
+
+            it( 'Make 5M subscribption', function(){
+                var model = new FlatModel();
+                function callback(){}
+
+                for( var i = 0; i < 5000000; i++ ){
+                    model.on( 'hello', callback, model );
+                    model.on( 'hello', callback, model );
+                    model.on( 'hello', callback, model );
+                    model.on( 'hello', callback, model );
+                    model.on( 'hello', callback, model );
+                    model.off( 'hello' );
+                }
+            });
+
+            it( 'Make 5M listenTo subscribption', function(){
+                var model = new FlatModel(), m = new FlatModel();
+                function callback(){}
+
+                for( var i = 0; i < 1000000; i++ ){
+                    m.listenTo( model, 'hello', callback );
+                    m.listenTo( model, 'hello', callback );
+                    m.listenTo( model, 'hello', callback );
+                    m.listenTo( model, 'hello', callback );
+                    m.listenTo( model, 'hello', callback );
+                    m.stopListening( model );
+                }
+            });
+        });
+    });
+
     describe( 'Collections of flat models', function(){
         this.timeout( 100000 );
 
