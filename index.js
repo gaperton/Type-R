@@ -497,11 +497,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        else {
 	            Subclass = (function (_super) {
-	                __extends(Subclass_1, _super);
-	                function Subclass() {
+	                __extends(_Subclass, _super);
+	                function _Subclass() {
 	                    return _super.apply(this, arguments) || this;
 	                }
-	                return Subclass_1;
+	                return _Subclass;
 	            }(this));
 	        }
 	        return spec ? Subclass.define(spec, statics) : Subclass.predefine();

@@ -214,7 +214,7 @@ export class Mixable {
         }
         // Otherwise, create the subclall in usual way.
         else{
-            Subclass = class Subclass extends this {};
+            Subclass = class _Subclass extends this {};
         }
 
         // 2. Apply definitions

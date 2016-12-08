@@ -28,7 +28,7 @@ define( function( require, exports, module ){
 
             _couter : 0,
 
-            watcher(){ this._counter++; }
+            watcher : function(){ this._counter++; }
         });
 
         describe( 'five lisneners', function(){
