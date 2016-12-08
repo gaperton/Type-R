@@ -66,8 +66,17 @@ define( function( require, exports, module ){
                 var smallCollection = new SmallFlatModel.Collection( small );
             });
 
+            it( '1 attribute model, Collection.Refs', function(){
+                var smallCollection = new SmallFlatModel.Collection.Refs( small );
+            });
+
+
             it( '20 attribute model', function(){
                 var largeCollection = new LargeFlatModel.Collection( large );
+            });
+
+            it( '20 attribute model, Collection.Refs', function(){
+                var largeCollection = new LargeFlatModel.Collection.Refs( large );
             });
 
             it( '20 attribute model with events subscribption', function(){
@@ -81,8 +90,18 @@ define( function( require, exports, module ){
                 smallCollection.set( small );
             });
 
+            it( '1 attribute model, Collection.Refs', function(){
+                var smallCollection = new SmallFlatModel.Collection.Refs();
+                smallCollection.set( small );
+            });
+
             it( '20 attribute model', function(){
                 var largeCollection = new LargeFlatModel.Collection();
+                largeCollection.set( large );
+            });
+
+            it( '20 attribute model, Collection.Refs', function(){
+                var largeCollection = new LargeFlatModel.Collection.Refs();
                 largeCollection.set( large );
             });
 
