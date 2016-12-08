@@ -9,6 +9,45 @@ define( function( require, exports, module ){
         Nested.tools.log.level = 1;
     }
 
+    describe( 'Events ', function(){
+        this.timeout( 100000 );
+
+        var FlatModel = Model.extend({
+            attributes : {
+                a0 : Number.has.watcher( 'watcher' ),
+                a1 : Number.has.watcher( 'watcher' ),
+                a2 : Number.has.watcher( 'watcher' ),
+                a3 : Number.has.watcher( 'watcher' ),
+                a4 : Number.has.watcher( 'watcher' ),
+                a5 : Number.has.watcher( 'watcher' ),
+                a6 : Number.has.watcher( 'watcher' ),
+                a7 : Number.has.watcher( 'watcher' ),
+                a8 : Number.has.watcher( 'watcher' ),
+                a9 : Number.has.watcher( 'watcher' )
+            },
+
+            _couter : 0,
+
+            watcher(){ this._counter++; }
+        });
+
+        describe( 'Watchers', function(){
+            it( 'Create 500K models', function(){
+                for( var i = 0; i < 500000; i++ ){
+                    var model = new FlatModel();
+                }
+            } );
+
+            it( 'Fire 5M events', function(){
+                var model = new FlatModel();
+
+                for( var i = 0; i < 5000000; i++ ){
+                    model.a0 = i;    
+                }
+            } );
+        });
+    });
+
     describe( 'Collections of flat models', function(){
         this.timeout( 100000 );
 
@@ -66,8 +105,17 @@ define( function( require, exports, module ){
                 var smallCollection = new SmallFlatModel.Collection( small );
             });
 
+            it( '1 attribute model, Collection.Refs', function(){
+                var smallCollection = new SmallFlatModel.Collection.Refs( small );
+            });
+
+
             it( '20 attribute model', function(){
                 var largeCollection = new LargeFlatModel.Collection( large );
+            });
+
+            it( '20 attribute model, Collection.Refs', function(){
+                var largeCollection = new LargeFlatModel.Collection.Refs( large );
             });
 
             it( '20 attribute model with events subscribption', function(){
@@ -81,8 +129,18 @@ define( function( require, exports, module ){
                 smallCollection.set( small );
             });
 
+            it( '1 attribute model, Collection.Refs', function(){
+                var smallCollection = new SmallFlatModel.Collection.Refs();
+                smallCollection.set( small );
+            });
+
             it( '20 attribute model', function(){
                 var largeCollection = new LargeFlatModel.Collection();
+                largeCollection.set( large );
+            });
+
+            it( '20 attribute model, Collection.Refs', function(){
+                var largeCollection = new LargeFlatModel.Collection.Refs();
                 largeCollection.set( large );
             });
 
