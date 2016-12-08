@@ -283,7 +283,16 @@ export class Record extends Transactional implements Owner {
                   value = attrs[ name ];
 
             value && iteratee( value, name, spec );
-        }*/
+        }
+        
+        // TODO: Try using list of specs instead of _keys.
+        // Try to inline this code to the hot spots.
+        for( let spec = this._head; spec; spec = spec.next ){
+            const value = attrs[ name ];
+            value && iteratee( value, name, spec );
+        }
+        
+        */
     }
 
     each( iteratee : ( value? : any, key? : string ) => void, context? : any ){
@@ -294,6 +303,18 @@ export class Record extends Transactional implements Owner {
             const value = attributes[ key ];
             if( value !== void 0 ) fun( value, key );
         }
+    }
+
+    // Get array of attribute keys (Record) or record ids (Collection) 
+    keys() : string[] {
+        return this.map( ( value, key ) => {
+            if( value !== void 0 ) return <string>key;
+        });
+    }
+
+    // Get array of attribute values (Record) or records (Collection)
+    values() : any[] {
+        return this.map( value => value );
     }
 
     // Attributes-level serialization
