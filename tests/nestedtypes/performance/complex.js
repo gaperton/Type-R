@@ -31,10 +31,84 @@ define( function( require, exports, module ){
             watcher(){ this._counter++; }
         });
 
+        describe( 'five lisneners', function(){
+            it( 'simple on/off', function(){
+                var source = new FlatModel(),
+                    d1 = new FlatModel(), d2 = new FlatModel(),
+                    d3 = new FlatModel(), d4 = new FlatModel(), d5 = new FlatModel();
+
+                function callback(){ this._counter++; }
+
+                for( var i = 0; i < 1000000; i++ ){
+                    source.on( 'change', callback, d1 )
+                        .on( 'change', callback, d2 )
+                        .on( 'change', callback, d3 )
+                        .on( 'change', callback, d4 )
+                        .on( 'change', callback, d5 );
+
+                    source.off( 'change', callback, d1 )
+                        .off( 'change', callback, d2 )
+                        .off( 'change', callback, d3 )
+                        .off( 'change', callback, d4 )
+                        .off( 'change', callback, d5 );
+                }
+            });
+
+            it( 'trigger', function(){
+                var source = new FlatModel(),
+                    d1 = new FlatModel(), d2 = new FlatModel(),
+                    d3 = new FlatModel(), d4 = new FlatModel(), d5 = new FlatModel();
+
+                function callback(){ this._counter++; }
+
+                source.on( 'change', callback, d1 )
+                        .on( 'change', callback, d2 )
+                        .on( 'change', callback, d3 )
+                        .on( 'change', callback, d4 )
+                        .on( 'change', callback, d5 );
+
+                for( var i = 0; i < 1000000; i++ ){
+                    source.trigger( 'change', source, {} );
+                }
+            });
+
+            it( 'listentTo/stopListening', function(){
+                var source = new FlatModel(),
+                    d1 = new FlatModel(), d2 = new FlatModel(),
+                    d3 = new FlatModel(), d4 = new FlatModel(), d5 = new FlatModel();
+
+                function callback(){ this._counter++; }
+
+                for( var i = 0; i < 1000000; i++ ){
+                    d1.listenTo( source, 'change', callback );
+                    d2.listenTo( source, 'change', callback );
+                    d3.listenTo( source, 'change', callback );
+                    d4.listenTo( source, 'change', callback );
+                    d5.listenTo( source, 'change', callback );
+
+                    d1.stopListening( source );
+                    d2.stopListening( source );
+                    d3.stopListening( source );
+                    d4.stopListening( source );
+                    d5.stopListening( source );
+                }
+            });
+
+        } );
+
         describe( 'Watchers', function(){
-            it( 'Create 500K models', function(){
+            it( 'Create and dispose 500K models', function(){
                 for( var i = 0; i < 500000; i++ ){
                     var model = new FlatModel();
+                    model.stopListening();
+                }
+            } );
+
+            it( 'Make 5M changes', function(){
+                var model = new FlatModel();
+
+                for( var i = 0; i < 5000000; i++ ){
+                    model.a0 = i;    
                 }
             } );
 
@@ -42,9 +116,37 @@ define( function( require, exports, module ){
                 var model = new FlatModel();
 
                 for( var i = 0; i < 5000000; i++ ){
-                    model.a0 = i;    
+                    model.trigger( 'change:a0', model, i, {} );    
                 }
             } );
+
+            it( 'Make 5M subscribption', function(){
+                var model = new FlatModel(), m = new FlatModel();
+                function callback(){}
+
+                for( var i = 0; i < 5000000; i++ ){
+                    model.on( 'hello', callback, m );
+                    model.on( 'hello', callback, m );
+                    model.on( 'hello', callback, m );
+                    model.on( 'hello', callback, m );
+                    model.on( 'hello', callback, m );
+                    model.off( 'hello' );
+                }
+            });
+
+            it( 'Make 5M listenTo subscribption', function(){
+                var model = new FlatModel(), m = new FlatModel();
+                function callback(){}
+
+                for( var i = 0; i < 1000000; i++ ){
+                    m.listenTo( model, 'hello', callback );
+                    m.listenTo( model, 'hello', callback );
+                    m.listenTo( model, 'hello', callback );
+                    m.listenTo( model, 'hello', callback );
+                    m.listenTo( model, 'hello', callback );
+                    m.stopListening( model );
+                }
+            });
         });
     });
 
