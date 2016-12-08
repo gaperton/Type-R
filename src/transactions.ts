@@ -207,7 +207,7 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     // Map members to an array
     map<T>( iteratee : ( val : any, key : string | number ) => T, context? : any ) : T[]{
         const arr : T[] = [],
-              fun = arguments.length === 2 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee;
+              fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee;
         
         this.each( ( val, key ) => {
             const result = fun( val, key );
@@ -220,7 +220,7 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     // Map members to an object
     mapObject<T>( iteratee : ( val : any, key : string | number ) => T, context? : any ) : { [ key : string ] : T }{
         const obj : { [ key : string ] : T } = {},
-            fun = arguments.length === 2 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee;
+            fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee;
         
         this.each( ( val, key ) => {
             const result = iteratee( val, key );

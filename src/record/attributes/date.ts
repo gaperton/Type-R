@@ -6,12 +6,14 @@ const DateProto = Date.prototype;
 // Date Attribute
 /** @private */
 export class DateType extends AnyType {
-    convert( value : any ){
+    convert( value : any, a?, b?, record? ){
         if( value == null || value instanceof Date ) return value;
 
         const date = new Date( value );
 
-        if( isNaN( +date ) ) this._log( 'warn', 'assigned with Invalid Date', value, arguments[ 3 ] );
+        if( isNaN( +date ) ){
+            this._log( 'warn', 'assigned with Invalid Date', value, record );
+        }
 
         return date;
     }
