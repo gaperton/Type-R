@@ -25,6 +25,21 @@ define( function( require, exports, module ){
             }
         });
 
+        var CollectionWithEvents = LargeFlatModel.Collection.extend({
+            itemEvents : {
+                'change:a0' : true,
+                'change:a1' : true,
+                'change:a2' : true,
+                'change:a3' : true,
+                'change:a4' : true,
+                'change:a5' : true,
+                'change:a6' : true,
+                'change:a7' : true,
+                'change:a8' : true,
+                'change:a9' : true
+            }
+        });
+
         var smallData = [],
             largeData = [];
 
@@ -54,6 +69,10 @@ define( function( require, exports, module ){
             it( '20 attribute model', function(){
                 var largeCollection = new LargeFlatModel.Collection( large );
             });
+
+            it( '20 attribute model with events subscribption', function(){
+                var largeCollection = new CollectionWithEvents( large );
+            });
         });
 
         describe( 'Fetch 50K collection', function(){
@@ -64,6 +83,11 @@ define( function( require, exports, module ){
 
             it( '20 attribute model', function(){
                 var largeCollection = new LargeFlatModel.Collection();
+                largeCollection.set( large );
+            });
+
+            it( '20 attribute model with events subscribption', function(){
+                var largeCollection = new CollectionWithEvents();
                 largeCollection.set( large );
             });
         });
