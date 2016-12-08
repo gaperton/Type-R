@@ -56,15 +56,15 @@ define( function( require, exports, module ){
             } );
 
             it( 'Make 5M subscribption', function(){
-                var model = new FlatModel();
+                var model = new FlatModel(), m = new FlatModel();
                 function callback(){}
 
                 for( var i = 0; i < 5000000; i++ ){
-                    model.on( 'hello', callback, model );
-                    model.on( 'hello', callback, model );
-                    model.on( 'hello', callback, model );
-                    model.on( 'hello', callback, model );
-                    model.on( 'hello', callback, model );
+                    model.on( 'hello', callback, m );
+                    model.on( 'hello', callback, m );
+                    model.on( 'hello', callback, m );
+                    model.on( 'hello', callback, m );
+                    model.on( 'hello', callback, m );
                     model.off( 'hello' );
                 }
             });
