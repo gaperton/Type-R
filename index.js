@@ -65,14 +65,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _1 = __webpack_require__(1);
 	exports.on = _1.Events.on, exports.off = _1.Events.off, exports.trigger = _1.Events.trigger, exports.once = _1.Events.once, exports.listenTo = _1.Events.listenTo, exports.stopListening = _1.Events.stopListening, exports.listenToOnce = _1.Events.listenToOnce;
 	var underscore_mixin_1 = __webpack_require__(29);
-	var collection_1 = __webpack_require__(6);
-	var record_1 = __webpack_require__(10);
-	exports.Model = record_1.Record;
+	var collection_2 = __webpack_require__(6);
+	var record_2 = __webpack_require__(10);
+	exports.Model = record_2.Record;
 	var _2 = __webpack_require__(1);
 	exports.Class = _2.Mixable;
-	var record_2 = __webpack_require__(10);
+	var record_3 = __webpack_require__(10);
 	function value(x) {
-	    return new record_2.ChainableAttributeSpec({ value: x });
+	    return new record_3.ChainableAttributeSpec({ value: x });
 	}
 	exports.value = value;
 	function transaction(method) {
@@ -92,8 +92,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.transaction = transaction;
 	function useUnderscore(_) {
 	    var UnderscoreMixin = underscore_mixin_1.default(_);
-	    record_1.Record.mixins(UnderscoreMixin.Model);
-	    collection_1.Collection.mixins(UnderscoreMixin.Collection);
+	    record_2.Record.mixins(UnderscoreMixin.Model);
+	    collection_2.Collection.mixins(UnderscoreMixin.Collection);
 	    return this;
 	}
 	exports.useUnderscore = useUnderscore;
@@ -113,8 +113,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	__export(__webpack_require__(4));
 	var eventsApi = __webpack_require__(5);
 	exports.eventsApi = eventsApi;
-	var mixins_1 = __webpack_require__(3);
-	Object.extend = function (protoProps, staticProps) { return mixins_1.Mixable.extend(protoProps, staticProps); };
+	var mixins_2 = __webpack_require__(3);
+	Object.extend = function (protoProps, staticProps) { return mixins_2.Mixable.extend(protoProps, staticProps); };
 	Object.assign || (Object.assign = tools.assign);
 	Object.log = tools.log;
 
@@ -499,7 +499,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            Subclass = (function (_super) {
 	                __extends(_Subclass, _super);
 	                function _Subclass() {
-	                    return _super.apply(this, arguments) || this;
+	                    _super.apply(this, arguments);
 	                }
 	                return _Subclass;
 	            }(this));
@@ -514,10 +514,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.__super__ = BaseClass.prototype;
 	        return this;
 	    };
+	    Mixable._mixinRules = { properties: 'merge' };
 	    return Mixable;
 	}());
 	exports.Mixable = Mixable;
-	Mixable._mixinRules = { properties: 'merge' };
 	function toPropertyDescriptor(x) {
 	    if (x) {
 	        return typeof x === 'function' ? { get: x } : x;
@@ -758,11 +758,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.off();
 	        this._disposed = true;
 	    };
+	    Messenger = __decorate([
+	        extendable
+	    ], Messenger);
 	    return Messenger;
 	}());
-	Messenger = __decorate([
-	    extendable
-	], Messenger);
 	exports.Messenger = Messenger;
 	var slice = Array.prototype.slice;
 	exports.Events = tools_1.omit(Messenger.prototype, 'constructor', 'initialize');
@@ -880,15 +880,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return EventHandler;
 	}());
 	exports.EventHandler = EventHandler;
-	function listOff(head, callback, context) {
-	    var res;
+	function listOff(_events, name, callback, context) {
+	    var head = _events[name];
+	    var filteredHead, prev;
 	    for (var ev = head; ev; ev = ev.next) {
 	        if ((callback && callback !== ev.callback && callback !== ev.callback._callback) ||
 	            (context && context !== ev.context)) {
-	            res = new EventHandler(ev.callback, ev.context, res);
+	            prev = ev;
+	            filteredHead || (filteredHead = ev);
+	        }
+	        else {
+	            if (prev)
+	                prev.next = ev.next;
 	        }
 	    }
-	    return res;
+	    if (head !== filteredHead)
+	        _events[name] = filteredHead;
 	}
 	function listSend(head, args) {
 	    for (var ev = head; ev; ev = ev.next)
@@ -937,15 +944,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (_events) {
 	        if (callback || context) {
 	            if (name) {
-	                _events[name] = listOff(_events[name], callback, context);
+	                listOff(_events, name, callback, context);
 	            }
 	            else {
-	                var filteredEvents = Object.create(null);
 	                for (var name_3 in _events) {
-	                    var queue = listOff(_events[name_3], callback, context);
-	                    queue && (filteredEvents[name_3] = queue);
+	                    listOff(_events, name_3, callback, context);
 	                }
-	                source._events = filteredEvents;
 	            }
 	        }
 	        else if (name) {
@@ -1052,29 +1056,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	    __extends(Collection, _super);
 	    function Collection(records, options, shared) {
 	        if (options === void 0) { options = {}; }
-	        var _this = _super.call(this, _count++) || this;
-	        _this.models = [];
-	        _this._byId = {};
-	        _this.comparator = _this.comparator;
+	        _super.call(this, _count++);
+	        this.models = [];
+	        this._byId = {};
+	        this.comparator = this.comparator;
 	        if (options.comparator !== void 0) {
-	            _this.comparator = options.comparator;
+	            this.comparator = options.comparator;
 	            options.comparator = void 0;
 	        }
-	        _this.model = _this.model;
+	        this.model = this.model;
 	        if (options.model) {
-	            _this.model = options.model;
+	            this.model = options.model;
 	            options.model = void 0;
 	        }
-	        _this.idAttribute = _this.model.prototype.idAttribute;
-	        _this._shared = shared || 0;
+	        this.idAttribute = this.model.prototype.idAttribute;
+	        this._shared = shared || 0;
 	        if (records) {
-	            var elements = toElements(_this, records, options);
-	            set_1.emptySetTransaction(_this, elements, options, true);
+	            var elements = toElements(this, records, options);
+	            set_1.emptySetTransaction(this, elements, options, true);
 	        }
-	        _this.initialize.apply(_this, arguments);
-	        if (_this._localEvents)
-	            _this._localEvents.subscribe(_this, _this);
-	        return _this;
+	        this.initialize.apply(this, arguments);
+	        if (this._localEvents)
+	            this._localEvents.subscribe(this, this);
 	    }
 	    Collection.prototype.createSubset = function (models, options) {
 	        var SubsetOf = this.constructor.subsetOf(this).options.type, subset = new SubsetOf(models, options);
@@ -1346,22 +1349,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return next;
 	    };
 	    Collection.prototype._log = function (level, text, value) {
-	        object_plus_1.tools.log[level]("[Collection Update] " + this.model.prototype.getClassName() + "." + this.getClassName() + ": " + text, value, 'Attributes spec:', this.model.prototype._attributes);
+	        object_plus_1.tools.log[level](("[Collection Update] " + this.model.prototype.getClassName() + "." + this.getClassName() + ": ") + text, value, 'Attributes spec:', this.model.prototype._attributes);
 	    };
 	    Collection.prototype.getClassName = function () {
 	        return _super.prototype.getClassName.call(this) || 'Collection';
 	    };
+	    Collection._attribute = record_1.AggregatedType;
+	    Collection = __decorate([
+	        object_plus_1.define({
+	            cidPrefix: 'c',
+	            model: record_1.Record,
+	            _changeEventName: 'changes',
+	            _aggregationError: null
+	        })
+	    ], Collection);
 	    return Collection;
 	}(transactions_1.Transactional));
-	Collection._attribute = record_1.AggregatedType;
-	Collection = __decorate([
-	    object_plus_1.define({
-	        cidPrefix: 'c',
-	        model: record_1.Record,
-	        _changeEventName: 'changes',
-	        _aggregationError: null
-	    })
-	], Collection);
 	exports.Collection = Collection;
 	function toElements(collection, elements, options) {
 	    var parsed = options.parse ? collection.parse(elements, options) : elements;
@@ -1370,11 +1373,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	var CollectionRefsType = (function (_super) {
 	    __extends(CollectionRefsType, _super);
 	    function CollectionRefsType() {
-	        return _super.apply(this, arguments) || this;
+	        _super.apply(this, arguments);
 	    }
+	    CollectionRefsType.defaultValue = [];
 	    return CollectionRefsType;
 	}(record_1.SharedType));
-	CollectionRefsType.defaultValue = [];
 	record_1.createSharedTypeSpec(Collection, record_1.SharedType);
 	record_1.Record.Collection = Collection;
 
@@ -1507,12 +1510,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (name !== 'Subclass')
 	            return name;
 	    };
+	    Transactional = __decorate([
+	        object_plus_1.mixins(object_plus_1.Messenger),
+	        object_plus_1.extendable
+	    ], Transactional);
 	    return Transactional;
 	}());
-	Transactional = __decorate([
-	    object_plus_1.mixins(object_plus_1.Messenger),
-	    object_plus_1.extendable
-	], Transactional);
 	exports.Transactional = Transactional;
 	exports.transactionApi = {
 	    begin: function (object) {
@@ -1766,19 +1769,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Record = (function (_super) {
 	    __extends(Record, _super);
 	    function Record(a_values, a_options) {
-	        var _this = _super.call(this, _cidCounter++) || this;
-	        _this.attributes = {};
-	        var options = a_options || {}, values = (options.parse ? _this.parse(a_values, options) : a_values) || {};
-	        var attributes = options.clone ? cloneAttributes(_this, values) : _this.defaults(values);
-	        _this.forEachAttr(attributes, function (value, key, attr) {
+	        var _this = this;
+	        _super.call(this, _cidCounter++);
+	        this.attributes = {};
+	        var options = a_options || {}, values = (options.parse ? this.parse(a_values, options) : a_values) || {};
+	        var attributes = options.clone ? cloneAttributes(this, values) : this.defaults(values);
+	        this.forEachAttr(attributes, function (value, key, attr) {
 	            var next = attributes[key] = attr.transform(value, options, void 0, _this);
 	            attr.handleChange(next, void 0, _this);
 	        });
-	        _this.attributes = _this._previousAttributes = attributes;
-	        _this.initialize(a_values, a_options);
-	        if (_this._localEvents)
-	            _this._localEvents.subscribe(_this, _this);
-	        return _this;
+	        this.attributes = this._previousAttributes = attributes;
+	        this.initialize(a_values, a_options);
+	        if (this._localEvents)
+	            this._localEvents.subscribe(this, this);
 	    }
 	    Record.define = function (protoProps, staticProps) {
 	        return transactions_1.Transactional.define(protoProps, staticProps);
@@ -2067,21 +2070,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _super.prototype.dispose.call(this);
 	    };
 	    Record.prototype._log = function (level, text, value) {
-	        object_plus_1.tools.log[level]("[Model Update] " + this.getClassName() + ": " + text, value, 'Attributes spec:', this._attributes);
+	        object_plus_1.tools.log[level](("[Model Update] " + this.getClassName() + ": ") + text, value, 'Attributes spec:', this._attributes);
 	    };
 	    Record.prototype.getClassName = function () {
 	        return _super.prototype.getClassName.call(this) || 'Model';
 	    };
+	    Record = __decorate([
+	        object_plus_1.define({
+	            cidPrefix: 'm',
+	            _changeEventName: 'change',
+	            idAttribute: 'id',
+	            _keys: ['id']
+	        })
+	    ], Record);
 	    return Record;
 	}(transactions_1.Transactional));
-	Record = __decorate([
-	    object_plus_1.define({
-	        cidPrefix: 'm',
-	        _changeEventName: 'change',
-	        idAttribute: 'id',
-	        _keys: ['id']
-	    })
-	], Record);
 	exports.Record = Record;
 	;
 	function begin(record) {
@@ -2393,7 +2396,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    AnyType.prototype.initialize = function (name, options) { };
 	    AnyType.prototype._log = function (level, text, value, record) {
-	        object_plus_1.tools.log[level]("[Attribute Update] " + record.getClassName() + "." + this.name + ": " + text, value, 'Attributes spec:', record._attributes);
+	        object_plus_1.tools.log[level](("[Attribute Update] " + record.getClassName() + "." + this.name + ": ") + text, value, 'Attributes spec:', record._attributes);
 	    };
 	    return AnyType;
 	}());
@@ -2443,7 +2446,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var AggregatedType = (function (_super) {
 	    __extends(AggregatedType, _super);
 	    function AggregatedType() {
-	        return _super.apply(this, arguments) || this;
+	        _super.apply(this, arguments);
 	    }
 	    AggregatedType.prototype.clone = function (value) {
 	        return value ? value.clone() : value;
@@ -2515,7 +2518,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var DateType = (function (_super) {
 	    __extends(DateType, _super);
 	    function DateType() {
-	        return _super.apply(this, arguments) || this;
+	        _super.apply(this, arguments);
 	    }
 	    DateType.prototype.convert = function (value, a, b, record) {
 	        if (value == null || value instanceof Date)
@@ -2541,7 +2544,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var MSDateType = (function (_super) {
 	    __extends(MSDateType, _super);
 	    function MSDateType() {
-	        return _super.apply(this, arguments) || this;
+	        _super.apply(this, arguments);
 	    }
 	    MSDateType.prototype.convert = function (value) {
 	        if (typeof value === 'string') {
@@ -2559,7 +2562,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var TimestampType = (function (_super) {
 	    __extends(TimestampType, _super);
 	    function TimestampType() {
-	        return _super.apply(this, arguments) || this;
+	        _super.apply(this, arguments);
 	    }
 	    TimestampType.prototype.toJSON = function (value) { return value.getTime(); };
 	    return TimestampType;
@@ -2616,7 +2619,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var ConstructorType = (function (_super) {
 	    __extends(ConstructorType, _super);
 	    function ConstructorType() {
-	        return _super.apply(this, arguments) || this;
+	        _super.apply(this, arguments);
 	    }
 	    ConstructorType.prototype.convert = function (value) {
 	        return value == null || value instanceof this.type ? value : new this.type(value);
@@ -2630,7 +2633,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var PrimitiveType = (function (_super) {
 	    __extends(PrimitiveType, _super);
 	    function PrimitiveType() {
-	        return _super.apply(this, arguments) || this;
+	        _super.apply(this, arguments);
 	    }
 	    PrimitiveType.prototype.create = function () { return this.type(); };
 	    PrimitiveType.prototype.toJSON = function (value) { return value; };
@@ -2644,7 +2647,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var NumericType = (function (_super) {
 	    __extends(NumericType, _super);
 	    function NumericType() {
-	        return _super.apply(this, arguments) || this;
+	        _super.apply(this, arguments);
 	    }
 	    NumericType.prototype.convert = function (value, a, b, record) {
 	        var num = value == null ? value : this.type(value);
@@ -2665,7 +2668,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var ArrayType = (function (_super) {
 	    __extends(ArrayType, _super);
 	    function ArrayType() {
-	        return _super.apply(this, arguments) || this;
+	        _super.apply(this, arguments);
 	    }
 	    ArrayType.prototype.toJSON = function (value) { return value; };
 	    ArrayType.prototype.convert = function (value, a, b, record) {
@@ -2699,7 +2702,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var SharedType = (function (_super) {
 	    __extends(SharedType, _super);
 	    function SharedType() {
-	        return _super.apply(this, arguments) || this;
+	        _super.apply(this, arguments);
 	    }
 	    SharedType.prototype.clone = function (value, record) {
 	        if (!value || value._owner !== record)
@@ -3326,7 +3329,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var RecordRefType = (function (_super) {
 	    __extends(RecordRefType, _super);
 	    function RecordRefType() {
-	        return _super.apply(this, arguments) || this;
+	        _super.apply(this, arguments);
 	    }
 	    RecordRefType.prototype.toJSON = function (value) {
 	        return value && typeof value === 'object' ? value.id : value;
@@ -3376,7 +3379,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        case 'object':
 	            return function () { return collectionRef; };
 	        case 'string':
-	            var resolve = new traversable_1.CompiledReference(collectionRef).resolve;
+	            var resolve = (new traversable_1.CompiledReference(collectionRef)).resolve;
 	            return resolve;
 	    }
 	}
@@ -3425,9 +3428,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var SubsetOfCollection = (function (_super) {
 	        __extends(SubsetOfCollection, _super);
 	        function SubsetOfCollection(recordsOrIds, options) {
-	            var _this = _super.call(this, recordsOrIds, subsetOptions(options), subsetOfBehavior) || this;
-	            _this.resolvedWith = null;
-	            return _this;
+	            _super.call(this, recordsOrIds, subsetOptions(options), subsetOfBehavior);
+	            this.resolvedWith = null;
 	        }
 	        Object.defineProperty(SubsetOfCollection.prototype, "_state", {
 	            get: function () { return this.refs || this.models; },
@@ -3498,11 +3500,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        SubsetOfCollection.prototype.toggleAll = function () {
 	            return this.length ? this.reset() : this.addAll();
 	        };
+	        SubsetOfCollection = __decorate([
+	            object_plus_1.define({})
+	        ], SubsetOfCollection);
 	        return SubsetOfCollection;
 	    }(CollectionConstructor));
-	    SubsetOfCollection = __decorate([
-	        object_plus_1.define({})
-	    ], SubsetOfCollection);
 	    return SubsetOfCollection;
 	}
 
@@ -3523,7 +3525,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Store = (function (_super) {
 	    __extends(Store, _super);
 	    function Store() {
-	        return _super.apply(this, arguments) || this;
+	        _super.apply(this, arguments);
 	    }
 	    Store.prototype.getStore = function () { return this; };
 	    Store.prototype.get = function (name) {

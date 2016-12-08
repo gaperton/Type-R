@@ -124,17 +124,26 @@ export class EventHandler {
     constructor( public callback : Callback, public context : any, public next = null ){}
 }
 
-function listOff( head : EventHandler, callback : Callback, context : any ) : EventHandler {
-    let res;
+function listOff( _events : HandlersByEvent, name : string, callback : Callback, context : any ){
+    const head = _events[ name ];
+
+    let filteredHead, prev;
 
     for( let ev = head; ev; ev = ev.next ){
+        // Element must be kept
         if( ( callback && callback !== ev.callback && callback !== ev.callback._callback ) ||
             ( context && context !== ev.context ) ){
-            res = new EventHandler( ev.callback, ev.context, res );
+            
+            prev = ev;
+            filteredHead || ( filteredHead = ev );
+        }
+        // Element must be skipped
+        else{
+            if( prev ) prev.next = ev.next;
         }
     }
 
-    return res;
+    if( head !== filteredHead ) _events[ name ] = filteredHead;
 }
 
 function listSend( head : EventHandler, args ){
@@ -189,17 +198,12 @@ export function off( source : EventSource, name? : string, callback? : Callback,
     if( _events ){
         if( callback || context ) {
             if( name ){
-                _events[ name ] = listOff( _events[ name ], callback, context );
+                listOff( _events, name, callback, context );
             }
             else{
-                const filteredEvents = Object.create( null );
-
                 for( let name in _events ){
-                    const queue = listOff( _events[ name ], callback, context );
-                    queue && ( filteredEvents[ name ] = queue );
+                    listOff( _events, name, callback, context );
                 }
-
-                source._events = filteredEvents;
             }
         }
         else if( name ){
