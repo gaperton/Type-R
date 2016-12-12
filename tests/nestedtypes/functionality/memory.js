@@ -29,7 +29,7 @@ describe( 'Memory management', function(){
         m.ref = singleton;
         m.refs = [ singleton ];
 
-        expect( singleton._events.change ).to.be.array;
+        expect( singleton._events.change.next.next ).to.be.null;
 
         m.dispose();
         expect( m._disposed ).to.be.true;

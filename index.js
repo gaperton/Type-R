@@ -707,13 +707,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this;
 	    };
 	    Messenger.prototype.listenTo = function (source, a, b) {
-	        addReference(this, source);
-	        source.on(a, !b && typeof a === 'object' ? this : b, this);
+	        if (source) {
+	            addReference(this, source);
+	            source.on(a, !b && typeof a === 'object' ? this : b, this);
+	        }
 	        return this;
 	    };
 	    Messenger.prototype.listenToOnce = function (source, a, b) {
-	        addReference(this, source);
-	        source.once(a, !b && typeof a === 'object' ? this : b, this);
+	        if (source) {
+	            addReference(this, source);
+	            source.once(a, !b && typeof a === 'object' ? this : b, this);
+	        }
 	        return this;
 	    };
 	    Messenger.prototype.stopListening = function (a_source, a, b) {

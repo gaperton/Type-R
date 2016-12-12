@@ -115,15 +115,19 @@ export abstract class Messenger implements Mixins.Mixable, EventSource {
     }
 
     listenTo( source : Messenger, a : string | CallbacksByEvents, b? : Function ) : this {
-        addReference( this, source );
-        source.on( a, !b && typeof a === 'object' ? this : b, this );
+        if( source ){
+            addReference( this, source );
+            source.on( a, !b && typeof a === 'object' ? this : b, this );
+        }
 
         return this;
     }
 
     listenToOnce( source : Messenger, a : string | CallbacksByEvents, b? : Function ) : this {
-        addReference( this, source );
-        source.once( a, !b && typeof a === 'object' ? this : b, this );
+        if( source ){
+            addReference( this, source );
+            source.once( a, !b && typeof a === 'object' ? this : b, this );
+        }
 
         return this;
     }
