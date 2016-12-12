@@ -145,7 +145,7 @@ export abstract class Messenger implements Mixins.Mixable, EventSource {
                     source.off( a, second, this );
                 }
             }
-            else{
+            else if( a_source === void 0 ){
                 for( let cid in _listeningTo ) _listeningTo[ cid ].off( a, second, this );
 
                 if( removeAll ) ( this._listeningTo = void 0 );

@@ -31,6 +31,7 @@
 
                 target.listenTo( null, 'change', function(){} );
                 target.listenToOnce( null, 'change', function(){} );
+                target.stopListening( null );
             });
         });
 
