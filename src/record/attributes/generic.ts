@@ -181,7 +181,7 @@ export class AnyType implements Attribute {
 
             const { validate } = this;
             this.validate = function( record : Record, value : any, key : string ){
-                return validate.call( this, record, getHook.call( this, value, key ), key );
+                return validate.call( this, record, getHook.call( record, value, key ), key );
             }
         }
         

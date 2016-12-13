@@ -2300,7 +2300,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var getHook_1 = this.getHook = getHooks.reduce(chainGetHooks);
 	            var validate_1 = this.validate;
 	            this.validate = function (record, value, key) {
-	                return validate_1.call(this, record, getHook_1.call(this, value, key), key);
+	                return validate_1.call(this, record, getHook_1.call(record, value, key), key);
 	            };
 	        }
 	        if (transforms.length) {
