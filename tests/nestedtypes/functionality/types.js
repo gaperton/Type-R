@@ -184,6 +184,8 @@
 
                 m.int = null;
                 expect( m.int ).to.be.null;
+
+                expect( m.isValid() ).to.be.true;
             });
 
             it( 'inferred from default values (except Integer)', function(){
