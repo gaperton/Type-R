@@ -109,7 +109,7 @@ export abstract class Messenger implements Mixins.Mixable, EventSource {
     // receive the true name of the event as the first argument).
     trigger(name : string, a?, b?, c?, d?, e? ) : this {
         if( d !== void 0 || e !== void 0 ) trigger5( this, name, a, b, c, d, e );
-        if( c !== void 0 ) trigger3( this, name, a, b, c );
+        else if( c !== void 0 ) trigger3( this, name, a, b, c );
         else trigger2( this, name, a, b );
         return this;
     }

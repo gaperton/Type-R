@@ -700,7 +700,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    Messenger.prototype.trigger = function (name, a, b, c, d, e) {
 	        if (d !== void 0 || e !== void 0)
 	            trigger5(this, name, a, b, c, d, e);
-	        if (c !== void 0)
+	        else if (c !== void 0)
 	            trigger3(this, name, a, b, c);
 	        else
 	            trigger2(this, name, a, b);
