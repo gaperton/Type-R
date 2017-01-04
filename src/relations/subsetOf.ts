@@ -41,7 +41,7 @@ function defineSubsetCollection( CollectionConstructor : typeof Collection ) {
 
         _attribute : AggregatedType
 
-        get _state(){ return this.refs || this.models; }
+        get _innerState(){ return this.refs || this.models; }
 
         constructor( recordsOrIds?, options? ){
             super( recordsOrIds, subsetOptions( options ), subsetOfBehavior );
