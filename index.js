@@ -2484,19 +2484,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	    DateType.prototype.convert = function (value, a, b, record) {
 	        if (value == null || value instanceof Date)
 	            return value;
-	        var date = new Date(value);
-	        if (isNaN(+date)) {
+	        var date = new Date(value), timestamp = date.getTime();
+	        if (timestamp !== timestamp) {
 	            this._log('warn', 'assigned with Invalid Date', value, record);
 	        }
 	        return date;
 	    };
 	    DateType.prototype.validate = function (model, value, name) {
-	        if (value != null && isNaN(+value))
-	            return name + ' is Invalid Date';
+	        if (value != null) {
+	            var timestamp = value.getTime();
+	            if (timestamp !== timestamp)
+	                return name + ' is Invalid Date';
+	        }
 	    };
 	    DateType.prototype.toJSON = function (value) { return value && value.toISOString(); };
-	    DateType.prototype.isChanged = function (a, b) { return (a && +a) !== (b && +b); };
-	    DateType.prototype.clone = function (value) { return value && new Date(+value); };
+	    DateType.prototype.isChanged = function (a, b) { return (a && a.getTime()) !== (b && b.getTime()); };
+	    DateType.prototype.clone = function (value) { return value && new Date(value.getTime()); };
 	    return DateType;
 	}(generic_1.AnyType));
 	exports.DateType = DateType;
