@@ -9,9 +9,10 @@ export class DateType extends AnyType {
     convert( value : any, a?, b?, record? ){
         if( value == null || value instanceof Date ) return value;
 
-        const date = new Date( value );
+        const date = new Date( value ),
+              timestamp = date.getTime();
 
-        if( isNaN( +date ) ){
+        if( timestamp !== timestamp ){
             this._log( 'warn', 'assigned with Invalid Date', value, record );
         }
 
@@ -19,14 +20,17 @@ export class DateType extends AnyType {
     }
 
     validate( model, value, name ) {
-        if( value != null && isNaN( +value ) ) return name + ' is Invalid Date';
+        if( value != null ){
+            const timestamp = value.getTime(); 
+            if( timestamp !== timestamp ) return name + ' is Invalid Date';
+        }
     }
 
     toJSON( value ) { return value && value.toISOString(); }
 
-    isChanged( a, b ) { return ( a && +a ) !== ( b && +b ); }
+    isChanged( a, b ) { return ( a && a.getTime() ) !== ( b && b.getTime() ); }
 
-    clone( value ) { return value && new Date( +value ); }
+    clone( value ) { return value && new Date( value.getTime() ); }
 }
 
 Date._attribute = DateType;
