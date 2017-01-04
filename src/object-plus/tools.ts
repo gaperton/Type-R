@@ -365,6 +365,7 @@ export function once( func : Function ) : Function {
     };
 }
 
+/** @hidden */
 const ArrayProto = Array.prototype,
       DateProto = Date.prototype,
       ObjectProto = Object.prototype;

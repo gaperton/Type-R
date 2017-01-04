@@ -7,11 +7,13 @@ const { mixins, define, extendable } = Mixins,
       // Force extranction to the local variabled.
       { EventHandler, strings, on, off, once, trigger5, trigger2, trigger3 } = _eventsApi;
 
-// Regular expression used to split event strings.
+/** @hidden */
 const eventSplitter = /\s+/;
 
+/** @hidden */
 let _idCount = 0;
 
+/** @hidden */
 function uniqueId() : string {
     return 'l' + _idCount++;
 }
@@ -23,10 +25,12 @@ export interface MessengerDefinition extends Mixins.ClassDefinition {
     localEvents? : EventsDefinition
 }
 
+/** @hidden */
 export interface MessengersByCid {
     [ cid : string ] : Messenger
 }
 
+/** @hidden */
 export type CallbacksByEvents = { [ events : string ] : Function }
 
 /*************************
@@ -183,6 +187,7 @@ export const Events : Messenger = <Messenger> omit( Messenger.prototype, 'constr
  * Messenger Private Helpers 
  */
 
+/** @hidden */
 function addReference( listener : Messenger, source : Messenger ){
       const listeningTo = listener._listeningTo || (listener._listeningTo = Object.create( null ) ),
             cid = source.cid || ( source.cid = uniqueId() );

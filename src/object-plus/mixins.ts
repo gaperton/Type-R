@@ -41,11 +41,12 @@ export interface MixinRules {
  */
 export type MergeRule = 'merge' | 'overwrite' | 'mergeSequence' | 'pipe' | 'sequence' | 'reverse' | 'every' | 'some'
 
-
+/** @hidden */
 declare function __extends( a, b )
 
 /**
- *  Generic interface to reference constructor function type for any given T.
+ * Generic interface to reference constructor function type for any given T.
+ * @hidden
  */
 export interface Constructor< T >{
     new ( ...args : any[] ) : T
@@ -53,6 +54,7 @@ export interface Constructor< T >{
 
 /**
  * Generic interface to reference constructor function of any Mixable type T.
+ * @hidden
  */
 export interface MixableConstructor< T > extends Constructor< T >{
     prototype : T
