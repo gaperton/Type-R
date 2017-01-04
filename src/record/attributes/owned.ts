@@ -19,7 +19,7 @@ export class AggregatedType extends AnyType {
         if( prev && next != null ){
             if( next instanceof this.type ){
                 // In case if merge option explicitly specified, force merge.
-                if( options.merge ) return next._state;
+                if( options.merge ) return next._innerState;
             }
             else{
                 return next;
