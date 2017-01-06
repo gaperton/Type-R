@@ -134,7 +134,7 @@ export class Record extends Transactional implements Owner {
     attributes : AttributesValues
 
     // Polymorphic accessor for aggregated attribute's canBeUpdated().
-    get _innerState(){ return this.attributes; }
+    get __inner_state__(){ return this.attributes; }
 
     // Lazily evaluated changed attributes hash
     _changedAttributes : AttributesValues

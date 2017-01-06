@@ -104,7 +104,7 @@ export class Collection extends Transactional implements CollectionCore {
     models : Record[]
 
     // Polymorphic accessor for aggregated attribute's canBeUpdated().
-    get _innerState(){ return this.models; }
+    get __inner_state__(){ return this.models; }
 
     // Index by id and cid
     _byId : IdIndex

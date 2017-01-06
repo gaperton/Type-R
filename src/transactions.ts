@@ -46,7 +46,7 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     _disposed : boolean;
 
     // State accessor. 
-    readonly _innerState : any;
+    readonly __inner_state__ : any;
 
     // Shared modifier (used by collections of shared models)
     _shared? : number; 

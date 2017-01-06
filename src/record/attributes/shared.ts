@@ -38,7 +38,7 @@ export class SharedType extends AnyType {
         if( prev && next != null ){
             if( next instanceof this.type ){
                 // In case if merge option explicitly specified, force merge.
-                if( options.merge ) return next._innerState;
+                if( options.merge ) return next.__inner_state__;
             }
             else{
                 return next;

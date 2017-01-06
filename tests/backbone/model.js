@@ -5,7 +5,7 @@
     title  : "The Tempest",
     author : "Bill Shakespeare",
     audience : "",
-    b : 0,
+    b : 0, a : void 0, c : void 0,
     d : 0,
     length : 123
   });
@@ -23,11 +23,13 @@
         id     : '1-the-tempest',
         title  : "The Tempest",
         author : "Bill Shakespeare",
-        length : 123
+        length : 123,
+        a : void 0, b : void 0, c : void 0, d : void 0
       });
       collection = new klass();
       collection.add(doc);
     }
+
   });
 
   QUnit.test("initialize", function(assert) {
@@ -39,6 +41,7 @@
 
       initialize: function() {
         this.one = 1;
+        //assert.equal(this.collection, collection); No access to collection in constructor.
       }
     });
     var model = new Model({}, {});

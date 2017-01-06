@@ -1055,7 +1055,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return transactions_1.Transactional.define.call(this, spec, staticProps);
 	    };
-	    Object.defineProperty(Collection.prototype, "_innerState", {
+	    Object.defineProperty(Collection.prototype, "__inner_state__", {
 	        get: function () { return this.models; },
 	        enumerable: true,
 	        configurable: true
@@ -1737,7 +1737,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return this.extend({ attributes: attrs });
 	    };
 	    Record.prototype.previousAttributes = function () { return new this.Attributes(this._previousAttributes); };
-	    Object.defineProperty(Record.prototype, "_innerState", {
+	    Object.defineProperty(Record.prototype, "__inner_state__", {
 	        get: function () { return this.attributes; },
 	        enumerable: true,
 	        configurable: true
@@ -2408,7 +2408,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (prev && next != null) {
 	            if (next instanceof this.type) {
 	                if (options.merge)
-	                    return next._innerState;
+	                    return next.__inner_state__;
 	            }
 	            else {
 	                return next;
@@ -2671,7 +2671,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (prev && next != null) {
 	            if (next instanceof this.type) {
 	                if (options.merge)
-	                    return next._innerState;
+	                    return next.__inner_state__;
 	            }
 	            else {
 	                return next;
@@ -3387,7 +3387,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            _this.resolvedWith = null;
 	            return _this;
 	        }
-	        Object.defineProperty(SubsetOfCollection.prototype, "_innerState", {
+	        Object.defineProperty(SubsetOfCollection.prototype, "__inner_state__", {
 	            get: function () { return this.refs || this.models; },
 	            enumerable: true,
 	            configurable: true
