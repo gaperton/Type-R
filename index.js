@@ -490,7 +490,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            Subclass = (function (_super) {
 	                __extends(_Subclass, _super);
 	                function _Subclass() {
-	                    return _super.apply(this, arguments) || this;
+	                    return _super !== null && _super.apply(this, arguments) || this;
 	                }
 	                return _Subclass;
 	            }(this));
@@ -1319,7 +1319,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var CollectionRefsType = (function (_super) {
 	    __extends(CollectionRefsType, _super);
 	    function CollectionRefsType() {
-	        return _super.apply(this, arguments) || this;
+	        return _super !== null && _super.apply(this, arguments) || this;
 	    }
 	    return CollectionRefsType;
 	}(record_1.SharedType));
@@ -2398,7 +2398,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var AggregatedType = (function (_super) {
 	    __extends(AggregatedType, _super);
 	    function AggregatedType() {
-	        return _super.apply(this, arguments) || this;
+	        return _super !== null && _super.apply(this, arguments) || this;
 	    }
 	    AggregatedType.prototype.clone = function (value) {
 	        return value ? value.clone() : value;
@@ -2470,7 +2470,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var DateType = (function (_super) {
 	    __extends(DateType, _super);
 	    function DateType() {
-	        return _super.apply(this, arguments) || this;
+	        return _super !== null && _super.apply(this, arguments) || this;
 	    }
 	    DateType.prototype.convert = function (value, a, b, record) {
 	        if (value == null || value instanceof Date)
@@ -2499,7 +2499,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var MSDateType = (function (_super) {
 	    __extends(MSDateType, _super);
 	    function MSDateType() {
-	        return _super.apply(this, arguments) || this;
+	        return _super !== null && _super.apply(this, arguments) || this;
 	    }
 	    MSDateType.prototype.convert = function (value) {
 	        if (typeof value === 'string') {
@@ -2517,7 +2517,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var TimestampType = (function (_super) {
 	    __extends(TimestampType, _super);
 	    function TimestampType() {
-	        return _super.apply(this, arguments) || this;
+	        return _super !== null && _super.apply(this, arguments) || this;
 	    }
 	    TimestampType.prototype.toJSON = function (value) { return value.getTime(); };
 	    return TimestampType;
@@ -2574,7 +2574,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var ConstructorType = (function (_super) {
 	    __extends(ConstructorType, _super);
 	    function ConstructorType() {
-	        return _super.apply(this, arguments) || this;
+	        return _super !== null && _super.apply(this, arguments) || this;
 	    }
 	    ConstructorType.prototype.convert = function (value) {
 	        return value == null || value instanceof this.type ? value : new this.type(value);
@@ -2588,7 +2588,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var PrimitiveType = (function (_super) {
 	    __extends(PrimitiveType, _super);
 	    function PrimitiveType() {
-	        return _super.apply(this, arguments) || this;
+	        return _super !== null && _super.apply(this, arguments) || this;
 	    }
 	    PrimitiveType.prototype.create = function () { return this.type(); };
 	    PrimitiveType.prototype.toJSON = function (value) { return value; };
@@ -2602,7 +2602,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var NumericType = (function (_super) {
 	    __extends(NumericType, _super);
 	    function NumericType() {
-	        return _super.apply(this, arguments) || this;
+	        return _super !== null && _super.apply(this, arguments) || this;
 	    }
 	    NumericType.prototype.convert = function (value, a, b, record) {
 	        var num = value == null ? value : this.type(value);
@@ -2623,7 +2623,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var ArrayType = (function (_super) {
 	    __extends(ArrayType, _super);
 	    function ArrayType() {
-	        return _super.apply(this, arguments) || this;
+	        return _super !== null && _super.apply(this, arguments) || this;
 	    }
 	    ArrayType.prototype.toJSON = function (value) { return value; };
 	    ArrayType.prototype.convert = function (value, a, b, record) {
@@ -2657,7 +2657,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var SharedType = (function (_super) {
 	    __extends(SharedType, _super);
 	    function SharedType() {
-	        return _super.apply(this, arguments) || this;
+	        return _super !== null && _super.apply(this, arguments) || this;
 	    }
 	    SharedType.prototype.clone = function (value, record) {
 	        if (!value || value._owner !== record)
@@ -3281,20 +3281,29 @@ return /******/ (function(modules) { // webpackBootstrap
 	var commons_1 = __webpack_require__(26);
 	var record_2 = __webpack_require__(10);
 	var record_3 = __webpack_require__(10);
+	var UnresolvedReference = (function () {
+	    function UnresolvedReference(id) {
+	        this.id = id;
+	    }
+	    return UnresolvedReference;
+	}());
+	var UnresolvedRefProto = UnresolvedReference.prototype;
 	var RecordRefType = (function (_super) {
 	    __extends(RecordRefType, _super);
 	    function RecordRefType() {
-	        return _super.apply(this, arguments) || this;
+	        return _super !== null && _super.apply(this, arguments) || this;
 	    }
 	    RecordRefType.prototype.toJSON = function (value) {
-	        return value && typeof value === 'object' ? value.id : value;
+	        return value && value.id;
+	    };
+	    RecordRefType.prototype.convert = function (id) {
+	        return id && typeof id !== 'object' ? new UnresolvedReference(id) : id;
 	    };
 	    RecordRefType.prototype.clone = function (value) {
-	        return value && typeof value === 'object' ? value.id : value;
+	        return value;
 	    };
 	    RecordRefType.prototype.isChanged = function (a, b) {
-	        var aId = a && (a.id == null ? a : a.id), bId = b && (b.id == null ? b : b.id);
-	        return aId !== bId;
+	        return (a && a.id) !== (b && b.id);
 	    };
 	    RecordRefType.prototype.validate = function (model, value, name) { };
 	    return RecordRefType;
@@ -3307,16 +3316,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	    return typeSpec
 	        .get(function (objOrId, name) {
-	        if (typeof objOrId === 'object')
-	            return objOrId;
-	        var collection = getMasterCollection(this);
-	        var record = null;
-	        if (collection && collection.length) {
-	            record = collection.get(objOrId) || null;
-	            this.attributes[name] = record;
-	            record && this._attributes[name].handleChange(record, null, this);
+	        if (objOrId && Object.getPrototypeOf(objOrId) === UnresolvedRefProto) {
+	            var collection = getMasterCollection(this);
+	            var record = null;
+	            if (collection && collection.length) {
+	                record = collection.get(objOrId) || null;
+	                this.attributes[name] = record;
+	                record && this._attributes[name].handleChange(record, null, this);
+	                return record;
+	            }
 	        }
-	        return record;
+	        return objOrId;
 	    });
 	};
 
@@ -3481,7 +3491,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Store = (function (_super) {
 	    __extends(Store, _super);
 	    function Store() {
-	        return _super.apply(this, arguments) || this;
+	        return _super !== null && _super.apply(this, arguments) || this;
 	    }
 	    Store.prototype.getStore = function () { return this; };
 	    Store.prototype.get = function (name) {
