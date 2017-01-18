@@ -80,7 +80,7 @@
 
                 var m = new A();
                 m.ref = 1;
-                expect( m.ref.id ).to.equal( 1 );
+                expect( m.ref ).to.be.null;
 
                 m.__collection = collection;
                 expect( m.ref.name ).to.equal( "1" );

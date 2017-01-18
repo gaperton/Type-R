@@ -14,34 +14,27 @@ import { ChainableAttributeSpec } from '../record'
  * No model changes are detected and counted as owner's change. That's intentional.
  */
 
-class UnresolvedReference {
-    constructor( public id : string ){}
-}
-
-const UnresolvedRefProto = UnresolvedReference.prototype;
-
 /** @private */
-type RecordRefValue = Record | UnresolvedReference;
+type RecordRefValue = Record | string;
 
 /** @private */
 class RecordRefType extends AnyType {
     // It is always serialized as an id, whenever it's resolved or not. 
     toJSON( value : RecordRefValue ){
-        return value && value.id;
+        return value && typeof value === 'object' ? value.id : value;
     }
 
-    convert( id ){
-        return id && typeof id !== 'object' ? new UnresolvedReference( id ) : id;
-    }
-
-    // Do not clone it.
+    // Wne 
     clone( value : RecordRefValue ){
-        return value;
+        return value && typeof value === 'object' ? value.id : value;
     }
 
     // Model refs by id are equal when their ids are equal.
     isChanged( a : RecordRefValue, b : RecordRefValue){
-        return ( a && a.id ) !== ( b && b.id );
+        var aId = a && ( (<Record>a).id == null ? a : (<Record>a).id ),
+            bId = b && ( (<Record>b).id == null ? b : (<Record>b).id );
+
+        return aId !== bId;
     }
 
     // Refs are always valid.
@@ -58,24 +51,22 @@ Record.from = function from( masterCollection : CollectionReference ) : Chainabl
     
     return typeSpec
         .get( function( objOrId : RecordRefValue, name : string ) : Record {
-            if( objOrId && Object.getPrototypeOf( objOrId ) === UnresolvedRefProto ){
-                // So, we're dealing with an id reference. Get the master collection.
-                const collection = getMasterCollection( this );
-                let   record : Record = null;
+            if( typeof objOrId === 'object' ) return objOrId;
 
-                // If master collection exists and is not empty, resolve the reference.
-                if( collection && collection.length ){
-                    // Silently update attribute with record from this collection.
-                    record = collection.get( objOrId ) || null;
-                    this.attributes[ name ] = record;
+            // So, we're dealing with an id reference. Resolve it.
+            const collection = getMasterCollection( this );
+            let   record : Record = null;
 
-                    // Subscribe for events manually. delegateEvents won't be invoked.
-                    record && this._attributes[ name ].handleChange( record, null, this );
+            // If master collection exists and is not empty...
+            if( collection && collection.length ){
+                // Silently update attribute with record from this collection.
+                record = collection.get( objOrId ) || null;
+                this.attributes[ name ] = record;
 
-                    return record;
-                }
+                // Subscribe for events manually. delegateEvents won't be invoked.
+                record && this._attributes[ name ].handleChange( record, null, this );
             }
 
-            return <Record>objOrId;
+            return record;
         });
 };
