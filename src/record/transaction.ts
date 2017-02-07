@@ -307,9 +307,14 @@ export class Record extends Transactional implements Owner {
 
     // Get array of attribute keys (Record) or record ids (Collection) 
     keys() : string[] {
-        return this.map( ( value, key ) => {
-            if( value !== void 0 ) return <string>key;
-        });
+        const keys = [],
+            { attributes, _keys } = this;
+
+        for( let key of _keys ){
+            attributes[ key ] === void 0 || keys.push( key );
+        }
+
+        return keys;
     }
 
     // Get array of attribute values (Record) or records (Collection)
