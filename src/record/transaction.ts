@@ -297,9 +297,9 @@ export class Record extends Transactional implements Owner {
 
     each( iteratee : ( value? : any, key? : string ) => void, context? : any ){
         const fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
-            { attributes, _keys } = this;
+            { attributes } = this;
 
-        for( const key of _keys ){
+        for( const key of this._keys ){
             const value = attributes[ key ];
             if( value !== void 0 ) fun( value, key );
         }
@@ -308,9 +308,9 @@ export class Record extends Transactional implements Owner {
     // Get array of attribute keys (Record) or record ids (Collection) 
     keys() : string[] {
         const keys = [],
-            { attributes, _keys } = this;
+            { attributes } = this;
 
-        for( let key of _keys ){
+        for( let key of this._keys ){
             attributes[ key ] === void 0 || keys.push( key );
         }
 

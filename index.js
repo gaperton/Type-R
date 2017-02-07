@@ -1837,18 +1837,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    };
 	    Record.prototype.each = function (iteratee, context) {
-	        var fun = context !== void 0 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, _a = this, attributes = _a.attributes, _keys = _a._keys;
-	        for (var _i = 0, _keys_1 = _keys; _i < _keys_1.length; _i++) {
-	            var key = _keys_1[_i];
+	        var fun = context !== void 0 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, attributes = this.attributes;
+	        for (var _i = 0, _a = this._keys; _i < _a.length; _i++) {
+	            var key = _a[_i];
 	            var value = attributes[key];
 	            if (value !== void 0)
 	                fun(value, key);
 	        }
 	    };
 	    Record.prototype.keys = function () {
-	        var keys = [], _a = this, attributes = _a.attributes, _keys = _a._keys;
-	        for (var _i = 0, _keys_2 = _keys; _i < _keys_2.length; _i++) {
-	            var key = _keys_2[_i];
+	        var keys = [], attributes = this.attributes;
+	        for (var _i = 0, _a = this._keys; _i < _a.length; _i++) {
+	            var key = _a[_i];
 	            attributes[key] === void 0 || keys.push(key);
 	        }
 	        return keys;
