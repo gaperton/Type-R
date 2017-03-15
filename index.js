@@ -1640,7 +1640,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if ('Collection' in this && this.Collection === void 0) {
 	        object_plus_1.tools.log.error("[Model Definition] " + this.prototype.getClassName() + ".Collection is undefined. It must be defined _before_ the model.", definition);
 	    }
-	    var dynamicMixin = define_1.compile(getAttributes(definition), baseProto._attributes);
+	    var dynamicMixin = define_1.compile(this.attributes = getAttributes(definition), baseProto._attributes);
 	    if (definition.properties === false) {
 	        dynamicMixin.properties = {};
 	    }
