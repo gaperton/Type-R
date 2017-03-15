@@ -1636,7 +1636,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var assign = object_plus_1.tools.assign, defaults = object_plus_1.tools.defaults, omit = object_plus_1.tools.omit, getBaseClass = object_plus_1.tools.getBaseClass;
 	transaction_1.Record.define = function (protoProps, staticProps) {
 	    if (protoProps === void 0) { protoProps = {}; }
-	    var BaseConstructor = getBaseClass(this), baseProto = BaseConstructor.prototype, staticsDefinition = object_plus_1.tools.getChangedStatics(this, 'attributes', 'collection', 'Collection'), definition = defaults(staticsDefinition, protoProps, this.prototype);
+	    var BaseConstructor = getBaseClass(this), baseProto = BaseConstructor.prototype, staticsDefinition = object_plus_1.tools.getChangedStatics(this, 'attributes', 'collection', 'Collection'), definition = assign(staticsDefinition, protoProps);
 	    if ('Collection' in this && this.Collection === void 0) {
 	        object_plus_1.tools.log.error("[Model Definition] " + this.prototype.getClassName() + ".Collection is undefined. It must be defined _before_ the model.", definition);
 	    }
@@ -2059,10 +2059,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _changeEventName: 'change',
 	        idAttribute: 'id',
 	        _keys: ['id']
-	    }),
-	    object_plus_1.mixinRules({
-	        attributes: 'merge',
-	        defaults: 'merge'
 	    })
 	], Record);
 	exports.Record = Record;

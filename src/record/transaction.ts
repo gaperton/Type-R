@@ -3,7 +3,7 @@
  * The root of all definitions. 
  */
 
-import { tools, eventsApi, Mixable, ClassDefinition, Constructor, define, mixinRules } from '../object-plus'
+import { tools, eventsApi, Mixable, ClassDefinition, Constructor, define } from '../object-plus'
 
 import { transactionApi, CloneOptions, Transactional, Transaction, TransactionOptions, Owner } from '../transactions'
 import { ChildrenErrors } from '../validation'
@@ -106,10 +106,6 @@ let _cidCounter : number = 0;
     // Default id attribute name
     idAttribute : 'id',
     _keys : [ 'id' ]
-})
-@mixinRules({
-    attributes : 'merge',
-    defaults : 'merge'
 })
 export class Record extends Transactional implements Owner {
     // Implemented at the index.ts to avoid circular dependency. Here we have just proper singature.
