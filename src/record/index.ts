@@ -17,8 +17,9 @@ Record.define = function( protoProps : RecordDefinition = {}, staticProps ){
           // Extract record definition from static members, if any.
           staticsDefinition : RecordDefinition = tools.getChangedStatics( this, 'attributes', 'collection', 'Collection' ),
           // Definition can be made either through statics or define argument.
-          // Merge them together, so we won't care about it below. 
-          definition = assign( staticsDefinition, protoProps );
+          // Merge them together, so we won't care about it below.
+          // Grab an object's prototype values so mixins will be merged properly.
+          definition = defaults( staticsDefinition, protoProps, this.prototype );
 
     if( 'Collection' in this && this.Collection === void 0 ){
         tools.log.error( `[Model Definition] ${ this.prototype.getClassName() }.Collection is undefined. It must be defined _before_ the model.`, definition );
