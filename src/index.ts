@@ -8,7 +8,7 @@ export * from './record'
 
 // Exported module itself is the global event bus.
 import { Events } from './object-plus/'
-export const { on, off, trigger, once, listenTo, stopListening, listenToOnce } = Events;
+export const { on, off, trigger, once, listenTo, stopListening, listenToOnce } = <any>Events;
 
 import { Collection } from './collection'
 

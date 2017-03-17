@@ -15,13 +15,13 @@ export interface ClassDefinition {
     [ name : string ] : any
 }
 
-interface PropertyMap {
+export interface PropertyMap {
     [ name : string ] : Property
 }
 
-type Property = PropertyDescriptor | ( () => any )
+export type Property = PropertyDescriptor | ( () => any )
 
-type Mixin = Constructor< any > | {}
+export type Mixin = Constructor< any > | {}
 
 /**
  * Mixin property merge rules. Set with [[Mixable.mixinRules]] and [[mixinRules]] decorator.

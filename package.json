@@ -31,9 +31,9 @@
   },
   "homepage": "https://github.com/gaperton/TransactionalJS#readme",
   "devDependencies": {
-    "ts-loader": "^0.8.2",
+    "ts-loader": "*",
     "source-map-loader" : "*",
-    "typescript": "^2.0.0",
-    "webpack": "^1.13.0"
+    "typescript": "*",
+    "webpack": "*"
   }
 }

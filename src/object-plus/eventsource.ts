@@ -68,7 +68,7 @@ export class EventMap {
 }
 
 /** @hidden */
-class EventDescriptor {
+export class EventDescriptor {
     callback : Function
 
     constructor(
@@ -164,7 +164,7 @@ function listSend6( head : EventHandler, a, b, c, d, e, f ){
 }
 
 /** @hidden */
-interface Callback extends Function {
+export interface Callback extends Function {
     _callback? : Function
 }
 
