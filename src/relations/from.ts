@@ -1,4 +1,4 @@
-import { GenericAttribute, AttributeDescriptor } from '../record'
+import { AnyType, AttributeDescriptor } from '../record'
 import { parseReference, CollectionReference } from './commons'
 import { Collection } from '../collection'
 import { Record } from '../record'
@@ -18,7 +18,7 @@ import { ChainableAttributeSpec } from '../record'
 type RecordRefValue = Record | string;
 
 /** @private */
-class RecordRefAttribute extends GenericAttribute {
+class RecordRefType extends AnyType {
     // It is always serialized as an id, whenever it's resolved or not. 
     toJSON( value : RecordRefValue ){
         return value && typeof value === 'object' ? value.id : value;
@@ -46,10 +46,10 @@ Record.from = function from( masterCollection : CollectionReference ) : Chainabl
 
     const typeSpec = new ChainableAttributeSpec({
         value : null,
-        _attribute : RecordRefAttribute
+        _attribute : RecordRefType
     });
     
-    typeSpec
+    return typeSpec
         .get( function( objOrId : RecordRefValue, name : string ) : Record {
             if( typeof objOrId === 'object' ) return objOrId;
 
@@ -69,6 +69,4 @@ Record.from = function from( masterCollection : CollectionReference ) : Chainabl
 
             return record;
         });
-
-    return typeSpec;
 };

@@ -23,7 +23,7 @@ export interface CollectionOptions extends TransactionOptions {
     model? : typeof Record
 }
 
-interface CollectionDefinition extends TransactionalDefinition {
+export interface CollectionDefinition extends TransactionalDefinition {
     model? : Record,
     itemEvents? : EventsDefinition
     _itemEvents? : EventMap
@@ -66,7 +66,7 @@ export class Collection extends Transactional implements CollectionCore {
         Mixable.mixTo( RefsCollection );
         
         RefsCollection.prototype = this.prototype;
-        RefsCollection._attribute = AggregatedType;
+        RefsCollection._attribute = CollectionRefsType;
 
         this.Refs = this.Subset = <any>RefsCollection;
 
@@ -77,7 +77,7 @@ export class Collection extends Transactional implements CollectionCore {
     
     static define( protoProps : CollectionDefinition = {}, staticProps? ){
                 // Extract record definition from static members, if any.
-        const   staticsDefinition : CollectionDefinition = tools.getChangedStatics( this, 'model', 'itemEvents' ),
+        const   staticsDefinition : CollectionDefinition = tools.getChangedStatics( this, 'comparator', 'model', 'itemEvents' ),
                 // Definition can be made either through statics or define argument.
                 // Merge them together, so we won't care about it below. 
                 definition = assign( staticsDefinition, protoProps );
@@ -104,7 +104,7 @@ export class Collection extends Transactional implements CollectionCore {
     models : Record[]
 
     // Polymorphic accessor for aggregated attribute's canBeUpdated().
-    get _state(){ return this.models; }
+    get __inner_state__(){ return this.models; }
 
     // Index by id and cid
     _byId : IdIndex
@@ -181,12 +181,29 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     each( iteratee : ( val : Record, key : number ) => void, context? : any ){
-        const fun = arguments.length === 2 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
+        const fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
             { models } = this;
 
         for( let i = 0; i < models.length; i++ ){
             fun( models[ i ], i ); 
         }
+    }
+
+    map< T >( iteratee : ( val : Record, key : number ) => T, context? : any ) : T[]{
+        const fun = arguments.length === 2 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
+            { models } = this,
+            mapped = Array( models.length );
+
+        let j = 0;
+
+        for( let i = 0; i < models.length; i++ ){
+            const x = fun( models[ i ], i );
+            x === void 0 || ( mapped[ j++ ] = x ); 
+        }
+
+        mapped.length = j;
+
+        return mapped;
     }
 
     _validateNested( errors : {} ) : number {
@@ -265,10 +282,7 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     toJSON() : Object[] {
-        // Don't serialize when not aggregated
-        if( !this._shared ){
-            return this.models.map( model => model.toJSON() );
-        }
+        return this.models.map( model => model.toJSON() );
     }
 
     // Apply bulk in-place object update in scope of ad-hoc transaction 
@@ -447,12 +461,16 @@ export class Collection extends Transactional implements CollectionCore {
     }
 }
 
-type ElementsArg = Object | Record | Object[] | Record[];
+export type ElementsArg = Object | Record | Object[] | Record[];
 
 // TODO: make is safe for parse to return null (?)
 function toElements( collection : Collection, elements : ElementsArg, options : CollectionOptions ) : Elements {
     const parsed = options.parse ? collection.parse( elements, options ) : elements; 
     return Array.isArray( parsed ) ? parsed : [ parsed ];
+}
+
+class CollectionRefsType extends SharedType {
+    static defaultValue = [];
 }
 
 createSharedTypeSpec( Collection, SharedType );

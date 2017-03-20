@@ -196,7 +196,7 @@ export function isEmpty( obj : {} ) : boolean {
     return true;
 }
 
-type Iteratee = ( value : any, key? : string | number ) => any;
+export type Iteratee = ( value : any, key? : string | number ) => any;
 
 /** @hidden */
 function someArray( arr : any[], fun : Iteratee ) : any {
@@ -242,7 +242,7 @@ export function getPropertyDescriptor( obj : {}, prop : string ) : PropertyDescr
     let desc : PropertyDescriptor;
 
     for( let proto = obj; !desc && proto; proto = Object.getPrototypeOf( proto ) ) {
-        desc = Object.getOwnPropertyDescriptor( obj, prop );
+        desc = Object.getOwnPropertyDescriptor( proto, prop );
     }
 
     return desc;
@@ -281,23 +281,23 @@ export function transform< A, B >( dest : { [ key : string ] : A }, source : { [
 }
 
 /** @hidden */
-export function fastAssign< A, B >( dest : A, source : B ) : A & B {
+export function fastAssign< A >( dest : A, source : {} ) : A {
     for( var name in source ) {
         dest[ name ] = source[ name ];
     }
 
-    return <A & B >dest;
+    return dest;
 }
 
 /** @hidden */
-export function fastDefaults<A, B>( dest : A, source : B ) : A & B {
+export function fastDefaults< A >( dest : A, source : {} ) : A {
     for( var name in source ) {
         if( dest[ name ] === void 0 ){
             dest[ name ] = source[ name ];
         }
     }
 
-    return <A & B >dest;
+    return dest;
 }
 
 /** Similar to underscore `_.extend` and `Object.assign` */
@@ -323,7 +323,7 @@ export function assign< T >( dest : T, source : Object ) : T {
 export function defaults< T >( dest : T, ...sources : Object[] ) : T
 export function defaults< T >( dest : T, source : Object ) : T {
     for( var name in source ) {
-        if( source.hasOwnProperty( name ) && dest[ name ] === void 0 ) {
+        if( source.hasOwnProperty( name ) && !dest.hasOwnProperty( name ) ) {
             dest[ name ] = source[ name ];
         }
     }
@@ -365,6 +365,7 @@ export function once( func : Function ) : Function {
     };
 }
 
+/** @hidden */
 const ArrayProto = Array.prototype,
       DateProto = Date.prototype,
       ObjectProto = Object.prototype;

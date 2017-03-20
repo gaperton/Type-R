@@ -1,5 +1,5 @@
 define( function( require, exports, module ){
-    var Nested   = require( '../../../index.js' ),
+    var Nested   = require( '../../../dist/index.js' ),
         Model = Nested.Model;
 
     /********************
@@ -8,6 +8,147 @@ define( function( require, exports, module ){
     if( Nested.tools ){
         Nested.tools.log.level = 1;
     }
+
+    describe( 'Events ', function(){
+        this.timeout( 100000 );
+
+        var FlatModel = Model.extend({
+            attributes : {
+                a0 : Number.has.watcher( 'watcher' ),
+                a1 : Number.has.watcher( 'watcher' ),
+                a2 : Number.has.watcher( 'watcher' ),
+                a3 : Number.has.watcher( 'watcher' ),
+                a4 : Number.has.watcher( 'watcher' ),
+                a5 : Number.has.watcher( 'watcher' ),
+                a6 : Number.has.watcher( 'watcher' ),
+                a7 : Number.has.watcher( 'watcher' ),
+                a8 : Number.has.watcher( 'watcher' ),
+                a9 : Number.has.watcher( 'watcher' )
+            },
+
+            _couter : 0,
+
+            watcher : function(){ this._counter++; }
+        });
+
+        describe( 'five lisneners', function(){
+            it( 'simple on/off', function(){
+                var source = new FlatModel(),
+                    d1 = new FlatModel(), d2 = new FlatModel(),
+                    d3 = new FlatModel(), d4 = new FlatModel(), d5 = new FlatModel();
+
+                function callback(){ this._counter++; }
+
+                for( var i = 0; i < 1000000; i++ ){
+                    source.on( 'change', callback, d1 )
+                        .on( 'change', callback, d2 )
+                        .on( 'change', callback, d3 )
+                        .on( 'change', callback, d4 )
+                        .on( 'change', callback, d5 );
+
+                    source.off( 'change', callback, d1 )
+                        .off( 'change', callback, d2 )
+                        .off( 'change', callback, d3 )
+                        .off( 'change', callback, d4 )
+                        .off( 'change', callback, d5 );
+                }
+            });
+
+            it( 'trigger', function(){
+                var source = new FlatModel(),
+                    d1 = new FlatModel(), d2 = new FlatModel(),
+                    d3 = new FlatModel(), d4 = new FlatModel(), d5 = new FlatModel();
+
+                function callback(){ this._counter++; }
+
+                source.on( 'change', callback, d1 )
+                        .on( 'change', callback, d2 )
+                        .on( 'change', callback, d3 )
+                        .on( 'change', callback, d4 )
+                        .on( 'change', callback, d5 );
+
+                for( var i = 0; i < 1000000; i++ ){
+                    source.trigger( 'change', source, {} );
+                }
+            });
+
+            it( 'listentTo/stopListening', function(){
+                var source = new FlatModel(),
+                    d1 = new FlatModel(), d2 = new FlatModel(),
+                    d3 = new FlatModel(), d4 = new FlatModel(), d5 = new FlatModel();
+
+                function callback(){ this._counter++; }
+
+                for( var i = 0; i < 1000000; i++ ){
+                    d1.listenTo( source, 'change', callback );
+                    d2.listenTo( source, 'change', callback );
+                    d3.listenTo( source, 'change', callback );
+                    d4.listenTo( source, 'change', callback );
+                    d5.listenTo( source, 'change', callback );
+
+                    d1.stopListening( source );
+                    d2.stopListening( source );
+                    d3.stopListening( source );
+                    d4.stopListening( source );
+                    d5.stopListening( source );
+                }
+            });
+
+        } );
+
+        describe( 'Watchers', function(){
+            it( 'Create and dispose 500K models', function(){
+                for( var i = 0; i < 500000; i++ ){
+                    var model = new FlatModel();
+                    model.stopListening();
+                }
+            } );
+
+            it( 'Make 5M changes', function(){
+                var model = new FlatModel();
+
+                for( var i = 0; i < 5000000; i++ ){
+                    model.a0 = i;    
+                }
+            } );
+
+            it( 'Fire 5M events', function(){
+                var model = new FlatModel();
+
+                for( var i = 0; i < 5000000; i++ ){
+                    model.trigger( 'change:a0', model, i, {} );    
+                }
+            } );
+
+            it( 'Make 5M subscribption', function(){
+                var model = new FlatModel(), m = new FlatModel();
+                function callback(){}
+
+                for( var i = 0; i < 5000000; i++ ){
+                    model.on( 'hello', callback, m );
+                    model.on( 'hello', callback, m );
+                    model.on( 'hello', callback, m );
+                    model.on( 'hello', callback, m );
+                    model.on( 'hello', callback, m );
+                    model.off( 'hello' );
+                }
+            });
+
+            it( 'Make 5M listenTo subscribption', function(){
+                var model = new FlatModel(), m = new FlatModel();
+                function callback(){}
+
+                for( var i = 0; i < 1000000; i++ ){
+                    m.listenTo( model, 'hello', callback );
+                    m.listenTo( model, 'hello', callback );
+                    m.listenTo( model, 'hello', callback );
+                    m.listenTo( model, 'hello', callback );
+                    m.listenTo( model, 'hello', callback );
+                    m.stopListening( model );
+                }
+            });
+        });
+    });
 
     describe( 'Collections of flat models', function(){
         this.timeout( 100000 );
@@ -22,6 +163,21 @@ define( function( require, exports, module ){
             attributes : {
                 a0 : 0, a1 : 1, a2 : 2, a3 : 3, a4: 4, a5 : 5, a6: 6, a7: 7, a8: 8, a9: 9,
                 b0 : 0, b1 : 1, b2 : 2, b3 : 3, b4: 4, b5 : 5, b6: 6, b7: 7, b8: 8, b9: 9
+            }
+        });
+
+        var CollectionWithEvents = LargeFlatModel.Collection.extend({
+            itemEvents : {
+                'change:a0' : true,
+                'change:a1' : true,
+                'change:a2' : true,
+                'change:a3' : true,
+                'change:a4' : true,
+                'change:a5' : true,
+                'change:a6' : true,
+                'change:a7' : true,
+                'change:a8' : true,
+                'change:a9' : true
             }
         });
 
@@ -51,8 +207,21 @@ define( function( require, exports, module ){
                 var smallCollection = new SmallFlatModel.Collection( small );
             });
 
+            it( '1 attribute model, Collection.Refs', function(){
+                var smallCollection = new SmallFlatModel.Collection.Refs( small );
+            });
+
+
             it( '20 attribute model', function(){
                 var largeCollection = new LargeFlatModel.Collection( large );
+            });
+
+            it( '20 attribute model, Collection.Refs', function(){
+                var largeCollection = new LargeFlatModel.Collection.Refs( large );
+            });
+
+            it( '20 attribute model with events subscribption', function(){
+                var largeCollection = new CollectionWithEvents( large );
             });
         });
 
@@ -62,8 +231,23 @@ define( function( require, exports, module ){
                 smallCollection.set( small );
             });
 
+            it( '1 attribute model, Collection.Refs', function(){
+                var smallCollection = new SmallFlatModel.Collection.Refs();
+                smallCollection.set( small );
+            });
+
             it( '20 attribute model', function(){
                 var largeCollection = new LargeFlatModel.Collection();
+                largeCollection.set( large );
+            });
+
+            it( '20 attribute model, Collection.Refs', function(){
+                var largeCollection = new LargeFlatModel.Collection.Refs();
+                largeCollection.set( large );
+            });
+
+            it( '20 attribute model with events subscribption', function(){
+                var largeCollection = new CollectionWithEvents();
                 largeCollection.set( large );
             });
         });

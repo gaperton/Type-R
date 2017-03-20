@@ -1,4 +1,4 @@
-var Nested = require( '../../../index' ),
+var Nested = require( '../../../dist/index' ),
     expect = require( 'chai' ).expect,
     sinon = require( 'sinon' );
 
@@ -9,7 +9,7 @@ describe( 'Memory management', function(){
     
     M.define({
         attributes : {
-            x : Integer,
+            x : Number.integer,
             agg : M.value( null ),
             ref : M.shared,
             col : M.Collection,
@@ -29,7 +29,7 @@ describe( 'Memory management', function(){
         m.ref = singleton;
         m.refs = [ singleton ];
 
-        expect( singleton._events.change ).to.be.array;
+        expect( singleton._events.change.next.next ).to.be.null;
 
         m.dispose();
         expect( m._disposed ).to.be.true;

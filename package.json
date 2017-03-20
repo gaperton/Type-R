@@ -1,16 +1,17 @@
 {
   "name": "type-r",
-  "version": "1.0.0-rc5",
+  "version": "1.0.0-rc9",
   "description": "Reactive objects with transactional updates and automatic serialization",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [ "./dist" ],
   "directories": {
     "test": "tests"
   },
   "scripts": {
-    "test":  "tests/nestedtypes/node_modules/.bin/mocha tests/nestedtypes/functionality",
+    "test": "tests/nestedtypes/node_modules/.bin/mocha tests/nestedtypes/functionality",
     "build": "node_modules/.bin/webpack",
-    "watch": "node_modules/.bin/webpack --watch",
-    "docs" : "typedoc --options typedoc.json ./src/"
+    "watch": "node_modules/.bin/webpack --watch"
   },
   "repository": {
     "type": "git",
@@ -31,9 +32,9 @@
   },
   "homepage": "https://github.com/gaperton/TransactionalJS#readme",
   "devDependencies": {
-    "ts-loader": "^0.8.2",
-    "source-map-loader" : "*",
-    "typescript": "^2.0.0",
-    "webpack": "^1.13.0"
+    "source-map-loader": "*",
+    "ts-loader": "*",
+    "typescript": "*",
+    "webpack": "*"
   }
 }
