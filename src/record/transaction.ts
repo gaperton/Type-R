@@ -89,7 +89,7 @@ export interface AttributeSerialization {
  * Record core implementation
  */
 
-interface ConstructorOptions extends TransactionOptions{
+export interface ConstructorOptions extends TransactionOptions{
     clone? : boolean
 }
 
@@ -118,8 +118,8 @@ export class Record extends Transactional implements Owner {
 
     static from : ( collectionReference : any ) => any;
     
-    static defaults( attrs : AttributeDescriptorMap ){
-        return this.extend({ attributes : attrs });
+    static defaults( attrs : AttributeDescriptorMap ) : typeof Record {
+        return <any>this.extend({ attributes : attrs });
     }
     
     /***********************************

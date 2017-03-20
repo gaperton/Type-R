@@ -26,10 +26,10 @@ export interface AttributesSpec {
     [ key : string ] : AnyType
 }
 
-type ForEach   = ( obj : {}, iteratee : ( val : any, key? : string, spec? : Attribute ) => void ) => void;
-type Defaults  = ( attrs? : {} ) => {}
-type Parse     = ( data : any ) => any;
-type ToJSON    = () => any;
+export type ForEach   = ( obj : {}, iteratee : ( val : any, key? : string, spec? : Attribute ) => void ) => void;
+export type Defaults  = ( attrs? : {} ) => {}
+export type Parse     = ( data : any ) => any;
+export type ToJSON    = () => any;
 
 // Compile attributes spec
 /** @private */

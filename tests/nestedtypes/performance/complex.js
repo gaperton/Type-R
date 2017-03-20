@@ -1,5 +1,5 @@
 define( function( require, exports, module ){
-    var Nested   = require( '../../../index.js' ),
+    var Nested   = require( '../../../dist/index.js' ),
         Model = Nested.Model;
 
     /********************

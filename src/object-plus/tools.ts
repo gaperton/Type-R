@@ -196,7 +196,7 @@ export function isEmpty( obj : {} ) : boolean {
     return true;
 }
 
-type Iteratee = ( value : any, key? : string | number ) => any;
+export type Iteratee = ( value : any, key? : string | number ) => any;
 
 /** @hidden */
 function someArray( arr : any[], fun : Iteratee ) : any {

@@ -23,7 +23,7 @@ export interface CollectionOptions extends TransactionOptions {
     model? : typeof Record
 }
 
-interface CollectionDefinition extends TransactionalDefinition {
+export interface CollectionDefinition extends TransactionalDefinition {
     model? : Record,
     itemEvents? : EventsDefinition
     _itemEvents? : EventMap
@@ -461,7 +461,7 @@ export class Collection extends Transactional implements CollectionCore {
     }
 }
 
-type ElementsArg = Object | Record | Object[] | Record[];
+export type ElementsArg = Object | Record | Object[] | Record[];
 
 // TODO: make is safe for parse to return null (?)
 function toElements( collection : Collection, elements : ElementsArg, options : CollectionOptions ) : Elements {

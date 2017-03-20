@@ -1,7 +1,8 @@
 import { Record } from '../transaction' 
 import { AnyType } from './generic'
 import { Owner, transactionApi, Transactional, ItemsBehavior, TransactionOptions, TransactionalConstructor } from '../../transactions'
-import { tools } from '../../object-plus' 
+import { tools } from '../../object-plus'
+import { ValidationError } from '../../validation'
 
 const { free, aquire } = transactionApi;
 
@@ -49,7 +50,7 @@ export class AggregatedType extends AnyType {
         }
     }
 
-    validate( record : Record, value : Transactional ){
+    validate( record : Record, value : Transactional ) : ValidationError {
         var error = value && value.validationError;
         if( error ) return error;
     }
