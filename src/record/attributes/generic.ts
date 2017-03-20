@@ -135,9 +135,12 @@ export class AnyType implements Attribute {
         tools.log[ level ]( `[Attribute Update] ${ record.getClassName() }.${ this.name }: ` + text, value, 'Attributes spec:', record._attributes );
     }
 
-    constructor( public name : string, a_options : ExtendedAttributeDescriptor ) {
+    constructor( public name : string, a_options : ExtendedAttributeDescriptor ) {        
+        // Save original options...
+        this.options = a_options;
+
         // Clone options.
-        const options : ExtendedAttributeDescriptor = this.options = assign( { getHooks : [], transforms : [], changeHandlers : [] }, a_options );
+        const options : ExtendedAttributeDescriptor = assign( { getHooks : [], transforms : [], changeHandlers : [] }, a_options );
         options.getHooks = options.getHooks.slice();
         options.transforms = options.transforms.slice();
         options.changeHandlers = options.changeHandlers.slice();

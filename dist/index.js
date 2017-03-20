@@ -397,7 +397,8 @@ var AnyType = (function () {
     function AnyType(name, a_options) {
         this.name = name;
         this.getHook = null;
-        var options = this.options = assign({ getHooks: [], transforms: [], changeHandlers: [] }, a_options);
+        this.options = a_options;
+        var options = assign({ getHooks: [], transforms: [], changeHandlers: [] }, a_options);
         options.getHooks = options.getHooks.slice();
         options.transforms = options.transforms.slice();
         options.changeHandlers = options.changeHandlers.slice();
