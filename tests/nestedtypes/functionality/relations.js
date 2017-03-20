@@ -1,4 +1,4 @@
-    var Nested = require( '../../../index' ),
+    var Nested = require( '../../../dist/index' ),
         sinon = require( 'sinon' ),
         chai = require( 'chai'),
         as_promised = require("chai-as-promised");

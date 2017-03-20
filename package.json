@@ -2,7 +2,8 @@
   "name": "type-r",
   "version": "1.0.0-rc8",
   "description": "Reactive objects with transactional updates and automatic serialization",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types":"./dist/index.d.ts",
   "directories": {
     "test": "tests"
   },
