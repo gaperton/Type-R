@@ -3,15 +3,14 @@
   "version": "1.0.0-rc8",
   "description": "Reactive objects with transactional updates and automatic serialization",
   "main": "./dist/index.js",
-  "types":"./dist/index.d.ts",
+  "types": "./dist/index.d.ts",
   "directories": {
     "test": "tests"
   },
   "scripts": {
-    "test":  "tests/nestedtypes/node_modules/.bin/mocha tests/nestedtypes/functionality",
+    "test": "tests/nestedtypes/node_modules/.bin/mocha tests/nestedtypes/functionality",
     "build": "node_modules/.bin/webpack",
-    "watch": "node_modules/.bin/webpack --watch",
-    "docs" : "typedoc --options typedoc.json ./src/"
+    "watch": "node_modules/.bin/webpack --watch"
   },
   "repository": {
     "type": "git",
@@ -32,8 +31,8 @@
   },
   "homepage": "https://github.com/gaperton/TransactionalJS#readme",
   "devDependencies": {
+    "source-map-loader": "*",
     "ts-loader": "*",
-    "source-map-loader" : "*",
     "typescript": "*",
     "webpack": "*"
   }
