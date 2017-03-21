@@ -1,6 +1,6 @@
 {
   "name": "type-r",
-  "version": "1.0.0-rc94",
+  "version": "1.0.0-rc95",
   "description": "Reactive objects with transactional updates and automatic serialization",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

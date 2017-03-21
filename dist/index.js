@@ -2042,8 +2042,28 @@ var Collection = Collection_1 = (function (_super) {
             fun(models[i], i);
         }
     };
+    Collection.prototype.every = function (iteratee, context) {
+        var fun = context !== void 0 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, models = this.models;
+        for (var i = 0; i < models.length; i++) {
+            if (!fun(models[i], i))
+                return false;
+        }
+        return true;
+    };
+    Collection.prototype.filter = function (iteratee, context) {
+        var fun = context !== void 0 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, models = this.models;
+        return this.map(function (x, i) { return fun(x, i) ? x : void 0; });
+    };
+    Collection.prototype.some = function (iteratee, context) {
+        var fun = context !== void 0 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, models = this.models;
+        for (var i = 0; i < models.length; i++) {
+            if (fun(models[i], i))
+                return true;
+        }
+        return false;
+    };
     Collection.prototype.map = function (iteratee, context) {
-        var fun = arguments.length === 2 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, models = this.models, mapped = Array(models.length);
+        var fun = context !== void 0 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, models = this.models, mapped = Array(models.length);
         var j = 0;
         for (var i = 0; i < models.length; i++) {
             var x = fun(models[i], i);

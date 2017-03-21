@@ -189,8 +189,37 @@ export class Collection extends Transactional implements CollectionCore {
         }
     }
 
+    every( iteratee : ( val : Record, key : number ) => boolean, context? : any ) : boolean {
+        const fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
+            { models } = this;
+
+        for( let i = 0; i < models.length; i++ ){
+            if( !fun( models[ i ], i ) ) return false;
+        }
+
+        return true;
+    }
+
+    filter( iteratee : ( val : Record, key : number ) => boolean, context? : any ) : Record[] {
+        const fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
+            { models } = this;
+
+        return this.map( ( x, i ) => fun( x, i ) ? x : void 0 );
+    }
+
+    some( iteratee : ( val : Record, key : number ) => boolean, context? : any ) : boolean {
+        const fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
+            { models } = this;
+
+        for( let i = 0; i < models.length; i++ ){
+            if( fun( models[ i ], i ) ) return true;
+        }
+
+        return false;
+    }
+
     map< T >( iteratee : ( val : Record, key : number ) => T, context? : any ) : T[]{
-        const fun = arguments.length === 2 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
+        const fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
             { models } = this,
             mapped = Array( models.length );
 
