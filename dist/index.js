@@ -169,7 +169,7 @@ var Transactional = (function () {
         }
         return this;
     };
-    Transactional.prototype.assign = function (source) {
+    Transactional.prototype.assignFrom = function (source) {
         return this.set(source.__inner_state__ || source, { merge: true });
     };
     Transactional.prototype.parse = function (data, options) { return data; };
