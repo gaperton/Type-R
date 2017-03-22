@@ -169,6 +169,9 @@ var Transactional = (function () {
         }
         return this;
     };
+    Transactional.prototype.assign = function (source) {
+        return this.set(this.__inner_state__, { merge: true });
+    };
     Transactional.prototype.parse = function (data, options) { return data; };
     Transactional.prototype.deepGet = function (reference) {
         return traversable_1.resolveReference(this, reference, function (object, key) { return object.get ? object.get(key) : object[key]; });
@@ -3146,14 +3149,8 @@ var SharedType = (function (_super) {
     };
     SharedType.prototype.toJSON = function () { };
     SharedType.prototype.canBeUpdated = function (prev, next, options) {
-        if (prev && next != null) {
-            if (next instanceof this.type) {
-                if (options.merge)
-                    return next.__inner_state__;
-            }
-            else {
-                return next;
-            }
+        if (prev && next != null && !(next instanceof this.type)) {
+            return next;
         }
     };
     SharedType.prototype.convert = function (value, options, prev, record) {

@@ -37,7 +37,9 @@ export class AggregatedType extends AnyType {
                 this._log( 'error', 'aggregated attribute is assigned with shared collection type', value, record );
             }
 
-            return options.merge ? value.clone() : value; // TODO: looks like clone is never called. Remove.
+            // With explicit 'merge' option we need to clone an object if its previous value was 'null'.
+            // This is an only case we could be here when merge === true.
+            return options.merge ? value.clone() : value;
         }
 
         return <any>this.type.create( value, options );

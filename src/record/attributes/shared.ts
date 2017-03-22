@@ -35,14 +35,8 @@ export class SharedType extends AnyType {
 
     canBeUpdated( prev : Transactional, next : any, options : TransactionOptions ) : any {
         // If an object already exists, and new value is of incompatible type, let object handle the update.
-        if( prev && next != null ){
-            if( next instanceof this.type ){
-                // In case if merge option explicitly specified, force merge.
-                if( options.merge ) return next.__inner_state__;
-            }
-            else{
-                return next;
-            }
+        if( prev && next != null && !( next instanceof this.type ) ){
+            return next;
         }
     }
 

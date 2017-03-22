@@ -48,6 +48,7 @@ export declare abstract class Transactional implements Messenger, Validatable, T
     transaction(fun: (self: this) => void, options?: TransactionOptions): void;
     updateEach(iteratee: (val: any, key: string) => void, options?: TransactionOptions): void;
     set(values: any, options?: TransactionOptions): this;
+    assign(source: Transactional): this;
     abstract _createTransaction(values: any, options?: TransactionOptions): Transaction;
     parse(data: any, options?: TransactionOptions): any;
     abstract toJSON(): {};
