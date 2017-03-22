@@ -155,9 +155,9 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
         return this;
     }
 
-    // Assign transactional object "by value", copying aggregated fields.
-    assign( source : Transactional ) : this {
-        return this.set( this.__inner_state__, { merge : true } );
+    // Assign transactional object "by value", copying aggregated items.
+    assignFrom( source : Transactional ) : this {
+        return this.set( source.__inner_state__ || source, { merge : true } );
     }
 
     // Apply bulk object update without any notifications, and return open transaction.

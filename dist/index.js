@@ -170,7 +170,7 @@ var Transactional = (function () {
         return this;
     };
     Transactional.prototype.assign = function (source) {
-        return this.set(this.__inner_state__, { merge: true });
+        return this.set(source.__inner_state__ || source, { merge: true });
     };
     Transactional.prototype.parse = function (data, options) { return data; };
     Transactional.prototype.deepGet = function (reference) {
