@@ -1,6 +1,6 @@
 {
   "name": "type-r",
-  "version": "1.0.0-rc97",
+  "version": "1.0.0-rc98",
   "description": "Reactive serializable data layer for modern JS applications",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
