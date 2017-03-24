@@ -344,8 +344,14 @@ export class Record extends Transactional implements Owner {
 
         // TODO: type error for wrong object.
 
+        // TODO: We may use the same AssignDefaults constructor with transform function for cloning Attributes,
+        // passing an empty object and different transform function. options.clone check will be moved inside of the loop.
+        // So, we need the constructor with the "defaults" logic calling the transformation function.
         const attributes = options.clone ? cloneAttributes( this, values ) : this.defaults( values ); 
 
+        // TODO: Here we have the loop for all attributes.
+        // There's the safe way to make it way faster by moving this transformation to the unrolled loop we have in 'defaults'.
+        // It should substantially improve loading time for collections.
         this.forEachAttr( attributes, ( value : any, key : string, attr : AttributeUpdatePipeline ) => {
             const next = attributes[ key ] = attr.transform( value, options, void 0, this );
                   attr.handleChange( next, void 0, this );
