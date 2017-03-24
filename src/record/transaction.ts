@@ -355,9 +355,10 @@ export class Record extends Transactional implements Owner {
         // Or
         // Think of creating the multimode constructor packing all the stuff inside. Measure the gain.
         /*
-        function Attributes( values, _attributes, record, options ){
-            const { clone } = options;
-            let _a, v;
+        function Attributes( values, record, options ){
+            var clone = options.clone,
+                _attributes = record._attributes,
+                _a, v;
 
             _a = _attributes.${ key };
             v = values.${ key };
@@ -367,8 +368,6 @@ export class Record extends Transactional implements Owner {
             ...
         }
         */
-        // f( v.${ attr } === void 0 ? ${ create } : v.${ attr } )
-        // f( a.${ attr }.clone( v.${ attr } ) )
         this.forEachAttr( attributes, ( value : any, key : string, attr : AttributeUpdatePipeline ) => {
             const next = attributes[ key ] = attr.transform( value, options, void 0, this );
                   attr.handleChange( next, void 0, this );
