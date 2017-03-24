@@ -352,6 +352,23 @@ export class Record extends Transactional implements Owner {
         // TODO: Here we have the loop for all attributes.
         // There's the safe way to make it way faster by moving this transformation to the unrolled loop we have in 'defaults'.
         // It should substantially improve loading time for collections.
+        // Or
+        // Think of creating the multimode constructor packing all the stuff inside. Measure the gain.
+        /*
+        function Attributes( values, _attributes, record, options ){
+            const { clone } = options;
+            let _a, v;
+
+            _a = _attributes.${ key };
+            v = values.${ key };
+            if( clone ) v = _a.clone( v ) else if( v === void 0 ) v = ${ expr };
+            v = this.${ key } = _a.transform( v, options, void 0, record );
+            _a.handleChange( v, void 0, record );
+            ...
+        }
+        */
+        // f( v.${ attr } === void 0 ? ${ create } : v.${ attr } )
+        // f( a.${ attr }.clone( v.${ attr } ) )
         this.forEachAttr( attributes, ( value : any, key : string, attr : AttributeUpdatePipeline ) => {
             const next = attributes[ key ] = attr.transform( value, options, void 0, this );
                   attr.handleChange( next, void 0, this );
