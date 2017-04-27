@@ -1,17 +1,18 @@
 {
   "name": "type-r",
-  "version": "1.0.0-rc98",
+  "version": "1.0.0-rc99",
   "description": "Reactive serializable data layer for modern JS applications",
   "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": [ "dist", "src" ],
+  "module":"./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "files": [ "dist", "lib" ],
   "directories": {
     "test": "tests"
   },
   "scripts": {
+    "prepublish":"node_modules/.bin/webpack -p",
     "test": "tests/nestedtypes/node_modules/.bin/mocha tests/nestedtypes/functionality",
-    "build": "node_modules/.bin/webpack",
-    "watch": "node_modules/.bin/webpack --watch"
+    "build": "node_modules/.bin/tsc && npm run prepublish"
   },
   "repository": {
     "type": "git",

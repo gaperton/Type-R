@@ -23,6 +23,8 @@ export interface CollectionOptions extends TransactionOptions {
     model? : typeof Record
 }
 
+export type Predicate = ( val : Record, key : number ) => boolean | object;
+
 export interface CollectionDefinition extends TransactionalDefinition {
     model? : Record,
     itemEvents? : EventsDefinition
@@ -181,7 +183,7 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     each( iteratee : ( val : Record, key : number ) => void, context? : any ){
-        const fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
+        const fun = bindContext( iteratee, context ),
             { models } = this;
 
         for( let i = 0; i < models.length; i++ ){
@@ -189,8 +191,8 @@ export class Collection extends Transactional implements CollectionCore {
         }
     }
 
-    every( iteratee : ( val : Record, key : number ) => boolean, context? : any ) : boolean {
-        const fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
+    every( iteratee : Predicate, context? : any ) : boolean {
+        const fun = toPredicateFunction( iteratee, context ),
             { models } = this;
 
         for( let i = 0; i < models.length; i++ ){
@@ -200,15 +202,15 @@ export class Collection extends Transactional implements CollectionCore {
         return true;
     }
 
-    filter( iteratee : ( val : Record, key : number ) => boolean, context? : any ) : Record[] {
-        const fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
+    filter( iteratee : Predicate, context? : any ) : Record[] {
+        const fun = toPredicateFunction( iteratee, context ),
             { models } = this;
 
         return this.map( ( x, i ) => fun( x, i ) ? x : void 0 );
     }
 
-    some( iteratee : ( val : Record, key : number ) => boolean, context? : any ) : boolean {
-        const fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
+    some( iteratee : Predicate, context? : any ) : boolean {
+        const fun = toPredicateFunction( iteratee, context ),
             { models } = this;
 
         for( let i = 0; i < models.length; i++ ){
@@ -219,7 +221,7 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     map< T >( iteratee : ( val : Record, key : number ) => T, context? : any ) : T[]{
-        const fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
+        const fun = bindContext( iteratee, context ),
             { models } = this,
             mapped = Array( models.length );
 
@@ -505,3 +507,24 @@ class CollectionRefsType extends SharedType {
 createSharedTypeSpec( Collection, SharedType );
 
 Record.Collection = <any>Collection;
+
+function bindContext( fun : Function, context? : any ){
+    return context !== void 0 ? ( v, k ) => fun.call( context, v, k ) : fun;
+}
+
+function toPredicateFunction( iteratee : Predicate, context ){
+    if( typeof iteratee === 'object' ){
+        // Wrap object to the predicate...
+        return x => {
+            for( let key in iteratee as any ){
+                if( iteratee[ key ] !== x[ key ] )
+                    return false;
+            }
+
+            return true;
+        }
+    }
+    
+    return bindContext( iteratee, context );
+
+}
