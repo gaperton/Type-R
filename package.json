@@ -1,11 +1,11 @@
 {
   "name": "type-r",
-  "version": "1.0.0-rc99",
+  "version": "1.0.0-rc990",
   "description": "Reactive serializable data layer for modern JS applications",
   "main": "./dist/index.js",
   "module":"./lib/index.js",
   "types": "./lib/index.d.ts",
-  "files": [ "dist", "lib" ],
+  "files": [ "dist", "lib", "src" ],
   "directories": {
     "test": "tests"
   },
