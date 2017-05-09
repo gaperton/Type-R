@@ -22,6 +22,12 @@ describe( 'Memory management', function(){
 
     it( 'Aggregated values are recursively disposed', function(){
         var m = new M();
+        m.agg = {};
+
+        var x = m.col, y = m.agg;
+        m.dispose();
+        expect( x._disposed ).to.be.true;
+        expect( y._disposed ).to.be.true;
     } );
 
     it( 'Shared refs do not create a leak', function(){
