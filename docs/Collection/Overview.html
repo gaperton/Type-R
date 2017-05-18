@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>       <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>          <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>          <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+    <title>Overview - Type-R</title>
+    <meta name="description" content="Universal state management framework" />
+    <meta name="author" content="Vlad Balin">
+    <meta charset="UTF-8">
+    <link rel="icon" href="../themes/daux/img/favicon-navy.png" type="image/x-icon">
+    <!-- Mobile -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Font -->
+    <link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700&subset=latin,cyrillic-ext,cyrillic' rel='stylesheet' type='text/css'>
+    <!-- CSS -->
+    <link href='../themes/daux/css/theme-navy.min.css' rel='stylesheet' type='text/css'>
+            <!-- Tipue Search -->
+        <link href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+    
+    <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+<body class="">
+    
+<header class="Navbar hidden-print">
+    <a class="Navbar__brand" href="../index.html">Type-R</a>
+
+    <div class="Search">
+        <svg class="Search__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 451 451"><path d="M447.05 428l-109.6-109.6c29.4-33.8 47.2-77.9 47.2-126.1C384.65 86.2 298.35 0 192.35 0 86.25 0 .05 86.3.05 192.3s86.3 192.3 192.3 192.3c48.2 0 92.3-17.8 126.1-47.2L428.05 447c2.6 2.6 6.1 4 9.5 4s6.9-1.3 9.5-4c5.2-5.2 5.2-13.8 0-19zM26.95 192.3c0-91.2 74.2-165.3 165.3-165.3 91.2 0 165.3 74.2 165.3 165.3s-74.1 165.4-165.3 165.4c-91.1 0-165.3-74.2-165.3-165.4z"/></svg>
+        <input type="search" id="tipue_search_input" class="Search__field" placeholder="Search..." autocomplete="on" results=25 autosave=text_search>
+    </div>
+</header>
+<div class="Columns content">
+    <aside class="Columns__left Collapsible">
+        <div class="Collapsible__container">
+            <button type="button" class="Button Collapsible__trigger">
+                <span class="Collapsible__trigger--bar"></span>
+                <span class="Collapsible__trigger--bar"></span>
+                <span class="Collapsible__trigger--bar"></span>
+            </button>
+        </div>
+
+        <div class="Collapsible__content">
+            <!-- Navigation -->
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../Record/Transactions_and_Events.html">Transactions and Events</a></li><li class='Nav__item '><a href="../Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Record/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item Nav__item--active'><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li></ul></li></ul>
+
+            <div class="Links">
+                                    <hr/>
+                                            <a href="https://github.com/Volicon/React-MVx/issues" target="_blank">Help/Support/Bugs</a>
+                        <br />
+                                            <a href="http://volicon.com" target="_blank">Made by Volicon (a Verizon company)</a>
+                        <br />
+                                    
+                                    <div class="CodeToggler">
+                        <hr/>
+                                                    <a class="CodeToggler__button CodeToggler__button--main" href="#">Show Code Blocks Inline</a><br>
+                                            </div>
+                
+                                    <hr/>
+                    <div class="Twitter">
+                                                    <iframe allowtransparency="true" frameborder="0" scrolling="no" style="width:162px; height:20px;" src="https://platform.twitter.com/widgets/follow_button.html?screen_name=gaperton&amp;show_count=false"></iframe>
+                            <br />
+                            <br />
+                                            </div>
+                            </div>
+        </div>
+    </aside>
+    <div class="Columns__right ">
+        <div class="Columns__right__content">
+            <div class="doc_content">
+                <article class="Page">
+
+    <div class="Page__header">
+        <h1>Overview</h1>
+                <span style="float: left; font-size: 10px; color: gray;">
+            Thursday, May 18, 2017 9:30 AM        </span>
+                        <span style="float: right; font-size: 10px; color: gray;">
+            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/05_Collection/00_Overview.md" target="_blank">Edit on GitHub</a>
+        </span>
+            </div>
+
+
+    <div class="s-content">
+        <p>Collections are ordered sets of records. You can bind &quot;change&quot; events to be notified when any record in the collection has been modified, listen for &quot;add&quot; and &quot;remove&quot; events, fetch the collection from the server, and use a full suite of Underscore.js methods.</p>
+<p>Collection is implicitly defined for every record with a constructor accessible as <code>MyRecord.Collection</code>. In most cases, you
+don't need to declare it manually.</p>
+<pre><code class="language-javascript">// Implicitly defined collection.
+const books = new Book.Collection();
+
+@define
+class ComicsShelve extends Book.Collection {
+    static itemEvents = {
+        // List of records's events we want to be triggered on the collection
+        'change:inMyReadingList' : true,
+        'customEvent' : true
+    }
+}
+
+@define
+class Comics extends Book {
+    // Use custom collection instead of the implicitly created one
+    static Collection = ComicsShelve;
+
+    // Extend record's attributes
+    static attributes = {
+        artist : Author
+    }
+}
+</code></pre>
+<h2 id="page_Declarations">Declarations</h2>
+<h4 id="page_model+%3D+RecordConstructor"><code>static</code> model = RecordConstructor</h4>
+<pre><code class="language-javascript">@define
+class Library extends Record.Collection {
+    static model = Book;
+}
+</code></pre>
+<p>If defined, you can pass raw attributes objects (and arrays) to add, create, and reset, and the attributes will be converted into a model of the proper type.</p>
+<p>This property is being set automatically for collection types referenced as <code>MyRecord.Collection</code>. In the majority of cases you don't need to define it explicitly.</p>
+<h3 id="page_Polymorphic+collections">Polymorphic collections</h3>
+<p>Collection may contain polimorphic records of different types if they are the subclass of the <code>model</code>.
+You need to define static <code>Model.create</code> method to make an abstract model serializable.</p>
+<pre><code class="language-javascript">@define // Serializable abstract Record
+class Document extends Record {
+    static attrbutes = {
+      type : String,
+      // attrs definition...
+    };
+
+    // Factory method needs to be defined.
+    static create( attrs, options ){
+        switch( attrs.type ){
+            case &quot;public&quot; : return new PublicDocument( attrs, options );
+            case &quot;private&quot; : return new PrivateDocument( attrs, options );
+        }
+    }
+}
+
+const Library = Document.Collection;
+
+@define
+class PublicDocument extends Document {
+  static attributes = {
+    type : 'public',
+    // attrs definition...
+  }
+}
+
+@define
+class PrivateDocument extends Document {
+  static attributes = {
+    type : 'private',
+    // attrs definition...
+  }
+}
+</code></pre>
+<h2 id="page_Members">Members</h2>
+<h4 id="page_constructor%28+models%3F%2C+options%3F+%29">constructor( models?, options? )</h4>
+<p>When creating a Collection, you may choose to pass in the initial array of models. The collection's comparator may be included as an option. Passing false as the comparator option will prevent sorting. If you define an initialize function, it will be invoked when the collection is created. There are a couple of options that, if provided, are attached to the collection directly: model and comparator.
+Pass null for models to create an empty Collection with options.</p>
+<pre><code class="language-javascript">var tabs = new TabSet([tab1, tab2, tab3]);
+</code></pre>
+<h4 id="page_collection.add%28+models%2C+options%3F+%29">collection.add( models, options? )</h4>
+<p>Add a record (or an array of records) to the collection, firing an &quot;add&quot; event for each record, and an &quot;update&quot; event afterwards. If a record property is defined, you may also pass raw attributes objects, and have them be vivified as instances of the record. Returns the added (or preexisting, if duplicate) records. Pass {at: index} to splice the record into the collection at the specified index. If you're adding records to the collection that are already in the collection, they'll be ignored, unless you pass {merge: true}, in which case their attributes will be merged into the corresponding records, firing any appropriate &quot;change&quot; events.</p>
+<pre><code>var ships = new Backbone.Collection;
+
+ships.on(&quot;add&quot;, function(ship) {
+alert(&quot;Ahoy &quot; + ship.get(&quot;name&quot;) + &quot;!&quot;);
+});
+
+ships.add([
+{name: &quot;Flying Dutchman&quot;},
+{name: &quot;Black Pearl&quot;}
+]);
+</code></pre>
+<p>Note that adding the same record (a record with the same id) to a collection more than once
+is a no-op.</p>
+<h4 id="page_collection.remove%28+records%2C+options%3F+%29">collection.remove( records, options? )</h4>
+<p>Remove a record (or an array of records) from the collection, and return them. Each record can be a record instance, an id string or a JS object, any value acceptable as the id argument of collection.get. Fires a &quot;remove&quot; event for each record, and a single &quot;update&quot; event afterwards, unless {silent: true} is passed. The record's index before removal is available to listeners as options.index.</p>
+<h4 id="page_collection.reset%28+records%2C+options%3F+%29">collection.reset( records, options? )</h4>
+<p>Adding and removing records one at a time is all well and good, but sometimes you have so many records to change that you'd rather just update the collection in bulk. Use reset to replace a collection with a new list of records (or attribute hashes), triggering a single &quot;reset&quot; event on completion, and without triggering any add or remove events on any records. Returns the newly-set records.</p>
+<p>Pass null for records to empty your Collection with options.</p>
+<p>Here's an example using reset to bootstrap a collection during initial page load, in a Rails application:</p>
+<pre><code>&lt;script&gt;
+var accounts = new Backbone.Collection;
+accounts.reset(&lt;%= @accounts.to_json %&gt;);
+&lt;/script&gt;
+</code></pre>
+<p>Calling collection.reset() without passing any records as arguments will empty the entire collection.</p>
+<h4 id="page_collection.set%28+records%2C+options%3F+%29">collection.set( records, options? )</h4>
+<p>The set method performs a &quot;smart&quot; update of the collection with the passed list of records. If a record in the list isn't yet in the collection it will be added; if the record is already in the collection its attributes will be merged; and if the collection contains any records that aren't present in the list, they'll be removed. All of the appropriate &quot;add&quot;, &quot;remove&quot;, and &quot;change&quot; events are fired as this happens. Returns the touched records in the collection. If you'd like to customize the behavior, you can disable it with options: {add: false}, {remove: false}, or {merge: false}.</p>
+<pre><code class="language-javascript">const vanHalen = new Man.Collection([ eddie, alex, stone, roth ]);
+
+vanHalen.set([ eddie, alex, stone, hagar ]);
+
+// Fires a &quot;remove&quot; event for roth, and an &quot;add&quot; event for &quot;hagar&quot;.
+// Updates any of stone, alex, and eddie's attributes that may have
+// changed over the years.
+</code></pre>
+<h4 id="page_collection.get%28+id+%29">collection.get( id )</h4>
+<p>Get a record from a collection, specified by an <code>id</code>, a <code>cid</code>, or by passing in a record.</p>
+<pre><code class="language-javascript">const book = library.get(110);
+</code></pre>
+<h4 id="page_collection.at%28+index+%29">collection.at( index )</h4>
+<p>Get a record from a collection, specified by index. Useful if your collection is sorted, and if your collection isn't sorted, at will still retrieve records in insertion order. When passed a negative index, it will retrieve the record from the back of the collection.</p>
+<h4 id="page_collection.length">collection.length</h4>
+<p>Like an array, a Collection maintains a length property, counting the number of models it contains.</p>
+<h4 id="page_collection.models">collection.models</h4>
+<p>Raw access to the JavaScript array of models inside of the collection. Usually you'll want to use <code>get</code>, <code>at</code>, or the other methods to access model objects, but occasionally a direct reference to the array is desired.</p>
+    </div>
+
+        <nav>
+        <ul class="Pager">
+            <li class=Pager--prev><a href="../Record/id_ and_id-references.html">Previous</a></li>            <li class=Pager--next><a href="../Collection/Proxied_array_methods.html">Next</a></li>        </ul>
+    </nav>
+    </article>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+    <!-- jQuery -->
+    <script src="../themes/daux/js/jquery-1.11.3.min.js"></script>
+
+    <!-- hightlight.js -->
+    <script src="../themes/daux/js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!-- JS -->
+    
+    <script src="../themes/daux/js/daux.js"></script>
+
+            <!-- Tipue Search -->
+        <script type="text/javascript" src="../tipuesearch/tipuesearch.js"></script>
+
+        <script>
+            window.onunload = function(){}; // force $(document).ready to be called on back/forward navigation in firefox
+            $(function() {
+                tipuesearch({
+                    'base_url': '../'
+                });
+            });
+        </script>
+    
+</body>
+</html>
