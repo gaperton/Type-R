@@ -1,27 +1,14 @@
-## Updates, change events, and transactions
+## Updates
 
-Changes to collections are _observable_ through events. All updates to the collections are executed in the scope of transactions, which are executed in 4 steps:
+Collections notify listeners on the details of the update with events. It's executed in 3 steps:
 
-1. Open the transaction.
-2. Apply all changes to collection and nested records.
-3. Trigger events for individual changes:
+1. Apply all changes to collection and nested records.
+2. Trigger events for individual changes:
     - Trigger `add`, `remove`, or `change` event for every individual record change.
     - Trigger an `update` event when there are any records added or removed, and `sort` event if an order of records was changed.
-4. Close transaction. If any changes were applied to the collection:
+3. If any changes were applied to the collection:
     - trigger `changes` event;
     - notify collection's owner on aggregation subtree changes.
-
-Every collection update method opens an implicit transaction.
-
-#### record.transaction( fun )
-
-Execute the sequence of updates in `fun` function in the scope of the transaction, so it will trigger the single `change` event.
-
-#### collection.updateEach( iteratee : ( val : Record, index ) => void, context? )
-
-Similar to the `collection.each`, but wraps an iteration in a transaction. 
-
-## Update methods
 
 #### collection.add( models, options? )
 
@@ -45,6 +32,32 @@ is a no-op.
 
 Remove a record (or an array of records) from the collection, and return them. Each record can be a record instance, an id string or a JS object, any value acceptable as the id argument of collection.get. Fires a "remove" event for each record, and a single "update" event afterwards, unless {silent: true} is passed. The record's index before removal is available to listeners as options.index.
 
+#### collection.set( records, options? )
+ 
+The set method performs a "smart" update of the collection with the passed list of records. If a record in the list isn't yet in the collection it will be added; if the record is already in the collection its attributes will be merged; and if the collection contains any records that aren't present in the list, they'll be removed. All of the appropriate "add", "remove", and "change" events are fired as this happens. Returns the touched records in the collection. If you'd like to customize the behavior, you can disable it with options: {add: false}, {remove: false}, or {merge: false}.
+
+```javascript
+const vanHalen = new Man.Collection([ eddie, alex, stone, roth ]);
+
+vanHalen.set([ eddie, alex, stone, hagar ]);
+
+// Fires a "remove" event for roth, and an "add" event for "hagar".
+// Updates any of stone, alex, and eddie's attributes that may have
+// changed over the years.
+```
+
+#### record.transaction( fun )
+
+Execute the sequence of updates in `fun` function in the scope of the transaction.
+
+Transaction is the sequence of updates resuling in a single `changes` event. Every collection update method opens an implicit transaction. 
+
+#### collection.updateEach( iteratee : ( val : Record, index ) => void, context? )
+
+Similar to the `collection.each`, but wraps an iteration in a transaction. 
+
+
+
 #### collection.reset( records, options? )
 
 Adding and removing records one at a time is all well and good, but sometimes you have so many records to change that you'd rather just update the collection in bulk. Use reset to replace a collection with a new list of records (or attribute hashes), triggering a single "reset" event on completion, and without triggering any add or remove events on any records. Returns the newly-set records.
@@ -59,20 +72,6 @@ Here's an example using reset to bootstrap a collection during initial page load
     </script>
 
 Calling collection.reset() without passing any records as arguments will empty the entire collection.
-
-#### collection.set( records, options? )
- 
-The set method performs a "smart" update of the collection with the passed list of records. If a record in the list isn't yet in the collection it will be added; if the record is already in the collection its attributes will be merged; and if the collection contains any records that aren't present in the list, they'll be removed. All of the appropriate "add", "remove", and "change" events are fired as this happens. Returns the touched records in the collection. If you'd like to customize the behavior, you can disable it with options: {add: false}, {remove: false}, or {merge: false}.
-
-```javascript
-const vanHalen = new Man.Collection([ eddie, alex, stone, roth ]);
-
-vanHalen.set([ eddie, alex, stone, hagar ]);
-
-// Fires a "remove" event for roth, and an "add" event for "hagar".
-// Updates any of stone, alex, and eddie's attributes that may have
-// changed over the years.
-```
 
 ## Listening to events
 
