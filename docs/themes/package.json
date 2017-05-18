@@ -1,0 +1,95 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "daux-api-docs-theme",
+        "scope": null,
+        "escapedName": "daux-api-docs-theme",
+        "name": "daux-api-docs-theme",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "/Users/vlad.balin/GitHub/Type-R"
+    ]
+  ],
+  "_from": "daux-api-docs-theme@latest",
+  "_id": "daux-api-docs-theme@1.0.2",
+  "_inCache": true,
+  "_location": "/daux-api-docs-theme",
+  "_nodeVersion": "7.9.0",
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/daux-api-docs-theme-1.0.2.tgz_1495119882835_0.512728821253404"
+  },
+  "_npmUser": {
+    "name": "gaperton",
+    "email": "gaperton@gmail.com"
+  },
+  "_npmVersion": "4.2.0",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "daux-api-docs-theme",
+    "scope": null,
+    "escapedName": "daux-api-docs-theme",
+    "name": "daux-api-docs-theme",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#DEV:/",
+    "#USER"
+  ],
+  "_resolved": "https://registry.npmjs.org/daux-api-docs-theme/-/daux-api-docs-theme-1.0.2.tgz",
+  "_shasum": "27a116cfcef997eee851320cf11925a1888cf9a0",
+  "_shrinkwrap": null,
+  "_spec": "daux-api-docs-theme",
+  "_where": "/Users/vlad.balin/GitHub/Type-R",
+  "author": {
+    "name": "Vlad Balin"
+  },
+  "bugs": {
+    "url": "https://github.com/gaperton/daux-api-docs-theme/issues"
+  },
+  "dependencies": {},
+  "description": "Daux theme modified to build libraries API docs",
+  "devDependencies": {
+    "less": "^2.7.2"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "27a116cfcef997eee851320cf11925a1888cf9a0",
+    "tarball": "https://registry.npmjs.org/daux-api-docs-theme/-/daux-api-docs-theme-1.0.2.tgz"
+  },
+  "gitHead": "d83dbabff3e853e751d81aba159ccae2d7a4559a",
+  "homepage": "https://github.com/gaperton/daux-api-docs-theme#readme",
+  "keywords": [
+    "daux",
+    "daux.io",
+    "theme",
+    "docs",
+    "documentation",
+    "api-docs"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "maintainers": [
+    {
+      "name": "gaperton",
+      "email": "gaperton@gmail.com"
+    }
+  ],
+  "name": "daux-api-docs-theme",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gaperton/daux-api-docs-theme.git"
+  },
+  "scripts": {
+    "build": "lessc daux/less/theme-navy.less daux/css/theme-navy.min.css && node_modules/.bin/lessc daux/less/theme-green.less daux/css/theme-green.min.css && node_modules/.bin/lessc daux/less/theme-blue.less daux/css/theme-blue.min.css && node_modules/.bin/lessc daux/less/theme-red.less daux/css/theme-red.min.css",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.0.2"
+}

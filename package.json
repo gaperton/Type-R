@@ -3,16 +3,21 @@
   "version": "1.0.0-rc990",
   "description": "Reactive serializable data layer for modern JS applications",
   "main": "./dist/index.js",
-  "module":"./lib/index.js",
+  "module": "./lib/index.js",
   "types": "./lib/index.d.ts",
-  "files": [ "dist", "lib", "src" ],
+  "files": [
+    "dist",
+    "lib",
+    "src"
+  ],
   "directories": {
     "test": "tests"
   },
   "scripts": {
-    "prepublish":"node_modules/.bin/webpack -p",
+    "prepublish": "node_modules/.bin/webpack -p",
     "test": "tests/nestedtypes/node_modules/.bin/mocha tests/nestedtypes/functionality",
-    "build": "node_modules/.bin/tsc && npm run prepublish"
+    "build": "node_modules/.bin/tsc && npm run prepublish",
+    "docs": "~/.composer/vendor/bin/daux --source=docsource --destination=docs"
   },
   "repository": {
     "type": "git",
@@ -33,6 +38,7 @@
   },
   "homepage": "https://github.com/gaperton/TransactionalJS#readme",
   "devDependencies": {
+    "daux-api-docs-theme": "^1.0.2",
     "source-map-loader": "*",
     "ts-loader": "*",
     "typescript": "*",

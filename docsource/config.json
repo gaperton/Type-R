@@ -1,0 +1,28 @@
+{
+    "title": "Type-R",
+    "tagline": "Universal state management framework",
+    "author": "Vlad Balin",
+    "image": "",
+    "ignore": {
+    },
+    "live": {
+        "clean_urls": true
+    },
+    "themes_directory": "node_modules/daux-api-docs-theme",
+    "html": {
+        "theme": "daux-navy",
+        "breadcrumbs": false,
+        "toggle_code": true,
+        "date_modified": true,
+        "float": false,
+        "inherit_index": true,
+
+        "repo": "Volicon/React-MVx",
+        "edit_on_github": "Volicon/React-MVx/blob/develop/docs",
+        "twitter": ["gaperton"],
+        "links": {
+            "Help/Support/Bugs": "https://github.com/Volicon/React-MVx/issues",
+            "Made by Volicon (a Verizon company)": "http://volicon.com"
+        }
+    }
+}
