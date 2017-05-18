@@ -43,47 +43,6 @@ If defined, you can pass raw attributes objects (and arrays) to add, create, and
 
 This property is being set automatically for collection types referenced as `MyRecord.Collection`. In the majority of cases you don't need to define it explicitly.
 
-### Polymorphic collections 
-
-Collection may contain polimorphic records of different types if they are the subclass of the `model`.
-You need to define static `Model.create` method to make an abstract model serializable.
-
-```javascript
-@define // Serializable abstract Record
-class Document extends Record {
-    static attrbutes = {
-      type : String,
-      // attrs definition...
-    };
-
-    // Factory method needs to be defined.
-    static create( attrs, options ){
-        switch( attrs.type ){
-            case "public" : return new PublicDocument( attrs, options );
-            case "private" : return new PrivateDocument( attrs, options );
-        }
-    }
-}
-
-const Library = Document.Collection;
-
-@define
-class PublicDocument extends Document {
-  static attributes = {
-    type : 'public',
-    // attrs definition...
-  }
-}
-
-@define
-class PrivateDocument extends Document {
-  static attributes = {
-    type : 'private',
-    // attrs definition...
-  }
-}
-```
-
 ## Members
 
 #### constructor( models?, options? ) 

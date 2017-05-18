@@ -15,5 +15,8 @@ And add the following to your daux documentation `config.json`
 
 ## Features
 
-- Changed headers styling. `####` must be used for API calls.
-- Used fixed content width. 
+- Fixed content width with inline code examples. Code floating must be turned off.
+- `#` - don't use.
+- `##` - creates the disconnected section of the document
+- `###` - creates the header inside of section.
+- `####` - must be used for API calls.

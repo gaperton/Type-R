@@ -2,25 +2,25 @@
   "_args": [
     [
       {
-        "raw": "daux-api-docs-theme",
+        "raw": "daux-api-docs-theme@1.0.4",
         "scope": null,
         "escapedName": "daux-api-docs-theme",
         "name": "daux-api-docs-theme",
-        "rawSpec": "",
-        "spec": "latest",
-        "type": "tag"
+        "rawSpec": "1.0.4",
+        "spec": "1.0.4",
+        "type": "version"
       },
       "/Users/vlad.balin/GitHub/Type-R"
     ]
   ],
-  "_from": "daux-api-docs-theme@latest",
-  "_id": "daux-api-docs-theme@1.0.2",
+  "_from": "daux-api-docs-theme@1.0.4",
+  "_id": "daux-api-docs-theme@1.0.4",
   "_inCache": true,
   "_location": "/daux-api-docs-theme",
   "_nodeVersion": "7.9.0",
   "_npmOperationalInternal": {
     "host": "packages-12-west.internal.npmjs.com",
-    "tmp": "tmp/daux-api-docs-theme-1.0.2.tgz_1495119882835_0.512728821253404"
+    "tmp": "tmp/daux-api-docs-theme-1.0.4.tgz_1495136943273_0.08659524982795119"
   },
   "_npmUser": {
     "name": "gaperton",
@@ -29,22 +29,22 @@
   "_npmVersion": "4.2.0",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "daux-api-docs-theme",
+    "raw": "daux-api-docs-theme@1.0.4",
     "scope": null,
     "escapedName": "daux-api-docs-theme",
     "name": "daux-api-docs-theme",
-    "rawSpec": "",
-    "spec": "latest",
-    "type": "tag"
+    "rawSpec": "1.0.4",
+    "spec": "1.0.4",
+    "type": "version"
   },
   "_requiredBy": [
     "#DEV:/",
     "#USER"
   ],
-  "_resolved": "https://registry.npmjs.org/daux-api-docs-theme/-/daux-api-docs-theme-1.0.2.tgz",
-  "_shasum": "27a116cfcef997eee851320cf11925a1888cf9a0",
+  "_resolved": "https://registry.npmjs.org/daux-api-docs-theme/-/daux-api-docs-theme-1.0.4.tgz",
+  "_shasum": "083aad811357b0ae4297cbc6a760d9e39292644a",
   "_shrinkwrap": null,
-  "_spec": "daux-api-docs-theme",
+  "_spec": "daux-api-docs-theme@1.0.4",
   "_where": "/Users/vlad.balin/GitHub/Type-R",
   "author": {
     "name": "Vlad Balin"
@@ -59,10 +59,10 @@
   },
   "directories": {},
   "dist": {
-    "shasum": "27a116cfcef997eee851320cf11925a1888cf9a0",
-    "tarball": "https://registry.npmjs.org/daux-api-docs-theme/-/daux-api-docs-theme-1.0.2.tgz"
+    "shasum": "083aad811357b0ae4297cbc6a760d9e39292644a",
+    "tarball": "https://registry.npmjs.org/daux-api-docs-theme/-/daux-api-docs-theme-1.0.4.tgz"
   },
-  "gitHead": "d83dbabff3e853e751d81aba159ccae2d7a4559a",
+  "gitHead": "bfa0d2d10e0d028ccdde5b54fd58f74936e130cb",
   "homepage": "https://github.com/gaperton/daux-api-docs-theme#readme",
   "keywords": [
     "daux",
@@ -91,5 +91,5 @@
     "build": "lessc daux/less/theme-navy.less daux/css/theme-navy.min.css && node_modules/.bin/lessc daux/less/theme-green.less daux/css/theme-green.min.css && node_modules/.bin/lessc daux/less/theme-blue.less daux/css/theme-blue.min.css && node_modules/.bin/lessc daux/less/theme-red.less daux/css/theme-red.min.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "1.0.2"
+  "version": "1.0.4"
 }
