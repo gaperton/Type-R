@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="Getting_Started.html">Getting Started</a></li><li class='Nav__item Nav__item--active'><a href="Mixins.html">Mixins</a></li><li class='Nav__item '><a href="Overview.html">Overview</a></li><li class='Nav__item '><a href="Events.html">Events</a></li><li class='Nav__item  has-children'><a href="Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="Record/Events_and_Transactions.html">Events and Transactions</a></li><li class='Nav__item '><a href="Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="Record/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="Collection/Events_and_transactions.html">Events and transactions</a></li><li class='Nav__item '><a href="Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Collection/Validation.html">Validation</a></li></ul></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="General_concepts/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>General concepts</a><ul class='Nav'><li class='Nav__item '><a href="General_concepts/Overview.html">Overview</a></li><li class='Nav__item '><a href="General_concepts/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="General_concepts/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="General_concepts/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="General_concepts/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="Record/Events_and_Transactions.html">Events and Transactions</a></li><li class='Nav__item '><a href="Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="Record/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="Collection/Events_and_transactions.html">Events and transactions</a></li><li class='Nav__item '><a href="Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item '><a href="Events.html">Events</a></li><li class='Nav__item Nav__item--active'><a href="Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -77,9 +77,9 @@
     <div class="Page__header">
         <h1>Mixins</h1>
                 <span style="float: left; font-size: 10px; color: gray;">
-            Thursday, May 18, 2017 12:34 PM        </span>
+            Thursday, May 18, 2017 2:31 PM        </span>
                         <span style="float: right; font-size: 10px; color: gray;">
-            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/01_Mixins.md" target="_blank">Edit on GitHub</a>
+            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/08_Mixins.md" target="_blank">Edit on GitHub</a>
         </span>
             </div>
 
@@ -98,11 +98,12 @@ class X {
 }
 </code></pre>
 <h4 id="page_%40mixinRules%28%7B+name+%3A++%2C+...+%7D%29+class+...+%60"><code>decorator</code> @mixinRules({ name : <code>rule</code>, ... }) class ...`</h4>
-<p>MixtureJS implements configurable merge rules. Rules can be extented in any subclass using the <code>mixinRules</code> class decorator. Rule is the string from the following list.</p>
-<p>If merge rule is an object, the corresponding member is expected to be an object and the rule defines the merge rules for its members.</p>
+<p>Define configurable properties merge rules for the specific class. Rules can be extented in any subclass.</p>
 <h2 id="page_Mixin+rules">Mixin rules</h2>
 <h4 id="page_name+%3A+%27merge%27"><code>rule</code> name : 'merge'</h4>
-<p>Assume property to be an object, which members taken from mixins must be merged.</p>
+<p>Assume the property to be an object. Property values from mixins will be merged.</p>
+<h4 id="page_name+%3A+%7B+name1+%3A++%2C+...+%7D"><code>rule</code> name : { name1 : <code>rule</code>, ... }</h4>
+<p>If merge rule is an object, the corresponding member is expected to be an object and the rule defines the merge rules for its members.</p>
 <h4 id="page_name+%3A+%27pipe%27"><code>rule</code> name : 'pipe'</h4>
 <p>Property is the function ( x : T ) =&gt; T transforming the value. Multiple functions joined in pipe.</p>
 <h4 id="page_name+%3A+%27sequence%27"><code>rule</code> name : 'sequence'</h4>
@@ -119,7 +120,7 @@ class X {
 
         <nav>
         <ul class="Pager">
-            <li class=Pager--prev><a href="Getting_Started.html">Previous</a></li>            <li class=Pager--next><a href="Overview.html">Next</a></li>        </ul>
+            <li class=Pager--prev><a href="Events.html">Previous</a></li>                    </ul>
     </nav>
     </article>
 

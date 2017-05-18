@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="Mixins.html">Mixins</a></li><li class='Nav__item '><a href="Overview.html">Overview</a></li><li class='Nav__item Nav__item--active'><a href="Events.html">Events</a></li><li class='Nav__item  has-children'><a href="Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="Record/Events_and_Transactions.html">Events and Transactions</a></li><li class='Nav__item '><a href="Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="Record/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="Collection/Events_and_transactions.html">Events and transactions</a></li><li class='Nav__item '><a href="Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Collection/Validation.html">Validation</a></li></ul></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="General_concepts/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>General concepts</a><ul class='Nav'><li class='Nav__item '><a href="General_concepts/Overview.html">Overview</a></li><li class='Nav__item '><a href="General_concepts/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="General_concepts/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="General_concepts/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="General_concepts/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="Record/Events_and_Transactions.html">Events and Transactions</a></li><li class='Nav__item '><a href="Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="Record/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="Collection/Events_and_transactions.html">Events and transactions</a></li><li class='Nav__item '><a href="Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item Nav__item--active'><a href="Events.html">Events</a></li><li class='Nav__item '><a href="Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -77,17 +77,19 @@
     <div class="Page__header">
         <h1>Events</h1>
                 <span style="float: left; font-size: 10px; color: gray;">
-            Thursday, May 18, 2017 12:36 PM        </span>
+            Thursday, May 18, 2017 2:31 PM        </span>
                         <span style="float: right; font-size: 10px; color: gray;">
-            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/02_Events.md" target="_blank">Edit on GitHub</a>
+            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/07_Events.md" target="_blank">Edit on GitHub</a>
         </span>
             </div>
 
 
     <div class="s-content">
-        <h2 id="page_Events+mixin">Events mixin</h2>
+        <p>Type-R implements Backbone 1.1 events API in the form of the <code>Events</code> mixin and <code>Messenger</code> base class.</p>
+<p>An implementation is optimized for the large amount of relatively small subscriptions (5-10 events). The majority of event subscriptions occuring in Type-R is 1-2 events per source. Here are benchmark results (lower is the better).</p>
+<p><img src="./events-performance.jpg" alt="performance" /></p>
+<h2 id="page_Events+mixin">Events mixin</h2>
 <p>Events is a mixin, giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.</p>
-<p>Type-R implements Backbone 1.1 events API.</p>
 <h4 id="page_eventSource.on%28event%2C+callback%2C++%5B+context%5D%29">eventSource.on(event, callback, [context])</h4>
 <p>Bind a callback function to an object. The callback will be invoked whenever the event is fired. If you have a large number of different events on a page, the convention is to use colons to namespace them: &quot;poll:start&quot;, or &quot;change:selection&quot;. The event string may also be a space-delimited list of several events...</p>
 <pre><code>book.on(&quot;change:title change:author&quot;, ...);
@@ -141,17 +143,18 @@ view.stopListening(model);
 <p>Just like listenTo, but causes the bound callback to fire only once before being removed.</p>
 <h2 id="page_Messenger">Messenger</h2>
 <p>Messenger is an abstract base class implementing Events mixin and some convinience methods.</p>
-<h4 id="page_messenger.cid">messenger.cid</h4>
-<p>Unique run-time only messenger instance id.</p>
+<h4 id="page_messenger.cid"><code>readonly</code> messenger.cid</h4>
+<p>Unique run-time only messenger instance id (string).</p>
 <h4 id="page_messenger.initialize%28%29">messenger.initialize()</h4>
 <p>Callback which is called at the end of the constructor.</p>
 <h4 id="page_messenger.dispose%28%29">messenger.dispose()</h4>
 <p>Executes <code>messenger.stopListening()</code> and <code>messenger.off()</code>.</p>
+<p>Objects must be disposed to prevent memory leaks caused by subscribing for events from singletons.</p>
     </div>
 
         <nav>
         <ul class="Pager">
-            <li class=Pager--prev><a href="Overview.html">Previous</a></li>            <li class=Pager--next><a href="Record/Overview.html">Next</a></li>        </ul>
+            <li class=Pager--prev><a href="Collection/Validation.html">Previous</a></li>            <li class=Pager--next><a href="Mixins.html">Next</a></li>        </ul>
     </nav>
     </article>
 

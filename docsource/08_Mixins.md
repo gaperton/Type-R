@@ -15,15 +15,17 @@ You need to import mixins decorator to use mixins:
 
 #### `decorator` @mixinRules({ name : `rule`, ... }) class ...`
 
-MixtureJS implements configurable merge rules. Rules can be extented in any subclass using the `mixinRules` class decorator. Rule is the string from the following list.
-
-If merge rule is an object, the corresponding member is expected to be an object and the rule defines the merge rules for its members.
+Define configurable properties merge rules for the specific class. Rules can be extented in any subclass.
 
 ## Mixin rules
 
 #### `rule` name : 'merge'
 
-Assume property to be an object, which members taken from mixins must be merged.
+Assume the property to be an object. Property values from mixins will be merged.
+
+#### `rule` name : { name1 : `rule`, ... }
+
+If merge rule is an object, the corresponding member is expected to be an object and the rule defines the merge rules for its members.
 
 #### `rule` name : 'pipe'
 

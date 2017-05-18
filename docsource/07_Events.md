@@ -1,6 +1,7 @@
 Type-R implements Backbone 1.1 events API in the form of the `Events` mixin and `Messenger` base class.
 
-An implementation is optimized for the large amount of subscriptions
+An implementation is optimized for the large amount of relatively small subscriptions (5-10 events). The majority of event subscriptions occuring in Type-R is 1-2 events per source. Here are benchmark results (lower is the better).
+
 ![performance](./events-performance.jpg)
 
 ## Events mixin
@@ -78,9 +79,9 @@ Just like listenTo, but causes the bound callback to fire only once before being
 
 Messenger is an abstract base class implementing Events mixin and some convinience methods.
 
-#### messenger.cid
+#### `readonly` messenger.cid
 
-Unique run-time only messenger instance id.
+Unique run-time only messenger instance id (string).
 
 #### messenger.initialize()
 
@@ -89,3 +90,5 @@ Callback which is called at the end of the constructor.
 #### messenger.dispose()
 
 Executes `messenger.stopListening()` and `messenger.off()`.
+
+Objects must be disposed to prevent memory leaks caused by subscribing for events from singletons.
