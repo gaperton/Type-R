@@ -10,7 +10,7 @@
         "spec": "1.0.4",
         "type": "version"
       },
-      "/Users/vlad.balin/GitHub/Type-R"
+      "/Users/gaperton/github/Type-R"
     ]
   ],
   "_from": "daux-api-docs-theme@1.0.4",
@@ -45,7 +45,7 @@
   "_shasum": "083aad811357b0ae4297cbc6a760d9e39292644a",
   "_shrinkwrap": null,
   "_spec": "daux-api-docs-theme@1.0.4",
-  "_where": "/Users/vlad.balin/GitHub/Type-R",
+  "_where": "/Users/gaperton/github/Type-R",
   "author": {
     "name": "Vlad Balin"
   },
