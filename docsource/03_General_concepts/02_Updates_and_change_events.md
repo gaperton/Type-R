@@ -1,7 +1,9 @@
-## Transactional updates
+#### node.set( values, options? )
+
+
 
 #### node.transaction( fun : ( self : this ) => void, options : TransactionOptions = {} ) : void{
-#### node.set( values : any, options? : TransactionOptions ) : this {
+
 
 ## Change events
 
