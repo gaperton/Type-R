@@ -35,7 +35,7 @@ Works similar to `record.set( otherRecord.attributes, { merge : true });
 
 ## Listening to events
 
-### Deep changes detection
+### Deep changes observation
 
 Records automatically listens to change events of nested records and collections, and triggers the corresponding change events on its attributes. It means that the single attribute change deeply inside of aggregation tree will trigger change events on all the parents in a sequence.
 
@@ -68,41 +68,12 @@ _Watcher function_ has the signature `( attrValue, attrName ) => void` and is ex
 }
 ```
 
-### Generic event API
+### Custom events subscribtion.
 
-Generic events API can be used to listen to any record's events.
+`listener.listenTo()` and `listener.listenToOnce()` methods can be used to listen to the any of the change events.
 
-#### listener.listenTo( record, eventName, handler )
-#### listener.listenTo( record, { eventName : handler, ... } )
-
-Subscribe for `eventName` from the record. Subscription will be automatically cancelled when messenger is disposed.
-The handler is executed in the context of the listener.
-
-#### listener.stopListening( record?, eventName?, hander? )
-#### listener.stopListening( record?, { eventName : handler, ... } )
-
-`listener.stopListening( record )` stops subscriptions from the record.
-
-`listener.stopListening()` stops _all_ event subscriptions and _is called automatically_ from the `listener.dispose()`.
-
-### Low-level event API
-
-Low level event API is more efficient but requires precise `off()` call to stop the subscription. It must be done 
-in overidden `dispose()` method to prevent memory leaks.
-
-#### record.onChanges( handler, context? )
-
-Subscribe for `change` event from the record. If `context` is passed, handler will be called in this context.
-
-#### record.on( eventName, handler, context? )
-#### record.on( { eventName : handler, ... }, context? )
-
-Subscribe for the `eventName` from the record. If `context` is passed, handler will be called in this context.
-
-#### record.off( eventName, handler, context? )
-#### record.off( { eventName : handler, ... }, context? )
-
-Cancel event subscription.
+If listener itself is the record or collection, subscribtions will be stopped automatically. Otherwise they must be stopped
+manually with `listener.stopListening()` call to prevent memory leaks.
 
 ## Transactions
 
