@@ -4,15 +4,15 @@ Note that Type-R depends on the arity of your comparator function to determine b
 
 Collections with a comparator will not automatically re-sort if you later change model attributes, so you may wish to call sort after changing model attributes that would affect the order.
 
-#### `static` comparator = 'attrName'
+### `static` comparator = 'attrName'
 
 Maintain the collection in sorted order by the given record's attribute.
 
-#### `static` comparator = x => number | string
+### `static` comparator = x => number | string
 
 "sortBy" comparator functions take a model and return a numeric or string value by which the model should be ordered relative to others. 
 
-#### `static` comparator = ( x, y ) => -1 | 0 | 1
+### `static` comparator = ( x, y ) => -1 | 0 | 1
 
 "sort" comparator functions take two models, and return -1 if the first model should come before the second, 0 if they are of the same rank and 1 if the first model should come after. 
 
@@ -32,6 +32,6 @@ alert(chapters.pluck('title'));
 ```
 
 
-#### collection.sort( options? ) 
+### collection.sort( options? ) 
 
 Force a collection to re-sort itself. You don't need to call this under normal circumstances, as a collection with a comparator will sort itself whenever a model is added. To disable sorting when adding a model, pass `{sort: false}` to add. Calling sort triggers a "sort" event on the collection.

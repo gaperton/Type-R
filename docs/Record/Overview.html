@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../General_concepts/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>General concepts</a><ul class='Nav'><li class='Nav__item '><a href="../General_concepts/Overview.html">Overview</a></li><li class='Nav__item '><a href="../General_concepts/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../General_concepts/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../General_concepts/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../General_concepts/Validation.html">Validation</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item Nav__item--active'><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../Record/Events_and_Transactions.html">Events and Transactions</a></li><li class='Nav__item '><a href="../Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Record/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../General_concepts/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>General concepts</a><ul class='Nav'><li class='Nav__item '><a href="../General_concepts/Overview.html">Overview</a></li><li class='Nav__item '><a href="../General_concepts/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../General_concepts/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../General_concepts/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../General_concepts/Validation.html">Validation</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item Nav__item--active'><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../Record/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Record/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -76,8 +76,6 @@
 
     <div class="Page__header">
         <h1>Overview</h1>
-                <span style="float: left; font-size: 10px; color: gray;">
-            Thursday, May 18, 2017 9:16 AM        </span>
                         <span style="float: right; font-size: 10px; color: gray;">
             <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/04_Record/00_Overview.md" target="_blank">Edit on GitHub</a>
         </span>
@@ -115,8 +113,8 @@ users.on( 'changes', () =&gt; updateUI( users ) ); // ⟵ listen to the changes.
 users.set( json, { parse : true } ); // ⟵ parse raw JSON from the server.
 users.updateEach( user =&gt; user.firstName = '' ); // ⟵ bulk update triggering 'changes' once
 </code></pre>
-<h2 id="page_Declarations">Declarations</h2>
-<h4 id="page_attributes+%3D+%7B+name+%3A++%2C+...+%7D"><code>static</code> attributes = { name : <code>attrDef</code>, ... }</h4>
+<h1 id="page_Declarations">Declarations</h1>
+<h3 id="page_attributes+%3D+%7B+name+%3A++%2C+...+%7D"><code>static</code> attributes = { name : <code>attrDef</code>, ... }</h3>
 <p>Record is a class with an observalbe and serializable public attributes. Attributes <em>must</em> be declared statically
 in <code>static attributes</code> class member, which is an object hash mapping an attribute name name to its declaration, encapsulating
 attribute type, default value, and metadata controlling different aspects of attribute behavior.</p>
@@ -130,17 +128,17 @@ attribute type, default value, and metadata controlling different aspects of att
 </code></pre>
 <p>The Record guarantee that <em>every attribute will always hold the value of the declared type</em>. Whenever the an attribute is being assigned
 with the value which is not compatible with its declared type, the type is being converted with an invocation of the constructor: <code>new Type( value )</code> (primitive types are treated specially).</p>
-<h3 id="page_Attribute+definitions">Attribute definitions</h3>
-<h4 id="page_name+%3A+Type.value%28+defaultValue+%29"><code>attrDef</code> name : Type.value( defaultValue )</h4>
+<h2 id="page_Attribute+definitions">Attribute definitions</h2>
+<h3 id="page_name+%3A+Type.value%28+defaultValue+%29"><code>attrDef</code> name : Type.value( defaultValue )</h3>
 <p>The general form of type annotation is <code>Type.value( defaultValue )</code>, where the <code>Type</code> is the corresponding constructor function.</p>
-<h4 id="page_name+%3A+Type"><code>attrDef</code> name : Type</h4>
+<h3 id="page_name+%3A+Type"><code>attrDef</code> name : Type</h3>
 <p>When the function is used as <code>attrDef</code>, it's treated as the constructor function.
 Any constructor function may be used as an attribute type, if it behaves as <em>converting constructor</em> (like <code>new Date( msecs )</code>).</p>
-<h4 id="page_name+%3A+defaultValue"><code>attrDef</code> name : defaultValue</h4>
+<h3 id="page_name+%3A+defaultValue"><code>attrDef</code> name : defaultValue</h3>
 <p>When other value than function is passed, it's treated as the default value and the type is being inferred form the value.
 If you need to pass function as the default value, use <code>Function.value( theFunction )</code>.</p>
-<h2 id="page_Class+methods">Class methods</h2>
-<h4 id="page_constructor%28+attrs%3F%2C+options%3F+%29">constructor( attrs?, options? )</h4>
+<h1 id="page_Class+methods">Class methods</h1>
+<h3 id="page_constructor%28+attrs%3F%2C+options%3F+%29">constructor( attrs?, options? )</h3>
 <p>When creating an instance of a record, you can pass in the initial values of the attributes,
 which will be set on the record.</p>
 <p>If <code>{parse: true}</code> is passed as an option, the attributes will first be converted
@@ -157,11 +155,11 @@ const book = new Book({
   author: &quot;Scheherazade&quot;
 });
 </code></pre>
-<h4 id="page_record.initialize%28+attrs%3F%2C+options%3F+%29">record.initialize( attrs?, options? )</h4>
+<h3 id="page_record.initialize%28+attrs%3F%2C+options%3F+%29">record.initialize( attrs?, options? )</h3>
 <p>Called at the end of the <code>Record</code> constructor when all attributes are assigned
 and record's inner state is properly initialized. Takes the same arguments as
 a constructor.</p>
-<h4 id="page_record.attrName">record.attrName</h4>
+<h3 id="page_record.attrName">record.attrName</h3>
 <p>Record's attributes may be directly accessed with <code>record.name</code>, as if they would be the members of the class.
 Please note, that you <em>have to declare all attributes</em> in <code>static attributes</code> declaration before use.</p>
 <pre><code class="language-javascript">@define class Account extends Record {
@@ -174,7 +172,7 @@ Please note, that you <em>have to declare all attributes</em> in <code>static at
 const myAccount = new Account({ name : 'mine' });
 myAccount.ballance += 1000000; // That works. Good, eh?
 </code></pre>
-<h4 id="page_record.set%28%29">record.set()</h4>
+<h3 id="page_record.set%28%29">record.set()</h3>
 <p>Set a hash of attributes (one or many) on the record.
 If any of the attributes change the record's state, a <code>change</code> event will be triggered on the record.
 Change events for specific attributes are also triggered, and you can bind to those as well,

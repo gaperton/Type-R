@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../General_concepts/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>General concepts</a><ul class='Nav'><li class='Nav__item '><a href="../General_concepts/Overview.html">Overview</a></li><li class='Nav__item '><a href="../General_concepts/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../General_concepts/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../General_concepts/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../General_concepts/Validation.html">Validation</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../Record/Events_and_Transactions.html">Events and Transactions</a></li><li class='Nav__item '><a href="../Record/Validation.html">Validation</a></li><li class='Nav__item Nav__item--active'><a href="../Record/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../General_concepts/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>General concepts</a><ul class='Nav'><li class='Nav__item '><a href="../General_concepts/Overview.html">Overview</a></li><li class='Nav__item '><a href="../General_concepts/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../General_concepts/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../General_concepts/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../General_concepts/Validation.html">Validation</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../Record/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../Record/Validation.html">Validation</a></li><li class='Nav__item Nav__item--active'><a href="../Record/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -76,8 +76,6 @@
 
     <div class="Page__header">
         <h1>Serialization</h1>
-                <span style="float: left; font-size: 10px; color: gray;">
-            Thursday, May 18, 2017 8:24 AM        </span>
                         <span style="float: right; font-size: 10px; color: gray;">
             <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/04_Record/05_Serialization.md" target="_blank">Edit on GitHub</a>
         </span>
@@ -85,21 +83,21 @@
 
 
     <div class="s-content">
-        <h2 id="page_Declarations">Declarations</h2>
-<h4 id="page_attr+%3A+Type.has.toJSON%28+false+%29"><code>attrDef</code> attr : Type.has.toJSON( false )</h4>
+        <h1 id="page_Declarations">Declarations</h1>
+<h3 id="page_attr+%3A+Type.has.toJSON%28+false+%29"><code>attrDef</code> attr : Type.has.toJSON( false )</h3>
 <p>Exclude attribute from serialization.</p>
-<h4 id="page_attr+%3A+Type.has.toJSON%28+%28+value%2C+name+%29+%3D%3E+json+%29"><code>attrDef</code> attr : Type.has.toJSON( ( value, name ) =&gt; json )</h4>
+<h3 id="page_attr+%3A+Type.has.toJSON%28+%28+value%2C+name+%29+%3D%3E+json+%29"><code>attrDef</code> attr : Type.has.toJSON( ( value, name ) =&gt; json )</h3>
 <p>Override the default toJSON() method for the selected record's attribute.</p>
-<h4 id="page_attr+%3A+Type.has.parse%28%29"><code>attrDef</code> attr : Type.has.parse()</h4>
+<h3 id="page_attr+%3A+Type.has.parse%28%29"><code>attrDef</code> attr : Type.has.parse()</h3>
 <p>Transform the data before it will be passed to the record's attribute when <code>{ parse : true }</code> option is used.</p>
-<h2 id="page_Class+members">Class members</h2>
-<h4 id="page_record.parse%28+json+%29">record.parse( json )</h4>
+<h1 id="page_Class+members">Class members</h1>
+<h3 id="page_record.parse%28+json+%29">record.parse( json )</h3>
 <p>May be overriden to transform constructor or <code>set</code> argument when <code>{ parse : true }</code> option is used.</p>
-<h4 id="page_constructor%28+json%2C+%7B+parse+%3A+true+%7D+%29">constructor( json, { parse : true } )</h4>
+<h3 id="page_constructor%28+json%2C+%7B+parse+%3A+true+%7D+%29">constructor( json, { parse : true } )</h3>
 <p>Call <code>record.parse( json )</code> and attribute-level parse transforms. They won't be executed by default.</p>
-<h4 id="page_record.set%28+json%2C+%7B+parse+%3A+true+%7D+%29">record.set( json, { parse : true } )</h4>
+<h3 id="page_record.set%28+json%2C+%7B+parse+%3A+true+%7D+%29">record.set( json, { parse : true } )</h3>
 <p>Call <code>record.parse( json )</code> and attribute-level parse transforms. They won't be executed by default.</p>
-<h4 id="page_record.toJSON%28%29">record.toJSON()</h4>
+<h3 id="page_record.toJSON%28%29">record.toJSON()</h3>
 <p>Create record's JSON representation. This can be used for persistence, serialization, or for augmentation before being sent to the server.
 The name of this method is a bit confusing, as it doesn't actually return a JSON string — but I'm afraid that it's the way that the JavaScript API for JSON.stringify works.</p>
 <pre><code class="language-javascript">@define class Artist extends Record {

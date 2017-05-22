@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../General_concepts/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>General concepts</a><ul class='Nav'><li class='Nav__item '><a href="../General_concepts/Overview.html">Overview</a></li><li class='Nav__item '><a href="../General_concepts/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../General_concepts/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../General_concepts/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../General_concepts/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../Record/Events_and_Transactions.html">Events and Transactions</a></li><li class='Nav__item '><a href="../Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Record/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item Nav__item--active'><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../General_concepts/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>General concepts</a><ul class='Nav'><li class='Nav__item '><a href="../General_concepts/Overview.html">Overview</a></li><li class='Nav__item '><a href="../General_concepts/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../General_concepts/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../General_concepts/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../General_concepts/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../Record/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Record/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item Nav__item--active'><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -76,8 +76,6 @@
 
     <div class="Page__header">
         <h1>Sorted collections</h1>
-                <span style="float: left; font-size: 10px; color: gray;">
-            Thursday, May 18, 2017 11:44 AM        </span>
                         <span style="float: right; font-size: 10px; color: gray;">
             <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/05_Collection/03_Sorted_collections.md" target="_blank">Edit on GitHub</a>
         </span>
@@ -88,11 +86,11 @@
         <p>By default there is no comparator for a collection. If you define a comparator, it will be used to maintain the collection in sorted order. This means that as records are added, they are inserted at the correct index in collection.models.</p>
 <p>Note that Type-R depends on the arity of your comparator function to determine between the two styles, so be careful if your comparator function is bound.</p>
 <p>Collections with a comparator will not automatically re-sort if you later change model attributes, so you may wish to call sort after changing model attributes that would affect the order.</p>
-<h4 id="page_comparator+%3D+%27attrName%27"><code>static</code> comparator = 'attrName'</h4>
+<h3 id="page_comparator+%3D+%27attrName%27"><code>static</code> comparator = 'attrName'</h3>
 <p>Maintain the collection in sorted order by the given record's attribute.</p>
-<h4 id="page_comparator+%3D+x+%3D%3E+number+%7C+string"><code>static</code> comparator = x =&gt; number | string</h4>
+<h3 id="page_comparator+%3D+x+%3D%3E+number+%7C+string"><code>static</code> comparator = x =&gt; number | string</h3>
 <p>&quot;sortBy&quot; comparator functions take a model and return a numeric or string value by which the model should be ordered relative to others.</p>
-<h4 id="page_comparator+%3D+%28+x%2C+y+%29+%3D%3E+-1+%7C+0+%7C+1"><code>static</code> comparator = ( x, y ) =&gt; -1 | 0 | 1</h4>
+<h3 id="page_comparator+%3D+%28+x%2C+y+%29+%3D%3E+-1+%7C+0+%7C+1"><code>static</code> comparator = ( x, y ) =&gt; -1 | 0 | 1</h3>
 <p>&quot;sort&quot; comparator functions take two models, and return -1 if the first model should come before the second, 0 if they are of the same rank and 1 if the first model should come after.</p>
 <p>Note how even though all of the chapters in this example are added backwards, they come out in the proper order:</p>
 <pre><code class="language-javascript">var Chapter  = Backbone.Model;
@@ -106,7 +104,7 @@ chapters.add(new Chapter({page: 1, title: &quot;The Beginning&quot;}));
 
 alert(chapters.pluck('title'));
 </code></pre>
-<h4 id="page_collection.sort%28+options%3F+%29">collection.sort( options? )</h4>
+<h3 id="page_collection.sort%28+options%3F+%29">collection.sort( options? )</h3>
 <p>Force a collection to re-sort itself. You don't need to call this under normal circumstances, as a collection with a comparator will sort itself whenever a model is added. To disable sorting when adding a model, pass <code>{sort: false}</code> to add. Calling sort triggers a &quot;sort&quot; event on the collection.</p>
     </div>
 

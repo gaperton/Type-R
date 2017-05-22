@@ -569,24 +569,27 @@ h6 {
 .s-content h1 {
   font-size: 2em;
   color: black;
-}
-.s-content h2 {
-  font-size: 1.6em;
-  border-bottom: 1px solid #eee;
-  color: black;
+  border-bottom: 1px solid gray;
   padding: 5px 0px 5px 20px;
   border-top-color: #8acc37;
   border-top-width: 6px;
   border-top-style: solid;
   margin-left: -20px;
   margin-right: -20px;
+  margin-top: 0;
+}
+.s-content h2 {
+  font-size: 1.4em;
+  color: black;
+  border-bottom-style: dotted;
+  border-bottom-width: 1px;
+  border-bottom-color: gray;
+  margin-bottom: 12px;
+  padding: 5px 0px 3px 20px;
+  margin-left: -20px;
+  margin-right: -20px;
 }
 .s-content h3 {
-  font-size: 1.4em;
-  font-weight: 400;
-  padding: 3px 0px 7px 0px;
-}
-.s-content h4 {
   color: black;
   font-size: 1em;
   font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
@@ -594,6 +597,11 @@ h6 {
   padding: 9px 0px 9px 20px;
   margin-left: -20px;
   margin-right: -20px;
+}
+.s-content h4 {
+  font-size: 1em;
+  font-weight: bold;
+  padding: 3px 0px 7px 0px;
 }
 .s-content h5 {
   font-size: 1em;
@@ -1132,9 +1140,11 @@ Components
   transform: rotate(135deg);
 }
 .Page__header {
-  margin: 0 0 10px;
-  padding: 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #8acc37;
+  font-size: 1.5em;
+  padding: 0px 0px 0px 20px;
+  margin-left: -20px;
+  margin-right: -20px;
 }
 .Page__header::before,
 .Page__header::after {
@@ -1161,6 +1171,7 @@ Components
 }
 .Page__header a {
   text-decoration: none;
+  padding-right: 10px;
 }
 .Links {
   padding: 0 20px;

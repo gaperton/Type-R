@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../General_concepts/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>General concepts</a><ul class='Nav'><li class='Nav__item '><a href="../General_concepts/Overview.html">Overview</a></li><li class='Nav__item '><a href="../General_concepts/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../General_concepts/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../General_concepts/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../General_concepts/Validation.html">Validation</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../Record/Events_and_Transactions.html">Events and Transactions</a></li><li class='Nav__item '><a href="../Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Record/Serialization.html">Serialization</a></li><li class='Nav__item Nav__item--active'><a href="../Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../General_concepts/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>General concepts</a><ul class='Nav'><li class='Nav__item '><a href="../General_concepts/Overview.html">Overview</a></li><li class='Nav__item '><a href="../General_concepts/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../General_concepts/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../General_concepts/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../General_concepts/Validation.html">Validation</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../Record/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Record/Serialization.html">Serialization</a></li><li class='Nav__item Nav__item--active'><a href="../Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -76,8 +76,6 @@
 
     <div class="Page__header">
         <h1>id  and id-references</h1>
-                <span style="float: left; font-size: 10px; color: gray;">
-            Thursday, May 18, 2017 8:25 AM        </span>
                         <span style="float: right; font-size: 10px; color: gray;">
             <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/04_Record/06_id_ and_id-references.md" target="_blank">Edit on GitHub</a>
         </span>
@@ -85,13 +83,13 @@
 
 
     <div class="s-content">
-        <h2 id="page_Record%27s+id">Record's id</h2>
-<h4 id="page_record.id">record.id</h4>
+        <h1 id="page_Record%27s+id">Record's id</h1>
+<h3 id="page_record.id">record.id</h3>
 <p>Predefined record's attribute, the <code>id</code> is an arbitrary string (integer id or UUID).
 <code>id</code> is typically generated by the server. It is used in JSON for id-references.</p>
 <p>Records can be retrieved by <code>id</code> from collections, and there can be just one instance
 of the record with the same <code>id</code> in the particular collection.</p>
-<h4 id="page_idAttribute+%3D+%27attrName%27"><code>static</code> idAttribute = 'attrName'</h4>
+<h3 id="page_idAttribute+%3D+%27attrName%27"><code>static</code> idAttribute = 'attrName'</h3>
 <p>A record's unique identifier is stored under the <code>id</code> attribute.
 If you're directly communicating with a backend (CouchDB, MongoDB) that uses a different unique key,
 you may set a Record's <code>idAttribute</code> to transparently map from that key to id.</p>
@@ -107,20 +105,20 @@ you may set a Record's <code>idAttribute</code> to transparently map from that k
 const cake = new Meal({ _id: 1, name: &quot;Cake&quot; });
 alert(&quot;Cake id: &quot; + cake.id);
 </code></pre>
-<h4 id="page_record.isNew%28%29">record.isNew()</h4>
+<h3 id="page_record.isNew%28%29">record.isNew()</h3>
 <p>Has this record been saved to the server yet? If the record does not yet have an <code>id</code>, it is considered to be new.</p>
-<h2 id="page_id-references">id-references</h2>
+<h1 id="page_id-references">id-references</h1>
 <p>Serializable references to shared records are called an <em>id-references</em>. It is represented as <code>record.id</code> in JSON,
 and there must be the populated master collection of records on the client in order to resolve ids on parse.</p>
 <p>There are two kinds of id-references: one-to-many, and many-to-many. They are declared with the special kind of attribute annotation.
 Id-references behaves in the same way as shared attributes, but <em>inner changes</em> in referenced objects are <em>not observed</em>.</p>
-<h4 id="page_attr+%3A+Record.from%28+sourceCollection+%29"><code>attrDef</code> attr : Record.from( sourceCollection )</h4>
+<h3 id="page_attr+%3A+Record.from%28+sourceCollection+%29"><code>attrDef</code> attr : Record.from( sourceCollection )</h3>
 <p>Declare an attribute to be the record from the particular collection.</p>
 <p>Serialized as <code>record.id</code>.</p>
-<h4 id="page_attr+%3A+Collection.subsetOf%28+sourceCollection+%29"><code>attrDef</code> attr : Collection.subsetOf( sourceCollection )</h4>
+<h3 id="page_attr+%3A+Collection.subsetOf%28+sourceCollection+%29"><code>attrDef</code> attr : Collection.subsetOf( sourceCollection )</h3>
 <p>Declare an attribute to be the collection, which is the subset of the particular collection.</p>
 <p>Serialized as an array of record ids.</p>
-<h3 id="page_Relative+paths+to+source+collection">Relative paths to source collection</h3>
+<h2 id="page_Relative+paths+to+source+collection">Relative paths to source collection</h2>
 <p><code>sourceCollection</code> can be the string with the dot-separated <em>relative object path</em> to the collection.
 In this case, it is resolved dynamically relative to the record's <code>this</code>.</p>
 <pre><code>@define class State extends Record {

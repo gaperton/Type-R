@@ -1,7 +1,7 @@
 
-## Declarations
+# Declarations
 
-#### `attrDef` attr : Type.has.check( predicate, errorMsg? )
+### `attrDef` attr : Type.has.check( predicate, errorMsg? )
 
 Attribute-level validator.
 
@@ -27,27 +27,27 @@ const Age = Number.has
                 .check( x => x < 200, 'No way man can be that old' );
 ```
 
-#### `attrDef` attr : Type.isRequired
+### `attrDef` attr : Type.isRequired
 
 The special case of attribute-level check cutting out empty values. Attribute value must be truthy to pass, `"Required"` is used as validation error.
 
 `isRequired` is the first validator to check, no matter in which order validators were attached.
 
-## Class members
+# Class members
 
-#### record.validate()
+### record.validate()
 
 Override in Record subclass to add record-level validation. Whatever is returned is treated as an error message.
 
-#### record.isValid()
+### record.isValid()
 
 Returns `true` whenever the record is valid. The whole aggregation tree is validated.
 
-#### record.isValid( attrName )
+### record.isValid( attrName )
 
 Returns `true` whenever the record's attribute is valid.
 
-#### record.validationError
+### record.validationError
 
 Detailed validation error information, or `null` if the record and its _aggregation tree_ is valid.
 An error object has tree structure mapping the invalid subtree of the aggregation tree.
@@ -69,15 +69,15 @@ An error object has tree structure mapping the invalid subtree of the aggregatio
 }
 ```
 
-### Validation error traversal
+## Validation error traversal
 
 ValidationError has a couple of methods for tree traversal.
 
-#### validationError.each( ( error, key ) => void )
+### validationError.each( ( error, key ) => void )
 
 Iterate through the records's errors (not recursive). `key` is `null` for the record-level validation error.
 
-#### validationError.eachError( ( error, key, recordOrCollection ) => void )
+### validationError.eachError( ( error, key, recordOrCollection ) => void )
 
 Recursively traverse aggregation tree errors. `key` is `null` for the record-level validation error.
 `recordOrCollection` is the reference to the current object.

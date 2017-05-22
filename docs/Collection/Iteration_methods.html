@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../General_concepts/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>General concepts</a><ul class='Nav'><li class='Nav__item '><a href="../General_concepts/Overview.html">Overview</a></li><li class='Nav__item '><a href="../General_concepts/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../General_concepts/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../General_concepts/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../General_concepts/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../Record/Events_and_Transactions.html">Events and Transactions</a></li><li class='Nav__item '><a href="../Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Record/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item Nav__item--active'><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../General_concepts/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>General concepts</a><ul class='Nav'><li class='Nav__item '><a href="../General_concepts/Overview.html">Overview</a></li><li class='Nav__item '><a href="../General_concepts/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../General_concepts/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../General_concepts/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../General_concepts/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../Record/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Record/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item Nav__item--active'><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -76,8 +76,6 @@
 
     <div class="Page__header">
         <h1>Iteration methods</h1>
-                <span style="float: left; font-size: 10px; color: gray;">
-            Thursday, May 18, 2017 9:48 AM        </span>
                         <span style="float: right; font-size: 10px; color: gray;">
             <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/05_Collection/02_Iteration_methods.md" target="_blank">Edit on GitHub</a>
         </span>
@@ -85,24 +83,24 @@
 
 
     <div class="s-content">
-        <h2 id="page_map+and+forEach">map and forEach</h2>
-<h4 id="page_collection.forEach%28+iteratee+%3A+%28+val+%3A+Record%2C+index+%29+%3D%3E+void%2C+context%3F+%29">collection.forEach( iteratee : ( val : Record, index ) =&gt; void, context? )</h4>
-<h4 id="page_collection.each%28+iteratee+%3A+%28+val+%3A+Record%2C+index+%29+%3D%3E+void%2C+context%3F+%29">collection.each( iteratee : ( val : Record, index ) =&gt; void, context? )</h4>
+        <h1 id="page_map+and+forEach">map and forEach</h1>
+<h3 id="page_collection.forEach%28+iteratee+%3A+%28+val+%3A+Record%2C+index+%29+%3D%3E+void%2C+context%3F+%29">collection.forEach( iteratee : ( val : Record, index ) =&gt; void, context? )</h3>
+<h3 id="page_collection.each%28+iteratee+%3A+%28+val+%3A+Record%2C+index+%29+%3D%3E+void%2C+context%3F+%29">collection.each( iteratee : ( val : Record, index ) =&gt; void, context? )</h3>
 <p>Iterate through the elements of the collection. Similar to <code>Array.forEach</code>.</p>
-<h4 id="page_collection.updateEach%28+iteratee+%3A+%28+val+%3A+Record%2C+index+%29+%3D%3E+void%2C+context%3F+%29">collection.updateEach( iteratee : ( val : Record, index ) =&gt; void, context? )</h4>
+<h3 id="page_collection.updateEach%28+iteratee+%3A+%28+val+%3A+Record%2C+index+%29+%3D%3E+void%2C+context%3F+%29">collection.updateEach( iteratee : ( val : Record, index ) =&gt; void, context? )</h3>
 <p>Similar to the <code>collection.each</code>, but wraps an iteration in a transaction. The single <code>changes</code> event will be emitted
 for the group of changes to the records made in <code>updateEach</code>.</p>
 <p><em>Use this method if you modify records in a loop</em>.</p>
-<h4 id="page_collection.map%28+iteratee+%3A+%28+val+%3A+Record%2C+index+%29+%3D%3E+T%2C+context%3F+%29">collection.map( iteratee : ( val : Record, index ) =&gt; T, context? )</h4>
+<h3 id="page_collection.map%28+iteratee+%3A+%28+val+%3A+Record%2C+index+%29+%3D%3E+T%2C+context%3F+%29">collection.map( iteratee : ( val : Record, index ) =&gt; T, context? )</h3>
 <p>Map elements of the collection. Similar to <code>Array.map</code>, but <code>undefined</code> values returned by iteratee are filtered out.</p>
 <p>Thus, <code>collection.map</code> can be used to map and filter elements in a single pass.</p>
-<h2 id="page_Predicate+methods">Predicate methods</h2>
+<h1 id="page_Predicate+methods">Predicate methods</h1>
 <p>Predicate is either the iteratee function returning boolean, or an object with attribute values used to match with record's attributes.</p>
-<h4 id="page_collection.filter%28+iteratee+%3A+Predicate%2C+context%3F+%29">collection.filter( iteratee : Predicate, context? )</h4>
+<h3 id="page_collection.filter%28+iteratee+%3A+Predicate%2C+context%3F+%29">collection.filter( iteratee : Predicate, context? )</h3>
 <p>Return filtered array of records matching the predicate.</p>
-<h4 id="page_collection.every%28+iteratee+%3A+Predicate%2C+context%3F+%29+%3A+boolean">collection.every( iteratee : Predicate, context? ) : boolean</h4>
+<h3 id="page_collection.every%28+iteratee+%3A+Predicate%2C+context%3F+%29+%3A+boolean">collection.every( iteratee : Predicate, context? ) : boolean</h3>
 <p>Return <code>true</code> if all records match the predicate.</p>
-<h4 id="page_collection.some%28+iteratee+%3A+Predicate%2C+context%3F+%29+%3A+boolean">collection.some( iteratee : Predicate, context? ) : boolean</h4>
+<h3 id="page_collection.some%28+iteratee+%3A+Predicate%2C+context%3F+%29+%3A+boolean">collection.some( iteratee : Predicate, context? ) : boolean</h3>
 <p>Return <code>true</code> if at least one record match the predicated.</p>
     </div>
 

@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item Nav__item--open has-children'><a href="../General_concepts/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>General concepts</a><ul class='Nav'><li class='Nav__item '><a href="../General_concepts/Overview.html">Overview</a></li><li class='Nav__item '><a href="../General_concepts/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item Nav__item--active'><a href="../General_concepts/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../General_concepts/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../General_concepts/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../Record/Events_and_Transactions.html">Events and Transactions</a></li><li class='Nav__item '><a href="../Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Record/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item Nav__item--open has-children'><a href="../General_concepts/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>General concepts</a><ul class='Nav'><li class='Nav__item '><a href="../General_concepts/Overview.html">Overview</a></li><li class='Nav__item '><a href="../General_concepts/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item Nav__item--active'><a href="../General_concepts/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../General_concepts/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../General_concepts/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../Record/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Record/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -76,8 +76,6 @@
 
     <div class="Page__header">
         <h1>Updates and change events</h1>
-                <span style="float: left; font-size: 10px; color: gray;">
-            Thursday, May 18, 2017 2:35 PM        </span>
                         <span style="float: right; font-size: 10px; color: gray;">
             <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/03_General_concepts/02_Updates_and_change_events.md" target="_blank">Edit on GitHub</a>
         </span>
@@ -85,23 +83,22 @@
 
 
     <div class="s-content">
-        <h2 id="page_Transactional+updates">Transactional updates</h2>
-<h4 id="page_node.transaction%28+fun+%3A+%28+self+%3A+this+%29+%3D%3E+void%2C+options+%3A+TransactionOptions+%3D+%7B%7D+%29+%3A+void%7B">node.transaction( fun : ( self : this ) =&gt; void, options : TransactionOptions = {} ) : void{</h4>
-<h4 id="page_node.set%28+values+%3A+any%2C+options%3F+%3A+TransactionOptions+%29+%3A+this+%7B">node.set( values : any, options? : TransactionOptions ) : this {</h4>
-<h2 id="page_Change+events">Change events</h2>
+        <h3 id="page_node.set%28+values%2C+options%3F+%29">node.set( values, options? )</h3>
+<h3 id="page_node.transaction%28+fun+%3A+%28+self+%3A+this+%29+%3D%3E+void%2C+options+%3A+TransactionOptions+%3D+%7B%7D+%29+%3A+void%7B">node.transaction( fun : ( self : this ) =&gt; void, options : TransactionOptions = {} ) : void{</h3>
+<h1 id="page_Change+events">Change events</h1>
 <p>There are different change events for different types of nodes in aggregation tree.</p>
-<h4 id="page_node.onChanges%28+handler%2C+context%3F+%29">node.onChanges( handler, context? )</h4>
-<h4 id="page_node.offChanges%28+handler%3F%2C+context%3F+%29">node.offChanges( handler?, context? )</h4>
-<h4 id="page_node.listenToChanges%28+source%2C+handler+%29">node.listenToChanges( source, handler )</h4>
-<h2 id="page_Generic+Events+API">Generic Events API</h2>
+<h3 id="page_node.onChanges%28+handler%2C+context%3F+%29">node.onChanges( handler, context? )</h3>
+<h3 id="page_node.offChanges%28+handler%3F%2C+context%3F+%29">node.offChanges( handler?, context? )</h3>
+<h3 id="page_node.listenToChanges%28+source%2C+handler+%29">node.listenToChanges( source, handler )</h3>
+<h1 id="page_Generic+Events+API">Generic Events API</h1>
 <p>Aggregation tree node implements <a href="../Events.html">Events API</a>.</p>
-<h4 id="page_eventsSource.trigger%28event%2C++%5B+%2A+args%5D%29">eventsSource.trigger(event, [*args])</h4>
-<h4 id="page_eventSource.on%28event%2C+callback%2C++%5B+context%5D%29">eventSource.on(event, callback, [context])</h4>
-<h4 id="page_eventSource.off%28+%5B+event%5D%2C++%5B+callback%5D%2C++%5B+context%5D%29">eventSource.off([event], [callback], [context])</h4>
-<h4 id="page_eventsSource.once%28event%2C+callback%2C++%5B+context%5D%29">eventsSource.once(event, callback, [context])</h4>
-<h4 id="page_eventsSource.listenTo%28other%2C+event%2C+callback%29">eventsSource.listenTo(other, event, callback)</h4>
-<h4 id="page_eventsSource.stopListening%28+%5B+other%5D%2C++%5B+event%5D%2C++%5B+callback%5D%29">eventsSource.stopListening([other], [event], [callback])</h4>
-<h4 id="page_eventsSource.listenToOnce%28other%2C+event%2C+callback%29">eventsSource.listenToOnce(other, event, callback)</h4>
+<h3 id="page_eventsSource.trigger%28event%2C++%5B+%2A+args%5D%29">eventsSource.trigger(event, [*args])</h3>
+<h3 id="page_eventSource.on%28event%2C+callback%2C++%5B+context%5D%29">eventSource.on(event, callback, [context])</h3>
+<h3 id="page_eventSource.off%28+%5B+event%5D%2C++%5B+callback%5D%2C++%5B+context%5D%29">eventSource.off([event], [callback], [context])</h3>
+<h3 id="page_eventsSource.once%28event%2C+callback%2C++%5B+context%5D%29">eventsSource.once(event, callback, [context])</h3>
+<h3 id="page_eventsSource.listenTo%28other%2C+event%2C+callback%29">eventsSource.listenTo(other, event, callback)</h3>
+<h3 id="page_eventsSource.stopListening%28+%5B+other%5D%2C++%5B+event%5D%2C++%5B+callback%5D%29">eventsSource.stopListening([other], [event], [callback])</h3>
+<h3 id="page_eventsSource.listenToOnce%28other%2C+event%2C+callback%29">eventsSource.listenToOnce(other, event, callback)</h3>
     </div>
 
         <nav>
