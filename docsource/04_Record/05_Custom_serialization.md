@@ -1,4 +1,9 @@
-# Declarations
+All records are serializable by default. Record corresponds to an object in JSON.
+
+The way how the record is parsed from JSON or serialized back to JSON can be controlled on the level of the
+specific Record type and the specific attribute.
+
+# Serialization
 
 ### `attrDef` attr : Type.has.toJSON( false )
 
@@ -7,24 +12,6 @@ Exclude attribute from serialization.
 ### `attrDef` attr : Type.has.toJSON( ( value, name ) => json )
 
 Override the default toJSON() method for the selected record's attribute.
-
-### `attrDef` attr : Type.has.parse()
-
-Transform the data before it will be passed to the record's attribute when `{ parse : true }` option is used.
-
-# Class members
-
-### record.parse( json )
-
-May be overriden to transform constructor or `set` argument when `{ parse : true }` option is used.
-
-### constructor( json, { parse : true } )
-
-Call `record.parse( json )` and attribute-level parse transforms. They won't be executed by default.
-
-### record.set( json, { parse : true } )
-
-Call `record.parse( json )` and attribute-level parse transforms. They won't be executed by default.
 
 ### record.toJSON()
 
@@ -52,3 +39,16 @@ alert( JSON.stringify( artist ) );
 ```
 
 It will, however, produce correct JSON for all the complex attribute types.
+
+# Parsing
+
+Custom parse logic is invoked in the `constructor` or `set` to transform the data when the `{ parse : true }` option is used.
+
+### `attrDef` attr : Type.has.parse( ( json, name ) => value )
+
+Transform the data before it will be passed to the record's attribute.
+
+### record.parse( json )
+
+Transform the data to prodice an attribute hash used in `record.set()`.
+

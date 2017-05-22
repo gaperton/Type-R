@@ -31,28 +31,30 @@ update the current instances instead.
 
 Makes the `record` to be the copy of `otherRecord`, recursively assigning all attributes.
 
-Works similar to `record.set( otherRecord.attributes, { merge : true });
+Works similar to `record.set( otherRecord.attributes, { merge : true })`;
 
 # Listening to events
 
-## Deep changes observation
+## Observable changes
 
-Records automatically listens to change events of nested records and collections, and triggers the corresponding change events on its attributes. It means that the single attribute change deeply inside of aggregation tree will trigger change events on all the parents in a sequence.
+Object tree formed by records and collection is deeply observable by default; changes in tree leafs triggers the changes of all parent elements in sequence.
+
+Records automatically listens to change events of all nested records and collections, and triggers the corresponding change events on its attributes.
 
 ### `attrDef` attr : Type.has.changeEvents( false )
 
-Do _not_ listen for the inner changes of the `attr`.
+Do _not_ listen for the inner changes of the specific `attr`.
 
-## Custom attribute change watchers
+## Listening to events in the record
 
-Declaratively attach the watcher in attribute definition. Subscription will be managed automatically.
+Record has declarative API for managing event subscriptions for its attributes.
 
 ### `attrDef` attr : Type.has.watcher( 'methodName' )
 ### `attrDef` attr : Type.has.watcher( function( value, name ){ ... } )
 
 Attach `change:attr` event listener to the particular record's attribute.
 
-_Watcher function_ has the signature `( attrValue, attrName ) => void` and is executed in the context of the record.
+_Watcher function_ has the signature `( attrValue, attrName ) => void` and is executed in the context of the record. Note that it differs from the event signature.
 
 ```javascript
 @define class User extends Record {
@@ -68,7 +70,11 @@ _Watcher function_ has the signature `( attrValue, attrName ) => void` and is ex
 }
 ```
 
-## Custom events subscribtion.
+### `attrDef` attr : Type.has.events({ eventName : handler, ... })
+
+Automatically manage custom event subscription for the attribute. `handler` is either the method name or the handler function.
+
+## Events subscription with Events API
 
 `listener.listenTo()` and `listener.listenToOnce()` methods can be used to listen to the any of the change events.
 

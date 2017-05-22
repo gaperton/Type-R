@@ -37,21 +37,25 @@ The special case of attribute-level check cutting out empty values. Attribute va
 
 `isRequired` is the first validator to check, no matter in which order validators were attached.
 
-## Record-level validators
+## Object-level validators
 
-### record.validate()
+### recordOrCollection.validate()
 
-Override in Record subclass to add record-level validation. Whatever is returned is treated as an error message.
+Override in the subclass to add object-level validation. Whatever is returned from `validate()` is treated as an error message and triggers the validation error.
 
 # Validation API
 
-### record.isValid()
+Validation 
+Validation happens transparently on the first access to any part of the validation API. Validation results are cached. Only the required parts of aggregation tree will be validated again 
 
-Returns `true` whenever the record is valid. The whole aggregation tree is validated.
+### recordOrCollection.isValid()
+
+Returns `true` whenever an object and its aggregation tree is valid.
 
 ### record.isValid( attrName )
+### collection.isValid( recordId )
 
-Returns `true` whenever the record's attribute is valid.
+Returns `true` whenever the record's attribute or collection's item is valid.
 
 ### record.validationError
 
@@ -75,11 +79,31 @@ An error object has tree structure mapping the invalid subtree of the aggregatio
 }
 ```
 
+### collection.validationError
+
+Detailed validation error information, or `null` if the collection and its _aggregation tree_ is valid.
+An error object has tree structure mapping the invalid subtree of the aggregation tree.
+
+```javascript
+// ValidationError object shape
+{
+    error : /* collection-level validation error msg as returned from collection.validate() */,
+
+    // Collection items validation errors
+    nested : {
+        // Contains nested ValidationError object for nested records...
+        /* record.cid */ : /* record.validationError */
+    }
+}
+```
+
 ### record.getValidationError( attr )
+### collection.getValidationError( recordId )
 
-Return the validation error for the given `attr`.
+Return the validation error for the given `attr` or collection's item.
 
-### node.eachValidationError( iteratee : ( error, key, recordOrCollection ) => void )
+### recordOrCollection.eachValidationError( iteratee : ( error, key, recordOrCollection ) => void )
 
 Recursively traverse aggregation tree errors. `key` is `null` for the record-level validation error (returned from `validate()`).
 `recordOrCollection` is the reference to the current object.
+

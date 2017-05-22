@@ -4,7 +4,7 @@
 <!--[if IE 8]>          <html class="no-js ie8 oldie" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
-    <title>Overview - Type-R</title>
+    <title>Serialization - Type-R</title>
     <meta name="description" content="Universal state management framework" />
     <meta name="author" content="Vlad Balin">
     <meta charset="UTF-8">
@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="Getting_Started.html">Getting Started</a></li><li class='Nav__item Nav__item--active'><a href="Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="Record/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="Record/Custom_serialization.html">Custom serialization</a></li><li class='Nav__item '><a href="Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item '><a href="Aggregation_Tree.html">Aggregation Tree</a></li><li class='Nav__item '><a href="Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Validation.html">Validation</a></li><li class='Nav__item '><a href="Events.html">Events</a></li><li class='Nav__item '><a href="Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="Record/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="Record/Custom_serialization.html">Custom serialization</a></li><li class='Nav__item '><a href="Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item '><a href="Aggregation_Tree.html">Aggregation Tree</a></li><li class='Nav__item Nav__item--active'><a href="Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Validation.html">Validation</a></li><li class='Nav__item '><a href="Events.html">Events</a></li><li class='Nav__item '><a href="Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -75,51 +75,37 @@
                 <article class="Page">
 
     <div class="Page__header">
-        <h1>Overview</h1>
+        <h1>Serialization</h1>
                         <span style="float: right; font-size: 10px; color: gray;">
-            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/01_Overview.md" target="_blank">Edit on GitHub</a>
+            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/08_Serialization.md" target="_blank">Edit on GitHub</a>
         </span>
             </div>
 
 
     <div class="s-content">
-        <p>React-MVx is built around the idea of <em>universal state management</em> featuring
-the same technique to manage the local component state, application page state,
-and the global application state.</p>
-<p>Basic building blocks of the application architecture are:</p>
-<ul>
-<li>React-MVx Component (extended React.Component) for the view layer.</li>
-<li>Records and Collection (provided by Type-R data framework) for managing all kinds of an application state.</li>
-<li>Links for two-way data binding.</li>
-<li>Stores (which is the subclass of the Record and can be dynamically created) for resolving record's id-references.</li>
-</ul>
-<p>React-MVx Component uses the Record class to manage its local state. Record can consists of other records
-and collections, describing the data structure of arbitrary complexity. All records are serializable by default, has deeply observable changes, and supports the declarative validation.</p>
-<p>The behavior of record's attributes and component state/props elements is controlled with declarative <em>type annotations</em>.</p>
-<p>React-MVx extends React namespace and should be used instead of <code>react</code>.
-All class Component definitions must be preceeded with the <code>@define</code> decorator.</p>
-<pre><code class="language-javascript">import React, { define } from 'react-mvx'
-
-@define class HelloApp extends React.Component {
-    static state = {
-        count : 0
-    };
-
-    render(){
-        const { state } = this;
-        return (
-            &lt;h1 onClick={ () =&gt; state.count++ }&gt;
-                Hi there! { state.count }
-            &lt;/h1&gt;;
-        );
-    }
-}
-</code></pre>
+        <p>Aggregation tree formed of records and collections is serializable by default. Record corresponds to an object in JSON, while the collection is represented as an array.</p>
+<h2 id="page_Serialization+API">Serialization API</h2>
+<h3 id="page_recordOrCollection.toJSON%28%29">recordOrCollection.toJSON()</h3>
+<p>Produces the JSON for the aggregation tree of the record or collection. May be overriden in particular record or collection.</p>
+<h3 id="page_new+RecordOrCollection%28+json%2C+%7B+parse+%3A+true+%7D+%29">new RecordOrCollection( json, { parse : true } )</h3>
+<p>Constructs an aggregation tree from its JSON representation.</p>
+<h3 id="page_recordOrCollection.set%28+json%2C+%7B+parse+%3A+true+%7D+%29">recordOrCollection.set( json, { parse : true } )</h3>
+<p>Update an aggregation tree from its JSON representation.</p>
+<h3 id="page_recordOrCollection.parse%28+json+%29">recordOrCollection.parse( json )</h3>
+<p>May be overriden to add custom JSON transformation.</p>
+<h2 id="page_Attribute-level+serialization+control">Attribute-level serialization control</h2>
+<p>Serialization can be controlled for the specific attribute in the Recrod's attribute definition.</p>
+<h3 id="page_attr+%3A+Type.has.toJSON%28+false+%29"><code>attrDef</code> attr : Type.has.toJSON( false )</h3>
+<p>Exclude attribute from the resulting JSON.</p>
+<h3 id="page_attr+%3A+Type.has.toJSON%28+%28+value%2C+name+%29+%3D%3E+json+%29"><code>attrDef</code> attr : Type.has.toJSON( ( value, name ) =&gt; json )</h3>
+<p>Override the default toJSON() method for the selected record's attribute.</p>
+<h3 id="page_attr+%3A+Type.has.parse%28+%28+json%2C+name+%29+%3D%3E+value+%29"><code>attrDef</code> attr : Type.has.parse( ( json, name ) =&gt; value )</h3>
+<p>Transform the data before it will be passed to the record's attribute.</p>
     </div>
 
         <nav>
         <ul class="Pager">
-            <li class=Pager--prev><a href="Getting_Started.html">Previous</a></li>            <li class=Pager--next><a href="Record/Overview.html">Next</a></li>        </ul>
+            <li class=Pager--prev><a href="Aggregation_Tree.html">Previous</a></li>            <li class=Pager--next><a href="Validation.html">Next</a></li>        </ul>
     </nav>
     </article>
 
