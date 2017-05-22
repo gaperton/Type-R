@@ -17,7 +17,7 @@ You need to import mixins decorator to use mixins:
 
 Define configurable properties merge rules for the specific class. Rules can be extented in any subclass.
 
-# Mixin rules
+## Mixin rules
 
 ### `rule` name : 'merge'
 

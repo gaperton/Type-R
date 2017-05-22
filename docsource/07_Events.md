@@ -21,15 +21,17 @@ This is the preferable listening API and must be used in all application code.
 ### listener.listenTo(other, event, callback) 
 Tell an object to listen to a particular event on an other object. The advantage of using this form, instead of other.on(event, callback, object), is that listenTo allows the object to keep track of the events, and they can be removed all at once later on. The callback will always be called with object as context.
 
-    view.listenTo(model, 'change', view.render);
+    view.listenTo(model, 'change', view.render );
 
 ### listener.stopListening([other], [event], [callback]) 
 
 Tell an object to stop listening to events. Either call stopListening with no arguments to have the object remove all of its registered callbacks ... or be more precise by telling it to remove just the events it's listening to on a specific object, or a specific event, or just a specific callback.
 
-    view.stopListening();
+    view.stopListening(); // Unsubscribe from all events
 
-    view.stopListening(model);
+    view.stopListening(model); // Unsubscribe from all events from the model
+
+All Type-R classes execute `this.stopListening()` from their `dispose()` method.
 
 ### listener.listenToOnce(other, event, callback) 
 

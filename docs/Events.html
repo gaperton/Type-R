@@ -95,14 +95,15 @@
 <p>This is the preferable listening API and must be used in all application code.</p>
 <h3 id="page_listener.listenTo%28other%2C+event%2C+callback%29">listener.listenTo(other, event, callback)</h3>
 <p>Tell an object to listen to a particular event on an other object. The advantage of using this form, instead of other.on(event, callback, object), is that listenTo allows the object to keep track of the events, and they can be removed all at once later on. The callback will always be called with object as context.</p>
-<pre><code>view.listenTo(model, 'change', view.render);
+<pre><code>view.listenTo(model, 'change', view.render );
 </code></pre>
 <h3 id="page_listener.stopListening%28+%5B+other%5D%2C++%5B+event%5D%2C++%5B+callback%5D%29">listener.stopListening([other], [event], [callback])</h3>
 <p>Tell an object to stop listening to events. Either call stopListening with no arguments to have the object remove all of its registered callbacks ... or be more precise by telling it to remove just the events it's listening to on a specific object, or a specific event, or just a specific callback.</p>
-<pre><code>view.stopListening();
+<pre><code>view.stopListening(); // Unsubscribe from all events
 
-view.stopListening(model);
+view.stopListening(model); // Unsubscribe from all events from the model
 </code></pre>
+<p>All Type-R classes execute <code>this.stopListening()</code> from their <code>dispose()</code> method.</p>
 <h3 id="page_listener.listenToOnce%28other%2C+event%2C+callback%29">listener.listenToOnce(other, event, callback)</h3>
 <p>Just like listenTo, but causes the bound callback to fire only once before being removed.</p>
 <h2 id="page_Low-level+listening+API">Low-level listening API</h2>
