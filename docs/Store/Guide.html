@@ -4,7 +4,7 @@
 <!--[if IE 8]>          <html class="no-js ie8 oldie" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
-    <title>Serialization - Type-R</title>
+    <title>Guide - Type-R</title>
     <meta name="description" content="Universal state management framework" />
     <meta name="author" content="Vlad Balin">
     <meta charset="UTF-8">
@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../Record/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Basics.html">Basics</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item Nav__item--active'><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="../Aggregation_tree/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Aggregation tree</a><ul class='Nav'><li class='Nav__item '><a href="../Aggregation_tree/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Aggregation_tree/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Aggregation_tree/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Aggregation_tree/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../Aggregation_tree/id-references.html">id-references</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../Record/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Basics.html">Basics</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Basics.html">Basics</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="../Aggregation_tree/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Aggregation tree</a><ul class='Nav'><li class='Nav__item '><a href="../Aggregation_tree/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Aggregation_tree/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Aggregation_tree/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Aggregation_tree/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../Aggregation_tree/id-references.html">id-references</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Store/Guide.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Store</a><ul class='Nav'><li class='Nav__item Nav__item--active'><a href="../Store/Guide.html">Guide</a></li><li class='Nav__item '><a href="../Store/Stores_and_relations_basics.html">Stores and relations basics</a></li><li class='Nav__item '><a href="../Store/Advanced_stores.html">Advanced stores</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -75,77 +75,19 @@
                 <article class="Page">
 
     <div class="Page__header">
-        <h1>Serialization</h1>
+        <h1>Guide</h1>
                         <span style="float: right; font-size: 10px; color: gray;">
-            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/05_Collection/Serialization.md" target="_blank">Edit on GitHub</a>
+            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/06_Store/01_Guide.md" target="_blank">Edit on GitHub</a>
         </span>
             </div>
 
 
     <div class="s-content">
-        <h1 id="page_Serialization+methods">Serialization methods</h1>
-<h3 id="page_colleciton.parse%28+json+%29">colleciton.parse( json )</h3>
-<p>Called when <code>{ parse : true }</code> option is used in collection's <code>constructor</code>, <code>set</code>, <code>reset</code>, and <code>add</code> methods.</p>
-<p>May be overriden to transforms the responce from the server.</p>
-<h3 id="page_collection.toJSON%28%29">collection.toJSON()</h3>
-<p>Return an array containing the attributes hash of each model (via toJSON) in the collection. This can be used to serialize and persist the collection as a whole. The name of this method is a bit confusing, because it conforms to JavaScript's JSON API.</p>
-<pre><code class="language-javascript">@define class Man extends Record {
-  static attributes = {
-    name : '',
-    age : 0
-  }
-}
-
-const collection = new Man.Collection([
-  {name: &quot;Tim&quot;, age: 5},
-  {name: &quot;Ida&quot;, age: 26},
-  {name: &quot;Rob&quot;, age: 55}
-]);
-
-alert(JSON.stringify(collection));
-</code></pre>
-<h1 id="page_Polymorphic+collections">Polymorphic collections</h1>
-<p>Collection may contain polimorphic records of different types if they are the subclass of the <code>model</code>.
-You need to define static <code>Model.create</code> factory method to make an abstract model serializable.</p>
-<pre><code class="language-javascript">@define // Serializable abstract Record
-class Document extends Record {
-    static attrbutes = {
-      type : String,
-      // attrs definition...
-    };
-
-    // Factory method needs to be defined.
-    static create( attrs, options ){
-        switch( attrs.type ){
-            case &quot;public&quot; : return new PublicDocument( attrs, options );
-            case &quot;private&quot; : return new PrivateDocument( attrs, options );
-        }
-    }
-}
-
-const Library = Document.Collection;
-
-@define
-class PublicDocument extends Document {
-  static attributes = {
-    type : 'public',
-    // attrs definition...
-  }
-}
-
-@define
-class PrivateDocument extends Document {
-  static attributes = {
-    type : 'private',
-    // attrs definition...
-  }
-}
-</code></pre>
-    </div>
+            </div>
 
         <nav>
         <ul class="Pager">
-            <li class=Pager--prev><a href="../Collection/Sorted_collections.html">Previous</a></li>            <li class=Pager--next><a href="../Collection/Updates_and_Events.html">Next</a></li>        </ul>
+            <li class=Pager--prev><a href="../Aggregation_tree/id-references.html">Previous</a></li>            <li class=Pager--next><a href="../Store/Stores_and_relations_basics.html">Next</a></li>        </ul>
     </nav>
     </article>
 

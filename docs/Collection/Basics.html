@@ -4,7 +4,7 @@
 <!--[if IE 8]>          <html class="no-js ie8 oldie" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
-    <title>Overview - Type-R</title>
+    <title>Basics - Type-R</title>
     <meta name="description" content="Universal state management framework" />
     <meta name="author" content="Vlad Balin">
     <meta charset="UTF-8">
@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../Record/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Basics.html">Basics</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item Nav__item--active'><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="../Aggregation_tree/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Aggregation tree</a><ul class='Nav'><li class='Nav__item '><a href="../Aggregation_tree/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Aggregation_tree/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Aggregation_tree/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Aggregation_tree/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../Aggregation_tree/id-references.html">id-references</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../Record/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Basics.html">Basics</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item Nav__item--active'><a href="../Collection/Basics.html">Basics</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="../Aggregation_tree/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Aggregation tree</a><ul class='Nav'><li class='Nav__item '><a href="../Aggregation_tree/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Aggregation_tree/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Aggregation_tree/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Aggregation_tree/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../Aggregation_tree/id-references.html">id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="../Store/Guide.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Store</a><ul class='Nav'><li class='Nav__item '><a href="../Store/Guide.html">Guide</a></li><li class='Nav__item '><a href="../Store/Stores_and_relations_basics.html">Stores and relations basics</a></li><li class='Nav__item '><a href="../Store/Advanced_stores.html">Advanced stores</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -75,9 +75,9 @@
                 <article class="Page">
 
     <div class="Page__header">
-        <h1>Overview</h1>
+        <h1>Basics</h1>
                         <span style="float: right; font-size: 10px; color: gray;">
-            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/05_Collection/00_Overview.md" target="_blank">Edit on GitHub</a>
+            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/05_Collection/00_Basics.md" target="_blank">Edit on GitHub</a>
         </span>
             </div>
 
@@ -109,58 +109,30 @@ class Comics extends Book {
     }
 }
 </code></pre>
-<h1 id="page_Declarations">Declarations</h1>
+<h1 id="page_Collection+definition">Collection definition</h1>
+<p>Every <code>Record</code> class has implicitly defined Collection, which can be referenced adding the <code>.Collection</code> to the record's constructor.</p>
+<p>Collections can be defined explicitly extending the base <code>Collection</code> class. There are two ways to bind collection to the record.</p>
+<h2 id="page_In+record+definition">In record definition</h2>
+<h3 id="page_Collection+%3D+CollectionConstructor"><code>static</code> Collection = CollectionConstructor</h3>
+<p>Replaces implicitly defined collection with externally defined collection class.</p>
+<h2 id="page_In+collection+definition">In collection definition</h2>
 <h3 id="page_model+%3D+RecordConstructor"><code>static</code> model = RecordConstructor</h3>
-<pre><code class="language-javascript">@define
-class Library extends Record.Collection {
+<p>If defined, you can pass raw attributes objects (and arrays) to add, create, and reset, and the attributes will be converted into a model of the proper type.</p>
+<pre><code class="language-javascript">@define class Library extends Record.Collection {
     static model = Book;
 }
 </code></pre>
-<p>If defined, you can pass raw attributes objects (and arrays) to add, create, and reset, and the attributes will be converted into a model of the proper type.</p>
-<p>This property is being set automatically for collection types referenced as <code>MyRecord.Collection</code>. In the majority of cases you don't need to define it explicitly.</p>
+<p>This property is being set automatically for collection types referenced as <code>MyRecord.Collection</code>.</p>
 <h1 id="page_Members">Members</h1>
-<h3 id="page_constructor%28+models%3F%2C+options%3F+%29">constructor( models?, options? )</h3>
-<p>When creating a Collection, you may choose to pass in the initial array of models. The collection's comparator may be included as an option. Passing false as the comparator option will prevent sorting. If you define an initialize function, it will be invoked when the collection is created. There are a couple of options that, if provided, are attached to the collection directly: model and comparator.
-Pass null for models to create an empty Collection with options.</p>
+<h3 id="page_new+Collection%28%29">new Collection()</h3>
+<p>Create an empty collection.</p>
+<h3 id="page_new+Collection%28+models%2C+options%3F+%29">new Collection( models, options? )</h3>
+<p>When creating a Collection, you may choose to pass in the initial array of models. The collection's comparator may be included as an option. Passing <code>false</code> as the comparator option will prevent sorting. If you define an <code>initialize()</code> function, it will be invoked when the collection is created. There are a couple of options that, if provided, are attached to the collection directly: model and comparator.
+Pass <code>null</code> for <code>models</code> to create an empty Collection with options.</p>
 <pre><code class="language-javascript">var tabs = new TabSet([tab1, tab2, tab3]);
 </code></pre>
-<h3 id="page_collection.add%28+models%2C+options%3F+%29">collection.add( models, options? )</h3>
-<p>Add a record (or an array of records) to the collection, firing an &quot;add&quot; event for each record, and an &quot;update&quot; event afterwards. If a record property is defined, you may also pass raw attributes objects, and have them be vivified as instances of the record. Returns the added (or preexisting, if duplicate) records. Pass {at: index} to splice the record into the collection at the specified index. If you're adding records to the collection that are already in the collection, they'll be ignored, unless you pass {merge: true}, in which case their attributes will be merged into the corresponding records, firing any appropriate &quot;change&quot; events.</p>
-<pre><code>var ships = new Backbone.Collection;
-
-ships.on(&quot;add&quot;, function(ship) {
-alert(&quot;Ahoy &quot; + ship.get(&quot;name&quot;) + &quot;!&quot;);
-});
-
-ships.add([
-{name: &quot;Flying Dutchman&quot;},
-{name: &quot;Black Pearl&quot;}
-]);
-</code></pre>
-<p>Note that adding the same record (a record with the same id) to a collection more than once
-is a no-op.</p>
-<h3 id="page_collection.remove%28+records%2C+options%3F+%29">collection.remove( records, options? )</h3>
-<p>Remove a record (or an array of records) from the collection, and return them. Each record can be a record instance, an id string or a JS object, any value acceptable as the id argument of collection.get. Fires a &quot;remove&quot; event for each record, and a single &quot;update&quot; event afterwards, unless {silent: true} is passed. The record's index before removal is available to listeners as options.index.</p>
-<h3 id="page_collection.reset%28+records%2C+options%3F+%29">collection.reset( records, options? )</h3>
-<p>Adding and removing records one at a time is all well and good, but sometimes you have so many records to change that you'd rather just update the collection in bulk. Use reset to replace a collection with a new list of records (or attribute hashes), triggering a single &quot;reset&quot; event on completion, and without triggering any add or remove events on any records. Returns the newly-set records.</p>
-<p>Pass null for records to empty your Collection with options.</p>
-<p>Here's an example using reset to bootstrap a collection during initial page load, in a Rails application:</p>
-<pre><code>&lt;script&gt;
-var accounts = new Backbone.Collection;
-accounts.reset(&lt;%= @accounts.to_json %&gt;);
-&lt;/script&gt;
-</code></pre>
-<p>Calling collection.reset() without passing any records as arguments will empty the entire collection.</p>
-<h3 id="page_collection.set%28+records%2C+options%3F+%29">collection.set( records, options? )</h3>
-<p>The set method performs a &quot;smart&quot; update of the collection with the passed list of records. If a record in the list isn't yet in the collection it will be added; if the record is already in the collection its attributes will be merged; and if the collection contains any records that aren't present in the list, they'll be removed. All of the appropriate &quot;add&quot;, &quot;remove&quot;, and &quot;change&quot; events are fired as this happens. Returns the touched records in the collection. If you'd like to customize the behavior, you can disable it with options: {add: false}, {remove: false}, or {merge: false}.</p>
-<pre><code class="language-javascript">const vanHalen = new Man.Collection([ eddie, alex, stone, roth ]);
-
-vanHalen.set([ eddie, alex, stone, hagar ]);
-
-// Fires a &quot;remove&quot; event for roth, and an &quot;add&quot; event for &quot;hagar&quot;.
-// Updates any of stone, alex, and eddie's attributes that may have
-// changed over the years.
-</code></pre>
+<h3 id="page_collection.initialize%28+models%3F%2C+options%3F+%29">collection.initialize( models?, options? )</h3>
+<p>Initialization function which is called at the end of the constructor.</p>
 <h3 id="page_collection.get%28+id+%29">collection.get( id )</h3>
 <p>Get a record from a collection, specified by an <code>id</code>, a <code>cid</code>, or by passing in a record.</p>
 <pre><code class="language-javascript">const book = library.get(110);
@@ -175,7 +147,7 @@ vanHalen.set([ eddie, alex, stone, hagar ]);
 
         <nav>
         <ul class="Pager">
-            <li class=Pager--prev><a href="../Record/Listening_to_events.html">Previous</a></li>            <li class=Pager--next><a href="../Collection/Proxied_array_methods.html">Next</a></li>        </ul>
+            <li class=Pager--prev><a href="../Record/Listening_to_events.html">Previous</a></li>            <li class=Pager--next><a href="../Collection/Updates_and_transactions.html">Next</a></li>        </ul>
     </nav>
     </article>
 

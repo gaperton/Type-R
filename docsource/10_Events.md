@@ -107,7 +107,7 @@ Executes `messenger.stopListening()` and `messenger.off()`.
 
 Objects must be disposed to prevent memory leaks caused by subscribing for events from singletons.
 
-# Type-R built-in events
+# List of built-in events
 
 ## Record events
 

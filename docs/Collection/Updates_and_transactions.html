@@ -4,7 +4,7 @@
 <!--[if IE 8]>          <html class="no-js ie8 oldie" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
-    <title>Updates and Events - Type-R</title>
+    <title>Updates and transactions - Type-R</title>
     <meta name="description" content="Universal state management framework" />
     <meta name="author" content="Vlad Balin">
     <meta charset="UTF-8">
@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../Record/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Basics.html">Basics</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item Nav__item--active'><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="../Aggregation_tree/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Aggregation tree</a><ul class='Nav'><li class='Nav__item '><a href="../Aggregation_tree/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Aggregation_tree/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Aggregation_tree/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Aggregation_tree/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../Aggregation_tree/id-references.html">id-references</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../Record/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Basics.html">Basics</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Basics.html">Basics</a></li><li class='Nav__item Nav__item--active'><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="../Aggregation_tree/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Aggregation tree</a><ul class='Nav'><li class='Nav__item '><a href="../Aggregation_tree/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Aggregation_tree/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Aggregation_tree/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Aggregation_tree/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../Aggregation_tree/id-references.html">id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="../Store/Guide.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Store</a><ul class='Nav'><li class='Nav__item '><a href="../Store/Guide.html">Guide</a></li><li class='Nav__item '><a href="../Store/Stores_and_relations_basics.html">Stores and relations basics</a></li><li class='Nav__item '><a href="../Store/Advanced_stores.html">Advanced stores</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -75,9 +75,9 @@
                 <article class="Page">
 
     <div class="Page__header">
-        <h1>Updates and Events</h1>
+        <h1>Updates and transactions</h1>
                         <span style="float: right; font-size: 10px; color: gray;">
-            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/05_Collection/Updates_and_Events.md" target="_blank">Edit on GitHub</a>
+            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/05_Collection/01_Updates_and_transactions.md" target="_blank">Edit on GitHub</a>
         </span>
             </div>
 
@@ -173,23 +173,11 @@ Any additional changes made to the collection or its items in event handlers wil
 <p>Execute the sequence of updates in <code>fun</code> function in the scope of the transaction.</p>
 <h3 id="page_collection.updateEach%28+iteratee+%3A+%28+val+%3A+Record%2C+index+%29+%3D%3E+void%2C+context%3F+%29">collection.updateEach( iteratee : ( val : Record, index ) =&gt; void, context? )</h3>
 <p>Similar to the <code>collection.each</code>, but wraps the loop in a transaction.</p>
-<h1 id="page_Listening+to+events">Listening to events</h1>
-<h2 id="page_Observable+changes">Observable changes</h2>
-<p>Object tree formed by records and collection is deeply observable by default; changes in tree leafs triggers the changes of all parent elements in sequence.</p>
-<p>Collection automatically listens to <code>change</code> events of all its records, and triggers <code>change</code> and <code>changes</code> events.</p>
-<h2 id="page_Listening+to+item+events+in+the+collection">Listening to item events in the collection</h2>
-<h3 id="page_itemEvents+%3D+%7B+eventName+%3A++%2C+...+%7D"><code>static</code> itemEvents = { eventName : <code>handler</code>, ... }</h3>
-<p>Subscribe for events from records. The <code>hander</code> is either the collection's method name, the handler function, or <code>true</code>.</p>
-<p>When <code>true</code> is passed as a handler, the corresponding event will be triggered on the collection.</p>
-<h2 id="page_Events+subscription+with+Events+API">Events subscription with Events API</h2>
-<p><code>listener.listenTo()</code> and <code>listener.listenToOnce()</code> methods can be used to listen to the any of the collection events.s</p>
-<p>If listener itself is the record or collection, subscribtions will be stopped automatically. Otherwise they must be stopped
-manually with <code>listener.stopListening()</code> call to prevent memory leaks.# List of built-in events</p>
     </div>
 
         <nav>
         <ul class="Pager">
-            <li class=Pager--prev><a href="../Collection/Serialization.html">Previous</a></li>            <li class=Pager--next><a href="../Collection/Validation.html">Next</a></li>        </ul>
+            <li class=Pager--prev><a href="../Collection/Basics.html">Previous</a></li>            <li class=Pager--next><a href="../Collection/Listening_to_events.html">Next</a></li>        </ul>
     </nav>
     </article>
 

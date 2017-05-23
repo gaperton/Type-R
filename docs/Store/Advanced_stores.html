@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>       <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>          <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>          <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+    <title>Advanced stores - Type-R</title>
+    <meta name="description" content="Universal state management framework" />
+    <meta name="author" content="Vlad Balin">
+    <meta charset="UTF-8">
+    <link rel="icon" href="../themes/daux/img/favicon-navy.png" type="image/x-icon">
+    <!-- Mobile -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Font -->
+    <link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700&subset=latin,cyrillic-ext,cyrillic' rel='stylesheet' type='text/css'>
+    <!-- CSS -->
+    <link href='../themes/daux/css/theme-navy.min.css' rel='stylesheet' type='text/css'>
+            <!-- Tipue Search -->
+        <link href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+    
+    <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+<body class="">
+    
+<header class="Navbar hidden-print">
+    <a class="Navbar__brand" href="../index.html">Type-R</a>
+
+    <div class="Search">
+        <svg class="Search__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 451 451"><path d="M447.05 428l-109.6-109.6c29.4-33.8 47.2-77.9 47.2-126.1C384.65 86.2 298.35 0 192.35 0 86.25 0 .05 86.3.05 192.3s86.3 192.3 192.3 192.3c48.2 0 92.3-17.8 126.1-47.2L428.05 447c2.6 2.6 6.1 4 9.5 4s6.9-1.3 9.5-4c5.2-5.2 5.2-13.8 0-19zM26.95 192.3c0-91.2 74.2-165.3 165.3-165.3 91.2 0 165.3 74.2 165.3 165.3s-74.1 165.4-165.3 165.4c-91.1 0-165.3-74.2-165.3-165.4z"/></svg>
+        <input type="search" id="tipue_search_input" class="Search__field" placeholder="Search..." autocomplete="on" results=25 autosave=text_search>
+    </div>
+</header>
+<div class="Columns content">
+    <aside class="Columns__left Collapsible">
+        <div class="Collapsible__container">
+            <button type="button" class="Button Collapsible__trigger">
+                <span class="Collapsible__trigger--bar"></span>
+                <span class="Collapsible__trigger--bar"></span>
+                <span class="Collapsible__trigger--bar"></span>
+            </button>
+        </div>
+
+        <div class="Collapsible__content">
+            <!-- Navigation -->
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../Record/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Basics.html">Basics</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Basics.html">Basics</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="../Aggregation_tree/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Aggregation tree</a><ul class='Nav'><li class='Nav__item '><a href="../Aggregation_tree/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Aggregation_tree/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Aggregation_tree/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Aggregation_tree/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../Aggregation_tree/id-references.html">id-references</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Store/Guide.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Store</a><ul class='Nav'><li class='Nav__item '><a href="../Store/Guide.html">Guide</a></li><li class='Nav__item '><a href="../Store/Stores_and_relations_basics.html">Stores and relations basics</a></li><li class='Nav__item Nav__item--active'><a href="../Store/Advanced_stores.html">Advanced stores</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+
+            <div class="Links">
+                                    <hr/>
+                                            <a href="https://github.com/Volicon/React-MVx/issues" target="_blank">Help/Support/Bugs</a>
+                        <br />
+                                            <a href="http://volicon.com" target="_blank">Made by Volicon (a Verizon company)</a>
+                        <br />
+                                    
+                                    <div class="CodeToggler">
+                        <hr/>
+                                                    <a class="CodeToggler__button CodeToggler__button--main" href="#">Show Code Blocks Inline</a><br>
+                                            </div>
+                
+                                    <hr/>
+                    <div class="Twitter">
+                                                    <iframe allowtransparency="true" frameborder="0" scrolling="no" style="width:162px; height:20px;" src="https://platform.twitter.com/widgets/follow_button.html?screen_name=gaperton&amp;show_count=false"></iframe>
+                            <br />
+                            <br />
+                                            </div>
+                            </div>
+        </div>
+    </aside>
+    <div class="Columns__right ">
+        <div class="Columns__right__content">
+            <div class="doc_content">
+                <article class="Page">
+
+    <div class="Page__header">
+        <h1>Advanced stores</h1>
+                        <span style="float: right; font-size: 10px; color: gray;">
+            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/06_Store/03_Advanced_stores.md" target="_blank">Edit on GitHub</a>
+        </span>
+            </div>
+
+
+    <div class="s-content">
+        <h1 id="page_Multiple+stores">Multiple stores</h1>
+<p>Now let's imagine the situation that we have a lot of authors and posts, and we can't afford to load everything upfront.
+So we want to utilize paging. Still, we have an intention to pack users in JSON separately from the posts.</p>
+<p>We can do this using the same trick as we done for users and roles originally, no matter do we have default store or not.
+Lets just add one more store for our task. For this case, we will create the model for every page with posts.
+This model <code>id</code> will be the page id.</p>
+<pre><code class="language-javascript">const PostsPage = Store.extend({
+    attributes : {
+        posts : BlogPost.Collection,
+        users : User.Collection
+    }
+});
+</code></pre>
+<p>Now, all <code>~users</code> references from <code>page.posts</code> will use local <code>page.users</code> collection. But <code>~roles</code> references from
+<code>page.users</code> will find no collection for roles, so what will happen? <em>They will fall back to the default store we have
+defined above, and take roles from there.</em></p>
+<p>In nested types, you may have multiple stores at the same time, you can dynamically create them, and they plays together:</p>
+<ul>
+<li>Whenever closest parent lookup for the store fails, default store is taken.</li>
+<li>Stores can aggregate other stores.</li>
+<li>Whenever lookup for the resource in particular store fails...
+<ul>
+<li>parent store is taken, and procedure continues;</li>
+</ul>
+</li>
+</ul>
+<h1 id="page_Modeling+UI+state+with+relations">Modeling UI state with relations</h1>
+<p>The fact that reference <code>path</code> is taken relative to model's <code>this</code> allows us to use local relations in scenarious wihout Stores, which are way simpler and more common than example discussed above. Most of these scenarious happens when you use NestedTypes not in data layer, but to model UI state. Which is very convinient due to <em>deep changes detection</em> feature, and invaluable in sutuations when you need to preserve UI state on browser refresh.</p>
+<blockquote>
+<p>It's hard to write about UI patterns in general, because different frameworks has different assumptions on what is UI state. So, the case of React is covered in the last section, and React is actually the recommended way of writing applications with NestedTypes.</p>
+</blockquote>
+<h2 id="page_List+of+items+with+selection">List of items with selection</h2>
+<p>Suppose that we have a list of items in collection, which we need to display. And some items might be selected with a click.</p>
+<p>It could be done with DOM manipulation, and we can rely on the DOM as the primary source of information about selection. Which is extrimely bad practice. In case of any UI framework the code will be much cleaner if we would keep information about selection (and other information which is required to render the widget) as a part of the separately managed UI <em>state</em>. And here the situation our models and relations comes to help.</p>
+<p>First idea which comes to the mind is to add 'selected' attribute to the item's model. And again, it is bad idea no matter which framework you're using. In this case we would mix UI state with our data layer. Server and other part of our application have no interest in selection made in particular UI widget, so we need to keep it separate from the <code>items</code> collection.</p>
+<p>Thus, we introduce collection of selected items, which is, obviously, the subset of items collection, and put it along with items we wanna render:</p>
+<pre><code class="language-javascript">const State = Model.extend({
+    attributes : {
+        items : Collection,
+        selected : Collection.subsetOf( 'items' )
+    }
+})
+</code></pre>
+<p>Here, since master collection's path is taken relative to <code>this</code>, it will be <code>this.items</code>. And this spec gives reader quite precise information about the purpose of this <code>selected</code>.</p>
+<p>Then we can just subscribe for the changes of this model and update our UI on every change. Thanks to <code>NestedTypes</code> deep changes detection feature, whenever we will receive items from the server or anything will be changed deep inside of the models for any reason, our UI will be in sync. In case of Backbone View, it will look like this:</p>
+<pre><code class="language-javascript">initialize : function( options ){
+	this.model = new State( options );
+	this.listenTo( this.model, 'change', this.render );
+}
+</code></pre>
+<p>So, instead of DOM manipulation, now it's enough to add or remove corresponding item in <code>selected</code> collection in our click event handler. It has <code>toggle</code> method for that purpose, like <code>selected.toggle( modelOrId )</code>. And since <code>selected</code> collections knows which subset it is, it can easily handle <code>toggle</code> with model id taken from the DOM as an argument.</p>
+<pre><code class="language-javascript">onClick : function( e ){
+	const id = $( e.target ).attr( 'model-id' );
+	this.model.selected.toggle( id ); // will trigger state model change, which will trigger UI update
+}
+</code></pre>
+<blockquote>
+<p>If just one item may be selected at a time, it will obviously be <code>Model.from( 'items' )</code> instead of <code>Collection.subsetOf</code>.</p>
+</blockquote>
+<h2 id="page_Adding+persistence">Adding persistence</h2>
+<p>Now let's suppose that we need to preserve our selection in local storage when browser is refreshed.</p>
+<p>First idea is to take some Backbone plugin for working with <code>localStorage</code>, and try it on our model. As usual. Bad idea. This time - because it could be done trivially without plugins. Thanks to powerful <code>NestedTypes</code> serialization facilities, it's enough to convert our State model to JSON and save it as one piece.</p>
+<p>Lets do something quick and dirty to illustrate an idea. First, we need to teach our model to save to and be loaded from local storage. We suspect it won't be the single case, so we create the base class for that.</p>
+<pre><code class="language-javascript">const LocalStorage = Model.extend({
+	fetch(){
+		if( this.id ){ // take model id as key...
+			const json = localStorage.getItem( this.id );
+			json &amp;&amp; ( this.set( JSON.parse( json ), { parse: true }) );
+		}
+	},
+
+	save( attrs ){
+		attrs &amp;&amp; this.set( attrs );
+		this.id &amp;&amp; localStorage.setItem( this.id, JSON.stringify( this ) );
+	}
+});
+</code></pre>
+<p>Great. When it comes to the <code>State</code> model, we probably don't want to save <code>items</code> to local storage, because they are received from the server. Just <code>selected</code>. And thanks to <code>subsetOf</code> metatype, it will be serialized as an array of model ids, and it's exactly what we want. So...</p>
+<pre><code class="language-javascript">const State = LocalStorage.extend({
+    attributes : {
+        id : 'My Very Specific Widget State Local Storage Key',
+        items : Collection.has.toJSON( false ),
+        selected : Collection.subsetOf( 'items' )
+    }
+})
+</code></pre>
+<p>Assuming that we will have just one instance of this widget on the screen, it's okay, so it would be enough to add something like this in widget's constructor:</p>
+<pre><code class="language-javascript">    this.model.fetch();
+	window.onunload = () =&gt; this.model.save();
+</code></pre>
+<p>That's really quick and very dirty example (describen trick with local storage is really okay for the top level View only), but I think you got the general idea.</p>
+<h1 id="page_For+the+React+guys...">For the React guys...</h1>
+<p>...this example would look a bit different. Because React handle state differently (and in much better way) than traditional MVC frameworks. And because we have <a href="https://github.com/Volicon/NestedReact" class="external">special support for React</a> (you're also warmly welcomed to see our complete <a href="https://github.com/gaperton/todomvc-nestedreact/" class="external">React TodoMVC example</a>).</p>
+<p>Here <code>props</code> will be translated to <code>propTypes</code>, <code>state</code> will lead to creation of the NestedTypes model to manage state (as you see both have the common type annotation style), <code>Model</code> specify the base class for the state model, and <code>pureRender</code>... Well, it's pure render, which you've probably been told of as an impossible optimization for mutable data. :) So now you know it was not true.</p>
+<p>In the context of our topic, you might wander what <code>^props.items</code> reference means. <code>^</code> is the shortcut for <code>getOwner()</code> call, thus this reference will be translated to <code>this.getOwner().props.items</code>, which literally means <em>the reference to the member of my component's <code>props</code>.</em> Model can make direct references to its parents too, yes. I wouldn't recommend using them in other context, though.</p>
+<pre><code class="language-javascript">const QuickAndDirty = React.createClass({
+    props : {
+        items : Collection
+    },
+    
+    pureRender : true,
+    
+    Model : LocalStorage,
+    state : {
+        id : 'My Very Specific Widget State Local Storage Key',
+        selected : Collection.subsetOf( '^props.items' )
+    },
+    
+    componentWillMount(){
+        this.state.fetch();
+    },
+    
+    componentWillUnmount(){
+        this.state.save();
+    },
+    
+    ...
+});
+</code></pre>
+    </div>
+
+        <nav>
+        <ul class="Pager">
+            <li class=Pager--prev><a href="../Store/Stores_and_relations_basics.html">Previous</a></li>            <li class=Pager--next><a href="../Events.html">Next</a></li>        </ul>
+    </nav>
+    </article>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+    <!-- jQuery -->
+    <script src="../themes/daux/js/jquery-1.11.3.min.js"></script>
+
+    <!-- hightlight.js -->
+    <script src="../themes/daux/js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!-- JS -->
+    
+    <script src="../themes/daux/js/daux.js"></script>
+
+            <!-- Tipue Search -->
+        <script type="text/javascript" src="../tipuesearch/tipuesearch.js"></script>
+
+        <script>
+            window.onunload = function(){}; // force $(document).ready to be called on back/forward navigation in firefox
+            $(function() {
+                tipuesearch({
+                    'base_url': '../'
+                });
+            });
+        </script>
+    
+</body>
+</html>
