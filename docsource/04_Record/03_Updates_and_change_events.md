@@ -29,7 +29,7 @@ update the current instances instead.
 
 ### record.assignFrom( otherRecord )
 
-Makes the `record` to be the copy of `otherRecord`, recursively assigning all attributes.
+Makes an existing `record` to be the copy of `otherRecord`, recursively assigning all attributes.
 
 Works similar to `record.set( otherRecord.attributes, { merge : true })`;
 

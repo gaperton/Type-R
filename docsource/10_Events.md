@@ -1,8 +1,10 @@
-Type-R implements Backbone 1.1 events API in the form of the `Events` mixin and `Messenger` base class.
+Both `Record` and `Collection` uses an efficient synchronous events implementation which is compatible with Backbone 1.1 Events API but is twice faster in average. It comes in form of `Events` mixin and the `Messenger` base class.
 
-An implementation is optimized for the large amount of relatively small subscriptions (5-10 events). The majority of event subscriptions occuring in Type-R is 1-2 events per source. Here are benchmark results (lower is the better).
+An implementation is optimized for the large amount of relatively small subscriptions (5-10 events). Here are the benchmark results (lower is the better).
 
 ![performance](./events-performance.jpg)
+
+It is also avaiable separately as part of [MixtureJS](https://github.com/Volicon/MixtureJS) package.
 
 # Events mixin
 

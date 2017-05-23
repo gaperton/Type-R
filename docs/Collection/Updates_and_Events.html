@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../Record/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Record/Custom_serialization.html">Custom serialization</a></li><li class='Nav__item '><a href="../Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item Nav__item--active'><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item '><a href="../Aggregation_Tree.html">Aggregation Tree</a></li><li class='Nav__item '><a href="../Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Validation.html">Validation</a></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../Record/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Record/Custom_serialization.html">Custom serialization</a></li><li class='Nav__item '><a href="../Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item Nav__item--active'><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="../Aggregation_tree/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Aggregation tree</a><ul class='Nav'><li class='Nav__item '><a href="../Aggregation_tree/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Aggregation_tree/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Aggregation_tree/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Aggregation_tree/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../Aggregation_tree/id-references.html">id-references</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -101,20 +101,29 @@
 </li>
 </ol>
 <h3 id="page_collection.add%28+models%2C+options%3F+%29">collection.add( models, options? )</h3>
-<p>Add a record (or an array of records) to the collection, firing an &quot;add&quot; event for each record, and an &quot;update&quot; event afterwards. If a record property is defined, you may also pass raw attributes objects, and have them be vivified as instances of the record. Returns the added (or preexisting, if duplicate) records. Pass {at: index} to splice the record into the collection at the specified index. If you're adding records to the collection that are already in the collection, they'll be ignored, unless you pass {merge: true}, in which case their attributes will be merged into the corresponding records, firing any appropriate &quot;change&quot; events.</p>
-<pre><code>var ships = new Backbone.Collection;
-
-ships.on(&quot;add&quot;, function(ship) {
-    alert(&quot;Ahoy &quot; + ship.get(&quot;name&quot;) + &quot;!&quot;);
-});
-
-ships.add([
-    {name: &quot;Flying Dutchman&quot;},
-    {name: &quot;Black Pearl&quot;}
-]);
-</code></pre>
-<p>Note that adding the same record (a record with the same id) to a collection more than once
-is a no-op.</p>
+<p>Add a record (or an array of records) to the collection. If this is the <code>Record.Collection</code>, you may also pass raw attributes objects, and have them be vivified as instances of the <code>Record</code>. Returns the added (or preexisting, if duplicate) records.</p>
+<p>Pass <code>{at: index}</code> to splice the record into the collection at the specified index. If you're adding records to the collection that are already in the collection, they'll be ignored, unless you pass <code>{merge: true}</code>, in which case their attributes will be merged into the corresponding records, firing any appropriate <code>change</code> events.</p>
+<h4 id="page_Events">Events</h4>
+<ol>
+<li>Apply all changes to the records and collection.</li>
+<li>Trigger the one event per record:
+<ul>
+<li>
+<code>add</code>(record, collection, options) for each record added.</li>
+<li>
+<code>change</code>(record, options) for each record changed (if <code>{merge : true}</code> option was passed).</li>
+</ul>
+</li>
+<li>Trigger the single event:
+<ul>
+<li>
+<code>update</code>(collection, options) if any records were added.</li>
+<li>
+<code>sort</code>(collection, options) if an order of records was changed.</li>
+</ul>
+</li>
+<li>Trigger <code>changes</code> event in case if any changes were made to the collection and objects inside.</li>
+</ol>
 <h3 id="page_collection.remove%28+records%2C+options%3F+%29">collection.remove( records, options? )</h3>
 <p>Remove a record (or an array of records) from the collection, and return them. Each record can be a record instance, an id string or a JS object, any value acceptable as the id argument of collection.get. Fires a &quot;remove&quot; event for each record, and a single &quot;update&quot; event afterwards, unless {silent: true} is passed. The record's index before removal is available to listeners as options.index.</p>
 <h3 id="page_collection.set%28+records%2C+options%3F+%29">collection.set( records, options? )</h3>

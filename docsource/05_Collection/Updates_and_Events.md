@@ -1,38 +1,28 @@
 # Updates
 
-Collections notify listeners on the details of the update with events. It's executed in 3 steps:
+Collections notify listeners on changes with events. The collection update is executed in 4 steps:
 
-1. Apply all changes to collection and nested records.
-2. Trigger events for individual changes:
-    - Trigger `add`, `remove`, or `change` event for every individual record change.
-    - Trigger an `update` event when there are any records added or removed, and `sort` event if an order of records was changed.
-3. If any changes were applied to the collection:
-    - trigger `changes` event;
-    - notify collection's owner on aggregation subtree changes.
+1. Apply all changes to the records and collection.
+1. Trigger the one event per record:
+    - `add`(record, collection, options) for each record added.
+    - `remove`(record, collection, options) for each record removed.
+    - `change`(record, options) for each record changed.
+3. Trigger the single event:
+    - `update`(collection, options) if any records were added.
+    - `sort`(collection, options) if an order of records was changed.
+4. Trigger `changes` event in case if any changes were made to the collection and objects inside.
 
-### collection.add( models, options? )
+### collection.add( models, options? : `options` )
 
-Add a record (or an array of records) to the collection, firing an "add" event for each record, and an "update" event afterwards. If a record property is defined, you may also pass raw attributes objects, and have them be vivified as instances of the record. Returns the added (or preexisting, if duplicate) records. Pass {at: index} to splice the record into the collection at the specified index. If you're adding records to the collection that are already in the collection, they'll be ignored, unless you pass {merge: true}, in which case their attributes will be merged into the corresponding records, firing any appropriate "change" events.
+Add a record (or an array of records) to the collection. If this is the `Record.Collection`, you may also pass raw attributes objects, and have them be vivified as instances of the `Record`. Returns the added (or preexisting, if duplicate) records.
 
-    var ships = new Backbone.Collection;
+Pass `{at: index}` to splice the record into the collection at the specified index. If you're adding records to the collection that are already in the collection, they'll be ignored, unless you pass `{merge: true}`, in which case their attributes will be merged into the corresponding records.
 
-    ships.on("add", function(ship) {
-        alert("Ahoy " + ship.get("name") + "!");
-    });
+### collection.remove( records, options? : `options` ) 
 
-    ships.add([
-        {name: "Flying Dutchman"},
-        {name: "Black Pearl"}
-    ]);
+Remove a record (or an array of records) from the collection, and return them. Each record can be a record instance, an id string or a JS object, any value acceptable as the id argument of collection.get.
 
-Note that adding the same record (a record with the same id) to a collection more than once 
-is a no-op.
-
-### collection.remove( records, options? ) 
-
-Remove a record (or an array of records) from the collection, and return them. Each record can be a record instance, an id string or a JS object, any value acceptable as the id argument of collection.get. Fires a "remove" event for each record, and a single "update" event afterwards, unless {silent: true} is passed. The record's index before removal is available to listeners as options.index.
-
-### collection.set( records, options? )
+### collection.set( records, options? : `options` )
  
 The set method performs a "smart" update of the collection with the passed list of records. If a record in the list isn't yet in the collection it will be added; if the record is already in the collection its attributes will be merged; and if the collection contains any records that aren't present in the list, they'll be removed. All of the appropriate "add", "remove", and "change" events are fired as this happens. Returns the touched records in the collection. If you'd like to customize the behavior, you can disable it with options: {add: false}, {remove: false}, or {merge: false}.
 
@@ -46,6 +36,12 @@ vanHalen.set([ eddie, alex, stone, hagar ]);
 // changed over the years.
 ```
 
+### collection.reset( records, options? : `options` )
+
+Replace the collection's content with the new records.
+
+Calling collection.reset() without passing any records as arguments will empty the entire collection.
+
 ### record.transaction( fun )
 
 Execute the sequence of updates in `fun` function in the scope of the transaction.
@@ -55,23 +51,6 @@ Transaction is the sequence of updates resuling in a single `changes` event. Eve
 ### collection.updateEach( iteratee : ( val : Record, index ) => void, context? )
 
 Similar to the `collection.each`, but wraps an iteration in a transaction. 
-
-
-
-### collection.reset( records, options? )
-
-Adding and removing records one at a time is all well and good, but sometimes you have so many records to change that you'd rather just update the collection in bulk. Use reset to replace a collection with a new list of records (or attribute hashes), triggering a single "reset" event on completion, and without triggering any add or remove events on any records. Returns the newly-set records.
-
-Pass null for records to empty your Collection with options.
-
-Here's an example using reset to bootstrap a collection during initial page load, in a Rails application:
-
-    <script>
-    var accounts = new Backbone.Collection;
-    accounts.reset(<%= @accounts.to_json %>);
-    </script>
-
-Calling collection.reset() without passing any records as arguments will empty the entire collection.
 
 # Listening to events
 
