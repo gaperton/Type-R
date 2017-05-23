@@ -33,7 +33,9 @@ users.set( json, { parse : true } ); // ⟵ parse raw JSON from the server.
 users.updateEach( user => user.firstName = '' ); // ⟵ bulk update triggering 'changes' once
 ```
 
-# Declarations
+# Record definition
+
+Record must extend `Record` base class, it must have `static attributes` definition, and the class definition must be preceeded with `@define` decorator.
 
 ### `static` attributes = { name : `attrDef`, ... }
 
@@ -70,15 +72,24 @@ Any constructor function may be used as an attribute type, if it behaves as _con
 When other value than function is passed, it's treated as the default value and the type is being inferred form the value.
  If you need to pass function as the default value, use `Function.value( theFunction )`.
 
-# Class methods
+# Record's class members
 
-### constructor( attrs?, options? )
+Record behaves as regular ES6 class with attributes accessible as properties.
+
+### new Record()
+
+Create an instance of the record with the default attribute values taken from the attributes definition.
+
+When no default value is explicitly provided, it's `new Type()` (just `Type()` for primitives). When the default value is provided and it's not compatible with the attribute type, it's converted with `new Type( defaultValue )` call.
+
+### new Record({ attrName : value, ... }, options? )
 
 When creating an instance of a record, you can pass in the initial values of the attributes,
  which will be set on the record.
 
-If `{parse: true}` is passed as an option, the attributes will first be converted
- by record's and attribute-level `parse()` before being set on the record.
+If `{parse: true}` is passed as an option, `attrs` is assumed to be the JSON.
+
+If the value of the particular attribute is not compatible with its type, it's converted to this type invoking the constructor `new Type( value )` (just `Type( value )` for primitives).
 
 ```javascript
 @define class Book extends Record {
@@ -116,26 +127,3 @@ Please note, that you *have to declare all attributes* in `static attributes` de
 const myAccount = new Account({ name : 'mine' });
 myAccount.ballance += 1000000; // That works. Good, eh?
 ```
-
-### record.set()
-
-Set a hash of attributes (one or many) on the record.
-If any of the attributes change the record's state, a `change` event will be triggered on the record.
-Change events for specific attributes are also triggered, and you can bind to those as well,
- for example: `change:title`, and `change:content`.
-
-```javascript
-@define class Note extends Record {
-    static attributes = {
-        title : '',
-        content : ''
-    }
-}
-
-const note = new Note();
-note.set({title: "March 20", content: "In his eyes she eclipses..."});
-
-note.title = "A Scandal in Bohemia";
-```
-
-`set()` takes the standard set of transactional `options`.

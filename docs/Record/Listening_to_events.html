@@ -4,7 +4,7 @@
 <!--[if IE 8]>          <html class="no-js ie8 oldie" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
-    <title>Updates and change events - Type-R</title>
+    <title>Listening to events - Type-R</title>
     <meta name="description" content="Universal state management framework" />
     <meta name="author" content="Vlad Balin">
     <meta charset="UTF-8">
@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item Nav__item--open has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item Nav__item--active'><a href="../Record/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Record/Custom_serialization.html">Custom serialization</a></li><li class='Nav__item '><a href="../Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="../Aggregation_tree/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Aggregation tree</a><ul class='Nav'><li class='Nav__item '><a href="../Aggregation_tree/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Aggregation_tree/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Aggregation_tree/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Aggregation_tree/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../Aggregation_tree/id-references.html">id-references</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item Nav__item--open has-children'><a href="../Record/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Basics.html">Basics</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item Nav__item--active'><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="../Aggregation_tree/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Aggregation tree</a><ul class='Nav'><li class='Nav__item '><a href="../Aggregation_tree/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Aggregation_tree/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Aggregation_tree/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Aggregation_tree/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../Aggregation_tree/id-references.html">id-references</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -75,47 +75,15 @@
                 <article class="Page">
 
     <div class="Page__header">
-        <h1>Updates and change events</h1>
+        <h1>Listening to events</h1>
                         <span style="float: right; font-size: 10px; color: gray;">
-            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/04_Record/03_Updates_and_change_events.md" target="_blank">Edit on GitHub</a>
+            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/04_Record/04_Listening_to_events.md" target="_blank">Edit on GitHub</a>
         </span>
             </div>
 
 
     <div class="s-content">
-        <h1 id="page_Update+record+attributes">Update record attributes</h1>
-<h3 id="page_record.attrName+%3D+val">record.attrName = val</h3>
-<p>Assign record attribute.</p>
-<ol>
-<li>Assign new attribute value.</li>
-<li>If value has changed,
-<ul>
-<li>trigger event <code>change:attrName</code> <em>( record, value )</em>.</li>
-<li>trigger event <code>change</code> <em>( record )</em>.</li>
-</ul>
-</li>
-</ol>
-<h3 id="page_record.set%28+%7B+attrName+%3A+val%2C+...+%7D%2C+options%3F+%3A+++%29">record.set( { attrName : val, ... }, options? : <code>options</code> )</h3>
-<p>Bulk assign record's attributes, possibly taking options.</p>
-<ol>
-<li>Assign new attribut values.</li>
-<li>For any changed attribute, trigger event <code>change:attrName</code> <em>( record, val, options )</em>.</li>
-<li>If any attribute has changed:
-<ul>
-<li>trigger event <code>change</code> <em>(record, options)</em>.</li>
-</ul>
-</li>
-</ol>
-<h3 id="page_%7B+parse+%3A+true+%7D"><code>options</code> { parse : true }</h3>
-<p>Transform <code>record.set</code> argument with user-defined parse logic. Typically used to process the responce from the server to make user-defined JSON format conversion.</p>
-<h3 id="page_%7B+merge+%3A+true+%7D"><code>options</code> { merge : true }</h3>
-<p>Merge attributes of record and collection types instead of replacement. If the new instance of record or collection is to be assigned,
-update the current instances instead.</p>
-<h3 id="page_record.assignFrom%28+otherRecord+%29">record.assignFrom( otherRecord )</h3>
-<p>Makes an existing <code>record</code> to be the copy of <code>otherRecord</code>, recursively assigning all attributes.</p>
-<p>Works similar to <code>record.set( otherRecord.attributes, { merge : true })</code>;</p>
-<h1 id="page_Listening+to+events">Listening to events</h1>
-<h2 id="page_Observable+changes">Observable changes</h2>
+        <h2 id="page_Observable+changes">Observable changes</h2>
 <p>Object tree formed by records and collection is deeply observable by default; changes in tree leafs triggers the changes of all parent elements in sequence.</p>
 <p>Records automatically listens to change events of all nested records and collections, and triggers the corresponding change events on its attributes.</p>
 <h3 id="page_attr+%3A+Type.has.changeEvents%28+false+%29"><code>attrDef</code> attr : Type.has.changeEvents( false )</h3>
@@ -144,18 +112,6 @@ update the current instances instead.</p>
 <p><code>listener.listenTo()</code> and <code>listener.listenToOnce()</code> methods can be used to listen to the any of the change events.</p>
 <p>If listener itself is the record or collection, subscribtions will be stopped automatically. Otherwise they must be stopped
 manually with <code>listener.stopListening()</code> call to prevent memory leaks.</p>
-<h1 id="page_Transactions">Transactions</h1>
-<p>All record updates occures in the scope of transactions. Transaction is the sequence of changes which results in a single <code>change</code> event.</p>
-<p>Transaction can be opened either manually or implicitly with calling <code>set()</code> or assigning an attribute.
-Any additional changes made to the record in <code>change:attr</code> event handler will be executed in the scope of the original transaction, and won't trigger additional <code>change</code> events.</p>
-<h3 id="page_record.transaction%28+fun+%29">record.transaction( fun )</h3>
-<p>Execute the all changes made to the record in <code>fun</code> as single transaction.</p>
-<pre><code class="language-javascript">some.record.transaction( record =&gt; {
-    record.a = 1; // `change:a` is triggered.
-    record.b = 2; // `change:b` is triggered.
-}); // `change` is triggered.
-</code></pre>
-<p>Manual transactions with attribute assignments are superior to <code>record.set()</code> in terms of both performance and flexibility.</p>
 <h1 id="page_Change+inspection+methods">Change inspection methods</h1>
 <p>Following API might be useful in change event listeners.</p>
 <h3 id="page_record.changed">record.changed</h3>
@@ -192,7 +148,7 @@ bill.name = &quot;Bill Jones&quot;;
 
         <nav>
         <ul class="Pager">
-            <li class=Pager--prev><a href="../Record/Aggregation_tree.html">Previous</a></li>            <li class=Pager--next><a href="../Record/Validation.html">Next</a></li>        </ul>
+            <li class=Pager--prev><a href="../Record/Updates_and_transactions.html">Previous</a></li>            <li class=Pager--next><a href="../Collection/Overview.html">Next</a></li>        </ul>
     </nav>
     </article>
 

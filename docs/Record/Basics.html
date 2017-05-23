@@ -4,7 +4,7 @@
 <!--[if IE 8]>          <html class="no-js ie8 oldie" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
-    <title>Overview - Type-R</title>
+    <title>Basics - Type-R</title>
     <meta name="description" content="Universal state management framework" />
     <meta name="author" content="Vlad Balin">
     <meta charset="UTF-8">
@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item Nav__item--open has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item Nav__item--active'><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../Record/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="../Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Record/Custom_serialization.html">Custom serialization</a></li><li class='Nav__item '><a href="../Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="../Aggregation_tree/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Aggregation tree</a><ul class='Nav'><li class='Nav__item '><a href="../Aggregation_tree/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Aggregation_tree/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Aggregation_tree/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Aggregation_tree/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../Aggregation_tree/id-references.html">id-references</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item Nav__item--open has-children'><a href="../Record/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item Nav__item--active'><a href="../Record/Basics.html">Basics</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="../Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="../Aggregation_tree/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Aggregation tree</a><ul class='Nav'><li class='Nav__item '><a href="../Aggregation_tree/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Aggregation_tree/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Aggregation_tree/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Aggregation_tree/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../Aggregation_tree/id-references.html">id-references</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -75,9 +75,9 @@
                 <article class="Page">
 
     <div class="Page__header">
-        <h1>Overview</h1>
+        <h1>Basics</h1>
                         <span style="float: right; font-size: 10px; color: gray;">
-            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/04_Record/00_Overview.md" target="_blank">Edit on GitHub</a>
+            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/04_Record/00_Basics.md" target="_blank">Edit on GitHub</a>
         </span>
             </div>
 
@@ -113,7 +113,8 @@ users.on( 'changes', () =&gt; updateUI( users ) ); // ⟵ listen to the changes.
 users.set( json, { parse : true } ); // ⟵ parse raw JSON from the server.
 users.updateEach( user =&gt; user.firstName = '' ); // ⟵ bulk update triggering 'changes' once
 </code></pre>
-<h1 id="page_Declarations">Declarations</h1>
+<h1 id="page_Record+definition">Record definition</h1>
+<p>Record must extend <code>Record</code> base class, it must have <code>static attributes</code> definition, and the class definition must be preceeded with <code>@define</code> decorator.</p>
 <h3 id="page_attributes+%3D+%7B+name+%3A++%2C+...+%7D"><code>static</code> attributes = { name : <code>attrDef</code>, ... }</h3>
 <p>Record is a class with an observalbe and serializable public attributes. Attributes <em>must</em> be declared statically
 in <code>static attributes</code> class member, which is an object hash mapping an attribute name name to its declaration, encapsulating
@@ -137,12 +138,16 @@ Any constructor function may be used as an attribute type, if it behaves as <em>
 <h3 id="page_name+%3A+defaultValue"><code>attrDef</code> name : defaultValue</h3>
 <p>When other value than function is passed, it's treated as the default value and the type is being inferred form the value.
 If you need to pass function as the default value, use <code>Function.value( theFunction )</code>.</p>
-<h1 id="page_Class+methods">Class methods</h1>
-<h3 id="page_constructor%28+attrs%3F%2C+options%3F+%29">constructor( attrs?, options? )</h3>
+<h1 id="page_Record%27s+class+members">Record's class members</h1>
+<p>Record behaves as regular ES6 class with attributes accessible as properties.</p>
+<h3 id="page_new+Record%28%29">new Record()</h3>
+<p>Create an instance of the record with the default attribute values taken from the attributes definition.</p>
+<p>When no default value is explicitly provided, it's <code>new Type()</code> (just <code>Type()</code> for primitives). When the default value is provided and it's not compatible with the attribute type, it's converted with <code>new Type( defaultValue )</code> call.</p>
+<h3 id="page_new+Record%28%7B+attrName+%3A+value%2C+...+%7D%2C+options%3F+%29">new Record({ attrName : value, ... }, options? )</h3>
 <p>When creating an instance of a record, you can pass in the initial values of the attributes,
 which will be set on the record.</p>
-<p>If <code>{parse: true}</code> is passed as an option, the attributes will first be converted
-by record's and attribute-level <code>parse()</code> before being set on the record.</p>
+<p>If <code>{parse: true}</code> is passed as an option, <code>attrs</code> is assumed to be the JSON.</p>
+<p>If the value of the particular attribute is not compatible with its type, it's converted to this type invoking the constructor <code>new Type( value )</code> (just <code>Type( value )</code> for primitives).</p>
 <pre><code class="language-javascript">@define class Book extends Record {
     static attributes = {
         title  : '',
@@ -172,29 +177,11 @@ Please note, that you <em>have to declare all attributes</em> in <code>static at
 const myAccount = new Account({ name : 'mine' });
 myAccount.ballance += 1000000; // That works. Good, eh?
 </code></pre>
-<h3 id="page_record.set%28%29">record.set()</h3>
-<p>Set a hash of attributes (one or many) on the record.
-If any of the attributes change the record's state, a <code>change</code> event will be triggered on the record.
-Change events for specific attributes are also triggered, and you can bind to those as well,
-for example: <code>change:title</code>, and <code>change:content</code>.</p>
-<pre><code class="language-javascript">@define class Note extends Record {
-    static attributes = {
-        title : '',
-        content : ''
-    }
-}
-
-const note = new Note();
-note.set({title: &quot;March 20&quot;, content: &quot;In his eyes she eclipses...&quot;});
-
-note.title = &quot;A Scandal in Bohemia&quot;;
-</code></pre>
-<p><code>set()</code> takes the standard set of transactional <code>options</code>.</p>
     </div>
 
         <nav>
         <ul class="Pager">
-            <li class=Pager--prev><a href="../Overview.html">Previous</a></li>            <li class=Pager--next><a href="../Record/Aggregation_tree.html">Next</a></li>        </ul>
+            <li class=Pager--prev><a href="../Overview.html">Previous</a></li>            <li class=Pager--next><a href="../Record/Updates_and_transactions.html">Next</a></li>        </ul>
     </nav>
     </article>
 

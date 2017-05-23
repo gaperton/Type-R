@@ -106,3 +106,45 @@ Callback which is called at the end of the constructor.
 Executes `messenger.stopListening()` and `messenger.off()`.
 
 Objects must be disposed to prevent memory leaks caused by subscribing for events from singletons.
+
+# Type-R built-in events
+
+## Record events
+
+### `event` "change:attrName" (record, value, options) 
+
+When a specific attribute has been updated
+
+### `event` "change" (record, options) 
+
+When a record's attributes have changed.
+
+## Collection events
+
+### `event` "changes" (collection, options)
+
+The main change event. Single event triggered when the collection has been changed.
+
+### `event` "update" (collection, options)
+
+Single event triggered after any number of records have been added or removed from a collection.
+
+### `event` "reset" (collection, options) 
+
+When the collection's entire contents have been reset.
+
+### `event` "sort" (collection, options) 
+
+When the collection has been re-sorted.
+
+### `event` "add" (record, collection, options)
+
+When a record is added to a collection.
+
+### `event` "remove" (record, collection, options) 
+
+When a record is removed from a collection.
+
+### `event` "change" (record, options) 
+
+When a record's attributes have changed.

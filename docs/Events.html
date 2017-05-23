@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="Record/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="Record/Custom_serialization.html">Custom serialization</a></li><li class='Nav__item '><a href="Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="Aggregation_tree/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Aggregation tree</a><ul class='Nav'><li class='Nav__item '><a href="Aggregation_tree/Overview.html">Overview</a></li><li class='Nav__item '><a href="Aggregation_tree/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Aggregation_tree/Validation.html">Validation</a></li><li class='Nav__item '><a href="Aggregation_tree/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="Aggregation_tree/id-references.html">id-references</a></li></ul></li><li class='Nav__item Nav__item--active'><a href="Events.html">Events</a></li><li class='Nav__item '><a href="Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="Record/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="Record/Basics.html">Basics</a></li><li class='Nav__item '><a href="Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item  has-children'><a href="Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="Aggregation_tree/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Aggregation tree</a><ul class='Nav'><li class='Nav__item '><a href="Aggregation_tree/Overview.html">Overview</a></li><li class='Nav__item '><a href="Aggregation_tree/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Aggregation_tree/Validation.html">Validation</a></li><li class='Nav__item '><a href="Aggregation_tree/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="Aggregation_tree/id-references.html">id-references</a></li></ul></li><li class='Nav__item Nav__item--active'><a href="Events.html">Events</a></li><li class='Nav__item '><a href="Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -155,6 +155,27 @@ object.off();
 <h3 id="page_messenger.dispose%28%29">messenger.dispose()</h3>
 <p>Executes <code>messenger.stopListening()</code> and <code>messenger.off()</code>.</p>
 <p>Objects must be disposed to prevent memory leaks caused by subscribing for events from singletons.</p>
+<h1 id="page_Type-R+built-in+events">Type-R built-in events</h1>
+<h2 id="page_Record+events">Record events</h2>
+<h3 id="page_%22change%3AattrName%22+%28record%2C+value%2C+options%29"><code>event</code> &quot;change:attrName&quot; (record, value, options)</h3>
+<p>When a specific attribute has been updated</p>
+<h3 id="page_%22change%22+%28record%2C+options%29"><code>event</code> &quot;change&quot; (record, options)</h3>
+<p>When a record's attributes have changed.</p>
+<h2 id="page_Collection+events">Collection events</h2>
+<h3 id="page_%22changes%22+%28collection%2C+options%29"><code>event</code> &quot;changes&quot; (collection, options)</h3>
+<p>The main change event. Single event triggered when the collection has been changed.</p>
+<h3 id="page_%22update%22+%28collection%2C+options%29"><code>event</code> &quot;update&quot; (collection, options)</h3>
+<p>Single event triggered after any number of records have been added or removed from a collection.</p>
+<h3 id="page_%22reset%22+%28collection%2C+options%29"><code>event</code> &quot;reset&quot; (collection, options)</h3>
+<p>When the collection's entire contents have been reset.</p>
+<h3 id="page_%22sort%22+%28collection%2C+options%29"><code>event</code> &quot;sort&quot; (collection, options)</h3>
+<p>When the collection has been re-sorted.</p>
+<h3 id="page_%22add%22+%28record%2C+collection%2C+options%29"><code>event</code> &quot;add&quot; (record, collection, options)</h3>
+<p>When a record is added to a collection.</p>
+<h3 id="page_%22remove%22+%28record%2C+collection%2C+options%29"><code>event</code> &quot;remove&quot; (record, collection, options)</h3>
+<p>When a record is removed from a collection.</p>
+<h3 id="page_%22change%22+%28record%2C+options%29"><code>event</code> &quot;change&quot; (record, options)</h3>
+<p>When a record's attributes have changed.</p>
     </div>
 
         <nav>
