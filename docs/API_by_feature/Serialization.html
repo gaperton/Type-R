@@ -4,7 +4,7 @@
 <!--[if IE 8]>          <html class="no-js ie8 oldie" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
-    <title>Shared objects - Type-R</title>
+    <title>Serialization - Type-R</title>
     <meta name="description" content="Universal state management framework" />
     <meta name="author" content="Vlad Balin">
     <meta charset="UTF-8">
@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../Record/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Basics.html">Basics</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Basics.html">Basics</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Aggregation_tree/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Aggregation tree</a><ul class='Nav'><li class='Nav__item '><a href="../Aggregation_tree/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Aggregation_tree/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Aggregation_tree/Validation.html">Validation</a></li><li class='Nav__item Nav__item--active'><a href="../Aggregation_tree/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../Aggregation_tree/id-references.html">id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="../Store/Guide.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Store</a><ul class='Nav'><li class='Nav__item '><a href="../Store/Guide.html">Guide</a></li><li class='Nav__item '><a href="../Store/Stores_and_relations_basics.html">Stores and relations basics</a></li><li class='Nav__item '><a href="../Store/Advanced_stores.html">Advanced stores</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item  has-children'><a href="../Record/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../API_by_feature/Aggregation_tree.html" class="folder"><i class="Nav__arrow">&nbsp;</i>API by feature</a><ul class='Nav'><li class='Nav__item '><a href="../API_by_feature/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item Nav__item--active'><a href="../API_by_feature/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../API_by_feature/Validation.html">Validation</a></li><li class='Nav__item '><a href="../API_by_feature/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../API_by_feature/id-references.html">id-references</a></li><li class='Nav__item '><a href="../API_by_feature/Stores.html">Stores</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -75,47 +75,37 @@
                 <article class="Page">
 
     <div class="Page__header">
-        <h1>Shared objects</h1>
+        <h1>Serialization</h1>
                         <span style="float: right; font-size: 10px; color: gray;">
-            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/06_Aggregation_tree/04_Shared_objects.md" target="_blank">Edit on GitHub</a>
+            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/06_API_by_feature/02_Serialization.md" target="_blank">Edit on GitHub</a>
         </span>
             </div>
 
 
     <div class="s-content">
-        <h1 id="page_Shared+objects">Shared objects</h1>
-<p>Record's attributes can hold the records and collections from <em>other</em> aggregation trees if they are marked as <code>shared</code>.</p>
-<h3 id="page_attr+%3A+RecordOrCollection.shared"><code>attrDef</code> attr : RecordOrCollection.shared</h3>
-<p>Record's attribute with a reference to the shared model or collection.</p>
-<ul>
-<li>It's initialized with <code>null</code>
-</li>
-<li>It's not cloned when the record is cloned (just the reference is copied over).</li>
-<li>It's not disposed when the record is disposed.</li>
-<li>It's not validated as part of the record (always valid by default)</li>
-<li>It's excluded from serialization.</li>
-</ul>
-<pre><code class="language-javascript">@define class UsersListState extends Record {
-    static attributes = {
-        users : User.Collection,
-        selected : User.shared // Can be assigned with the user from this.users
-    }
-}
-</code></pre>
-<h3 id="page_attr+%3A+Collection.Refs"><code>attrDef</code> attr : Collection.Refs</h3>
-<h3 id="page_new+Collection.Refs%28%29">new Collection.Refs()</h3>
-<p>Collection of references to shared records, which <em>does not aggregate</em> its elements. In constrast to the <code>Collection.shared</code>, <code>Collection.Refs</code> creates an instance of collection which <em>is the part the parent record</em>. Still, its items are not validated and serialized.</p>
-<pre><code>@define class MyRecord extends Record {
-    static attributes = {
-        notCloned : SomeCollection.shared, // Reference to the _shared collection_ object.
-        cloned : SomeCollection.Refs // _Aggregated_ collection of references to the _shared records_.
-}
-</code></pre>
+        <p>Aggregation tree formed of records and collections is serializable by default. Record corresponds to an object in JSON, while the collection is represented as an array.</p>
+<h2 id="page_Serialization+API">Serialization API</h2>
+<h3 id="page_recordOrCollection.toJSON%28%29">recordOrCollection.toJSON()</h3>
+<p>Produces the JSON for the aggregation tree of the record or collection. May be overriden in particular record or collection.</p>
+<h3 id="page_new+RecordOrCollection%28+json%2C+%7B+parse+%3A+true+%7D+%29">new RecordOrCollection( json, { parse : true } )</h3>
+<p>Constructs an aggregation tree from its JSON representation.</p>
+<h3 id="page_recordOrCollection.set%28+json%2C+%7B+parse+%3A+true+%7D+%29">recordOrCollection.set( json, { parse : true } )</h3>
+<p>Update an aggregation tree from its JSON representation.</p>
+<h3 id="page_recordOrCollection.parse%28+json+%29">recordOrCollection.parse( json )</h3>
+<p>May be overriden to add custom JSON transformation.</p>
+<h2 id="page_Attribute-level+serialization+control">Attribute-level serialization control</h2>
+<p>Serialization can be controlled for the specific attribute in the Recrod's attribute definition.</p>
+<h3 id="page_attr+%3A+Type.has.toJSON%28+false+%29"><code>attrDef</code> attr : Type.has.toJSON( false )</h3>
+<p>Exclude attribute from the resulting JSON.</p>
+<h3 id="page_attr+%3A+Type.has.toJSON%28+%28+value%2C+name+%29+%3D%3E+json+%29"><code>attrDef</code> attr : Type.has.toJSON( ( value, name ) =&gt; json )</h3>
+<p>Override the default toJSON() method for the selected record's attribute.</p>
+<h3 id="page_attr+%3A+Type.has.parse%28+%28+json%2C+name+%29+%3D%3E+value+%29"><code>attrDef</code> attr : Type.has.parse( ( json, name ) =&gt; value )</h3>
+<p>Transform the data before it will be passed to the record's attribute.</p>
     </div>
 
         <nav>
         <ul class="Pager">
-            <li class=Pager--prev><a href="../Aggregation_tree/Validation.html">Previous</a></li>            <li class=Pager--next><a href="../Aggregation_tree/id-references.html">Next</a></li>        </ul>
+            <li class=Pager--prev><a href="../API_by_feature/Aggregation_tree.html">Previous</a></li>            <li class=Pager--next><a href="../API_by_feature/Validation.html">Next</a></li>        </ul>
     </nav>
     </article>
 

@@ -72,7 +72,7 @@ Any constructor function may be used as an attribute type, if it behaves as _con
 When other value than function is passed, it's treated as the default value and the type is being inferred form the value.
  If you need to pass function as the default value, use `Function.value( theFunction )`.
 
-# Record's class members
+# Create the record
 
 Record behaves as regular ES6 class with attributes accessible as properties.
 

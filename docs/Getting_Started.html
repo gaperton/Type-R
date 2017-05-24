@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item Nav__item--active'><a href="Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="Record/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="Record/Basics.html">Basics</a></li><li class='Nav__item '><a href="Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item  has-children'><a href="Collection/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="Collection/Basics.html">Basics</a></li><li class='Nav__item '><a href="Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="Aggregation_tree/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Aggregation tree</a><ul class='Nav'><li class='Nav__item '><a href="Aggregation_tree/Overview.html">Overview</a></li><li class='Nav__item '><a href="Aggregation_tree/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Aggregation_tree/Validation.html">Validation</a></li><li class='Nav__item '><a href="Aggregation_tree/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="Aggregation_tree/id-references.html">id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="Store/Guide.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Store</a><ul class='Nav'><li class='Nav__item '><a href="Store/Guide.html">Guide</a></li><li class='Nav__item '><a href="Store/Stores_and_relations_basics.html">Stores and relations basics</a></li><li class='Nav__item '><a href="Store/Advanced_stores.html">Advanced stores</a></li></ul></li><li class='Nav__item '><a href="Events.html">Events</a></li><li class='Nav__item '><a href="Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item Nav__item--active'><a href="Getting_Started.html">Getting Started</a></li><li class='Nav__item  has-children'><a href="Record/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="Record/Definition.html">Definition</a></li><li class='Nav__item '><a href="Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item  has-children'><a href="Collection/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="Collection/Definition.html">Definition</a></li><li class='Nav__item '><a href="Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="API_by_feature/Aggregation_tree.html" class="folder"><i class="Nav__arrow">&nbsp;</i>API by feature</a><ul class='Nav'><li class='Nav__item '><a href="API_by_feature/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="API_by_feature/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="API_by_feature/Validation.html">Validation</a></li><li class='Nav__item '><a href="API_by_feature/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="API_by_feature/id-references.html">id-references</a></li><li class='Nav__item '><a href="API_by_feature/Stores.html">Stores</a></li></ul></li><li class='Nav__item '><a href="Events.html">Events</a></li><li class='Nav__item '><a href="Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -83,7 +83,16 @@
 
 
     <div class="s-content">
-        <h1 id="page_Features">Features</h1>
+        <h1 id="page_Intruduction">Intruduction</h1>
+<p>Type-R is the universal state container for both UI and domain state management.</p>
+<p>Application state is described with the superposition of two main container types - <a href="Record/Definition.html">Record</a> and <a href="Collection/Definition.html">Collection</a> or records. The state has observable changes and is serializable by default.</p>
+<ul>
+<li>Records are classes with typed attributes. They are protected from assignment of incompatible types with run-time type assertions and convertions. Which means that the client-server protocol is protected from both ends.</li>
+<li>Records distinguish <a href="API_by_feature/Aggregation_tree.html">aggregated attributes</a> and those which are <a href="API_by_feature/Shared_objects.html">references to shared objects</a>. Aggregated attributes are serialized as nested JSON, while references might be <a href="API_by_feature/id-references.html">serialized as ids</a>. Many operations like <code>clone()</code>, <code>dispose()</code>, and <code>toJSON()</code> are performed recursively on elements of aggregation tree.</li>
+<li>Type-R features declarative <a href="API_by_feature/Validation.html">validation</a> with attribute-level rules. Validation is transarent and lazily evaluated.</li>
+<li>Architecture does not depend on stores and singletons. <a href="API_by_feature/Stores.html">Stores</a> are optional and used for shared data only. There might be as many stores as you need, and they can be created and disposed dynamically.</li>
+<li>Type-R data structures are pretty efficient. They are about 10 times faster in real-world data scenarios than BackboneJS.</li>
+</ul>
 <h1 id="page_Installation">Installation</h1>
 <p>Is packed as UMD and ES6 module. No side dependencies.</p>
 <p><code>npm install type-r --save-dev</code></p>
@@ -94,7 +103,7 @@
 
         <nav>
         <ul class="Pager">
-            <li class=Pager--prev><a href="index.html">Previous</a></li>            <li class=Pager--next><a href="Overview.html">Next</a></li>        </ul>
+            <li class=Pager--prev><a href="index.html">Previous</a></li>            <li class=Pager--next><a href="Record/Definition.html">Next</a></li>        </ul>
     </nav>
     </article>
 

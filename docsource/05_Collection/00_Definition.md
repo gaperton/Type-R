@@ -30,19 +30,22 @@ class Comics extends Book {
 
 # Collection definition
 
+## Implicitly defined collections
+### RecordConstructor.Collection
+
 Every `Record` class has implicitly defined Collection, which can be referenced adding the `.Collection` to the record's constructor.
+
+## Extending the Collection class
 
 Collections can be defined explicitly extending the base `Collection` class. There are two ways to bind collection to the record.
 
-## In record definition
-### `static` Collection = CollectionConstructor
+### (record definition) `static` Collection = CollectionConstructor
 
 Replaces implicitly defined collection with externally defined collection class.
 
-## In collection definition
-### `static` model = RecordConstructor
+### (colleciton definition) `static` model = RecordConstructor
 
-If defined, you can pass raw attributes objects (and arrays) to add, create, and reset, and the attributes will be converted into a model of the proper type.
+Specify the record type inside of the collection's definition. This property is being set automatically for collection types referenced as `MyRecord.Collection`.
 
 ```javascript
 @define class Library extends Record.Collection {
@@ -50,9 +53,7 @@ If defined, you can pass raw attributes objects (and arrays) to add, create, and
 }
 ```
 
-This property is being set automatically for collection types referenced as `MyRecord.Collection`.
-
-# Members
+# Create and access the colleciton
 
 ### new Collection()
 

@@ -4,7 +4,7 @@
 <!--[if IE 8]>          <html class="no-js ie8 oldie" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
-    <title>Basics - Type-R</title>
+    <title>Definition - Type-R</title>
     <meta name="description" content="Universal state management framework" />
     <meta name="author" content="Vlad Balin">
     <meta charset="UTF-8">
@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="../Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="../Record/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Basics.html">Basics</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Basics.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item Nav__item--active'><a href="../Collection/Basics.html">Basics</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="../Aggregation_tree/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Aggregation tree</a><ul class='Nav'><li class='Nav__item '><a href="../Aggregation_tree/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Aggregation_tree/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../Aggregation_tree/Validation.html">Validation</a></li><li class='Nav__item '><a href="../Aggregation_tree/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../Aggregation_tree/id-references.html">id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="../Store/Guide.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Store</a><ul class='Nav'><li class='Nav__item '><a href="../Store/Guide.html">Guide</a></li><li class='Nav__item '><a href="../Store/Stores_and_relations_basics.html">Stores and relations basics</a></li><li class='Nav__item '><a href="../Store/Advanced_stores.html">Advanced stores</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item  has-children'><a href="../Record/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item Nav__item--active'><a href="../Collection/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="../API_by_feature/Aggregation_tree.html" class="folder"><i class="Nav__arrow">&nbsp;</i>API by feature</a><ul class='Nav'><li class='Nav__item '><a href="../API_by_feature/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../API_by_feature/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../API_by_feature/Validation.html">Validation</a></li><li class='Nav__item '><a href="../API_by_feature/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../API_by_feature/id-references.html">id-references</a></li><li class='Nav__item '><a href="../API_by_feature/Stores.html">Stores</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -75,9 +75,9 @@
                 <article class="Page">
 
     <div class="Page__header">
-        <h1>Basics</h1>
+        <h1>Definition</h1>
                         <span style="float: right; font-size: 10px; color: gray;">
-            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/05_Collection/00_Basics.md" target="_blank">Edit on GitHub</a>
+            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/05_Collection/00_Definition.md" target="_blank">Edit on GitHub</a>
         </span>
             </div>
 
@@ -110,20 +110,20 @@ class Comics extends Book {
 }
 </code></pre>
 <h1 id="page_Collection+definition">Collection definition</h1>
+<h2 id="page_Implicitly+defined+collections">Implicitly defined collections</h2>
+<h3 id="page_RecordConstructor.Collection">RecordConstructor.Collection</h3>
 <p>Every <code>Record</code> class has implicitly defined Collection, which can be referenced adding the <code>.Collection</code> to the record's constructor.</p>
+<h2 id="page_Extending+the+Collection+class">Extending the Collection class</h2>
 <p>Collections can be defined explicitly extending the base <code>Collection</code> class. There are two ways to bind collection to the record.</p>
-<h2 id="page_In+record+definition">In record definition</h2>
-<h3 id="page_Collection+%3D+CollectionConstructor"><code>static</code> Collection = CollectionConstructor</h3>
+<h3 id="page_%28record+definition%29+++Collection+%3D+CollectionConstructor">(record definition) <code>static</code> Collection = CollectionConstructor</h3>
 <p>Replaces implicitly defined collection with externally defined collection class.</p>
-<h2 id="page_In+collection+definition">In collection definition</h2>
-<h3 id="page_model+%3D+RecordConstructor"><code>static</code> model = RecordConstructor</h3>
-<p>If defined, you can pass raw attributes objects (and arrays) to add, create, and reset, and the attributes will be converted into a model of the proper type.</p>
+<h3 id="page_%28colleciton+definition%29+++model+%3D+RecordConstructor">(colleciton definition) <code>static</code> model = RecordConstructor</h3>
+<p>Specify the record type inside of the collection's definition. This property is being set automatically for collection types referenced as <code>MyRecord.Collection</code>.</p>
 <pre><code class="language-javascript">@define class Library extends Record.Collection {
     static model = Book;
 }
 </code></pre>
-<p>This property is being set automatically for collection types referenced as <code>MyRecord.Collection</code>.</p>
-<h1 id="page_Members">Members</h1>
+<h1 id="page_Create+and+access+the+colleciton">Create and access the colleciton</h1>
 <h3 id="page_new+Collection%28%29">new Collection()</h3>
 <p>Create an empty collection.</p>
 <h3 id="page_new+Collection%28+models%2C+options%3F+%29">new Collection( models, options? )</h3>
