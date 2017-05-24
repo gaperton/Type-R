@@ -4,7 +4,7 @@
 <!--[if IE 8]>          <html class="no-js ie8 oldie" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
-    <title>Proxied array methods - Type-R</title>
+    <title>Stores - Type-R</title>
     <meta name="description" content="Universal state management framework" />
     <meta name="author" content="Vlad Balin">
     <meta charset="UTF-8">
@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item  has-children'><a href="../Record/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item Nav__item--active'><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="../API_by_feature/Aggregation_tree.html" class="folder"><i class="Nav__arrow">&nbsp;</i>API by feature</a><ul class='Nav'><li class='Nav__item '><a href="../API_by_feature/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../API_by_feature/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../API_by_feature/Validation.html">Validation</a></li><li class='Nav__item '><a href="../API_by_feature/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../API_by_feature/id-references.html">id-references</a></li><li class='Nav__item '><a href="../API_by_feature/Stores.html">Stores</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item  has-children'><a href="../Record/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../API_by_feature/Aggregation_tree.html" class="folder"><i class="Nav__arrow">&nbsp;</i>API by feature</a><ul class='Nav'><li class='Nav__item '><a href="../API_by_feature/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../API_by_feature/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../API_by_feature/Validation.html">Validation</a></li><li class='Nav__item '><a href="../API_by_feature/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../API_by_feature/id-references.html">id-references</a></li><li class='Nav__item Nav__item--active'><a href="../API_by_feature/Stores.html">Stores</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -75,32 +75,39 @@
                 <article class="Page">
 
     <div class="Page__header">
-        <h1>Proxied array methods</h1>
+        <h1>Stores</h1>
                         <span style="float: right; font-size: 10px; color: gray;">
-            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/05_Collection/05_Proxied_array_methods.md" target="_blank">Edit on GitHub</a>
+            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/06_API_by_feature/06_Stores.md" target="_blank">Edit on GitHub</a>
         </span>
             </div>
 
 
     <div class="s-content">
-        <h3 id="page_collection.push%28+record%2C+options%3F+%29">collection.push( record, options? )</h3>
-<p>Add a record at the end of a collection. Takes the same options as add.</p>
-<h3 id="page_collection.pop%28+options%3F+%29">collection.pop( options? )</h3>
-<p>Remove and return the last record from a collection. Takes the same options as remove.</p>
-<h3 id="page_collection.unshift%28+model%2C+options%3F+%29">collection.unshift( model, options? )</h3>
-<p>Add a model at the beginning of a collection. Takes the same options as add.</p>
-<h3 id="page_collection.shift%28+options%3F+%29">collection.shift( options? )</h3>
-<p>Remove and return the first model from a collection. Takes the same options as remove.</p>
-<h3 id="page_collection.slice%28+begin%2C+end+%29">collection.slice( begin, end )</h3>
-<p>Return a shallow copy of the <code>collection.models</code>, using the same options as native Array#slice.</p>
-<h3 id="page_collection.indexOf%28+recordOrId+%3A+any+%29+%3A+number">collection.indexOf( recordOrId : any ) : number</h3>
-<p>Return an index of the record in the collection, and -1 if there are no such a record in the collection.</p>
-<p>Can take the record itself as an argument, <code>id</code>, or <code>cid</code> of the record.</p>
+        <p>Store is the Record's subclass which can be used as a root to search for id-references. Path in id-reference starting with <code>~</code> look for the nearest <code>Store</code> subclass traversing the aggregation tree upwards,
+and if there are none, it takes the <code>Store.global</code>.</p>
+<p>For all objects inside of the store's aggregation tree <code>~reference</code> will point to the members of this store.
+If the lookup will fail, the next available store upper in aggregation tree will be used (as regular records stores can be nested), or the <code>Store.global</code> if there are no one.</p>
+<h3 id="page_Store.global">Store.global</h3>
+<p>The default store class. Is always the last store to lookup when resolving tilda-reference.</p>
+<p>Use the default store for the <em>globally shared data only</em>. Each application page must have its local store.</p>
+<pre><code class="language-javascript">@define class MyStore extends Store {
+    static attributes = {
+        users : User.Collection,
+        roles : Role.Collection
+    }
+}
+
+Store.global = new MyStore();
+
+// Now the reference '~users` will point to users collection from the MyStore.
+</code></pre>
+<h3 id="page_new+StoreConstructor%28%29">new StoreConstructor()</h3>
+<p>Create the &quot;store&quot; record.</p>
     </div>
 
         <nav>
         <ul class="Pager">
-            <li class=Pager--prev><a href="../Collection/Sorted_collections.html">Previous</a></li>            <li class=Pager--next><a href="../API_by_feature/Aggregation_tree.html">Next</a></li>        </ul>
+            <li class=Pager--prev><a href="../API_by_feature/id-references.html">Previous</a></li>            <li class=Pager--next><a href="../Events.html">Next</a></li>        </ul>
     </nav>
     </article>
 

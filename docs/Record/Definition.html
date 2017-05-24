@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>       <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>          <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>          <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+    <title>Definition - Type-R</title>
+    <meta name="description" content="Universal state management framework" />
+    <meta name="author" content="Vlad Balin">
+    <meta charset="UTF-8">
+    <link rel="icon" href="../themes/daux/img/favicon-navy.png" type="image/x-icon">
+    <!-- Mobile -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Font -->
+    <link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700&subset=latin,cyrillic-ext,cyrillic' rel='stylesheet' type='text/css'>
+    <!-- CSS -->
+    <link href='../themes/daux/css/theme-navy.min.css' rel='stylesheet' type='text/css'>
+            <!-- Tipue Search -->
+        <link href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+    
+    <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+<body class="">
+    
+<header class="Navbar hidden-print">
+    <a class="Navbar__brand" href="../index.html">Type-R</a>
+
+    <div class="Search">
+        <svg class="Search__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 451 451"><path d="M447.05 428l-109.6-109.6c29.4-33.8 47.2-77.9 47.2-126.1C384.65 86.2 298.35 0 192.35 0 86.25 0 .05 86.3.05 192.3s86.3 192.3 192.3 192.3c48.2 0 92.3-17.8 126.1-47.2L428.05 447c2.6 2.6 6.1 4 9.5 4s6.9-1.3 9.5-4c5.2-5.2 5.2-13.8 0-19zM26.95 192.3c0-91.2 74.2-165.3 165.3-165.3 91.2 0 165.3 74.2 165.3 165.3s-74.1 165.4-165.3 165.4c-91.1 0-165.3-74.2-165.3-165.4z"/></svg>
+        <input type="search" id="tipue_search_input" class="Search__field" placeholder="Search..." autocomplete="on" results=25 autosave=text_search>
+    </div>
+</header>
+<div class="Columns content">
+    <aside class="Columns__left Collapsible">
+        <div class="Collapsible__container">
+            <button type="button" class="Button Collapsible__trigger">
+                <span class="Collapsible__trigger--bar"></span>
+                <span class="Collapsible__trigger--bar"></span>
+                <span class="Collapsible__trigger--bar"></span>
+            </button>
+        </div>
+
+        <div class="Collapsible__content">
+            <!-- Navigation -->
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item Nav__item--open has-children'><a href="../Record/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item Nav__item--active'><a href="../Record/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="../API_by_feature/Aggregation_tree.html" class="folder"><i class="Nav__arrow">&nbsp;</i>API by feature</a><ul class='Nav'><li class='Nav__item '><a href="../API_by_feature/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../API_by_feature/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../API_by_feature/Validation.html">Validation</a></li><li class='Nav__item '><a href="../API_by_feature/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../API_by_feature/id-references.html">id-references</a></li><li class='Nav__item '><a href="../API_by_feature/Stores.html">Stores</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+
+            <div class="Links">
+                                    <hr/>
+                                            <a href="https://github.com/Volicon/React-MVx/issues" target="_blank">Help/Support/Bugs</a>
+                        <br />
+                                            <a href="http://volicon.com" target="_blank">Made by Volicon (a Verizon company)</a>
+                        <br />
+                                    
+                                    <div class="CodeToggler">
+                        <hr/>
+                                                    <a class="CodeToggler__button CodeToggler__button--main" href="#">Show Code Blocks Inline</a><br>
+                                            </div>
+                
+                                    <hr/>
+                    <div class="Twitter">
+                                                    <iframe allowtransparency="true" frameborder="0" scrolling="no" style="width:162px; height:20px;" src="https://platform.twitter.com/widgets/follow_button.html?screen_name=gaperton&amp;show_count=false"></iframe>
+                            <br />
+                            <br />
+                                            </div>
+                            </div>
+        </div>
+    </aside>
+    <div class="Columns__right ">
+        <div class="Columns__right__content">
+            <div class="doc_content">
+                <article class="Page">
+
+    <div class="Page__header">
+        <h1>Definition</h1>
+                        <span style="float: right; font-size: 10px; color: gray;">
+            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/04_Record/00_Definition.md" target="_blank">Edit on GitHub</a>
+        </span>
+            </div>
+
+
+    <div class="s-content">
+        <p>Record is the serializable class with typed attributes, observable changes, and custom validation checks.
+It is the main building block for managing the application state; component local state, stores, and collection elements are all subclasses of the <code>Record</code>.</p>
+<p>In contrast to the &quot;model&quot; class in the majority of data frameworks, Record is <em>not the key-value hash</em>. It's the class with statically
+defined set of attributes of known types.</p>
+<p><code>Record</code> itself is an abstract class. The subclass needs to be defined for every data structure of different shape,
+in a similar way as it's done in statically typed languages.</p>
+<pre><code class="language-javascript">import { define, Record } from 'type-r'
+
+// ⤹ required to make magic work  
+@define class User extends Record {
+    // ⤹ attribute's declaration
+    static attributes = {
+        firstName : '', // ⟵ String type is inferred from the default value
+        lastName  : String, // ⟵ Or you can just mention its constructor
+        email     : String.value( null ), //⟵ Or you can provide both
+        createdAt : Date, // ⟵ And it works for any constructor.
+        // And you can attach ⤹ metadata to fine-tune attribute's behavior
+        lastLogin : Date.value( null ).has.toJSON( false ) // ⟵ not serializable
+    }
+}
+
+const user = new User();
+console.log( user.createdAt ); // ⟵ this is an instance of Date created for you.
+
+const users = new User.Collection(); // ⟵ Collections are defined automatically. 
+users.on( 'changes', () =&gt; updateUI( users ) ); // ⟵ listen to the changes.
+
+users.set( json, { parse : true } ); // ⟵ parse raw JSON from the server.
+users.updateEach( user =&gt; user.firstName = '' ); // ⟵ bulk update triggering 'changes' once
+</code></pre>
+<h1 id="page_Record+definition">Record definition</h1>
+<p>Record must extend <code>Record</code> base class, it must have <code>static attributes</code> definition, and the class definition must be preceeded with <code>@define</code> decorator.</p>
+<h3 id="page_attributes+%3D+%7B+name+%3A++%2C+...+%7D"><code>static</code> attributes = { name : <code>attrDef</code>, ... }</h3>
+<p>Record is a class with an observalbe and serializable public attributes. Attributes <em>must</em> be declared statically
+in <code>static attributes</code> class member, which is an object hash mapping an attribute name name to its declaration, encapsulating
+attribute type, default value, and metadata controlling different aspects of attribute behavior.</p>
+<pre><code class="language-javascript">@define class User extends Record {
+    static attributes = {
+        name    : String.value( 'John Dow' ),
+        email   : 'john.dow@mail.com', // Same as String.value( 'john.dow@mail.com' )
+        address : String, // Same as String.value( '' )
+    }
+}
+</code></pre>
+<p>The Record guarantee that <em>every attribute will always hold the value of the declared type</em>. Whenever the an attribute is being assigned
+with the value which is not compatible with its declared type, the type is being converted with an invocation of the constructor: <code>new Type( value )</code> (primitive types are treated specially).</p>
+<h2 id="page_Attribute+definitions">Attribute definitions</h2>
+<h3 id="page_name+%3A+Type.value%28+defaultValue+%29"><code>attrDef</code> name : Type.value( defaultValue )</h3>
+<p>The general form of type annotation is <code>Type.value( defaultValue )</code>, where the <code>Type</code> is the corresponding constructor function.</p>
+<h3 id="page_name+%3A+Type"><code>attrDef</code> name : Type</h3>
+<p>When the function is used as <code>attrDef</code>, it's treated as the constructor function.
+Any constructor function may be used as an attribute type, if it behaves as <em>converting constructor</em> (like <code>new Date( msecs )</code>).</p>
+<h3 id="page_name+%3A+defaultValue"><code>attrDef</code> name : defaultValue</h3>
+<p>When other value than function is passed, it's treated as the default value and the type is being inferred form the value.
+If you need to pass function as the default value, use <code>Function.value( theFunction )</code>.</p>
+<h1 id="page_Create+the+record">Create the record</h1>
+<p>Record behaves as regular ES6 class with attributes accessible as properties.</p>
+<h3 id="page_new+Record%28%29">new Record()</h3>
+<p>Create an instance of the record with the default attribute values taken from the attributes definition.</p>
+<p>When no default value is explicitly provided, it's <code>new Type()</code> (just <code>Type()</code> for primitives). When the default value is provided and it's not compatible with the attribute type, it's converted with <code>new Type( defaultValue )</code> call.</p>
+<h3 id="page_new+Record%28%7B+attrName+%3A+value%2C+...+%7D%2C+options%3F+%29">new Record({ attrName : value, ... }, options? )</h3>
+<p>When creating an instance of a record, you can pass in the initial values of the attributes,
+which will be set on the record.</p>
+<p>If <code>{parse: true}</code> is passed as an option, <code>attrs</code> is assumed to be the JSON.</p>
+<p>If the value of the particular attribute is not compatible with its type, it's converted to this type invoking the constructor <code>new Type( value )</code> (just <code>Type( value )</code> for primitives).</p>
+<pre><code class="language-javascript">@define class Book extends Record {
+    static attributes = {
+        title  : '',
+        author : ''
+    }
+}
+
+const book = new Book({
+  title: &quot;One Thousand and One Nights&quot;,
+  author: &quot;Scheherazade&quot;
+});
+</code></pre>
+<h3 id="page_record.initialize%28+attrs%3F%2C+options%3F+%29">record.initialize( attrs?, options? )</h3>
+<p>Called at the end of the <code>Record</code> constructor when all attributes are assigned
+and record's inner state is properly initialized. Takes the same arguments as
+a constructor.</p>
+<h3 id="page_record.attrName">record.attrName</h3>
+<p>Record's attributes may be directly accessed with <code>record.name</code>, as if they would be the members of the class.
+Please note, that you <em>have to declare all attributes</em> in <code>static attributes</code> declaration before use.</p>
+<pre><code class="language-javascript">@define class Account extends Record {
+    static attributes = {
+        name : String,
+        ballance : Number
+    }
+}
+
+const myAccount = new Account({ name : 'mine' });
+myAccount.ballance += 1000000; // That works. Good, eh?
+</code></pre>
+    </div>
+
+        <nav>
+        <ul class="Pager">
+            <li class=Pager--prev><a href="../Getting_Started.html">Previous</a></li>            <li class=Pager--next><a href="../Record/Updates_and_transactions.html">Next</a></li>        </ul>
+    </nav>
+    </article>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+    <!-- jQuery -->
+    <script src="../themes/daux/js/jquery-1.11.3.min.js"></script>
+
+    <!-- hightlight.js -->
+    <script src="../themes/daux/js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!-- JS -->
+    
+    <script src="../themes/daux/js/daux.js"></script>
+
+            <!-- Tipue Search -->
+        <script type="text/javascript" src="../tipuesearch/tipuesearch.js"></script>
+
+        <script>
+            window.onunload = function(){}; // force $(document).ready to be called on back/forward navigation in firefox
+            $(function() {
+                tipuesearch({
+                    'base_url': '../'
+                });
+            });
+        </script>
+    
+</body>
+</html>

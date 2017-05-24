@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="Getting_Started.html">Getting Started</a></li><li class='Nav__item '><a href="Overview.html">Overview</a></li><li class='Nav__item  has-children'><a href="General_concepts/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>General concepts</a><ul class='Nav'><li class='Nav__item '><a href="General_concepts/Overview.html">Overview</a></li><li class='Nav__item '><a href="General_concepts/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="General_concepts/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="General_concepts/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="General_concepts/Validation.html">Validation</a></li></ul></li><li class='Nav__item  has-children'><a href="Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="Record/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="Record/Updates_and_change_events.html">Updates and change events</a></li><li class='Nav__item '><a href="Record/Validation.html">Validation</a></li><li class='Nav__item '><a href="Record/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Record/id_ and_id-references.html">id  and id-references</a></li></ul></li><li class='Nav__item  has-children'><a href="Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="Collection/Proxied_array_methods.html">Proxied array methods</a></li><li class='Nav__item '><a href="Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="Collection/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="Collection/Updates_and_Events.html">Updates and Events</a></li><li class='Nav__item '><a href="Collection/Validation.html">Validation</a></li></ul></li><li class='Nav__item Nav__item--active'><a href="Events.html">Events</a></li><li class='Nav__item '><a href="Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="Getting_Started.html">Getting Started</a></li><li class='Nav__item  has-children'><a href="Record/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="Record/Definition.html">Definition</a></li><li class='Nav__item '><a href="Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item  has-children'><a href="Collection/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="Collection/Definition.html">Definition</a></li><li class='Nav__item '><a href="Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="API_by_feature/Aggregation_tree.html" class="folder"><i class="Nav__arrow">&nbsp;</i>API by feature</a><ul class='Nav'><li class='Nav__item '><a href="API_by_feature/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="API_by_feature/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="API_by_feature/Validation.html">Validation</a></li><li class='Nav__item '><a href="API_by_feature/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="API_by_feature/id-references.html">id-references</a></li><li class='Nav__item '><a href="API_by_feature/Stores.html">Stores</a></li></ul></li><li class='Nav__item Nav__item--active'><a href="Events.html">Events</a></li><li class='Nav__item '><a href="Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -77,15 +77,16 @@
     <div class="Page__header">
         <h1>Events</h1>
                         <span style="float: right; font-size: 10px; color: gray;">
-            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/07_Events.md" target="_blank">Edit on GitHub</a>
+            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/10_Events.md" target="_blank">Edit on GitHub</a>
         </span>
             </div>
 
 
     <div class="s-content">
-        <p>Type-R implements Backbone 1.1 events API in the form of the <code>Events</code> mixin and <code>Messenger</code> base class.</p>
-<p>An implementation is optimized for the large amount of relatively small subscriptions (5-10 events). The majority of event subscriptions occuring in Type-R is 1-2 events per source. Here are benchmark results (lower is the better).</p>
+        <p>Both <code>Record</code> and <code>Collection</code> uses an efficient synchronous events implementation which is compatible with Backbone 1.1 Events API but is twice faster in average. It comes in form of <code>Events</code> mixin and the <code>Messenger</code> base class.</p>
+<p>An implementation is optimized for the large amount of relatively small subscriptions (5-10 events). Here are the benchmark results (lower is the better).</p>
 <p><img src="./events-performance.jpg" alt="performance" /></p>
+<p>It is also avaiable separately as part of <a href="https://github.com/Volicon/MixtureJS" class="external">MixtureJS</a> package.</p>
 <h1 id="page_Events+mixin">Events mixin</h1>
 <p>Events is a mixin, giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.</p>
 <h3 id="page_eventsSource.trigger%28event%2C++%5B+%2A+args%5D%29">eventsSource.trigger(event, [*args])</h3>
@@ -154,11 +155,32 @@ object.off();
 <h3 id="page_messenger.dispose%28%29">messenger.dispose()</h3>
 <p>Executes <code>messenger.stopListening()</code> and <code>messenger.off()</code>.</p>
 <p>Objects must be disposed to prevent memory leaks caused by subscribing for events from singletons.</p>
+<h1 id="page_List+of+built-in+events">List of built-in events</h1>
+<h2 id="page_Record+events">Record events</h2>
+<h3 id="page_%22change%3AattrName%22+%28record%2C+value%2C+options%29"><code>event</code> &quot;change:attrName&quot; (record, value, options)</h3>
+<p>When a specific attribute has been updated</p>
+<h3 id="page_%22change%22+%28record%2C+options%29"><code>event</code> &quot;change&quot; (record, options)</h3>
+<p>When a record's attributes have changed.</p>
+<h2 id="page_Collection+events">Collection events</h2>
+<h3 id="page_%22changes%22+%28collection%2C+options%29"><code>event</code> &quot;changes&quot; (collection, options)</h3>
+<p>The main change event. Single event triggered when the collection has been changed.</p>
+<h3 id="page_%22update%22+%28collection%2C+options%29"><code>event</code> &quot;update&quot; (collection, options)</h3>
+<p>Single event triggered after any number of records have been added or removed from a collection.</p>
+<h3 id="page_%22reset%22+%28collection%2C+options%29"><code>event</code> &quot;reset&quot; (collection, options)</h3>
+<p>When the collection's entire contents have been reset.</p>
+<h3 id="page_%22sort%22+%28collection%2C+options%29"><code>event</code> &quot;sort&quot; (collection, options)</h3>
+<p>When the collection has been re-sorted.</p>
+<h3 id="page_%22add%22+%28record%2C+collection%2C+options%29"><code>event</code> &quot;add&quot; (record, collection, options)</h3>
+<p>When a record is added to a collection.</p>
+<h3 id="page_%22remove%22+%28record%2C+collection%2C+options%29"><code>event</code> &quot;remove&quot; (record, collection, options)</h3>
+<p>When a record is removed from a collection.</p>
+<h3 id="page_%22change%22+%28record%2C+options%29"><code>event</code> &quot;change&quot; (record, options)</h3>
+<p>When a record's attributes have changed.</p>
     </div>
 
         <nav>
         <ul class="Pager">
-            <li class=Pager--prev><a href="Collection/Validation.html">Previous</a></li>            <li class=Pager--next><a href="Mixins.html">Next</a></li>        </ul>
+            <li class=Pager--prev><a href="API_by_feature/Stores.html">Previous</a></li>            <li class=Pager--next><a href="Mixins.html">Next</a></li>        </ul>
     </nav>
     </article>
 
