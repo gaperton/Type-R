@@ -1,12 +1,12 @@
-## Serialization methods
+# Serialization methods
 
-#### colleciton.parse( json )
+### colleciton.parse( json )
 
 Called when `{ parse : true }` option is used in collection's `constructor`, `set`, `reset`, and `add` methods.
 
 May be overriden to transforms the responce from the server.
 
-#### collection.toJSON()
+### collection.toJSON()
 
 Return an array containing the attributes hash of each model (via toJSON) in the collection. This can be used to serialize and persist the collection as a whole. The name of this method is a bit confusing, because it conforms to JavaScript's JSON API.
 
@@ -27,7 +27,7 @@ const collection = new Man.Collection([
 alert(JSON.stringify(collection));
 ```
 
-## Polymorphic collections
+# Polymorphic collections
 
 Collection may contain polimorphic records of different types if they are the subclass of the `model`.
 You need to define static `Model.create` factory method to make an abstract model serializable.

@@ -76,8 +76,6 @@
 
     <div class="Page__header">
         <h1>Serialization</h1>
-                <span style="float: left; font-size: 10px; color: gray;">
-            Saturday, May 20, 2017 3:49 PM        </span>
                         <span style="float: right; font-size: 10px; color: gray;">
             <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/05_Collection/Serialization.md" target="_blank">Edit on GitHub</a>
         </span>
@@ -85,11 +83,11 @@
 
 
     <div class="s-content">
-        <h2 id="page_Serialization+methods">Serialization methods</h2>
-<h4 id="page_colleciton.parse%28+json+%29">colleciton.parse( json )</h4>
+        <h1 id="page_Serialization+methods">Serialization methods</h1>
+<h3 id="page_colleciton.parse%28+json+%29">colleciton.parse( json )</h3>
 <p>Called when <code>{ parse : true }</code> option is used in collection's <code>constructor</code>, <code>set</code>, <code>reset</code>, and <code>add</code> methods.</p>
 <p>May be overriden to transforms the responce from the server.</p>
-<h4 id="page_collection.toJSON%28%29">collection.toJSON()</h4>
+<h3 id="page_collection.toJSON%28%29">collection.toJSON()</h3>
 <p>Return an array containing the attributes hash of each model (via toJSON) in the collection. This can be used to serialize and persist the collection as a whole. The name of this method is a bit confusing, because it conforms to JavaScript's JSON API.</p>
 <pre><code class="language-javascript">@define class Man extends Record {
   static attributes = {
@@ -106,7 +104,7 @@ const collection = new Man.Collection([
 
 alert(JSON.stringify(collection));
 </code></pre>
-<h2 id="page_Polymorphic+collections">Polymorphic collections</h2>
+<h1 id="page_Polymorphic+collections">Polymorphic collections</h1>
 <p>Collection may contain polimorphic records of different types if they are the subclass of the <code>model</code>.
 You need to define static <code>Model.create</code> factory method to make an abstract model serializable.</p>
 <pre><code class="language-javascript">@define // Serializable abstract Record

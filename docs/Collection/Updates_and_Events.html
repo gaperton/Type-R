@@ -76,8 +76,6 @@
 
     <div class="Page__header">
         <h1>Updates and Events</h1>
-                <span style="float: left; font-size: 10px; color: gray;">
-            Saturday, May 20, 2017 3:49 PM        </span>
                         <span style="float: right; font-size: 10px; color: gray;">
             <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/05_Collection/Updates_and_Events.md" target="_blank">Edit on GitHub</a>
         </span>
@@ -85,7 +83,7 @@
 
 
     <div class="s-content">
-        <h2 id="page_Updates">Updates</h2>
+        <h1 id="page_Updates">Updates</h1>
 <p>Collections notify listeners on the details of the update with events. It's executed in 3 steps:</p>
 <ol>
 <li>Apply all changes to collection and nested records.</li>
@@ -102,7 +100,7 @@
 </ul>
 </li>
 </ol>
-<h4 id="page_collection.add%28+models%2C+options%3F+%29">collection.add( models, options? )</h4>
+<h3 id="page_collection.add%28+models%2C+options%3F+%29">collection.add( models, options? )</h3>
 <p>Add a record (or an array of records) to the collection, firing an &quot;add&quot; event for each record, and an &quot;update&quot; event afterwards. If a record property is defined, you may also pass raw attributes objects, and have them be vivified as instances of the record. Returns the added (or preexisting, if duplicate) records. Pass {at: index} to splice the record into the collection at the specified index. If you're adding records to the collection that are already in the collection, they'll be ignored, unless you pass {merge: true}, in which case their attributes will be merged into the corresponding records, firing any appropriate &quot;change&quot; events.</p>
 <pre><code>var ships = new Backbone.Collection;
 
@@ -117,9 +115,9 @@ ships.add([
 </code></pre>
 <p>Note that adding the same record (a record with the same id) to a collection more than once
 is a no-op.</p>
-<h4 id="page_collection.remove%28+records%2C+options%3F+%29">collection.remove( records, options? )</h4>
+<h3 id="page_collection.remove%28+records%2C+options%3F+%29">collection.remove( records, options? )</h3>
 <p>Remove a record (or an array of records) from the collection, and return them. Each record can be a record instance, an id string or a JS object, any value acceptable as the id argument of collection.get. Fires a &quot;remove&quot; event for each record, and a single &quot;update&quot; event afterwards, unless {silent: true} is passed. The record's index before removal is available to listeners as options.index.</p>
-<h4 id="page_collection.set%28+records%2C+options%3F+%29">collection.set( records, options? )</h4>
+<h3 id="page_collection.set%28+records%2C+options%3F+%29">collection.set( records, options? )</h3>
 <p>The set method performs a &quot;smart&quot; update of the collection with the passed list of records. If a record in the list isn't yet in the collection it will be added; if the record is already in the collection its attributes will be merged; and if the collection contains any records that aren't present in the list, they'll be removed. All of the appropriate &quot;add&quot;, &quot;remove&quot;, and &quot;change&quot; events are fired as this happens. Returns the touched records in the collection. If you'd like to customize the behavior, you can disable it with options: {add: false}, {remove: false}, or {merge: false}.</p>
 <pre><code class="language-javascript">const vanHalen = new Man.Collection([ eddie, alex, stone, roth ]);
 
@@ -129,12 +127,12 @@ vanHalen.set([ eddie, alex, stone, hagar ]);
 // Updates any of stone, alex, and eddie's attributes that may have
 // changed over the years.
 </code></pre>
-<h4 id="page_record.transaction%28+fun+%29">record.transaction( fun )</h4>
+<h3 id="page_record.transaction%28+fun+%29">record.transaction( fun )</h3>
 <p>Execute the sequence of updates in <code>fun</code> function in the scope of the transaction.</p>
 <p>Transaction is the sequence of updates resuling in a single <code>changes</code> event. Every collection update method opens an implicit transaction.</p>
-<h4 id="page_collection.updateEach%28+iteratee+%3A+%28+val+%3A+Record%2C+index+%29+%3D%3E+void%2C+context%3F+%29">collection.updateEach( iteratee : ( val : Record, index ) =&gt; void, context? )</h4>
+<h3 id="page_collection.updateEach%28+iteratee+%3A+%28+val+%3A+Record%2C+index+%29+%3D%3E+void%2C+context%3F+%29">collection.updateEach( iteratee : ( val : Record, index ) =&gt; void, context? )</h3>
 <p>Similar to the <code>collection.each</code>, but wraps an iteration in a transaction.</p>
-<h4 id="page_collection.reset%28+records%2C+options%3F+%29">collection.reset( records, options? )</h4>
+<h3 id="page_collection.reset%28+records%2C+options%3F+%29">collection.reset( records, options? )</h3>
 <p>Adding and removing records one at a time is all well and good, but sometimes you have so many records to change that you'd rather just update the collection in bulk. Use reset to replace a collection with a new list of records (or attribute hashes), triggering a single &quot;reset&quot; event on completion, and without triggering any add or remove events on any records. Returns the newly-set records.</p>
 <p>Pass null for records to empty your Collection with options.</p>
 <p>Here's an example using reset to bootstrap a collection during initial page load, in a Rails application:</p>
@@ -144,27 +142,27 @@ accounts.reset(&lt;%= @accounts.to_json %&gt;);
 &lt;/script&gt;
 </code></pre>
 <p>Calling collection.reset() without passing any records as arguments will empty the entire collection.</p>
-<h2 id="page_Listening+to+events">Listening to events</h2>
+<h1 id="page_Listening+to+events">Listening to events</h1>
 <p>Collection implements Events API (<code>on</code>, <code>off</code>, <code>once</code>, <code>listenTo</code>, <code>stopListening</code>, <code>listenToOnce</code>, <code>trigger</code>), and dedicated methods for listening to the <code>changes</code> event (<code>onChanges</code>, <code>offChanges</code>, <code>listenToChanges</code>).</p>
-<h4 id="page_itemEvents+%3D+%7B+eventName+%3A++%2C+...+%7D"><code>static</code> itemEvents = { eventName : <code>handler</code>, ... }</h4>
+<h3 id="page_itemEvents+%3D+%7B+eventName+%3A++%2C+...+%7D"><code>static</code> itemEvents = { eventName : <code>handler</code>, ... }</h3>
 <p>Subscribe for events from records. The <code>hander</code> is either the collection's method name, the handler function, or <code>true</code>.</p>
 <p>When <code>true</code> is passed as a handler, the corresponding event will be triggered on the collection.</p>
-<h2 id="page_List+of+built-in+events">List of built-in events</h2>
-<h3 id="page_Collection-level+events">Collection-level events</h3>
-<h4 id="page_%22changes%22+%28collection%2C+options%29"><code>event</code> &quot;changes&quot; (collection, options)</h4>
+<h1 id="page_List+of+built-in+events">List of built-in events</h1>
+<h2 id="page_Collection-level+events">Collection-level events</h2>
+<h3 id="page_%22changes%22+%28collection%2C+options%29"><code>event</code> &quot;changes&quot; (collection, options)</h3>
 <p>The main change event. Single event triggered when the collection has been changed.</p>
-<h4 id="page_%22update%22+%28collection%2C+options%29"><code>event</code> &quot;update&quot; (collection, options)</h4>
+<h3 id="page_%22update%22+%28collection%2C+options%29"><code>event</code> &quot;update&quot; (collection, options)</h3>
 <p>Single event triggered after any number of records have been added or removed from a collection.</p>
-<h4 id="page_%22reset%22+%28collection%2C+options%29"><code>event</code> &quot;reset&quot; (collection, options)</h4>
+<h3 id="page_%22reset%22+%28collection%2C+options%29"><code>event</code> &quot;reset&quot; (collection, options)</h3>
 <p>When the collection's entire contents have been reset.</p>
-<h4 id="page_%22sort%22+%28collection%2C+options%29"><code>event</code> &quot;sort&quot; (collection, options)</h4>
+<h3 id="page_%22sort%22+%28collection%2C+options%29"><code>event</code> &quot;sort&quot; (collection, options)</h3>
 <p>When the collection has been re-sorted.</p>
-<h3 id="page_Record-level+events">Record-level events</h3>
-<h4 id="page_%22add%22+%28record%2C+collection%2C+options%29"><code>event</code> &quot;add&quot; (record, collection, options)</h4>
+<h2 id="page_Record-level+events">Record-level events</h2>
+<h3 id="page_%22add%22+%28record%2C+collection%2C+options%29"><code>event</code> &quot;add&quot; (record, collection, options)</h3>
 <p>When a record is added to a collection.</p>
-<h4 id="page_%22remove%22+%28record%2C+collection%2C+options%29"><code>event</code> &quot;remove&quot; (record, collection, options)</h4>
+<h3 id="page_%22remove%22+%28record%2C+collection%2C+options%29"><code>event</code> &quot;remove&quot; (record, collection, options)</h3>
 <p>When a record is removed from a collection.</p>
-<h4 id="page_%22change%22+%28record%2C+options%29"><code>event</code> &quot;change&quot; (record, options)</h4>
+<h3 id="page_%22change%22+%28record%2C+options%29"><code>event</code> &quot;change&quot; (record, options)</h3>
 <p>When a record's attributes have changed.</p>
     </div>
 

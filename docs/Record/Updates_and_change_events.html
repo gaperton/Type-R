@@ -76,8 +76,6 @@
 
     <div class="Page__header">
         <h1>Updates and change events</h1>
-                <span style="float: left; font-size: 10px; color: gray;">
-            Saturday, May 20, 2017 8:24 PM        </span>
                         <span style="float: right; font-size: 10px; color: gray;">
             <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/04_Record/03_Updates_and_change_events.md" target="_blank">Edit on GitHub</a>
         </span>
@@ -85,46 +83,46 @@
 
 
     <div class="s-content">
-        <h2 id="page_Update+record+attributes">Update record attributes</h2>
-<h4 id="page_record.attrName+%3D+val">record.attrName = val</h4>
+        <h1 id="page_Update+record+attributes">Update record attributes</h1>
+<h3 id="page_record.attrName+%3D+val">record.attrName = val</h3>
 <p>Assign record attribute.</p>
 <ol>
 <li>Assign new attribute value.</li>
 <li>If value has changed,
 <ul>
-<li>trigger <code>change:attrName</code> <em>( record, value )</em> event.</li>
-<li>trigger <code>change</code> <em>( record )</em> event.</li>
+<li>trigger event <code>change:attrName</code> <em>( record, value )</em>.</li>
+<li>trigger event <code>change</code> <em>( record )</em>.</li>
 </ul>
 </li>
 </ol>
-<h4 id="page_record.set%28+%7B+attrName+%3A+val%2C+...+%7D%2C+options%3F+%3A+++%29">record.set( { attrName : val, ... }, options? : <code>options</code> )</h4>
+<h3 id="page_record.set%28+%7B+attrName+%3A+val%2C+...+%7D%2C+options%3F+%3A+++%29">record.set( { attrName : val, ... }, options? : <code>options</code> )</h3>
 <p>Bulk assign record's attributes, possibly taking options.</p>
 <ol>
 <li>Assign new attribut values.</li>
-<li>For any changed attribute, trigger <code>change:attrName</code> <em>( record, val, options )</em> event.</li>
+<li>For any changed attribute, trigger event <code>change:attrName</code> <em>( record, val, options )</em>.</li>
 <li>If any attribute has changed:
 <ul>
-<li>trigger <code>change</code> <em>(record, options)</em> event.</li>
+<li>trigger event <code>change</code> <em>(record, options)</em>.</li>
 </ul>
 </li>
 </ol>
-<h4 id="page_%7B+parse+%3A+true+%7D"><code>options</code> { parse : true }</h4>
+<h3 id="page_%7B+parse+%3A+true+%7D"><code>options</code> { parse : true }</h3>
 <p>Transform <code>record.set</code> argument with user-defined parse logic. Typically used to process the responce from the server to make user-defined JSON format conversion.</p>
-<h4 id="page_%7B+merge+%3A+true+%7D"><code>options</code> { merge : true }</h4>
+<h3 id="page_%7B+merge+%3A+true+%7D"><code>options</code> { merge : true }</h3>
 <p>Merge attributes of record and collection types instead of replacement. If the new instance of record or collection is to be assigned,
 update the current instances instead.</p>
-<h4 id="page_record.assignFrom%28+otherRecord+%29">record.assignFrom( otherRecord )</h4>
+<h3 id="page_record.assignFrom%28+otherRecord+%29">record.assignFrom( otherRecord )</h3>
 <p>Makes the <code>record</code> to be the copy of <code>otherRecord</code>, recursively assigning all attributes.</p>
 <p>Works similar to `record.set( otherRecord.attributes, { merge : true });</p>
-<h2 id="page_Listening+to+events">Listening to events</h2>
-<h3 id="page_Deep+changes+observation">Deep changes observation</h3>
+<h1 id="page_Listening+to+events">Listening to events</h1>
+<h2 id="page_Deep+changes+observation">Deep changes observation</h2>
 <p>Records automatically listens to change events of nested records and collections, and triggers the corresponding change events on its attributes. It means that the single attribute change deeply inside of aggregation tree will trigger change events on all the parents in a sequence.</p>
-<h4 id="page_attr+%3A+Type.has.changeEvents%28+false+%29"><code>attrDef</code> attr : Type.has.changeEvents( false )</h4>
+<h3 id="page_attr+%3A+Type.has.changeEvents%28+false+%29"><code>attrDef</code> attr : Type.has.changeEvents( false )</h3>
 <p>Do <em>not</em> listen for the inner changes of the <code>attr</code>.</p>
-<h3 id="page_Custom+attribute+change+watchers">Custom attribute change watchers</h3>
+<h2 id="page_Custom+attribute+change+watchers">Custom attribute change watchers</h2>
 <p>Declaratively attach the watcher in attribute definition. Subscription will be managed automatically.</p>
-<h4 id="page_attr+%3A+Type.has.watcher%28+%27methodName%27+%29"><code>attrDef</code> attr : Type.has.watcher( 'methodName' )</h4>
-<h4 id="page_attr+%3A+Type.has.watcher%28+function%28+value%2C+name+%29%7B+...+%7D+%29"><code>attrDef</code> attr : Type.has.watcher( function( value, name ){ ... } )</h4>
+<h3 id="page_attr+%3A+Type.has.watcher%28+%27methodName%27+%29"><code>attrDef</code> attr : Type.has.watcher( 'methodName' )</h3>
+<h3 id="page_attr+%3A+Type.has.watcher%28+function%28+value%2C+name+%29%7B+...+%7D+%29"><code>attrDef</code> attr : Type.has.watcher( function( value, name ){ ... } )</h3>
 <p>Attach <code>change:attr</code> event listener to the particular record's attribute.</p>
 <p><em>Watcher function</em> has the signature <code>( attrValue, attrName ) =&gt; void</code> and is executed in the context of the record.</p>
 <pre><code class="language-javascript">@define class User extends Record {
@@ -139,15 +137,15 @@ update the current instances instead.</p>
     }
 }
 </code></pre>
-<h3 id="page_Custom+events+subscribtion.">Custom events subscribtion.</h3>
+<h2 id="page_Custom+events+subscribtion.">Custom events subscribtion.</h2>
 <p><code>listener.listenTo()</code> and <code>listener.listenToOnce()</code> methods can be used to listen to the any of the change events.</p>
 <p>If listener itself is the record or collection, subscribtions will be stopped automatically. Otherwise they must be stopped
 manually with <code>listener.stopListening()</code> call to prevent memory leaks.</p>
-<h2 id="page_Transactions">Transactions</h2>
+<h1 id="page_Transactions">Transactions</h1>
 <p>All record updates occures in the scope of transactions. Transaction is the sequence of changes which results in a single <code>change</code> event.</p>
 <p>Transaction can be opened either manually or implicitly with calling <code>set()</code> or assigning an attribute.
 Any additional changes made to the record in <code>change:attr</code> event handler will be executed in the scope of the original transaction, and won't trigger additional <code>change</code> events.</p>
-<h4 id="page_record.transaction%28+fun+%29">record.transaction( fun )</h4>
+<h3 id="page_record.transaction%28+fun+%29">record.transaction( fun )</h3>
 <p>Execute the all changes made to the record in <code>fun</code> as single transaction.</p>
 <pre><code class="language-javascript">some.record.transaction( record =&gt; {
     record.a = 1; // `change:a` is triggered.
@@ -155,19 +153,19 @@ Any additional changes made to the record in <code>change:attr</code> event hand
 }); // `change` is triggered.
 </code></pre>
 <p>Manual transactions with attribute assignments are superior to <code>record.set()</code> in terms of both performance and flexibility.</p>
-<h2 id="page_Change+inspection+methods">Change inspection methods</h2>
+<h1 id="page_Change+inspection+methods">Change inspection methods</h1>
 <p>Following API might be useful in change event listeners.</p>
-<h4 id="page_record.changed">record.changed</h4>
+<h3 id="page_record.changed">record.changed</h3>
 <p>The <code>changed</code> property is the internal hash containing all the attributes that have changed during its last transaction.
 Please do not update <code>changed</code> directly since its state is internally maintained by <code>set()</code>.
 A copy of <code>changed</code> can be acquired from <code>changedAttributes()</code>.</p>
-<h4 id="page_record.changedAttributes%28+attrs%3F+%29">record.changedAttributes( attrs? )</h4>
+<h3 id="page_record.changedAttributes%28+attrs%3F+%29">record.changedAttributes( attrs? )</h3>
 <p>Retrieve a hash of only the record's attributes that have changed during the last transaction,
 or false if there are none. Optionally, an external attributes hash can be passed in,
 returning the attributes in that hash which differ from the record.
 This can be used to figure out which portions of a view should be updated,
 or what calls need to be made to sync the changes to the server.</p>
-<h4 id="page_record.previous%28+attr+%29">record.previous( attr )</h4>
+<h3 id="page_record.previous%28+attr+%29">record.previous( attr )</h3>
 <p>During a &quot;change&quot; event, this method can be used to get the previous value of a changed attribute.</p>
 <pre><code class="language-javascript">@define class Person extends Record{
     static attributes = {
@@ -185,7 +183,7 @@ bill.on(&quot;change:name&quot;, ( record, name ) =&gt; {
 
 bill.name = &quot;Bill Jones&quot;;
 </code></pre>
-<h4 id="page_record.previousAttributes%28%29">record.previousAttributes()</h4>
+<h3 id="page_record.previousAttributes%28%29">record.previousAttributes()</h3>
 <p>Return a copy of the record's previous attributes. Useful for getting a diff between versions of a record, or getting back to a valid state after an error occurs.</p>
     </div>
 

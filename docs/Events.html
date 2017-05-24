@@ -76,8 +76,6 @@
 
     <div class="Page__header">
         <h1>Events</h1>
-                <span style="float: left; font-size: 10px; color: gray;">
-            Saturday, May 20, 2017 8:13 PM        </span>
                         <span style="float: right; font-size: 10px; color: gray;">
             <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/07_Events.md" target="_blank">Edit on GitHub</a>
         </span>
@@ -88,28 +86,29 @@
         <p>Type-R implements Backbone 1.1 events API in the form of the <code>Events</code> mixin and <code>Messenger</code> base class.</p>
 <p>An implementation is optimized for the large amount of relatively small subscriptions (5-10 events). The majority of event subscriptions occuring in Type-R is 1-2 events per source. Here are benchmark results (lower is the better).</p>
 <p><img src="./events-performance.jpg" alt="performance" /></p>
-<h2 id="page_Events+mixin">Events mixin</h2>
+<h1 id="page_Events+mixin">Events mixin</h1>
 <p>Events is a mixin, giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.</p>
-<h4 id="page_eventsSource.trigger%28event%2C++%5B+%2A+args%5D%29">eventsSource.trigger(event, [*args])</h4>
+<h3 id="page_eventsSource.trigger%28event%2C++%5B+%2A+args%5D%29">eventsSource.trigger(event, [*args])</h3>
 <p>Trigger callbacks for the given event, or space-delimited list of events. Subsequent arguments to trigger will be passed along to the event callbacks.</p>
-<h3 id="page_High-level+listening+API">High-level listening API</h3>
+<h2 id="page_High-level+listening+API">High-level listening API</h2>
 <p>All high-level event subscriptions are stopped automatically on the listener's disposal, and thus does not introduce memory leaks.</p>
 <p>This is the preferable listening API and must be used in all application code.</p>
-<h4 id="page_listener.listenTo%28other%2C+event%2C+callback%29">listener.listenTo(other, event, callback)</h4>
+<h3 id="page_listener.listenTo%28other%2C+event%2C+callback%29">listener.listenTo(other, event, callback)</h3>
 <p>Tell an object to listen to a particular event on an other object. The advantage of using this form, instead of other.on(event, callback, object), is that listenTo allows the object to keep track of the events, and they can be removed all at once later on. The callback will always be called with object as context.</p>
-<pre><code>view.listenTo(model, 'change', view.render);
+<pre><code>view.listenTo(model, 'change', view.render );
 </code></pre>
-<h4 id="page_listener.stopListening%28+%5B+other%5D%2C++%5B+event%5D%2C++%5B+callback%5D%29">listener.stopListening([other], [event], [callback])</h4>
+<h3 id="page_listener.stopListening%28+%5B+other%5D%2C++%5B+event%5D%2C++%5B+callback%5D%29">listener.stopListening([other], [event], [callback])</h3>
 <p>Tell an object to stop listening to events. Either call stopListening with no arguments to have the object remove all of its registered callbacks ... or be more precise by telling it to remove just the events it's listening to on a specific object, or a specific event, or just a specific callback.</p>
-<pre><code>view.stopListening();
+<pre><code>view.stopListening(); // Unsubscribe from all events
 
-view.stopListening(model);
+view.stopListening(model); // Unsubscribe from all events from the model
 </code></pre>
-<h4 id="page_listener.listenToOnce%28other%2C+event%2C+callback%29">listener.listenToOnce(other, event, callback)</h4>
+<p>All Type-R classes execute <code>this.stopListening()</code> from their <code>dispose()</code> method.</p>
+<h3 id="page_listener.listenToOnce%28other%2C+event%2C+callback%29">listener.listenToOnce(other, event, callback)</h3>
 <p>Just like listenTo, but causes the bound callback to fire only once before being removed.</p>
-<h3 id="page_Low-level+listening+API">Low-level listening API</h3>
+<h2 id="page_Low-level+listening+API">Low-level listening API</h2>
 <p>This API is more efficient but requires manual action to stop the subscribtion. Must be used with care.</p>
-<h4 id="page_eventSource.on%28event%2C+callback%2C++%5B+context%5D%29">eventSource.on(event, callback, [context])</h4>
+<h3 id="page_eventSource.on%28event%2C+callback%2C++%5B+context%5D%29">eventSource.on(event, callback, [context])</h3>
 <p>Bind a callback function to an object. The callback will be invoked whenever the event is fired. If you have a large number of different events on a page, the convention is to use colons to namespace them: &quot;poll:start&quot;, or &quot;change:selection&quot;. The event string may also be a space-delimited list of several events...</p>
 <pre><code>book.on(&quot;change:title change:author&quot;, ...);
 </code></pre>
@@ -126,7 +125,7 @@ view.stopListening(model);
 });
 </code></pre>
 <p>To supply a context value for this when the callback is invoked, pass the optional last argument: <code>model.on('change', this.render, this)</code> or <code>model.on({change: this.render}, this)</code>.</p>
-<h4 id="page_eventSource.off%28+%5B+event%5D%2C++%5B+callback%5D%2C++%5B+context%5D%29">eventSource.off([event], [callback], [context])</h4>
+<h3 id="page_eventSource.off%28+%5B+event%5D%2C++%5B+callback%5D%2C++%5B+context%5D%29">eventSource.off([event], [callback], [context])</h3>
 <p>Remove a previously-bound callback function from an object. If no context is specified, all of the versions of the callback with different contexts will be removed. If no callback is specified, all callbacks for the event will be removed. If no event is specified, callbacks for all events will be removed.</p>
 <pre><code>// Removes just the `onChange` callback.
 object.off(&quot;change&quot;, onChange);
@@ -144,15 +143,15 @@ object.off(null, null, context);
 object.off();
 </code></pre>
 <p>Note that calling <code>model.off()</code>, for example, will indeed remove all events on the model — including events that Backbone uses for internal bookkeeping.</p>
-<h4 id="page_eventsSource.once%28event%2C+callback%2C++%5B+context%5D%29">eventsSource.once(event, callback, [context])</h4>
+<h3 id="page_eventsSource.once%28event%2C+callback%2C++%5B+context%5D%29">eventsSource.once(event, callback, [context])</h3>
 <p>Just like on, but causes the bound callback to fire only once before being removed. Handy for saying &quot;the next time that X happens, do this&quot;. When multiple events are passed in using the space separated syntax, the event will fire once for every event you passed in, not once for a combination of all events</p>
-<h2 id="page_Messenger">Messenger</h2>
+<h1 id="page_Messenger">Messenger</h1>
 <p>Messenger is an abstract base class implementing Events mixin and some convinience methods.</p>
-<h4 id="page_messenger.cid"><code>readonly</code> messenger.cid</h4>
+<h3 id="page_messenger.cid"><code>readonly</code> messenger.cid</h3>
 <p>Unique run-time only messenger instance id (string).</p>
-<h4 id="page_messenger.initialize%28%29">messenger.initialize()</h4>
+<h3 id="page_messenger.initialize%28%29">messenger.initialize()</h3>
 <p>Callback which is called at the end of the constructor.</p>
-<h4 id="page_messenger.dispose%28%29">messenger.dispose()</h4>
+<h3 id="page_messenger.dispose%28%29">messenger.dispose()</h3>
 <p>Executes <code>messenger.stopListening()</code> and <code>messenger.off()</code>.</p>
 <p>Objects must be disposed to prevent memory leaks caused by subscribing for events from singletons.</p>
     </div>

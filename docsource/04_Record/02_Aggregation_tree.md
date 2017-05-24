@@ -27,9 +27,9 @@ All nested records and collections are *aggregated* by default and behave as int
 - They are validated as part of the record.
 - They are serialized as nested JSON.
 
-## Declarations
+# Declarations
 
-#### `attrDef` attr : Type.shared
+### `attrDef` attr : Type.shared
 
 Attributes can be marked as *shared* with adding `Type.shared` modifier. Such an attribute is not the member of record's aggregation/ownership tree.
 
@@ -48,21 +48,21 @@ Attributes can be marked as *shared* with adding `Type.shared` modifier. Such an
 }
 ```
 
-## Class methods
+# Class methods
 
-#### record.getOwner()
+### record.getOwner()
 
 Return the reference to the record's owner, or `null` if record is not the part of aggregation tree.
 
 Due to the nature of _aggregation_, record may have one and only one owner.
 
-#### record.clone()
+### record.clone()
 
 Clone the record and all aggregated records and collections.
 
 The whole aggregation tree will be recursively cloned, references to shared members will copied.
 
-#### record.assignFrom( otherRecord )
+### record.assignFrom( otherRecord )
 
 Recursively assign the record and its aggregated members with values from `otherRecord`.
 This operation is similar to `record.clone()`, but instead of _creation_ of the cloned record it makes an _existing_ record to be the copy
@@ -70,7 +70,7 @@ of other record.
 
 The whole aggregation tree will be recursively assigned, references to shared members will copied.
 
-#### record.dispose()
+### record.dispose()
 
 Recursively dispose the record and its aggregated members. "Dispose" means that elements of the aggregation tree will unsubscribe from all event sources. It's crucial to prevent memory leaks in SPA.
 
