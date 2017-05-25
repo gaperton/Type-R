@@ -6,8 +6,8 @@ Universal state container for modern JS applications written with TypeScript for
 
 API docs are here: https://volicon.github.io/Type-R/
 
-Distributed application state is defined as supersposition of the recursively nested `Record` and `Collection` objects.
-State trees supports transactional and deeply observable changes, and are JSON-serializable by default. All state elements are _typed_ with run-time type assertions and type conversions on assignment. The declarative state validation is supported out of box as well.
+Distributed application state is defined as a superposition of the recursively nested `Record` and `Collection` objects.
+State trees support transactional and deeply observable changes and are JSON-serializable by default. All state elements are _typed_ with run-time type assertions and type conversions on assignment. The declarative attribute-level validation is supported as well.
 
 Type-R explicitly supports both _aggregation_ and _associations by id_ with the majority of operations performed recursively on _ownership trees_.
 
