@@ -21,4 +21,4 @@ All existing solutions for SPA state management are weird. We cannot wait when t
 
 ## Current state
 
-Stable and released. Docs are not perfect yet.
+Stable and released. Docs are not perfect yet. You may help.
