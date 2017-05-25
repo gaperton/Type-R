@@ -7,26 +7,22 @@
 <div class=row>
 <div class=col-third>
 
-### Reactive and persistent state
-
-All data objects defined with Type-R
-are observable and serializable by default.
+## Serializable and observable
 
 Complex serialization scenarios like many-to-many
-relations are supported out of box.
+relations by id are supported out of box.
 
 </div>
 <div class=col-third>
 
-### Declarative validation
+## Declarative validation
 
-Validation checks are transparent and defined
-as a part of an attributes definition.
+Validation checks are transparent and declarative.
 
 </div>
 <div class=col-third>
 
-### Dynamically type-safe
+## Dynamically type-safe
 
 State elements are _typed_.
 It's guaranteed that state elements will
