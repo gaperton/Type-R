@@ -21,4 +21,4 @@ All existing solutions for SPA state management are weird. We cannot wait when t
 
 ## Current state
 
-Public beta.
+Stable and released. Docs are not perfect yet.
