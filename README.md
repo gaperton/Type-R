@@ -19,6 +19,10 @@ Type-R represents the pinnacle of Volicon/Verizon R&D in the state management te
 
 All existing solutions for SPA state management are weird. We cannot wait when there will be the perfect one.
 
-## Current state
+## Roadmap
 
-Public beta.
+- Implement I/O adapter abstraction (#12). It will bring back standard BackboneJS I/O methods, and makes it trivial to substitute the transport.
+- Implement TypeScript support (#11). Records will become accurately typed.
+- API cleanup. Remove deprecated stuff to reduce size.
+- Maybe, implement proper two-phase update transactions. If it won't slow down the bulk updates.
+- Your ideas. The most wonderful features of NestedTypes and Type-R appeared as result of user's issues.
