@@ -16,14 +16,12 @@ Collection.subsetOf = function subsetOf( masterCollection : CollectionReference 
             type : SubsetOf
         });
 
-    typeSpec.get(
+    return typeSpec.get(
         function( refs ){
             !refs || refs.resolvedWith || refs.resolve( getMasterCollection( this ) );
             return refs;
         }
     );
-
-    return typeSpec;
 };
 
 /** @private */
@@ -43,7 +41,7 @@ function defineSubsetCollection( CollectionConstructor : typeof Collection ) {
 
         _attribute : AggregatedType
 
-        get _state(){ return this.refs || this.models; }
+        get __inner_state__(){ return this.refs || this.models; }
 
         constructor( recordsOrIds?, options? ){
             super( recordsOrIds, subsetOptions( options ), subsetOfBehavior );

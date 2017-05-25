@@ -1,8 +1,8 @@
 module.exports = {
-    entry : "./src/index",
+    entry : "./lib/index.js",
 
     output : {
-        filename      : './index.js',
+        filename      : './dist/index.js',
         library       : "Nested",
         libraryTarget : 'umd'
     },
@@ -14,16 +14,17 @@ module.exports = {
     },
 
     module: {
-        loaders: [
+        rules: [
             {
                 test: /\.tsx?$/,
                 exclude: /(node_modules|bower_components)/,
-                loader: 'ts'
+                loader: 'ts-loader'
+            },
+            {
+                enforce : "pre",
+                test: /\.js$/,
+                loader: "source-map-loader"
             }
         ],
-
-        preLoaders : [
-            { test: /\.js$/, loader: "source-map-loader" }
-        ]
     }
 };

@@ -17,12 +17,13 @@ export interface AttributeCheck {
 export class ChainableAttributeSpec {
     options : AttributeDescriptor;
 
-    constructor( options : AttributeDescriptor = {} ) {
+    constructor( options : AttributeDescriptor ) {
+        // Shallow copy options, fill it with defaults.
         this.options = { getHooks : [], transforms : [], changeHandlers : []};
-        assign( this.options, options );
+        if( options ) assign( this.options, options );
     }
 
-    check( check : AttributeCheck, error : any ) : this {
+    check( check : AttributeCheck, error : any ) : ChainableAttributeSpec {
         function validate( model, value, name ){
             if( !check.call( model, value, name ) ){
                 const msg = error || check.error || name + ' is not valid';
@@ -32,83 +33,92 @@ export class ChainableAttributeSpec {
 
         const prev = this.options.validate;
 
-        this.options.validate = prev ? (
-            function( model, value, name ){
-                return prev( model, value, name ) || validate( model, value, name );
-            }
-        ) : validate;
-
-        return this;
+        return this.metadata({
+            validate : prev ? (
+                            function( model, value, name ){
+                                return prev( model, value, name ) || validate( model, value, name );
+                            }
+                       ) : validate
+        });
     }
 
-    watcher( ref : string | ( ( value : any, key : string ) => void ) ) : this {
-        this.options._onChange = ref;
-        return this;
+    get isRequired() : ChainableAttributeSpec {
+        return this.metadata({ isRequired : true }); 
     }
 
-    parse( fun ) : this {
-        this.options.parse = fun;
-        return this;
+    watcher( ref : string | ( ( value : any, key : string ) => void ) ) : ChainableAttributeSpec {
+        return this.metadata({ _onChange : ref });
     }
 
-    toJSON( fun ) : this{
-        this.options.toJSON = fun || null;
-        return this;
+    parse( fun ) : ChainableAttributeSpec {
+        return this.metadata({ parse : fun });
+    }
+
+    toJSON( fun ) : ChainableAttributeSpec {
+        return this.metadata({
+            toJSON : typeof fun === 'function' ? fun : ( fun ? x => x && x.toJSON() : emptyFunction ) 
+        });
     }
 
     // Attribute get hook.
-    get( fun ) : this {
-        this.options.getHooks.push( fun );
-
-        return this;
+    get( fun ) : ChainableAttributeSpec {
+        return this.metadata({
+            getHooks : this.options.getHooks.concat( fun )
+        });
     }
 
     // Attribute set hook.
-    set( fun ) : this {
-        this.options.transforms.push( function( next, options, prev, model ) {
+    set( fun ) : ChainableAttributeSpec {
+        function handleSetHook( next, options, prev, model ) {
             if( this.isChanged( next, prev ) ) {
                 var changed = fun.call( model, next, this.name );
                 return changed === void 0 ? prev : this.convert( changed, options, prev, model );
             }
 
             return prev;
-        } );
+        }
 
-        return this;
+        return this.metadata({
+            transforms : this.options.transforms.concat( handleSetHook )
+        });
     }
 
-    changeEvents( events : boolean ){
-        this.options.changeEvents = events;
-
-        return this;
+    changeEvents( events : boolean ) : ChainableAttributeSpec {
+        return this.metadata({ changeEvents : events });
     }
 
     // Subsribe to events from an attribute.
-    events( map : EventsDefinition ) : this {
+    events( map : EventsDefinition ) : ChainableAttributeSpec {
         const eventMap = new EventMap( map );
 
-        this.options.changeHandlers.push( function( next, prev, record : Record ){
-                prev && prev.trigger && eventMap.unsubscribe( record, prev );
+        function handleEventsSubscribtion( next, prev, record : Record ){
+            prev && prev.trigger && eventMap.unsubscribe( record, prev );
 
-                next && next.trigger && eventMap.subscribe( record, next );
-            });
+            next && next.trigger && eventMap.subscribe( record, next );
+        }
 
+        return this.metadata({
+            changeHandlers : this.options.changeHandlers.concat( handleEventsSubscribtion )
+        });
+    }
+
+    // Creates a copy of the spec.
+    get has() : ChainableAttributeSpec {
         return this;
     }
 
-    get has() : this { return this; }
+    metadata( options : AttributeDescriptor ) : ChainableAttributeSpec {
+        const cloned = new ChainableAttributeSpec( this.options );
+        assign( cloned.options, options );
+        return cloned;
+    }
 
-    /*
-    get isRequired() {
-        this.options.isRequired = true;
-        return this;
-    }*/
-
-    value( x ) : this {
-        this.options.value = x;
-        return this;
+    value( x ) : ChainableAttributeSpec {
+        return this.metadata({ value : x });
     }
 }
+
+function emptyFunction(){}
 
 declare global {
     interface Function{
@@ -122,17 +132,15 @@ Function.prototype.value = function( x ) {
     return new ChainableAttributeSpec( { type : this, value : x } );
 };
 
-/*
 Object.defineProperty( Function.prototype, 'isRequired', {
-    get() {
-        return new ChainableAttributeSpec( { type : this, isRequired : true } );
-    } 
-});*/
+    get() { return this._isRequired || this.has.isRequired; },
+    set( x ){ this._isRequired = x; }
+});
 
 Object.defineProperty( Function.prototype, 'has', {
     get() {
         // workaround for sinon.js and other libraries overriding 'has'
-        return this._has || new ChainableAttributeSpec( { type : this } );
+        return this._has || new ChainableAttributeSpec( { type : this, value : this._attribute.defaultValue } );
     },
 
     set( value ) { this._has = value; }
@@ -142,7 +150,7 @@ export function toAttributeDescriptor( spec : any ) : AttributeDescriptor {
     let attrSpec : ChainableAttributeSpec;
 
     if( typeof spec === 'function' ) {
-        attrSpec = new ChainableAttributeSpec({ type : <any> spec });
+        attrSpec = spec.has;
     }
     else if( spec && spec instanceof ChainableAttributeSpec ) {
         attrSpec = spec;

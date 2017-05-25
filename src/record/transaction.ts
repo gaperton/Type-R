@@ -89,7 +89,7 @@ export interface AttributeSerialization {
  * Record core implementation
  */
 
-interface ConstructorOptions extends TransactionOptions{
+export interface ConstructorOptions extends TransactionOptions{
     clone? : boolean
 }
 
@@ -118,8 +118,8 @@ export class Record extends Transactional implements Owner {
 
     static from : ( collectionReference : any ) => any;
     
-    static defaults( attrs : AttributeDescriptorMap ){
-        return this.extend({ attributes : attrs });
+    static defaults( attrs : AttributeDescriptorMap ) : typeof Record {
+        return <any>this.extend({ attributes : attrs });
     }
     
     /***********************************
@@ -134,7 +134,7 @@ export class Record extends Transactional implements Owner {
     attributes : AttributesValues
 
     // Polymorphic accessor for aggregated attribute's canBeUpdated().
-    get _state(){ return this.attributes; }
+    get __inner_state__(){ return this.attributes; }
 
     // Lazily evaluated changed attributes hash
     _changedAttributes : AttributesValues
@@ -283,17 +283,43 @@ export class Record extends Transactional implements Owner {
                   value = attrs[ name ];
 
             value && iteratee( value, name, spec );
-        }*/
+        }
+        
+        // TODO: Try using list of specs instead of _keys.
+        // Try to inline this code to the hot spots.
+        for( let spec = this._head; spec; spec = spec.next ){
+            const value = attrs[ name ];
+            value && iteratee( value, name, spec );
+        }
+        
+        */
     }
 
     each( iteratee : ( value? : any, key? : string ) => void, context? : any ){
-        const fun = arguments.length === 2 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
-            { attributes, _keys } = this;
+        const fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
+            { attributes } = this;
 
-        for( const key of _keys ){
+        for( const key of this._keys ){
             const value = attributes[ key ];
             if( value !== void 0 ) fun( value, key );
         }
+    }
+
+    // Get array of attribute keys (Record) or record ids (Collection) 
+    keys() : string[] {
+        const keys = [],
+            { attributes } = this;
+
+        for( let key of this._keys ){
+            attributes[ key ] === void 0 || keys.push( key );
+        }
+
+        return keys;
+    }
+
+    // Get array of attribute values (Record) or records (Collection)
+    values() : any[] {
+        return this.map( value => value );
     }
 
     // Attributes-level serialization
@@ -318,8 +344,30 @@ export class Record extends Transactional implements Owner {
 
         // TODO: type error for wrong object.
 
+        // TODO: We may use the same AssignDefaults constructor with transform function for cloning Attributes,
+        // passing an empty object and different transform function. options.clone check will be moved inside of the loop.
+        // So, we need the constructor with the "defaults" logic calling the transformation function.
         const attributes = options.clone ? cloneAttributes( this, values ) : this.defaults( values ); 
 
+        // TODO: Here we have the loop for all attributes.
+        // There's the safe way to make it way faster by moving this transformation to the unrolled loop we have in 'defaults'.
+        // It should substantially improve loading time for collections.
+        // Or
+        // Think of creating the multimode constructor packing all the stuff inside. Measure the gain.
+        /*
+        function Attributes( values, record, options ){
+            var clone = options.clone,
+                _attributes = record._attributes,
+                _a, v;
+
+            _a = _attributes.${ key };
+            v = values.${ key };
+            if( clone ) v = _a.clone( v ) else if( v === void 0 ) v = ${ expr };
+            v = this.${ key } = _a.transform( v, options, void 0, record );
+            _a.handleChange( v, void 0, record );
+            ...
+        }
+        */
         this.forEachAttr( attributes, ( value : any, key : string, attr : AttributeUpdatePipeline ) => {
             const next = attributes[ key ] = attr.transform( value, options, void 0, this );
                   attr.handleChange( next, void 0, this );
@@ -378,7 +426,7 @@ export class Record extends Transactional implements Owner {
 
         this.forEachAttr( this.attributes, ( value, key : string, { toJSON } : AttributeSerialization ) =>{
             // If attribute serialization is not disabled, and its value is not undefined...
-            if( toJSON && value !== void 0 ){
+            if( value !== void 0 ){
                 // ...serialize it according to its spec.
                 const asJson = toJSON.call( this, value, key );
 

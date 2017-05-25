@@ -1,0 +1,28 @@
+{
+    "title": "Type-R",
+    "tagline": "Universal state management for JS",
+    "author": "Vlad Balin",
+    "image": "voliconverizon.png",
+    "ignore": {
+    },
+    "live": {
+        "clean_urls": true
+    },
+    "themes_directory": "node_modules/daux-api-docs-theme",
+    "html": {
+        "theme": "daux-navy",
+        "breadcrumbs": false,
+        "toggle_code": true,
+        "date_modified": false,
+        "float": false,
+        "inherit_index": true,
+
+        "repo": "Volicon/Type-R",
+        "edit_on_github": "Volicon/Type-R/blob/master/docsource",
+        "twitter": ["gaperton"],
+        "links": {
+            "Help/Support/Bugs": "https://github.com/Volicon/Type-R/issues",
+            "Made by Volicon (a Verizon company)": "http://volicon.com"
+        }
+    }
+}

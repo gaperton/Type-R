@@ -4,7 +4,7 @@ import { Record } from '../record'
 
 const { begin, commit, markAsDirty } = transactionApi;
 
-interface AddOptions extends CollectionOptions {
+export interface AddOptions extends CollectionOptions {
     at? : number 
 }
 

@@ -1,16 +1,23 @@
 {
   "name": "type-r",
-  "version": "1.0.0-rc5",
-  "description": "Reactive objects with transactional updates and automatic serialization",
-  "main": "index.js",
+  "version": "1.0.0",
+  "description": "Reactive serializable data layer for modern JS applications",
+  "main": "./dist/index.js",
+  "module": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "files": [
+    "dist",
+    "lib",
+    "src"
+  ],
   "directories": {
     "test": "tests"
   },
   "scripts": {
-    "test":  "tests/nestedtypes/node_modules/.bin/mocha tests/nestedtypes/functionality",
-    "build": "node_modules/.bin/webpack",
-    "watch": "node_modules/.bin/webpack --watch",
-    "docs" : "typedoc --options typedoc.json ./src/"
+    "prepublish": "node_modules/.bin/webpack -p",
+    "test": "tests/nestedtypes/node_modules/.bin/mocha tests/nestedtypes/functionality",
+    "build": "node_modules/.bin/tsc && npm run prepublish",
+    "docs": "~/.composer/vendor/bin/daux --source=docsource --destination=docs"
   },
   "repository": {
     "type": "git",
@@ -31,9 +38,10 @@
   },
   "homepage": "https://github.com/gaperton/TransactionalJS#readme",
   "devDependencies": {
-    "ts-loader": "^0.8.2",
-    "source-map-loader" : "*",
-    "typescript": "^2.0.0",
-    "webpack": "^1.13.0"
+    "daux-api-docs-theme": "^1.0.2",
+    "source-map-loader": "*",
+    "ts-loader": "*",
+    "typescript": "*",
+    "webpack": "*"
   }
 }

@@ -147,7 +147,7 @@
         var one = col.get( 0 );
         assert.equal( one.get( 'name' ), 'one' );
         col.on( 'change:name', function( model ){
-            assert.ok( this.get( model ) );
+            assert.ok( col.get( model ) );
         } );
         one.set( { name : 'dalmatians', id : 101 } );
         assert.equal( col.get( 0 ), null );
@@ -1233,7 +1233,7 @@
             calls.add++;
             assert.equal( model, collection._byId[ model.id ] );
             assert.equal( model, collection._byId[ model.cid ] );
-            assert.equal( model._events.dummy.length, 1 );
+            assert.equal( model._events.dummy.next, null );
         });
 
         collection.on( 'remove', function( model ){
@@ -1498,8 +1498,8 @@
         assert.deepEqual( coll.find( { a : 4 } ), model );
         assert.equal( coll.find( 'd' ), undefined );
         assert.deepEqual( coll.find( 'e' ), model );
-        assert.equal( coll.filter( { a : 0 } ), false );
-        assert.deepEqual( coll.filter( { a : 4 } ), [ model ] );
+        assert.equal( coll.filter( function( x ){ return x.a === 0 } ), false );
+        assert.deepEqual( coll.filter( function( x ){ return x.a === 4 } ), [ model ] );
         assert.equal( coll.some( { a : 0 } ), false );
         assert.equal( coll.some( { a : 1 } ), true );
         assert.equal( coll.reject( { a : 0 } ).length, 4 );
@@ -1510,8 +1510,8 @@
         assert.deepEqual( coll.partition( { a : 0 } )[ 1 ], coll.models );
         assert.deepEqual( coll.partition( { a : 4 } )[ 0 ], [ model ] );
         assert.deepEqual( coll.partition( { a : 4 } )[ 1 ], _.without( coll.models, model ) );
-        assert.deepEqual( coll.map( { a : 2 } ), [ false, true, false, false ] );
-        assert.deepEqual( coll.map( 'a' ), [ 1, 2, 3, 4 ] );
+        assert.deepEqual( coll.map( function( x ){ return x.a === 2; }), [ false, true, false, false ] );
+        assert.deepEqual( coll.map( function( x ){ return x.a; } ), [ 1, 2, 3, 4 ] );
         assert.deepEqual( coll.sortBy( 'a' )[ 3 ], model );
         assert.deepEqual( coll.sortBy( 'e' )[ 0 ], model );
         assert.deepEqual( coll.countBy( { a : 4 } ), { 'false' : 3, 'true' : 1 } );

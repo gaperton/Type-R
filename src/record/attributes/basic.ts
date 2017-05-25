@@ -1,9 +1,9 @@
-import { GenericAttribute } from './generic'
+import { AnyType } from './generic'
 import { tools } from '../../object-plus'
 
 // Default attribute type for all constructor functions...
 /** @private */
-class ConstructorType extends GenericAttribute {
+class ConstructorType extends AnyType {
     type : new ( value : any ) => {}
 
     convert( value ) {
@@ -20,9 +20,10 @@ Function.prototype._attribute = ConstructorType;
 
 // Primitive Types.
 /** @private */
-export class PrimitiveType extends GenericAttribute {
+export class PrimitiveType extends AnyType {
     type : NumberConstructor | StringConstructor | BooleanConstructor
 
+    dispose(){}
     create() { return this.type(); }
 
     toJSON( value ) { return value; }
@@ -41,10 +42,12 @@ Boolean._attribute = String._attribute = PrimitiveType;
 export class NumericType extends PrimitiveType {
     type : NumberConstructor
 
-    convert( value ) {
+    convert( value, a?, b?, record? ) {
         const num = value == null ? value : this.type( value );        
 
-        if( num !== num ) this._log( 'warn', 'assigned with Invalid Number', value, arguments[ 3 ] );
+        if( num !== num ){
+            this._log( 'warn', 'assigned with Invalid Number', value, record );
+        }
         
         return num;
     }
@@ -63,14 +66,15 @@ Number._attribute = NumericType;
  * Compatibility wrapper for Array type.
  * @private
  */ 
-export class ArrayType extends GenericAttribute {
+export class ArrayType extends AnyType {
     toJSON( value ) { return value; }
+    dispose(){}
 
-    convert( value ) {
+    convert( value, a?, b?, record? ) {
         // Fix incompatible constructor behaviour of Array...
         if( value == null || Array.isArray( value ) ) return value;
 
-        this._log( 'warn', 'assigned with non-array', value, arguments[ 3 ] );
+        this._log( 'warn', 'assigned with non-array', value, record );
 
         return [];
     }

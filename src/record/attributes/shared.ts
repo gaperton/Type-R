@@ -1,5 +1,5 @@
 import { Record } from '../transaction'
-import { GenericAttribute } from './generic'
+import { AnyType } from './generic'
 import { ItemsBehavior, Owner, transactionApi, Transactional, TransactionOptions, TransactionalConstructor } from '../../transactions' 
 import { tools, eventsApi } from '../../object-plus'
 
@@ -17,7 +17,7 @@ const { on, off } = eventsApi,
 const shareAndListen = ItemsBehavior.listen | ItemsBehavior.share;
 
 /** @private */
-export class SharedType extends GenericAttribute {
+export class SharedType extends AnyType {
     type : TransactionalConstructor
 
     clone( value : Transactional, record : Record ) : Transactional {
@@ -30,17 +30,13 @@ export class SharedType extends GenericAttribute {
         return clone;
     }
 
+    // Do not serialize by default.
+    toJSON(){}
 
     canBeUpdated( prev : Transactional, next : any, options : TransactionOptions ) : any {
         // If an object already exists, and new value is of incompatible type, let object handle the update.
-        if( prev && next != null ){
-            if( next instanceof this.type ){
-                // In case if merge option explicitly specified, force merge.
-                if( options.merge ) return next._state;
-            }
-            else{
-                return next;
-            }
+        if( prev && next != null && !( next instanceof this.type ) ){
+            return next;
         }
     }
 
@@ -86,31 +82,23 @@ export class SharedType extends GenericAttribute {
 
     dispose( record : Record, value : Transactional ){
         if( value ){
-            // If the object was implicitly created, dispose it.
-            if( value._owner === record ){
-                free( record, value );
-                value.dispose();
-            }
-            else{
-                off( value, value._changeEventName, this._onChange, record );
-            }
+            const owned = value._owner === record;
+            this.handleChange( void 0, value, record );
+            owned && value.dispose();
         }
     }
 
     _onChange : ( child : Transactional, options : TransactionOptions, initiator : Transactional ) => void 
 
     initialize( options ){
-        // Shared attributes are not serialized.
-        this.toJSON = null;
+        // Create change event handler which knows current attribute name. 
+        const attribute = this;
+        this._onChange = this.propagateChanges ? function( child, options, initiator ){
+            this === initiator || this.forceAttributeChange( attribute.name, options );
+        } : ignore;
 
-        if( this.propagateChanges ){
-            // Create change event handler which knows current attribute name. 
-            const attribute = this;
-            this._onChange = function( child, options, initiator ){
-                this === initiator || this.forceAttributeChange( attribute.name, options );
-            }
-
-            options.changeHandlers.unshift( this._handleChange );
-        }
+        options.changeHandlers.unshift( this._handleChange );
     }
 }
+
+function ignore(){}

@@ -9,13 +9,14 @@ export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | str
 
 declare global {
     interface Function {
-        _attribute : typeof GenericAttribute
+        _attribute : typeof AnyType
     }
 }
 
 interface ExtendedAttributeDescriptor extends AttributeDescriptor {
-    _attribute? : typeof GenericAttribute
+    _attribute? : typeof AnyType
     validate? : ( record : Record, value : any, key : string ) => any
+    isRequired? : boolean
     changeEvents? : boolean
 } 
 
@@ -23,11 +24,11 @@ export { ExtendedAttributeDescriptor as AttributeDescriptor }
 
 // TODO: interface differs from options, do something obout it
 /** @private */
-export class GenericAttribute implements Attribute {
+export class AnyType implements Attribute {
     // Factory method to create attribute from options 
-    static create( options : ExtendedAttributeDescriptor, name : string ) : GenericAttribute {
+    static create( options : ExtendedAttributeDescriptor, name : string ) : AnyType {
         const type = options.type,
-              AttributeCtor = options._attribute || ( type ? type._attribute : GenericAttribute );
+              AttributeCtor = options._attribute || ( type ? type._attribute : AnyType );
 
         return new AttributeCtor( name, options );
     }
@@ -85,7 +86,9 @@ export class GenericAttribute implements Attribute {
         return value;
     }
 
-    dispose( record : Record, value : any ){}
+    dispose( record : Record, value : any ) : void {
+        this.handleChange( void 0, value, record );
+    }
 
     validate( record : Record, value : any, key : string ){}
 
@@ -116,6 +119,10 @@ export class GenericAttribute implements Attribute {
     }
 
     value : any
+
+    // Used as global default value for the given metatype  
+    static defaultValue : any;
+
     type : Constructor< any >
 
     parse : ( value, key : string ) => any
@@ -130,9 +137,12 @@ export class GenericAttribute implements Attribute {
         tools.log[ level ]( `[Attribute Update] ${ record.getClassName() }.${ this.name }: ` + text, value, 'Attributes spec:', record._attributes );
     }
 
-    constructor( public name : string, a_options : ExtendedAttributeDescriptor ) {
+    constructor( public name : string, a_options : ExtendedAttributeDescriptor ) {        
+        // Save original options...
+        this.options = a_options;
+
         // Clone options.
-        const options : ExtendedAttributeDescriptor = this.options = assign( { getHooks : [], transforms : [], changeHandlers : [] }, a_options );
+        const options : ExtendedAttributeDescriptor = assign( { getHooks : [], transforms : [], changeHandlers : [] }, a_options );
         options.getHooks = options.getHooks.slice();
         options.transforms = options.transforms.slice();
         options.changeHandlers = options.changeHandlers.slice();
@@ -151,7 +161,11 @@ export class GenericAttribute implements Attribute {
         this.parse  = parse;
         this.toJSON = toJSON === void 0 ? this.toJSON : toJSON;
 
-        this.validate = validate || this.validate; 
+        this.validate = validate || this.validate;
+        
+        if( options.isRequired ){
+            this.validate = wrapIsRequired( this.validate );
+        }
 
         /**
          * Assemble pipelines...
@@ -168,7 +182,12 @@ export class GenericAttribute implements Attribute {
 
         // let attribute spec configure the pipeline...
         if( getHooks.length ){
-            this.getHook = getHooks.reduce( chainGetHooks );
+            const getHook = this.getHook = getHooks.reduce( chainGetHooks );
+
+            const { validate } = this;
+            this.validate = function( record : Record, value : any, key : string ){
+                return validate.call( this, record, getHook.call( record, value, key ), key );
+            }
         }
         
         if( transforms.length ){
@@ -184,7 +203,7 @@ export class GenericAttribute implements Attribute {
     get : ( value, key : string ) => any
 }
 
-Record.prototype._attributes = { id : GenericAttribute.create({ value : void 0 }, 'id' )};
+Record.prototype._attributes = { id : AnyType.create({ value : void 0 }, 'id' )};
 Record.prototype.defaults = function( attrs : { id? : string } = {} ){ return { id : attrs.id } };
 
 /** @private */
@@ -198,7 +217,7 @@ function chainChangeHandlers( prevHandler : ChangeHandler, nextHandler : ChangeH
 /** @private */
 function chainGetHooks( prevHook : GetHook, nextHook : GetHook ) : GetHook {
     return function( value, name ) {
-        return nextHook.call( prevHook.call( value, name ), name );
+        return nextHook.call( this, prevHook.call( this, value, name ), name );
     }
 }
 
@@ -206,5 +225,11 @@ function chainGetHooks( prevHook : GetHook, nextHook : GetHook ) : GetHook {
 function chainTransforms( prevTransform : Transform, nextTransform : Transform ) : Transform {
     return function( value, options, prev, model ) {
         return nextTransform.call( this, prevTransform.call( this, value, options, prev, model ), options, prev, model );
+    }
+}
+
+function wrapIsRequired( validate ){
+    return function( record : Record, value : any, key : string ){
+        return value ? validate.call( this, record, value, key ) : 'Required';
     }
 }

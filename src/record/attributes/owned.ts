@@ -1,23 +1,26 @@
 import { Record } from '../transaction' 
-import { GenericAttribute } from './generic'
+import { AnyType } from './generic'
 import { Owner, transactionApi, Transactional, ItemsBehavior, TransactionOptions, TransactionalConstructor } from '../../transactions'
-import { tools } from '../../object-plus' 
+import { tools } from '../../object-plus'
+import { ValidationError } from '../../validation'
 
 const { free, aquire } = transactionApi;
 
-export class AggregatedType extends GenericAttribute {
+export class AggregatedType extends AnyType {
     type : TransactionalConstructor
 
     clone( value : Transactional ) : Transactional {
         return value ? value.clone() : value;
     }
 
+    toJSON( x ){ return x && x.toJSON(); }
+
     canBeUpdated( prev : Transactional, next : any, options : TransactionOptions ) : any {
         // If an object already exists, and new value is of incompatible type, let object handle the update.
         if( prev && next != null ){
             if( next instanceof this.type ){
                 // In case if merge option explicitly specified, force merge.
-                if( options.merge ) return next._state;
+                if( options.merge ) return next.__inner_state__;
             }
             else{
                 return next;
@@ -34,7 +37,9 @@ export class AggregatedType extends GenericAttribute {
                 this._log( 'error', 'aggregated attribute is assigned with shared collection type', value, record );
             }
 
-            return options.merge ? value.clone() : value; // TODO: looks like clone is never called. Remove.
+            // With explicit 'merge' option we need to clone an object if its previous value was 'null'.
+            // This is an only case we could be here when merge === true.
+            return options.merge ? value.clone() : value;
         }
 
         return <any>this.type.create( value, options );
@@ -42,12 +47,12 @@ export class AggregatedType extends GenericAttribute {
 
     dispose ( record : Record, value : Transactional ){
         if( value ){
-            free( record, value );
+            this.handleChange( void 0, value, record );
             value.dispose();
         }
     }
 
-    validate( record : Record, value : Transactional ){
+    validate( record : Record, value : Transactional ) : ValidationError {
         var error = value && value.validationError;
         if( error ) return error;
     }

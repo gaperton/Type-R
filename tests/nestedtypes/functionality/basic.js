@@ -1,4 +1,4 @@
-    var Nested = require( '../../../index' ),
+    var Nested = require( '../../../dist/index' ),
         expect = require( 'chai' ).expect,
         sinon = require( 'sinon' );
 
@@ -24,6 +24,16 @@
             expect( c.rw ).to.be.true;
             expect( c.readOnly ).to.be.true;
         }
+
+        describe( 'Events', function(){
+            it( 'subscription act as no op on empty source', function(){
+                var target = new Nested.Messenger();
+
+                target.listenTo( null, 'change', function(){} );
+                target.listenToOnce( null, 'change', function(){} );
+                target.stopListening( null );
+            });
+        });
 
         describe( 'Nested.Model', function(){
             var M = Nested.Model.extend({

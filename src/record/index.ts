@@ -25,7 +25,7 @@ Record.define = function( protoProps : RecordDefinition = {}, staticProps ){
     }
 
     // Compile attributes spec, creating definition mixin.
-    const dynamicMixin = compile( getAttributes( definition ), <AttributesSpec> baseProto._attributes );
+    const dynamicMixin = compile( this.attributes = getAttributes( definition ), <AttributesSpec> baseProto._attributes );
 
     // Explicit 'properties' declaration overrides auto-generated attribute properties.
     if( definition.properties === false ){

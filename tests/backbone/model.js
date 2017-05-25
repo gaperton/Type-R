@@ -5,7 +5,7 @@
     title  : "The Tempest",
     author : "Bill Shakespeare",
     audience : "",
-    b : 0,
+    b : 0, a : void 0, c : void 0,
     d : 0,
     length : 123
   });
@@ -23,11 +23,13 @@
         id     : '1-the-tempest',
         title  : "The Tempest",
         author : "Bill Shakespeare",
-        length : 123
+        length : 123,
+        a : void 0, b : void 0, c : void 0, d : void 0
       });
       collection = new klass();
       collection.add(doc);
     }
+
   });
 
   QUnit.test("initialize", function(assert) {
@@ -39,6 +41,7 @@
 
       initialize: function() {
         this.one = 1;
+        //assert.equal(this.collection, collection); No access to collection in constructor.
       }
     });
     var model = new Model({}, {});
@@ -561,7 +564,7 @@
     assert.expect(2);
     var changed = 0, model = new ( Backbone.Model.defaults({a: null}) );
     model.on('change', function() {
-      assert.ok(this.hasChanged('a'));
+      assert.ok(model.hasChanged('a'));
     })
     .on('change:a', function() {
       changed++;
@@ -697,17 +700,17 @@
     model.on('change', function() {
       switch(count++) {
         case 0:
-          assert.deepEqual(this.changedAttributes(), {x: true});
+          assert.deepEqual(model.changedAttributes(), {x: true});
           assert.equal(model.previous('x'), undefined);
           model.set({y: true});
           break;
         case 1:
-          assert.deepEqual(this.changedAttributes(), {x: true, y: true});
+          assert.deepEqual(model.changedAttributes(), {x: true, y: true});
           assert.equal(model.previous('x'), undefined);
           model.set({z: true});
           break;
         case 2:
-          assert.deepEqual(this.changedAttributes(), {x: true, y: true, z: true});
+          assert.deepEqual(model.changedAttributes(), {x: true, y: true, z: true});
           assert.equal(model.previous('y'), undefined);
           break;
         default:
@@ -725,15 +728,15 @@
     model.on('change', function() {
       switch(count++) {
         case 0:
-          assert.deepEqual(this.changedAttributes(), {x: true});
+          assert.deepEqual(model.changedAttributes(), {x: true});
           model.set({y: true}, {silent: true});
           model.set({z: true});
           break;
         case 1:
-          assert.deepEqual(this.changedAttributes(), {x: true, y: true, z: true});
+          assert.deepEqual(model.changedAttributes(), {x: true, y: true, z: true});
           break;
         case 2:
-          assert.deepEqual(this.changedAttributes(), {z: false});
+          assert.deepEqual(model.changedAttributes(), {z: false});
           break;
         default:
           assert.ok(false);
