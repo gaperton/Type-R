@@ -4,7 +4,7 @@
 <!--[if IE 8]>          <html class="no-js ie8 oldie" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
-    <title>id-references - Type-R</title>
+    <title>id-references and Stores - Type-R</title>
     <meta name="description" content="Universal state management framework" />
     <meta name="author" content="Vlad Balin">
     <meta charset="UTF-8">
@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item  has-children'><a href="../Record/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../API_by_feature/Aggregation_tree.html" class="folder"><i class="Nav__arrow">&nbsp;</i>API by feature</a><ul class='Nav'><li class='Nav__item '><a href="../API_by_feature/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../API_by_feature/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../API_by_feature/Validation.html">Validation</a></li><li class='Nav__item '><a href="../API_by_feature/Shared_objects.html">Shared objects</a></li><li class='Nav__item Nav__item--active'><a href="../API_by_feature/id-references.html">id-references</a></li><li class='Nav__item '><a href="../API_by_feature/Stores.html">Stores</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item  has-children'><a href="../Record/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../API_by_feature/Aggregation_tree.html" class="folder"><i class="Nav__arrow">&nbsp;</i>API by feature</a><ul class='Nav'><li class='Nav__item '><a href="../API_by_feature/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../API_by_feature/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../API_by_feature/Validation.html">Validation</a></li><li class='Nav__item '><a href="../API_by_feature/Shared_objects.html">Shared objects</a></li><li class='Nav__item Nav__item--active'><a href="../API_by_feature/id-references_and_Stores.html">id-references and Stores</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -75,9 +75,9 @@
                 <article class="Page">
 
     <div class="Page__header">
-        <h1>id-references</h1>
+        <h1>id-references and Stores</h1>
                         <span style="float: right; font-size: 10px; color: gray;">
-            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/06_API_by_feature/05_id-references.md" target="_blank">Edit on GitHub</a>
+            <a href="https://github.com/Volicon/React-MVx/blob/develop/docs/06_API_by_feature/05_id-references_and_Stores.md" target="_blank">Edit on GitHub</a>
         </span>
             </div>
 
@@ -112,25 +112,76 @@ alert(&quot;Cake id: &quot; + cake.id);
 and there must be the populated master collection of records on the client in order to resolve ids on parse.</p>
 <p>There are two kinds of id-references: one-to-many, and many-to-many. They are declared with the special kind of attribute annotation.
 Id-references behaves in the same way as shared attributes, but <em>inner changes</em> in referenced objects are <em>not observed</em>.</p>
-<h3 id="page_attr+%3A+Record.from%28+sourceCollection+%29"><code>attrDef</code> attr : Record.from( sourceCollection )</h3>
+<h3 id="page_attr+%3A+Record.from%28+++%29"><code>attrDef</code> attr : Record.from( <code>sourceCollection</code> )</h3>
 <p>Declare an attribute to be the record from the particular collection.</p>
 <p>Serialized as <code>record.id</code>.</p>
-<h3 id="page_attr+%3A+Collection.subsetOf%28+sourceCollection+%29"><code>attrDef</code> attr : Collection.subsetOf( sourceCollection )</h3>
+<h3 id="page_attr+%3A+Collection.subsetOf%28+++%29"><code>attrDef</code> attr : Collection.subsetOf( <code>sourceCollection</code> )</h3>
 <p>Declare an attribute to be the collection, which is the subset of the particular collection.</p>
 <p>Serialized as an array of record ids.</p>
-<h2 id="page_Relative+paths+to+source+collection">Relative paths to source collection</h2>
-<p><code>sourceCollection</code> can be the string with the dot-separated <em>relative object path</em> to the collection.
+<h3 id="page_%27path.relative.to.this%27"><code>sourceCollection</code> 'path.relative.to.this'</h3>
+<p><code>sourceCollection</code> may be the string with the dot-separated <em>relative object path</em> to the collection.
 In this case, it is resolved dynamically relative to the record's <code>this</code>.</p>
 <pre><code>@define class State extends Record {
     items : Item.Collection,
     selected : Record.from( 'items' ) // Will resolve to `this.items` 
 }
 </code></pre>
+<h3 id="page_%27%5Epath.relative.to.owner%27"><code>sourceCollection</code> '^path.relative.to.owner'</h3>
+<p><code>^</code> symbol in path is being translated to the <code>getOwner()</code> call.</p>
+<blockquote>
+<p>It's recommended to use tilda-references and stores instead.</p>
+</blockquote>
+<h1 id="page_Stores+and+tilda-references">Stores and tilda-references</h1>
+<h3 id="page_Store"><code>asbtract class</code> Store</h3>
+<h3 id="page_%27%7Epath.relative.to.store%27"><code>sourceCollection</code> '~path.relative.to.store'</h3>
+<p><code>Store</code> is the Record's subclass which serves as a root for id-references.
+Any id-reference with a path starting with <code>~</code> look for the nearest <code>Store</code> subclass traversing the aggregation tree upwards,
+and if there are none, it takes the default Store class <code>Store.global</code>.</p>
+<p>For all objects inside of the store's aggregation tree <code>~member</code> will resolve to the member of this store class.
+If the lookup will fail, the next available store upper in aggregation tree will be used (as regular records stores can be nested), or the <code>Store.global</code> if there are no one.</p>
+<blockquote>
+<p>Stores in Type-R is <em>very different</em> to stores in other framework. Pay attention.</p>
+</blockquote>
+<pre><code class="language-javascript">@define class Role extends Record {
+    static attributes = {
+        name : String,
+        ...
+    }
+}
+
+@define class User extends Record {
+    static attributes = {
+        name : String,
+        roles : Role.Collection.subsetOf( '~roles' )
+    }
+}
+
+@define class UsersDirectory extends Store {
+    static attributes = {
+        roles : Role.Collection,
+        users : User.Collection // `~roles` references will be resolved against this.roles
+    }
+}
+</code></pre>
+<h3 id="page_Store.global">Store.global</h3>
+<p>The default store class. Is always the last store to lookup when resolving tilda-reference.</p>
+<p>Use the default store for the <em>globally shared data only</em>. Each application page must have its local store.</p>
+<pre><code class="language-javascript">@define class MyStore extends Store {
+    static attributes = {
+        users : User.Collection,
+        roles : Role.Collection
+    }
+}
+
+Store.global = new MyStore();
+
+// Now the reference '~users` will point to users collection from the MyStore.
+</code></pre>
     </div>
 
         <nav>
         <ul class="Pager">
-            <li class=Pager--prev><a href="../API_by_feature/Shared_objects.html">Previous</a></li>            <li class=Pager--next><a href="../API_by_feature/Stores.html">Next</a></li>        </ul>
+            <li class=Pager--prev><a href="../API_by_feature/Shared_objects.html">Previous</a></li>            <li class=Pager--next><a href="../Events.html">Next</a></li>        </ul>
     </nav>
     </article>
 
