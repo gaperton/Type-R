@@ -104,7 +104,7 @@
 </code></pre>
 <h3 id="page_attr+%3A+Collection.Refs"><code>attrDef</code> attr : Collection.Refs</h3>
 <h3 id="page_new+Collection.Refs%28%29">new Collection.Refs()</h3>
-<p>Collection of references to shared records, which <em>does not aggregate</em> its elements. In constrast to the <code>Collection.shared</code>, <code>Collection.Refs</code> creates an instance of collection which <em>is the part the parent record</em>. Still, its items are not validated and serialized.</p>
+<p>Collection of references to shared records, which <em>does not aggregate</em> its elements. In contrast to the <code>Collection.shared</code>, <code>Collection.Refs</code> creates an instance of collection which <em>is the part the parent record</em>. Still, its items are not validated and serialized.</p>
 <pre><code>@define class MyRecord extends Record {
     static attributes = {
         notCloned : SomeCollection.shared, // Reference to the _shared collection_ object.

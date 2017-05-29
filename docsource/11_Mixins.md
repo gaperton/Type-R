@@ -15,7 +15,7 @@ You need to import mixins decorator to use mixins:
 
 ### `decorator` @mixinRules({ name : `rule`, ... }) class ...`
 
-Define configurable properties merge rules for the specific class. Rules can be extented in any subclass.
+Define configurable properties merge rules for the specific class. Rules can be extended in any subclass.
 
 ## Mixin rules
 

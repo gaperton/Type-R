@@ -102,7 +102,7 @@
 
     onNameChange(){
         // Cruel. But we need it for the purpose of the example.
-        this.isAdmin = this.name.indexOf( 'Admin' ) &gt;= 0; 
+        this.isAdmin = this.name.indexOf( 'Admin' ) &gt;= 0;
     }
 }
 </code></pre>
@@ -110,7 +110,7 @@
 <p>Automatically manage custom event subscription for the attribute. <code>handler</code> is either the method name or the handler function.</p>
 <h2 id="page_Events+subscription+with+Events+API">Events subscription with Events API</h2>
 <p><code>listener.listenTo()</code> and <code>listener.listenToOnce()</code> methods can be used to listen to the any of the change events.</p>
-<p>If listener itself is the record or collection, subscribtions will be stopped automatically. Otherwise they must be stopped
+<p>If listener itself is the record or collection, subscriptions will be stopped automatically. Otherwise they must be stopped
 manually with <code>listener.stopListening()</code> call to prevent memory leaks.</p>
 <h1 id="page_Change+inspection+methods">Change inspection methods</h1>
 <p>Following API might be useful in change event listeners.</p>

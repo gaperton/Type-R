@@ -1,7 +1,7 @@
 # Polymorphic data structures
 
 Sometimes it's required to deal with the collection of records of different types.
-In the simplest case, `Record.Collection` is polymirphic in a sense that it may hold any record
+In the simplest case, `Record.Collection` is polymorphic in a sense that it may hold any record
 inside, as well as the record's attribute of the `Record` type.
 
 The trick, however, is to restore polymorphic data from JSON as its type is unknown.

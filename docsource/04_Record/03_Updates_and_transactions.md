@@ -32,7 +32,7 @@ In case of changes, the record triggers events:
 
 ### `options` { parse : true }
 
-Transform `record.set` argument with user-defined parse logic. Typically used to process the responce from the server to make user-defined JSON format conversion.
+Transform `record.set` argument with user-defined parse logic. Typically used to process the response from the server to make user-defined JSON format conversion.
 
 ### `options` { merge : true }
 
@@ -47,7 +47,7 @@ Works similar to `record.set( otherRecord.attributes, { merge : true })`;
 
 # Transactions
 
-All record updates occures in the scope of transactions. Transaction is the sequence of changes which results in a single `change` event.
+All record updates occurs in the scope of transactions. Transaction is the sequence of changes which results in a single `change` event.
 
 Transaction can be opened either manually or implicitly with calling `set()` or assigning an attribute.
 Any additional changes made to the record in `change:attr` event handler will be executed in the scope of the original transaction, and won't trigger additional `change` events.

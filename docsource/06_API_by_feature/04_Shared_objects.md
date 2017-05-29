@@ -24,7 +24,7 @@ Record's attribute with a reference to the shared model or collection.
 ### `attrDef` attr : Collection.Refs
 ### new Collection.Refs()
 
-Collection of references to shared records, which _does not aggregate_ its elements. In constrast to the `Collection.shared`, `Collection.Refs` creates an instance of collection which _is the part the parent record_. Still, its items are not validated and serialized.
+Collection of references to shared records, which _does not aggregate_ its elements. In contrast to the `Collection.shared`, `Collection.Refs` creates an instance of collection which _is the part the parent record_. Still, its items are not validated and serialized.
 
     @define class MyRecord extends Record {
         static attributes = {

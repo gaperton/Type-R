@@ -43,7 +43,7 @@ Collections can be defined explicitly extending the base `Collection` class. The
 
 Replaces implicitly defined collection with externally defined collection class.
 
-### (colleciton definition) `static` model = RecordConstructor
+### (collection definition) `static` model = RecordConstructor
 
 Specify the record type inside of the collection's definition. This property is being set automatically for collection types referenced as `MyRecord.Collection`.
 
@@ -53,13 +53,13 @@ Specify the record type inside of the collection's definition. This property is 
 }
 ```
 
-# Create and access the colleciton
+# Create and access the collection
 
 ### new Collection()
 
 Create an empty collection.
 
-### new Collection( models, options? ) 
+### new Collection( models, options? )
 
 When creating a Collection, you may choose to pass in the initial array of models. The collection's comparator may be included as an option. Passing `false` as the comparator option will prevent sorting. If you define an `initialize() ` function, it will be invoked when the collection is created. There are a couple of options that, if provided, are attached to the collection directly: model and comparator.
 Pass `null` for `models` to create an empty Collection with options.
@@ -72,20 +72,20 @@ var tabs = new TabSet([tab1, tab2, tab3]);
 
 Initialization function which is called at the end of the constructor.
 
-### collection.get( id ) 
+### collection.get( id )
 Get a record from a collection, specified by an `id`, a `cid`, or by passing in a record.
 
 ```javascript
 const book = library.get(110);
 ```
 
-### collection.at( index ) 
+### collection.at( index )
 
 Get a record from a collection, specified by index. Useful if your collection is sorted, and if your collection isn't sorted, at will still retrieve records in insertion order. When passed a negative index, it will retrieve the record from the back of the collection.
 
-### collection.length 
+### collection.length
 Like an array, a Collection maintains a length property, counting the number of models it contains.
 
-### collection.models 
+### collection.models
 
 Raw access to the JavaScript array of models inside of the collection. Usually you'll want to use `get`, `at`, or the other methods to access model objects, but occasionally a direct reference to the array is desired.

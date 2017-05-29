@@ -117,13 +117,13 @@ class Comics extends Book {
 <p>Collections can be defined explicitly extending the base <code>Collection</code> class. There are two ways to bind collection to the record.</p>
 <h3 id="page_%28record+definition%29+++Collection+%3D+CollectionConstructor">(record definition) <code>static</code> Collection = CollectionConstructor</h3>
 <p>Replaces implicitly defined collection with externally defined collection class.</p>
-<h3 id="page_%28colleciton+definition%29+++model+%3D+RecordConstructor">(colleciton definition) <code>static</code> model = RecordConstructor</h3>
+<h3 id="page_%28collection+definition%29+++model+%3D+RecordConstructor">(collection definition) <code>static</code> model = RecordConstructor</h3>
 <p>Specify the record type inside of the collection's definition. This property is being set automatically for collection types referenced as <code>MyRecord.Collection</code>.</p>
 <pre><code class="language-javascript">@define class Library extends Record.Collection {
     static model = Book;
 }
 </code></pre>
-<h1 id="page_Create+and+access+the+colleciton">Create and access the colleciton</h1>
+<h1 id="page_Create+and+access+the+collection">Create and access the collection</h1>
 <h3 id="page_new+Collection%28%29">new Collection()</h3>
 <p>Create an empty collection.</p>
 <h3 id="page_new+Collection%28+models%2C+options%3F+%29">new Collection( models, options? )</h3>

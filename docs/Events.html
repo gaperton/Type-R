@@ -86,7 +86,7 @@
         <p>Both <code>Record</code> and <code>Collection</code> uses an efficient synchronous events implementation which is compatible with Backbone 1.1 Events API but is twice faster in average. It comes in form of <code>Events</code> mixin and the <code>Messenger</code> base class.</p>
 <p>An implementation is optimized for the large amount of relatively small subscriptions (5-10 events). Here are the benchmark results (lower is the better).</p>
 <p><img src="./events-performance.jpg" alt="performance" /></p>
-<p>It is also avaiable separately as part of <a href="https://github.com/Volicon/MixtureJS" class="external">MixtureJS</a> package.</p>
+<p>It is also available separately as part of <a href="https://github.com/Volicon/MixtureJS" class="external">MixtureJS</a> package.</p>
 <h1 id="page_Events+mixin">Events mixin</h1>
 <p>Events is a mixin, giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.</p>
 <h3 id="page_eventsSource.trigger%28event%2C++%5B+%2A+args%5D%29">eventsSource.trigger(event, [*args])</h3>
@@ -108,7 +108,7 @@ view.stopListening(model); // Unsubscribe from all events from the model
 <h3 id="page_listener.listenToOnce%28other%2C+event%2C+callback%29">listener.listenToOnce(other, event, callback)</h3>
 <p>Just like listenTo, but causes the bound callback to fire only once before being removed.</p>
 <h2 id="page_Low-level+listening+API">Low-level listening API</h2>
-<p>This API is more efficient but requires manual action to stop the subscribtion. Must be used with care.</p>
+<p>This API is more efficient but requires manual action to stop the subscription. Must be used with care.</p>
 <h3 id="page_eventSource.on%28event%2C+callback%2C++%5B+context%5D%29">eventSource.on(event, callback, [context])</h3>
 <p>Bind a callback function to an object. The callback will be invoked whenever the event is fired. If you have a large number of different events on a page, the convention is to use colons to namespace them: &quot;poll:start&quot;, or &quot;change:selection&quot;. The event string may also be a space-delimited list of several events...</p>
 <pre><code>book.on(&quot;change:title change:author&quot;, ...);
@@ -147,7 +147,7 @@ object.off();
 <h3 id="page_eventsSource.once%28event%2C+callback%2C++%5B+context%5D%29">eventsSource.once(event, callback, [context])</h3>
 <p>Just like on, but causes the bound callback to fire only once before being removed. Handy for saying &quot;the next time that X happens, do this&quot;. When multiple events are passed in using the space separated syntax, the event will fire once for every event you passed in, not once for a combination of all events</p>
 <h1 id="page_Messenger">Messenger</h1>
-<p>Messenger is an abstract base class implementing Events mixin and some convinience methods.</p>
+<p>Messenger is an abstract base class implementing Events mixin and some convenience methods.</p>
 <h3 id="page_messenger.cid"><code>readonly</code> messenger.cid</h3>
 <p>Unique run-time only messenger instance id (string).</p>
 <h3 id="page_messenger.initialize%28%29">messenger.initialize()</h3>

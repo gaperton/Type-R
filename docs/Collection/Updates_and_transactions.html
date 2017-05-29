@@ -154,7 +154,7 @@
 
 vanHalen.set([ eddie, alex, stone, hagar ]);
 
-// Fires a &quot;remove&quot; event for roth, and an &quot;add&quot; event for &quot;hagar&quot;.
+// Fires a &quot;remove&quot; event for roth, and an &quot;add&quot; event for hagar.
 // Updates any of stone, alex, and eddie's attributes that may have
 // changed over the years.
 </code></pre>
@@ -166,7 +166,7 @@ vanHalen.set([ eddie, alex, stone, hagar ]);
 <li>Trigger event <code>changes</code>( collection, options ).</li>
 </ol>
 <h1 id="page_Transactions">Transactions</h1>
-<p>All collection updates occures in the scope of transactions. Transaction is the sequence of changes which results in a single <code>changes</code> event.</p>
+<p>All collection updates occurs in the scope of transactions. Transaction is the sequence of changes which results in a single <code>changes</code> event.</p>
 <p>Transaction can be opened either manually or implicitly with calling any of collection update methods.
 Any additional changes made to the collection or its items in event handlers will be executed in the scope of the original transaction, and won't trigger an additional <code>changes</code> events.</p>
 <h3 id="page_collection.transaction%28+fun+%29">collection.transaction( fun )</h3>

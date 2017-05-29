@@ -107,16 +107,16 @@ in a similar way as it's done in statically typed languages.</p>
 const user = new User();
 console.log( user.createdAt ); // ⟵ this is an instance of Date created for you.
 
-const users = new User.Collection(); // ⟵ Collections are defined automatically. 
+const users = new User.Collection(); // ⟵ Collections are defined automatically.
 users.on( 'changes', () =&gt; updateUI( users ) ); // ⟵ listen to the changes.
 
 users.set( json, { parse : true } ); // ⟵ parse raw JSON from the server.
 users.updateEach( user =&gt; user.firstName = '' ); // ⟵ bulk update triggering 'changes' once
 </code></pre>
 <h1 id="page_Record+definition">Record definition</h1>
-<p>Record must extend <code>Record</code> base class, it must have <code>static attributes</code> definition, and the class definition must be preceeded with <code>@define</code> decorator.</p>
+<p>Record must extend <code>Record</code> base class, it must have <code>static attributes</code> definition, and the class definition must be preceded with <code>@define</code> decorator.</p>
 <h3 id="page_attributes+%3D+%7B+name+%3A++%2C+...+%7D"><code>static</code> attributes = { name : <code>attrDef</code>, ... }</h3>
-<p>Record is a class with an observalbe and serializable public attributes. Attributes <em>must</em> be declared statically
+<p>Record is a class with an observable and serializable public attributes. Attributes <em>must</em> be declared statically
 in <code>static attributes</code> class member, which is an object hash mapping an attribute name name to its declaration, encapsulating
 attribute type, default value, and metadata controlling different aspects of attribute behavior.</p>
 <pre><code class="language-javascript">@define class User extends Record {
@@ -170,12 +170,12 @@ Please note, that you <em>have to declare all attributes</em> in <code>static at
 <pre><code class="language-javascript">@define class Account extends Record {
     static attributes = {
         name : String,
-        ballance : Number
+        balance : Number
     }
 }
 
 const myAccount = new Account({ name : 'mine' });
-myAccount.ballance += 1000000; // That works. Good, eh?
+myAccount.balance += 1000000; // That works. Good, eh?
 </code></pre>
     </div>
 

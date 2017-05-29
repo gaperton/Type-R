@@ -19,7 +19,7 @@ import { Record } from 'type-r'
 }
 ```
 
-All nested records and collections are *aggregated* by default and behave as integral parts of the containing record. Aggregated attributes are _exclusively owned_ by the record, and taken with it together form an _ownerhip tree_. Many operations are performed recursively on aggregated elements:
+All nested records and collections are *aggregated* by default and behave as integral parts of the containing record. Aggregated attributes are _exclusively owned_ by the record, and taken with it together form an _ownership tree_. Many operations are performed recursively on aggregated elements:
 
 - They are created when the owner record is created.
 - They are cloned when the record is cloned.

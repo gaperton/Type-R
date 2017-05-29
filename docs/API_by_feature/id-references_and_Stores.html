@@ -123,7 +123,7 @@ Id-references behaves in the same way as shared attributes, but <em>inner change
 In this case, it is resolved dynamically relative to the record's <code>this</code>.</p>
 <pre><code>@define class State extends Record {
     items : Item.Collection,
-    selected : Record.from( 'items' ) // Will resolve to `this.items` 
+    selected : Record.from( 'items' ) // Will resolve to `this.items`
 }
 </code></pre>
 <h3 id="page_%27%5Epath.relative.to.owner%27"><code>sourceCollection</code> '^path.relative.to.owner'</h3>
@@ -132,7 +132,7 @@ In this case, it is resolved dynamically relative to the record's <code>this</co
 <p>It's recommended to use tilda-references and stores instead.</p>
 </blockquote>
 <h1 id="page_Stores+and+tilda-references">Stores and tilda-references</h1>
-<h3 id="page_Store"><code>asbtract class</code> Store</h3>
+<h3 id="page_Store"><code>abstract class</code> Store</h3>
 <h3 id="page_%27%7Epath.relative.to.store%27"><code>sourceCollection</code> '~path.relative.to.store'</h3>
 <p><code>Store</code> is the Record's subclass which serves as a root for id-references.
 Any id-reference with a path starting with <code>~</code> look for the nearest <code>Store</code> subclass traversing the aggregation tree upwards,

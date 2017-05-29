@@ -117,7 +117,7 @@
 </li>
 </ol>
 <h3 id="page_%7B+parse+%3A+true+%7D"><code>options</code> { parse : true }</h3>
-<p>Transform <code>record.set</code> argument with user-defined parse logic. Typically used to process the responce from the server to make user-defined JSON format conversion.</p>
+<p>Transform <code>record.set</code> argument with user-defined parse logic. Typically used to process the response from the server to make user-defined JSON format conversion.</p>
 <h3 id="page_%7B+merge+%3A+true+%7D"><code>options</code> { merge : true }</h3>
 <p>Merge attributes of record and collection types instead of replacement. If the new instance of record or collection is to be assigned,
 update the current instances instead.</p>
@@ -125,7 +125,7 @@ update the current instances instead.</p>
 <p>Makes an existing <code>record</code> to be the copy of <code>otherRecord</code>, recursively assigning all attributes.</p>
 <p>Works similar to <code>record.set( otherRecord.attributes, { merge : true })</code>;</p>
 <h1 id="page_Transactions">Transactions</h1>
-<p>All record updates occures in the scope of transactions. Transaction is the sequence of changes which results in a single <code>change</code> event.</p>
+<p>All record updates occurs in the scope of transactions. Transaction is the sequence of changes which results in a single <code>change</code> event.</p>
 <p>Transaction can be opened either manually or implicitly with calling <code>set()</code> or assigning an attribute.
 Any additional changes made to the record in <code>change:attr</code> event handler will be executed in the scope of the original transaction, and won't trigger additional <code>change</code> events.</p>
 <h3 id="page_record.transaction%28+fun+%29">record.transaction( fun )</h3>

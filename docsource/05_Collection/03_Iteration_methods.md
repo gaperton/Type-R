@@ -33,5 +33,3 @@ Return `true` if all records match the predicate.
 ### collection.some( iteratee : Predicate, context? ) : boolean
 
 Return `true` if at least one record match the predicated.
-
-

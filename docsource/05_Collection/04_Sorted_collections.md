@@ -10,11 +10,11 @@ Maintain the collection in sorted order by the given record's attribute.
 
 ### `static` comparator = x => number | string
 
-"sortBy" comparator functions take a model and return a numeric or string value by which the model should be ordered relative to others. 
+"sortBy" comparator functions take a model and return a numeric or string value by which the model should be ordered relative to others.
 
 ### `static` comparator = ( x, y ) => -1 | 0 | 1
 
-"sort" comparator functions take two models, and return -1 if the first model should come before the second, 0 if they are of the same rank and 1 if the first model should come after. 
+"sort" comparator functions take two models, and return -1 if the first model should come before the second, 0 if they are of the same rank and 1 if the first model should come after.
 
 Note how even though all of the chapters in this example are added backwards, they come out in the proper order:
 
@@ -31,7 +31,6 @@ chapters.add(new Chapter({page: 1, title: "The Beginning"}));
 alert(chapters.pluck('title'));
 ```
 
-
-### collection.sort( options? ) 
+### collection.sort( options? )
 
 Force a collection to re-sort itself. You don't need to call this under normal circumstances, as a collection with a comparator will sort itself whenever a model is added. To disable sorting when adding a model, pass `{sort: false}` to add. Calling sort triggers a "sort" event on the collection.

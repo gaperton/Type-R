@@ -19,7 +19,7 @@ Pass `{at: index}` to splice the record into the collection at the specified ind
     - `sort`(collection, options) if an order of records was changed.
 4. Trigger `changes` event in case if any changes were made to the collection and objects inside.
 
-### collection.remove( records, options? ) 
+### collection.remove( records, options? )
 
 Remove a record (or an array of records) from the collection, and return them. Each record can be a record instance, an id string or a JS object, any value acceptable as the id argument of collection.get.
 
@@ -29,7 +29,7 @@ Remove a record (or an array of records) from the collection, and return them. E
     - `changes`(collection, options).
 
 ### collection.set( records, options? )
- 
+
 The set method performs a "smart" update of the collection with the passed list of records. If a record in the list isn't yet in the collection it will be added; if the record is already in the collection its attributes will be merged; and if the collection contains any records that aren't present in the list, they'll be removed. All of the appropriate "add", "remove", and "change" events are fired as this happens. Returns the touched records in the collection. If you'd like to customize the behavior, you can disable it with options: `{remove: false}`, or `{merge: false}`.
 
 #### Events
@@ -47,7 +47,7 @@ const vanHalen = new Man.Collection([ eddie, alex, stone, roth ]);
 
 vanHalen.set([ eddie, alex, stone, hagar ]);
 
-// Fires a "remove" event for roth, and an "add" event for "hagar".
+// Fires a "remove" event for roth, and an "add" event for hagar.
 // Updates any of stone, alex, and eddie's attributes that may have
 // changed over the years.
 ```
@@ -63,7 +63,7 @@ Calling `collection.reset()` without passing any records as arguments will empty
 
 # Transactions
 
-All collection updates occures in the scope of transactions. Transaction is the sequence of changes which results in a single `changes` event.
+All collection updates occurs in the scope of transactions. Transaction is the sequence of changes which results in a single `changes` event.
 
 Transaction can be opened either manually or implicitly with calling any of collection update methods.
 Any additional changes made to the collection or its items in event handlers will be executed in the scope of the original transaction, and won't trigger an additional `changes` events.
@@ -74,4 +74,4 @@ Execute the sequence of updates in `fun` function in the scope of the transactio
 
 ### collection.updateEach( iteratee : ( val : Record, index ) => void, context? )
 
-Similar to the `collection.each`, but wraps the loop in a transaction. 
+Similar to the `collection.each`, but wraps the loop in a transaction.

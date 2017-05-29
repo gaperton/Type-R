@@ -16,5 +16,5 @@ When `true` is passed as a handler, the corresponding event will be triggered on
 
 `listener.listenTo()` and `listener.listenToOnce()` methods can be used to listen to the any of the collection events.s
 
-If listener itself is the record or collection, subscribtions will be stopped automatically. Otherwise they must be stopped
+If listener itself is the record or collection, subscriptions will be stopped automatically. Otherwise they must be stopped
 manually with `listener.stopListening()` call to prevent memory leaks.
