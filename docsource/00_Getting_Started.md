@@ -1,4 +1,4 @@
-# Intruduction
+# Introduction
 
 Type-R is the universal state container for both UI and domain state management.
 
