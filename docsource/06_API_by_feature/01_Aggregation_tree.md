@@ -41,6 +41,16 @@ Clone the record and all aggregated records and collections.
 
 The whole aggregation tree will be recursively cloned, references to shared members will copied.
 
+### record.set( json, { parse : true } )
+### collection.set( json, { parse : true } )
+
+Recursively update an aggregation tree in place with the raw JSON data.
+
+```javascript
+// Has the same effect as assignFrom():
+record.set( otherRecord.toJSON(), { parse : true });
+```
+
 ### record.assignFrom( otherRecord )
 ### collection.assignFrom( otherCollection )
 

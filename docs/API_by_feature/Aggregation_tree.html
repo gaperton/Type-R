@@ -116,6 +116,12 @@ To create nested record or collection you should just mention its type in attrib
 <h3 id="page_recordOrCollection.clone%28%29">recordOrCollection.clone()</h3>
 <p>Clone the record and all aggregated records and collections.</p>
 <p>The whole aggregation tree will be recursively cloned, references to shared members will copied.</p>
+<h3 id="page_record.set%28+json%2C+%7B+parse+%3A+true+%7D+%29">record.set( json, { parse : true } )</h3>
+<h3 id="page_collection.set%28+json%2C+%7B+parse+%3A+true+%7D+%29">collection.set( json, { parse : true } )</h3>
+<p>Recursively update an aggregation tree in place with the raw JSON data.</p>
+<pre><code class="language-javascript">// Has the same effect as assignFrom():
+record.set( otherRecord.toJSON(), { parse : true });
+</code></pre>
 <h3 id="page_record.assignFrom%28+otherRecord+%29">record.assignFrom( otherRecord )</h3>
 <h3 id="page_collection.assignFrom%28+otherCollection+%29">collection.assignFrom( otherCollection )</h3>
 <p>Recursively assign the record and its aggregated members with values from <code>otherRecord</code>.
