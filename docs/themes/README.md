@@ -16,7 +16,7 @@ And add the following to your daux documentation `config.json`
 ## Features
 
 - Fixed content width with inline code examples. Code floating must be turned off.
-- `#` - don't use.
-- `##` - creates the disconnected section of the document
-- `###` - creates the header inside of section.
-- `####` - must be used for API calls.
+- `#` - Separate disconnected section
+- `##` - Subsection
+- `###` - API entry. Use it for methods and variables.
+- `####` - Subsections inside of API entries

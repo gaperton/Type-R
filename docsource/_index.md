@@ -1,5 +1,5 @@
 <p class="lead">
-	<strong>Type-R</strong> is the universal state management JS framework designed to manage both UI and domain application state.
+	<strong>Type-R</strong> is the modern state management JS framework designed to handle both UI and domain application state.
 </p>
 
 <hr/>
@@ -7,29 +7,53 @@
 <div class=row>
 <div class=col-third>
 
-## Serializable and observable
+### JSON Serialization
 
-Complex serialization scenarios like many-to-many
-relations by id are supported out of box.
-
-</div>
-<div class=col-third>
-
-## Declarative validation
-
-Validation checks are transparent and declarative.
+* State is serializable by default.
+* Both nested JSON and relations by id are supported.
 
 </div>
 <div class=col-third>
 
-## Dynamically type-safe
+### Validation
 
-State elements are _typed_.
-It's guaranteed that state elements will
-retain declared types at run-time no matter what.
+* Declarative validation checks.
+* Validation is lazily evaluated.
 
-Client-server communication is validated and guarded from
+</div>
+<div class=col-third>
+
+### Dynamic type-safety
+
+* State elements are _typed_.
+* Client-server communication is guarded against
 type errors from both ends.
+
+</div>
+</div>
+
+<div class=row>
+<div class=col-third>
+
+### Observable Changes
+
+* Changes are observable by default. 
+
+</div>
+<div class=col-third>
+
+### Scalability
+
+* Not dependent on singletons.
+* Stores are optional and can be created dynamically.
+
+</div>
+<div class=col-third>
+
+### Performance
+
+* 10 times faster than BackboneJS in all browsers.
+
 </div>
 </div>
 
