@@ -8,9 +8,20 @@ It is also available separately as part of [MixtureJS](https://github.com/Volico
 
 # Events mixin
 
-Events is a mixin, giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.
+Events is a [mixin](11_Mixins.md) giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.
 
-### eventsSource.trigger(event, [*args])
+```javascript
+import { mixins, Events } from 'type-r'
+
+@mixins( Events )
+class Messenger {
+    ...
+}
+```
+
+> `Messenger` abstract base class is included with Type-R, see below.
+
+### eventsSource.trigger(event, arg1, arg2, ... )
 
 Trigger callbacks for the given event, or space-delimited list of events. Subsequent arguments to trigger will be passed along to the event callbacks.
 
@@ -92,6 +103,15 @@ Just like on, but causes the bound callback to fire only once before being remov
 # Messenger
 
 Messenger is an abstract base class implementing Events mixin and some convenience methods.
+As all Type-R classes, its definition must be preceded with the `@define` decorator.
+
+```javascript
+import { define, Messenger } from 'type-r'
+
+@define class MyMessenger extends Messenger {
+
+}
+```
 
 ### `readonly` messenger.cid
 

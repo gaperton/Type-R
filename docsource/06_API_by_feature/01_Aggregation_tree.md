@@ -31,18 +31,15 @@ All nested records and collections are *aggregated* by default and behave as int
 
 ### recordOrCollection.getOwner()
 
-Return the reference to the record's owner, or `null` if record is not the part of aggregation tree.
+Return the reference to the record which is an owner, or `null` if the object is the root of an aggregation tree.
 
 Due to the nature of _aggregation_, an object may have one and only one owner.
 
 ### recordOrCollection.clone()
 
-Clone the record and all aggregated records and collections.
+Create the deep copy of the aggregation tree, recursively cloning all aggregated records and collections. References to [shared members](04_Shared_objects.md) will be copied, but not shared members themselves.
 
-The whole aggregation tree will be recursively cloned, references to shared members will copied.
-
-### record.set( json, { parse : true } )
-### collection.set( json, { parse : true } )
+### recordOrCollection.set( json, { parse : true } )
 
 Recursively update an aggregation tree in place with the raw JSON data.
 
@@ -54,11 +51,15 @@ record.set( otherRecord.toJSON(), { parse : true });
 ### record.assignFrom( otherRecord )
 ### collection.assignFrom( otherCollection )
 
-Recursively assign the record and its aggregated members with values from `otherRecord`.
-This operation is similar to `record.clone()`, but instead of _creation_ of the cloned record it makes an _existing_ record to be the copy
-of other record.
+Make an _existing_ record or collection to be an exact copy of other record or collection. The whole aggregation tree will be recursively traversed and assigned.
 
-The whole aggregation tree will be recursively assigned, references to shared members will copied.
+Other record/collection must have the similar shape as the record/collection type.
+
+```javascript
+// Has the same effect as record.clone():
+const clonedRecord = new MyRecord();
+clonedRecord.assignFrom( record );
+```
 
 ### recordOrCollection.dispose()
 
