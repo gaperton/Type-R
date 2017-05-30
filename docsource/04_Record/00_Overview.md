@@ -37,6 +37,18 @@ users.updateEach( user => user.firstName = '' ); // ⟵ bulk update triggering '
 
 Record must extend `Record` base class, it must have `static attributes` definition, and the class definition must be preceeded with `@define` decorator.
 
+### `decorator` @define
+
+_Must_ be placed before record class definition.
+
+```javascript
+import { define, Record } from 'type-r'
+
+@define class X extends Record {
+    ...    
+}
+```
+
 ### `static` attributes = { name : `attrDef`, ... }
 
 Record is a class with an observalbe and serializable public attributes. Attributes *must* be declared statically
@@ -62,15 +74,44 @@ with the value which is not compatible with its declared type, the type is being
 
 The general form of type annotation is `Type.value( defaultValue )`, where the `Type` is the corresponding constructor function.
 
+```javascript
+@define class Person extends Record {
+    static attributes = {
+        phone : String.value( null ) // String attribute which is null by default.
+        ...
+    }
+}
+```
+
 ### `attrDef` name : Type
 
 When the function is used as `attrDef`, it's treated as the constructor function.
 Any constructor function may be used as an attribute type, if it behaves as _converting constructor_ (like `new Date( msecs )`).
 
+```javascript
+@define class Person extends Record {
+    static attributes = {
+        name : String // String attribute which is "" by default.
+        createdAt : Date // Date attribute
+        ...
+    }
+}
+```
+
 ### `attrDef` name : defaultValue
 
 When other value than function is passed, it's treated as the default value and the type is being inferred form the value.
  If you need to pass function as the default value, use `Function.value( theFunction )`.
+
+```javascript
+@define class GridColumn extends Record {
+    static attributes = {
+        name : '', // String attribute which is '' by default.
+        render : Function.value( x => x ),
+        ...
+    }
+}
+```
 
 # Create the record
 
