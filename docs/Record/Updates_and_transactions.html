@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item Nav__item--open has-children'><a href="../Record/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Definition.html">Definition</a></li><li class='Nav__item Nav__item--active'><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="../API_by_feature/Aggregation_tree.html" class="folder"><i class="Nav__arrow">&nbsp;</i>API by feature</a><ul class='Nav'><li class='Nav__item '><a href="../API_by_feature/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../API_by_feature/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../API_by_feature/Validation.html">Validation</a></li><li class='Nav__item '><a href="../API_by_feature/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../API_by_feature/id-references_and_Stores.html">id-references and Stores</a></li><li class='Nav__item '><a href="../API_by_feature/Polymorphic_and_recursive_data.html">Polymorphic and recursive data</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item Nav__item--open has-children'><a href="../Record/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Definition.html">Definition</a></li><li class='Nav__item Nav__item--active'><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Observable_changes.html">Observable changes</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="../API_by_feature/Aggregation_tree.html" class="folder"><i class="Nav__arrow">&nbsp;</i>API by feature</a><ul class='Nav'><li class='Nav__item '><a href="../API_by_feature/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../API_by_feature/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../API_by_feature/Validation.html">Validation</a></li><li class='Nav__item '><a href="../API_by_feature/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../API_by_feature/id-references_and_Stores.html">id-references and Stores</a></li><li class='Nav__item '><a href="../API_by_feature/Polymorphic_and_recursive_data.html">Polymorphic and recursive data</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -85,62 +85,82 @@
     <div class="s-content">
         <h1 id="page_Update+record+attributes">Update record attributes</h1>
 <h3 id="page_record.attrName+%3D+value">record.attrName = value</h3>
-<p>Assign record attribute.</p>
-<p>If the value is not compatible with attribute's type, special action is taken:</p>
+<p>Assign the record's attribute. If the value is not compatible with attribute's type from the declaration, it is converted:</p>
 <ul>
-<li>For primitive attribute, it's converted with <code>Type( value )</code> call.</li>
-<li>For record or collection, it's used to update it in place with <code>record.attrName.set( value )</code>.</li>
-<li>In other cases, it's converted with <code>new Type( value )</code> call.</li>
+<li>with <code>Type( value )</code> call, for primitive types.</li>
+<li>with <code>record.attrName.set( value )</code>, for existing record or collection (updated in place).</li>
+<li>with <code>new Type( value )</code> in all other cases.</li>
 </ul>
-<p>In case of changes, the record triggers events:</p>
+<p>Record triggers events on changes:</p>
 <ul>
 <li>
 <code>change:attrName</code> <em>( record, value )</em>.</li>
 <li>
 <code>change</code> <em>( record )</em>.</li>
 </ul>
+<pre><code class="language-javascript">@define class Book extends Record {
+    static attributes = {
+        title : String,
+        author : String
+        price : Number,
+        publishedAt : Date,
+        available : Boolean
+    }
+}
+
+const myBook = new Book({ title : &quot;State management with Type-R&quot; });
+myBook.author = 'Vlad'; // That works.
+myBook.price = 'Too much'; // Converted with Number( 'Too much' ), resulting in NaN.
+myBook.price = '123'; // = Number( '123' ).
+myBook.publishedAt = new Date(); // Type is compatible, no conversion.
+myBook.publishedAt = '1678-10-15 12:00'; // new Date( '1678-10-15 12:00' )
+myBook.available = some &amp;&amp; weird || condition; // Will always be Boolean. Or null.
+</code></pre>
 <h3 id="page_record.set%28+%7B+attrName+%3A+value%2C+...+%7D%2C+options%3F+%3A+++%29">record.set( { attrName : value, ... }, options? : <code>options</code> )</h3>
 <p>Bulk assign record's attributes, possibly taking options.</p>
-<p>If the value is not compatible with attribute's type, special action is taken:</p>
+<p>If the value is not compatible with attribute's type from the declaration, it is converted:</p>
 <ul>
-<li>For primitive attribute, it's converted with <code>Type( value )</code> call.</li>
-<li>For record or collection, it's used to update it in place with <code>record.attrName.set( value )</code>.</li>
-<li>In other cases, it's converted with <code>new Type( value )</code> call.</li>
+<li>with <code>Type( value )</code> call, for primitive types.</li>
+<li>with <code>record.attrName.set( value )</code>, for existing record or collection (updated in place).</li>
+<li>with <code>new Type( value )</code> in all other cases.</li>
 </ul>
-<p>In case of changes, the record triggers events:</p>
+<p>Record triggers events after all changes are applied:</p>
 <ol>
-<li>For any changed attribute, trigger event <code>change:attrName</code> <em>( record, val, options )</em>.</li>
-<li>If any attribute has changed:
-<ul>
-<li>trigger event <code>change</code> <em>(record, options)</em>.</li>
-</ul>
-</li>
+<li>
+<code>change:attrName</code> <em>( record, val, options )</em> for any changed attribute.</li>
+<li>
+<code>change</code> <em>(record, options)</em>, if there were changed attributes.</li>
 </ol>
 <h3 id="page_%7B+parse+%3A+true+%7D"><code>options</code> { parse : true }</h3>
-<p>Transform <code>record.set</code> argument with user-defined parse logic. Typically used to process the response from the server to make user-defined JSON format conversion.</p>
-<h3 id="page_%7B+merge+%3A+true+%7D"><code>options</code> { merge : true }</h3>
-<p>Merge attributes of record and collection types instead of replacement. If the new instance of record or collection is to be assigned,
-update the current instances instead.</p>
+<p>Assume <code>record.set</code> argument is the raw JSON and parse it. Must be used to process the response from the server.</p>
+<pre><code class="language-javascript">// Another way of doing the bestSeller.clone()
+// Amazingly, this is guaranteed to work by default.
+const book = new Book();
+book.set( bestSeller.toJSON(), { parse : true } );
+</code></pre>
 <h3 id="page_record.assignFrom%28+otherRecord+%29">record.assignFrom( otherRecord )</h3>
-<p>Makes an existing <code>record</code> to be the copy of <code>otherRecord</code>, recursively assigning all attributes.</p>
-<p>Works similar to <code>record.set( otherRecord.attributes, { merge : true })</code>;</p>
+<p>Makes an existing <code>record</code> to be the full clone of <code>otherRecord</code>, recursively assigning all attributes.</p>
+<pre><code class="language-javascript">// Another way of doing the bestSeller.clone()
+const book = new Book();
+book.assignFrom( bestSeller );
+</code></pre>
 <h1 id="page_Transactions">Transactions</h1>
 <p>All record updates occurs in the scope of transactions. Transaction is the sequence of changes which results in a single <code>change</code> event.</p>
 <p>Transaction can be opened either manually or implicitly with calling <code>set()</code> or assigning an attribute.
 Any additional changes made to the record in <code>change:attr</code> event handler will be executed in the scope of the original transaction, and won't trigger additional <code>change</code> events.</p>
 <h3 id="page_record.transaction%28+fun+%29">record.transaction( fun )</h3>
-<p>Execute the all changes made to the record in <code>fun</code> as single transaction.</p>
+<p>Execute the all changes made to the record in <code>fun</code> as single transaction triggering the single <code>change</code> event.</p>
 <pre><code class="language-javascript">some.record.transaction( record =&gt; {
-    record.a = 1; // `change:a` is triggered.
-    record.b = 2; // `change:b` is triggered.
-}); // `change` is triggered.
+    record.a = 1; // `change:a` event is triggered.
+    record.b = 2; // `change:b` event is triggered.
+}); // `change` event is triggered.
 </code></pre>
 <p>Manual transactions with attribute assignments are superior to <code>record.set()</code> in terms of both performance and flexibility.</p>
     </div>
 
         <nav>
         <ul class="Pager">
-            <li class=Pager--prev><a href="../Record/Definition.html">Previous</a></li>            <li class=Pager--next><a href="../Record/Listening_to_events.html">Next</a></li>        </ul>
+            <li class=Pager--prev><a href="../Record/Definition.html">Previous</a></li>            <li class=Pager--next><a href="../Record/Observable_changes.html">Next</a></li>        </ul>
     </nav>
     </article>
 

@@ -105,7 +105,7 @@ const book = new Book({
 });
 ```
 
-### record.initialize( attrs?, options? )
+### `abstract` record.initialize( attrs?, options? )
 
 Called at the end of the `Record` constructor when all attributes are assigned
 and record's inner state is properly initialized. Takes the same arguments as
@@ -114,7 +114,8 @@ a constructor.
 ### record.attrName
 
 Record's attributes may be directly accessed with `record.name`, as if they would be the members of the class.
-Please note, that you *have to declare all attributes* in `static attributes` declaration before use.
+
+> Please note, that you *have to declare all attributes* in `static attributes` declaration before use.
 
 ```javascript
 @define class Account extends Record {

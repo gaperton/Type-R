@@ -2,48 +2,71 @@
 
 ### record.attrName = value
 
-Assign record attribute.
+Assign the record's attribute. If the value is not compatible with attribute's type from the declaration, it is converted:
 
-If the value is not compatible with attribute's type, special action is taken:
+- with `Type( value )` call, for primitive types.
+- with `record.attrName.set( value )`, for existing record or collection (updated in place).
+- with `new Type( value )` in all other cases.
 
-- For primitive attribute, it's converted with `Type( value )` call.
-- For record or collection, it's used to update it in place with `record.attrName.set( value )`.
-- In other cases, it's converted with `new Type( value )` call.
-
-In case of changes, the record triggers events:
+Record triggers events on changes:
 - `change:attrName` *( record, value )*.
 - `change` *( record )*.
+
+```javascript
+@define class Book extends Record {
+    static attributes = {
+        title : String,
+        author : String
+        price : Number,
+        publishedAt : Date,
+        available : Boolean
+    }
+}
+
+const myBook = new Book({ title : "State management with Type-R" });
+myBook.author = 'Vlad'; // That works.
+myBook.price = 'Too much'; // Converted with Number( 'Too much' ), resulting in NaN.
+myBook.price = '123'; // = Number( '123' ).
+myBook.publishedAt = new Date(); // Type is compatible, no conversion.
+myBook.publishedAt = '1678-10-15 12:00'; // new Date( '1678-10-15 12:00' )
+myBook.available = some && weird || condition; // Will always be Boolean. Or null.
+```
 
 ### record.set( { attrName : value, ... }, options? : `options` )
 
 Bulk assign record's attributes, possibly taking options.
 
-If the value is not compatible with attribute's type, special action is taken:
+If the value is not compatible with attribute's type from the declaration, it is converted:
 
-- For primitive attribute, it's converted with `Type( value )` call.
-- For record or collection, it's used to update it in place with `record.attrName.set( value )`.
-- In other cases, it's converted with `new Type( value )` call.
+- with `Type( value )` call, for primitive types.
+- with `record.attrName.set( value )`, for existing record or collection (updated in place).
+- with `new Type( value )` in all other cases.
 
-In case of changes, the record triggers events:
+Record triggers events after all changes are applied:
 
-1. For any changed attribute, trigger event `change:attrName` *( record, val, options )*.
-2. If any attribute has changed:
-    - trigger event `change` *(record, options)*.
+1. `change:attrName` *( record, val, options )* for any changed attribute.
+2. `change` *(record, options)*, if there were changed attributes.
 
 ### `options` { parse : true }
 
-Transform `record.set` argument with user-defined parse logic. Typically used to process the response from the server to make user-defined JSON format conversion.
+Assume `record.set` argument is the raw JSON and parse it. Must be used to process the response from the server.
 
-### `options` { merge : true }
-
-Merge attributes of record and collection types instead of replacement. If the new instance of record or collection is to be assigned,
-update the current instances instead.
+```javascript
+// Another way of doing the bestSeller.clone()
+// Amazingly, this is guaranteed to work by default.
+const book = new Book();
+book.set( bestSeller.toJSON(), { parse : true } );
+```
 
 ### record.assignFrom( otherRecord )
 
-Makes an existing `record` to be the copy of `otherRecord`, recursively assigning all attributes.
+Makes an existing `record` to be the full clone of `otherRecord`, recursively assigning all attributes.
 
-Works similar to `record.set( otherRecord.attributes, { merge : true })`;
+```javascript
+// Another way of doing the bestSeller.clone()
+const book = new Book();
+book.assignFrom( bestSeller );
+```
 
 # Transactions
 
@@ -54,13 +77,13 @@ Any additional changes made to the record in `change:attr` event handler will be
 
 ### record.transaction( fun )
 
-Execute the all changes made to the record in `fun` as single transaction.
+Execute the all changes made to the record in `fun` as single transaction triggering the single `change` event.
 
 ```javascript
 some.record.transaction( record => {
-    record.a = 1; // `change:a` is triggered.
-    record.b = 2; // `change:b` is triggered.
-}); // `change` is triggered.
+    record.a = 1; // `change:a` event is triggered.
+    record.b = 2; // `change:b` event is triggered.
+}); // `change` event is triggered.
 ```
 
 Manual transactions with attribute assignments are superior to `record.set()` in terms of both performance and flexibility.

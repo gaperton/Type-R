@@ -1,16 +1,33 @@
-## Observable changes
+# Observable changes
 
-Object tree formed by records and collection is deeply observable by default; changes in tree leafs triggers the changes of all parent elements in sequence.
+Object tree formed by nested records and collection is deeply observable by default; changes in every node trigger change events for all parent elements in sequence.
 
-Records automatically listens to change events of all nested records and collections, and triggers the corresponding change events on its attributes.
+Record triggers following events on change:
+
+- `change:attrName` *( record, value )* for every changed attribute.
+- `change` *( record )* when record is changed.
 
 ### `attrDef` attr : Type.has.changeEvents( false )
 
-Do _not_ listen for the inner changes of the specific `attr`.
+Record automatically listens to change events of all nested records and collections, triggering appropriate change events for its attributes. This declaration turns it off for the specific attribute.
 
-## Listening to events in the record
+## Listening to changes with Events API
 
-Record has declarative API for managing event subscriptions for its attributes.
+[Events API](../10_Events.md) is used for managing events subscriptions.
+
+### listener.listenTo( record, event, handler )
+
+[Events API](../10_Events.md) method used to listen to the any of the change events.
+
+### listener.stopListening( record )
+
+[Events API](../10_Events.md) method to explicitly stop all event subscriptions from the record.
+
+Not needed if the listener is other record or collection.
+
+# Listening to events in a record
+
+Record has declarative API for managing custom event subscriptions for its attributes.
 
 ### `attrDef` attr : Type.has.watcher( 'methodName' )
 ### `attrDef` attr : Type.has.watcher( function( value, name ){ ... } )
@@ -36,13 +53,6 @@ _Watcher function_ has the signature `( attrValue, attrName ) => void` and is ex
 ### `attrDef` attr : Type.has.events({ eventName : handler, ... })
 
 Automatically manage custom event subscription for the attribute. `handler` is either the method name or the handler function.
-
-## Events subscription with Events API
-
-`listener.listenTo()` and `listener.listenToOnce()` methods can be used to listen to the any of the change events.
-
-If listener itself is the record or collection, subscriptions will be stopped automatically. Otherwise they must be stopped
-manually with `listener.stopListening()` call to prevent memory leaks.
 
 # Change inspection methods
 
