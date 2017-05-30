@@ -14,9 +14,9 @@ Constructs an aggregation tree from its JSON representation.
 
 Update an aggregation tree from its JSON representation.
 
-### recordOrCollection.parse( json )
+### `abstract` recordOrCollection.parse( json )
 
-May be overridden to add custom JSON transformation.
+Invoked internally when `{ parse : true }` is passed. May be overridden to define custom JSON transformation. Should not be called explicitly.
 
 ## Attribute-level serialization control
 

@@ -39,7 +39,7 @@ The special case of attribute-level check cutting out empty values. Attribute va
 
 ## Object-level validators
 
-### recordOrCollection.validate()
+### `abstract` recordOrCollection.validate()
 
 Override in the subclass to add object-level validation. Whatever is returned from `validate()` is treated as an error message and triggers the validation error.
 

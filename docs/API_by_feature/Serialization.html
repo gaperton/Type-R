@@ -91,8 +91,8 @@
 <p>Constructs an aggregation tree from its JSON representation.</p>
 <h3 id="page_recordOrCollection.set%28+json%2C+%7B+parse+%3A+true+%7D+%29">recordOrCollection.set( json, { parse : true } )</h3>
 <p>Update an aggregation tree from its JSON representation.</p>
-<h3 id="page_recordOrCollection.parse%28+json+%29">recordOrCollection.parse( json )</h3>
-<p>May be overridden to add custom JSON transformation.</p>
+<h3 id="page_recordOrCollection.parse%28+json+%29"><code>abstract</code> recordOrCollection.parse( json )</h3>
+<p>Invoked internally when <code>{ parse : true }</code> is passed. May be overridden to define custom JSON transformation. Should not be called explicitly.</p>
 <h2 id="page_Attribute-level+serialization+control">Attribute-level serialization control</h2>
 <p>Serialization can be controlled for the specific attribute in the Record's attribute definition.</p>
 <h3 id="page_attr+%3A+Type.has.toJSON%28+false+%29"><code>attrDef</code> attr : Type.has.toJSON( false )</h3>
