@@ -4,7 +4,7 @@ Aggregation tree formed of records and collections is serializable by default. R
 
 ### recordOrCollection.toJSON()
 
-Produces the JSON for the aggregation tree of the record or collection. May be overriden in particular record or collection.
+Produces the JSON for the aggregation tree of the record or collection. May be overridden in particular record or collection.
 
 ### new RecordOrCollection( json, { parse : true } )
 
@@ -14,13 +14,13 @@ Constructs an aggregation tree from its JSON representation.
 
 Update an aggregation tree from its JSON representation.
 
-### recordOrCollection.parse( json )
+### `abstract` recordOrCollection.parse( json )
 
-May be overriden to add custom JSON transformation.
+Invoked internally when `{ parse : true }` is passed. May be overridden to define custom JSON transformation. Should not be called explicitly.
 
 ## Attribute-level serialization control
 
-Serialization can be controlled for the specific attribute in the Recrod's attribute definition.
+Serialization can be controlled for the specific attribute in the Record's attribute definition.
 
 ### `attrDef` attr : Type.has.toJSON( false )
 
@@ -33,5 +33,3 @@ Override the default toJSON() method for the selected record's attribute.
 ### `attrDef` attr : Type.has.parse( ( json, name ) => value )
 
 Transform the data before it will be passed to the record's attribute.
-
-

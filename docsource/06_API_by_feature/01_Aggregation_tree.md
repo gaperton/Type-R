@@ -19,7 +19,7 @@ import { Record } from 'type-r'
 }
 ```
 
-All nested records and collections are *aggregated* by default and behave as integral parts of the containing record. Aggregated attributes are _exclusively owned_ by the record, and taken with it together form an _ownerhip tree_. Many operations are performed recursively on aggregated elements:
+All nested records and collections are *aggregated* by default and behave as integral parts of the containing record. Aggregated attributes are _exclusively owned_ by the record, and taken with it together form an _ownership tree_. Many operations are performed recursively on aggregated elements:
 
 - They are created when the owner record is created.
 - They are cloned when the record is cloned.
@@ -40,6 +40,16 @@ Due to the nature of _aggregation_, an object may have one and only one owner.
 Clone the record and all aggregated records and collections.
 
 The whole aggregation tree will be recursively cloned, references to shared members will copied.
+
+### record.set( json, { parse : true } )
+### collection.set( json, { parse : true } )
+
+Recursively update an aggregation tree in place with the raw JSON data.
+
+```javascript
+// Has the same effect as assignFrom():
+record.set( otherRecord.toJSON(), { parse : true });
+```
 
 ### record.assignFrom( otherRecord )
 ### collection.assignFrom( otherCollection )

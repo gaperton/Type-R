@@ -2,7 +2,7 @@
 
 ## Attribute-level validators
 
-Type-R supports declarative attribute-level validation declarations. 
+Type-R supports declarative attribute-level validation declarations.
 This is the preferable way of doing validation.
 
 ### `attrDef` attr : Type.has.check( predicate, errorMsg? )
@@ -39,14 +39,14 @@ The special case of attribute-level check cutting out empty values. Attribute va
 
 ## Object-level validators
 
-### recordOrCollection.validate()
+### `abstract` recordOrCollection.validate()
 
 Override in the subclass to add object-level validation. Whatever is returned from `validate()` is treated as an error message and triggers the validation error.
 
 # Validation API
 
-Validation 
-Validation happens transparently on the first access to any part of the validation API. Validation results are cached. Only the required parts of aggregation tree will be validated again 
+Validation
+Validation happens transparently on the first access to any part of the validation API. Validation results are cached. Only the required parts of aggregation tree will be validated again
 
 ### recordOrCollection.isValid()
 
@@ -106,4 +106,3 @@ Return the validation error for the given `attr` or collection's item.
 
 Recursively traverse aggregation tree errors. `key` is `null` for the record-level validation error (returned from `validate()`).
 `recordOrCollection` is the reference to the current object.
-

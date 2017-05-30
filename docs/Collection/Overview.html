@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item  has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item Nav__item--active'><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="../API_by_feature/Aggregation_tree.html" class="folder"><i class="Nav__arrow">&nbsp;</i>API by feature</a><ul class='Nav'><li class='Nav__item '><a href="../API_by_feature/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../API_by_feature/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../API_by_feature/Validation.html">Validation</a></li><li class='Nav__item '><a href="../API_by_feature/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../API_by_feature/id-references_and_Stores.html">id-references and Stores</a></li><li class='Nav__item '><a href="../API_by_feature/Polymorphic_and_recursive_data.html">Polymorphic and recursive data</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item  has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Observable_changes.html">Observable changes</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item Nav__item--active'><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Observable_changes.html">Observable changes</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="../API_by_feature/Aggregation_tree.html" class="folder"><i class="Nav__arrow">&nbsp;</i>API by feature</a><ul class='Nav'><li class='Nav__item '><a href="../API_by_feature/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../API_by_feature/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../API_by_feature/Validation.html">Validation</a></li><li class='Nav__item '><a href="../API_by_feature/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../API_by_feature/id-references_and_Stores.html">id-references and Stores</a></li><li class='Nav__item '><a href="../API_by_feature/Polymorphic_and_recursive_data.html">Polymorphic and recursive data</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -117,13 +117,13 @@ class Comics extends Book {
 <p>Collections can be defined explicitly extending the base <code>Collection</code> class. There are two ways to bind collection to the record.</p>
 <h3 id="page_%28record+definition%29+++Collection+%3D+CollectionConstructor">(record definition) <code>static</code> Collection = CollectionConstructor</h3>
 <p>Replaces implicitly defined collection with externally defined collection class.</p>
-<h3 id="page_%28colleciton+definition%29+++model+%3D+RecordConstructor">(colleciton definition) <code>static</code> model = RecordConstructor</h3>
+<h3 id="page_%28collection+definition%29+++model+%3D+RecordConstructor">(collection definition) <code>static</code> model = RecordConstructor</h3>
 <p>Specify the record type inside of the collection's definition. This property is being set automatically for collection types referenced as <code>MyRecord.Collection</code>.</p>
 <pre><code class="language-javascript">@define class Library extends Record.Collection {
     static model = Book;
 }
 </code></pre>
-<h1 id="page_Create+and+access+the+colleciton">Create and access the colleciton</h1>
+<h1 id="page_Create+and+access+the+collection">Create and access the collection</h1>
 <h3 id="page_new+Collection%28%29">new Collection()</h3>
 <p>Create an empty collection.</p>
 <h3 id="page_new+Collection%28+models%2C+options%3F+%29">new Collection( models, options? )</h3>
@@ -147,7 +147,7 @@ Pass <code>null</code> for <code>models</code> to create an empty Collection wit
 
         <nav>
         <ul class="Pager">
-            <li class=Pager--prev><a href="../Record/Listening_to_events.html">Previous</a></li>            <li class=Pager--next><a href="../Collection/Updates_and_transactions.html">Next</a></li>        </ul>
+            <li class=Pager--prev><a href="../Record/Observable_changes.html">Previous</a></li>            <li class=Pager--next><a href="../Collection/Updates_and_transactions.html">Next</a></li>        </ul>
     </nav>
     </article>
 

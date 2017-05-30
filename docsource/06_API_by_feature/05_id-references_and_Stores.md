@@ -11,7 +11,7 @@ of the record with the same `id` in the particular collection.
 ### `static` idAttribute = 'attrName'
 
 A record's unique identifier is stored under the `id` attribute.
-If you're directly communicating with a backend (CouchDB, MongoDB) that uses a different unique key, 
+If you're directly communicating with a backend (CouchDB, MongoDB) that uses a different unique key,
 you may set a Record's `idAttribute` to transparently map from that key to id.
 
 Record's `id` property will still be linked to Record's id, no matter which value `idAttribute` has.
@@ -38,7 +38,7 @@ Has this record been saved to the server yet? If the record does not yet have an
 Serializable references to shared records are called an _id-references_. It is represented as `record.id` in JSON,
 and there must be the populated master collection of records on the client in order to resolve ids on parse.
 
-There are two kinds of id-references: one-to-many, and many-to-many. They are declared with the special kind of attribute annotation. 
+There are two kinds of id-references: one-to-many, and many-to-many. They are declared with the special kind of attribute annotation.
 Id-references behaves in the same way as shared attributes, but _inner changes_ in referenced objects are _not observed_.
 
 ### `attrDef` attr : Record.from( `sourceCollection` )
@@ -60,7 +60,7 @@ In this case, it is resolved dynamically relative to the record's `this`.
 
     @define class State extends Record {
         items : Item.Collection,
-        selected : Record.from( 'items' ) // Will resolve to `this.items` 
+        selected : Record.from( 'items' ) // Will resolve to `this.items`
     }
 
 ### `sourceCollection` '^path.relative.to.owner'
@@ -71,10 +71,10 @@ In this case, it is resolved dynamically relative to the record's `this`.
 
 # Stores and tilda-references
 
-### `asbtract class` Store
+### `abstract class` Store
 ### `sourceCollection` '~path.relative.to.store'
 
-`Store` is the Record's subclass which serves as a root for id-references. 
+`Store` is the Record's subclass which serves as a root for id-references.
 Any id-reference with a path starting with `~` look for the nearest `Store` subclass traversing the aggregation tree upwards,
 and if there are none, it takes the default Store class `Store.global`.
 
@@ -124,4 +124,3 @@ Store.global = new MyStore();
 
 // Now the reference '~users` will point to users collection from the MyStore.
 ```
-

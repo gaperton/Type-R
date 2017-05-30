@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item Nav__item--open has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item Nav__item--active'><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Listening_to_events.html">Listening to events</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="../API_by_feature/Aggregation_tree.html" class="folder"><i class="Nav__arrow">&nbsp;</i>API by feature</a><ul class='Nav'><li class='Nav__item '><a href="../API_by_feature/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../API_by_feature/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../API_by_feature/Validation.html">Validation</a></li><li class='Nav__item '><a href="../API_by_feature/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../API_by_feature/id-references_and_Stores.html">id-references and Stores</a></li><li class='Nav__item '><a href="../API_by_feature/Polymorphic_and_recursive_data.html">Polymorphic and recursive data</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item Nav__item--open has-children'><a href="../Record/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item Nav__item--active'><a href="../Record/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Observable_changes.html">Observable changes</a></li></ul></li><li class='Nav__item  has-children'><a href="../Collection/Overview.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Overview.html">Overview</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Collection/Observable_changes.html">Observable changes</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="../API_by_feature/Aggregation_tree.html" class="folder"><i class="Nav__arrow">&nbsp;</i>API by feature</a><ul class='Nav'><li class='Nav__item '><a href="../API_by_feature/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../API_by_feature/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../API_by_feature/Validation.html">Validation</a></li><li class='Nav__item '><a href="../API_by_feature/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../API_by_feature/id-references_and_Stores.html">id-references and Stores</a></li><li class='Nav__item '><a href="../API_by_feature/Polymorphic_and_recursive_data.html">Polymorphic and recursive data</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -107,14 +107,14 @@ in a similar way as it's done in statically typed languages.</p>
 const user = new User();
 console.log( user.createdAt ); // ⟵ this is an instance of Date created for you.
 
-const users = new User.Collection(); // ⟵ Collections are defined automatically. 
+const users = new User.Collection(); // ⟵ Collections are defined automatically.
 users.on( 'changes', () =&gt; updateUI( users ) ); // ⟵ listen to the changes.
 
 users.set( json, { parse : true } ); // ⟵ parse raw JSON from the server.
 users.updateEach( user =&gt; user.firstName = '' ); // ⟵ bulk update triggering 'changes' once
 </code></pre>
 <h1 id="page_Record+definition">Record definition</h1>
-<p>Record must extend <code>Record</code> base class, it must have <code>static attributes</code> definition, and the class definition must be preceeded with <code>@define</code> decorator.</p>
+<p>Record must extend <code>Record</code> base class, it must have <code>static attributes</code> definition, and the class definition must be preceded with <code>@define</code> decorator.</p>
 <h3 id="page_%40define"><code>decorator</code> @define</h3>
 <p><em>Must</em> be placed before record class definition.</p>
 <pre><code class="language-javascript">import { define, Record } from 'type-r'
@@ -124,7 +124,7 @@ users.updateEach( user =&gt; user.firstName = '' ); // ⟵ bulk update triggerin
 }
 </code></pre>
 <h3 id="page_attributes+%3D+%7B+name+%3A++%2C+...+%7D"><code>static</code> attributes = { name : <code>attrDef</code>, ... }</h3>
-<p>Record is a class with an observalbe and serializable public attributes. Attributes <em>must</em> be declared statically
+<p>Record is a class with an observable and serializable public attributes. Attributes <em>must</em> be declared statically
 in <code>static attributes</code> class member, which is an object hash mapping an attribute name name to its declaration, encapsulating
 attribute type, default value, and metadata controlling different aspects of attribute behavior.</p>
 <pre><code class="language-javascript">@define class User extends Record {
@@ -191,22 +191,24 @@ const book = new Book({
   author: &quot;Scheherazade&quot;
 });
 </code></pre>
-<h3 id="page_record.initialize%28+attrs%3F%2C+options%3F+%29">record.initialize( attrs?, options? )</h3>
+<h3 id="page_record.initialize%28+attrs%3F%2C+options%3F+%29"><code>abstract</code> record.initialize( attrs?, options? )</h3>
 <p>Called at the end of the <code>Record</code> constructor when all attributes are assigned
 and record's inner state is properly initialized. Takes the same arguments as
 a constructor.</p>
 <h3 id="page_record.attrName">record.attrName</h3>
-<p>Record's attributes may be directly accessed with <code>record.name</code>, as if they would be the members of the class.
-Please note, that you <em>have to declare all attributes</em> in <code>static attributes</code> declaration before use.</p>
+<p>Record's attributes may be directly accessed with <code>record.name</code>, as if they would be the members of the class.</p>
+<blockquote>
+<p>Please note, that you <em>have to declare all attributes</em> in <code>static attributes</code> declaration before use.</p>
+</blockquote>
 <pre><code class="language-javascript">@define class Account extends Record {
     static attributes = {
         name : String,
-        ballance : Number
+        balance : Number
     }
 }
 
 const myAccount = new Account({ name : 'mine' });
-myAccount.ballance += 1000000; // That works. Good, eh?
+myAccount.balance += 1000000; // That works. Good, eh?
 </code></pre>
     </div>
 

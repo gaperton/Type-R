@@ -4,13 +4,13 @@ An implementation is optimized for the large amount of relatively small subscrip
 
 ![performance](./events-performance.jpg)
 
-It is also avaiable separately as part of [MixtureJS](https://github.com/Volicon/MixtureJS) package.
+It is also available separately as part of [MixtureJS](https://github.com/Volicon/MixtureJS) package.
 
 # Events mixin
 
 Events is a mixin, giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.
 
-### eventsSource.trigger(event, [*args]) 
+### eventsSource.trigger(event, [*args])
 
 Trigger callbacks for the given event, or space-delimited list of events. Subsequent arguments to trigger will be passed along to the event callbacks.
 
@@ -20,12 +20,12 @@ All high-level event subscriptions are stopped automatically on the listener's d
 
 This is the preferable listening API and must be used in all application code.
 
-### listener.listenTo(other, event, callback) 
+### listener.listenTo(other, event, callback)
 Tell an object to listen to a particular event on an other object. The advantage of using this form, instead of other.on(event, callback, object), is that listenTo allows the object to keep track of the events, and they can be removed all at once later on. The callback will always be called with object as context.
 
     view.listenTo(model, 'change', view.render );
 
-### listener.stopListening([other], [event], [callback]) 
+### listener.stopListening([other], [event], [callback])
 
 Tell an object to stop listening to events. Either call stopListening with no arguments to have the object remove all of its registered callbacks ... or be more precise by telling it to remove just the events it's listening to on a specific object, or a specific event, or just a specific callback.
 
@@ -35,13 +35,13 @@ Tell an object to stop listening to events. Either call stopListening with no ar
 
 All Type-R classes execute `this.stopListening()` from their `dispose()` method.
 
-### listener.listenToOnce(other, event, callback) 
+### listener.listenToOnce(other, event, callback)
 
 Just like listenTo, but causes the bound callback to fire only once before being removed.
 
 ## Low-level listening API
 
-This API is more efficient but requires manual action to stop the subscribtion. Must be used with care.
+This API is more efficient but requires manual action to stop the subscription. Must be used with care.
 
 ### eventSource.on(event, callback, [context])
 
@@ -86,12 +86,12 @@ Remove a previously-bound callback function from an object. If no context is spe
 
 Note that calling `model.off()`, for example, will indeed remove all events on the model — including events that Backbone uses for internal bookkeeping.
 
-### eventsSource.once(event, callback, [context]) 
+### eventsSource.once(event, callback, [context])
 Just like on, but causes the bound callback to fire only once before being removed. Handy for saying "the next time that X happens, do this". When multiple events are passed in using the space separated syntax, the event will fire once for every event you passed in, not once for a combination of all events
 
 # Messenger
 
-Messenger is an abstract base class implementing Events mixin and some convinience methods.
+Messenger is an abstract base class implementing Events mixin and some convenience methods.
 
 ### `readonly` messenger.cid
 
@@ -111,11 +111,11 @@ Objects must be disposed to prevent memory leaks caused by subscribing for event
 
 ## Record events
 
-### `event` "change:attrName" (record, value, options) 
+### `event` "change:attrName" (record, value, options)
 
 When a specific attribute has been updated
 
-### `event` "change" (record, options) 
+### `event` "change" (record, options)
 
 When a record's attributes have changed.
 
@@ -129,11 +129,11 @@ The main change event. Single event triggered when the collection has been chang
 
 Single event triggered after any number of records have been added or removed from a collection.
 
-### `event` "reset" (collection, options) 
+### `event` "reset" (collection, options)
 
 When the collection's entire contents have been reset.
 
-### `event` "sort" (collection, options) 
+### `event` "sort" (collection, options)
 
 When the collection has been re-sorted.
 
@@ -141,10 +141,10 @@ When the collection has been re-sorted.
 
 When a record is added to a collection.
 
-### `event` "remove" (record, collection, options) 
+### `event` "remove" (record, collection, options)
 
 When a record is removed from a collection.
 
-### `event` "change" (record, options) 
+### `event` "change" (record, options)
 
 When a record's attributes have changed.

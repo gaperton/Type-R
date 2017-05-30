@@ -3,7 +3,7 @@ It is the main building block for managing the application state; component loca
 
 In contrast to the "model" class in the majority of data frameworks, Record is *not the key-value hash*. It's the class with statically
 defined set of attributes of known types.
- 
+
 `Record` itself is an abstract class. The subclass needs to be defined for every data structure of different shape,
 in a similar way as it's done in statically typed languages.
 
@@ -26,7 +26,7 @@ import { define, Record } from 'type-r'
 const user = new User();
 console.log( user.createdAt ); // ⟵ this is an instance of Date created for you.
 
-const users = new User.Collection(); // ⟵ Collections are defined automatically. 
+const users = new User.Collection(); // ⟵ Collections are defined automatically.
 users.on( 'changes', () => updateUI( users ) ); // ⟵ listen to the changes.
 
 users.set( json, { parse : true } ); // ⟵ parse raw JSON from the server.
@@ -35,7 +35,7 @@ users.updateEach( user => user.firstName = '' ); // ⟵ bulk update triggering '
 
 # Record definition
 
-Record must extend `Record` base class, it must have `static attributes` definition, and the class definition must be preceeded with `@define` decorator.
+Record must extend `Record` base class, it must have `static attributes` definition, and the class definition must be preceded with `@define` decorator.
 
 ### `decorator` @define
 
@@ -51,7 +51,7 @@ import { define, Record } from 'type-r'
 
 ### `static` attributes = { name : `attrDef`, ... }
 
-Record is a class with an observalbe and serializable public attributes. Attributes *must* be declared statically
+Record is a class with an observable and serializable public attributes. Attributes *must* be declared statically
 in `static attributes` class member, which is an object hash mapping an attribute name name to its declaration, encapsulating
 attribute type, default value, and metadata controlling different aspects of attribute behavior.
 
@@ -146,7 +146,7 @@ const book = new Book({
 });
 ```
 
-### record.initialize( attrs?, options? )
+### `abstract` record.initialize( attrs?, options? )
 
 Called at the end of the `Record` constructor when all attributes are assigned
 and record's inner state is properly initialized. Takes the same arguments as
@@ -155,16 +155,17 @@ a constructor.
 ### record.attrName
 
 Record's attributes may be directly accessed with `record.name`, as if they would be the members of the class.
-Please note, that you *have to declare all attributes* in `static attributes` declaration before use.
+
+> Please note, that you *have to declare all attributes* in `static attributes` declaration before use.
 
 ```javascript
 @define class Account extends Record {
     static attributes = {
         name : String,
-        ballance : Number
+        balance : Number
     }
 }
 
 const myAccount = new Account({ name : 'mine' });
-myAccount.ballance += 1000000; // That works. Good, eh?
+myAccount.balance += 1000000; // That works. Good, eh?
 ```
