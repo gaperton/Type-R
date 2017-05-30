@@ -88,8 +88,18 @@
 <p><img src="./events-performance.jpg" alt="performance" /></p>
 <p>It is also available separately as part of <a href="https://github.com/Volicon/MixtureJS" class="external">MixtureJS</a> package.</p>
 <h1 id="page_Events+mixin">Events mixin</h1>
-<p>Events is a mixin, giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.</p>
-<h3 id="page_eventsSource.trigger%28event%2C++%5B+%2A+args%5D%29">eventsSource.trigger(event, [*args])</h3>
+<p>Events is a <a href="Mixins.html">mixin</a> giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.</p>
+<pre><code class="language-javascript">import { mixins, Events } from 'type-r'
+
+@mixins( Events )
+class Messenger {
+    ...
+}
+</code></pre>
+<blockquote>
+<p><code>Messenger</code> abstract base class is included with Type-R, see below.</p>
+</blockquote>
+<h3 id="page_eventsSource.trigger%28event%2C+arg1%2C+arg2%2C+...+%29">eventsSource.trigger(event, arg1, arg2, ... )</h3>
 <p>Trigger callbacks for the given event, or space-delimited list of events. Subsequent arguments to trigger will be passed along to the event callbacks.</p>
 <h2 id="page_High-level+listening+API">High-level listening API</h2>
 <p>All high-level event subscriptions are stopped automatically on the listener's disposal, and thus does not introduce memory leaks.</p>
@@ -147,7 +157,14 @@ object.off();
 <h3 id="page_eventsSource.once%28event%2C+callback%2C++%5B+context%5D%29">eventsSource.once(event, callback, [context])</h3>
 <p>Just like on, but causes the bound callback to fire only once before being removed. Handy for saying &quot;the next time that X happens, do this&quot;. When multiple events are passed in using the space separated syntax, the event will fire once for every event you passed in, not once for a combination of all events</p>
 <h1 id="page_Messenger">Messenger</h1>
-<p>Messenger is an abstract base class implementing Events mixin and some convenience methods.</p>
+<p>Messenger is an abstract base class implementing Events mixin and some convenience methods.
+As all Type-R classes, its definition must be preceded with the <code>@define</code> decorator.</p>
+<pre><code class="language-javascript">import { define, Messenger } from 'type-r'
+
+@define class MyMessenger extends Messenger {
+
+}
+</code></pre>
 <h3 id="page_messenger.cid"><code>readonly</code> messenger.cid</h3>
 <p>Unique run-time only messenger instance id (string).</p>
 <h3 id="page_messenger.initialize%28%29">messenger.initialize()</h3>

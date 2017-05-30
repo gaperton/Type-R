@@ -45,7 +45,6 @@ Override in the subclass to add object-level validation. Whatever is returned fr
 
 # Validation API
 
-Validation
 Validation happens transparently on the first access to any part of the validation API. Validation results are cached. Only the required parts of aggregation tree will be validated again
 
 ### recordOrCollection.isValid()
@@ -59,7 +58,7 @@ Returns `true` whenever the record's attribute or collection's item is valid.
 
 ### record.validationError
 
-Detailed validation error information, or `null` if the record and its _aggregation tree_ is valid.
+Detailed validation error information, or `null` if the record and its _aggregated attributes_ are valid.
 An error object has tree structure mapping the invalid subtree of the aggregation tree.
 
 ```javascript
@@ -81,7 +80,7 @@ An error object has tree structure mapping the invalid subtree of the aggregatio
 
 ### collection.validationError
 
-Detailed validation error information, or `null` if the collection and its _aggregation tree_ is valid.
+Detailed validation error information, or `null` if the collection and its items are valid.
 An error object has tree structure mapping the invalid subtree of the aggregation tree.
 
 ```javascript

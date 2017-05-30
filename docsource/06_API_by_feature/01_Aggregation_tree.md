@@ -1,5 +1,5 @@
-Records can have attributes holding other Records and Collections, forming indefinitely nested data structures of arbitrary complexity.
-To create nested record or collection you should just mention its type in attribute's type annotation.
+Record's attributes can hold other Records and Collections, forming indefinitely nested data structures of arbitrary complexity.
+To create nested record or collection you should just mention its constructor function in attribute's definition.
 
 ```javascript
 import { Record } from 'type-r'

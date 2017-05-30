@@ -114,15 +114,14 @@ const Age = Number.has
 <h3 id="page_recordOrCollection.validate%28%29"><code>abstract</code> recordOrCollection.validate()</h3>
 <p>Override in the subclass to add object-level validation. Whatever is returned from <code>validate()</code> is treated as an error message and triggers the validation error.</p>
 <h1 id="page_Validation+API">Validation API</h1>
-<p>Validation
-Validation happens transparently on the first access to any part of the validation API. Validation results are cached. Only the required parts of aggregation tree will be validated again</p>
+<p>Validation happens transparently on the first access to any part of the validation API. Validation results are cached. Only the required parts of aggregation tree will be validated again</p>
 <h3 id="page_recordOrCollection.isValid%28%29">recordOrCollection.isValid()</h3>
 <p>Returns <code>true</code> whenever an object and its aggregation tree is valid.</p>
 <h3 id="page_record.isValid%28+attrName+%29">record.isValid( attrName )</h3>
 <h3 id="page_collection.isValid%28+recordId+%29">collection.isValid( recordId )</h3>
 <p>Returns <code>true</code> whenever the record's attribute or collection's item is valid.</p>
 <h3 id="page_record.validationError">record.validationError</h3>
-<p>Detailed validation error information, or <code>null</code> if the record and its <em>aggregation tree</em> is valid.
+<p>Detailed validation error information, or <code>null</code> if the record and its <em>aggregated attributes</em> are valid.
 An error object has tree structure mapping the invalid subtree of the aggregation tree.</p>
 <pre><code class="language-javascript">// ValidationError object shape
 {
@@ -140,7 +139,7 @@ An error object has tree structure mapping the invalid subtree of the aggregatio
 }
 </code></pre>
 <h3 id="page_collection.validationError">collection.validationError</h3>
-<p>Detailed validation error information, or <code>null</code> if the collection and its <em>aggregation tree</em> is valid.
+<p>Detailed validation error information, or <code>null</code> if the collection and its items are valid.
 An error object has tree structure mapping the invalid subtree of the aggregation tree.</p>
 <pre><code class="language-javascript">// ValidationError object shape
 {

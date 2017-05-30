@@ -79,7 +79,7 @@ Comment.define({
 });
 ```
 
-### Forward collection declaration
+### Forward declaration of the Collection
 
 As an alternative to `@predefine` decorator, you may make forward declaration for the collection.
 

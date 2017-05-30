@@ -83,8 +83,8 @@
 
 
     <div class="s-content">
-        <p>Records can have attributes holding other Records and Collections, forming indefinitely nested data structures of arbitrary complexity.
-To create nested record or collection you should just mention its type in attribute's type annotation.</p>
+        <p>Record's attributes can hold other Records and Collections, forming indefinitely nested data structures of arbitrary complexity.
+To create nested record or collection you should just mention its constructor function in attribute's definition.</p>
 <pre><code class="language-javascript">import { Record } from 'type-r'
 
 @define class User extends Record {
@@ -111,23 +111,23 @@ To create nested record or collection you should just mention its type in attrib
 </ul>
 <h1 id="page_Aggregation+tree+methods">Aggregation tree methods</h1>
 <h3 id="page_recordOrCollection.getOwner%28%29">recordOrCollection.getOwner()</h3>
-<p>Return the reference to the record's owner, or <code>null</code> if record is not the part of aggregation tree.</p>
+<p>Return the reference to the record which is an owner, or <code>null</code> if the object is the root of an aggregation tree.</p>
 <p>Due to the nature of <em>aggregation</em>, an object may have one and only one owner.</p>
 <h3 id="page_recordOrCollection.clone%28%29">recordOrCollection.clone()</h3>
-<p>Clone the record and all aggregated records and collections.</p>
-<p>The whole aggregation tree will be recursively cloned, references to shared members will copied.</p>
-<h3 id="page_record.set%28+json%2C+%7B+parse+%3A+true+%7D+%29">record.set( json, { parse : true } )</h3>
-<h3 id="page_collection.set%28+json%2C+%7B+parse+%3A+true+%7D+%29">collection.set( json, { parse : true } )</h3>
+<p>Create the deep copy of the aggregation tree, recursively cloning all aggregated records and collections. References to <a href="Shared_objects.html">shared members</a> will be copied, but not shared members themselves.</p>
+<h3 id="page_recordOrCollection.set%28+json%2C+%7B+parse+%3A+true+%7D+%29">recordOrCollection.set( json, { parse : true } )</h3>
 <p>Recursively update an aggregation tree in place with the raw JSON data.</p>
 <pre><code class="language-javascript">// Has the same effect as assignFrom():
 record.set( otherRecord.toJSON(), { parse : true });
 </code></pre>
 <h3 id="page_record.assignFrom%28+otherRecord+%29">record.assignFrom( otherRecord )</h3>
 <h3 id="page_collection.assignFrom%28+otherCollection+%29">collection.assignFrom( otherCollection )</h3>
-<p>Recursively assign the record and its aggregated members with values from <code>otherRecord</code>.
-This operation is similar to <code>record.clone()</code>, but instead of <em>creation</em> of the cloned record it makes an <em>existing</em> record to be the copy
-of other record.</p>
-<p>The whole aggregation tree will be recursively assigned, references to shared members will copied.</p>
+<p>Make an <em>existing</em> record or collection to be an exact copy of other record or collection. The whole aggregation tree will be recursively traversed and assigned.</p>
+<p>Other record/collection must have the similar shape as the record/collection type.</p>
+<pre><code class="language-javascript">// Has the same effect as record.clone():
+const clonedRecord = new MyRecord();
+clonedRecord.assignFrom( record );
+</code></pre>
 <h3 id="page_recordOrCollection.dispose%28%29">recordOrCollection.dispose()</h3>
 <p>Recursively dispose the record and its aggregated members. &quot;Dispose&quot; means that elements of the aggregation tree will unsubscribe from all event sources. It's crucial to prevent memory leaks in SPA.</p>
 <p>The whole aggregation tree will be recursively disposed, shared members won't.</p>
