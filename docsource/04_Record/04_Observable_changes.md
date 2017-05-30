@@ -1,6 +1,6 @@
 # Observable changes
 
-Object tree formed by nested records and collection is deeply observable by default; changes in every node trigger change events for all parent elements in sequence.
+Object tree formed by nested records and collection is deeply observable by default; changes in every attribute trigger change events for the record and all parent elements in sequence.
 
 Record triggers following events on change:
 

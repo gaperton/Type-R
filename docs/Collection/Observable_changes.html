@@ -4,7 +4,7 @@
 <!--[if IE 8]>          <html class="no-js ie8 oldie" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
-    <title>Listening to events - Type-R</title>
+    <title>Observable changes - Type-R</title>
     <meta name="description" content="Universal state management for JS" />
     <meta name="author" content="Vlad Balin">
     <meta charset="UTF-8">
@@ -46,7 +46,7 @@
 
         <div class="Collapsible__content">
             <!-- Navigation -->
-            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item  has-children'><a href="../Record/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Observable_changes.html">Observable changes</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item Nav__item--active'><a href="../Collection/Listening_to_events.html">Listening to events</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="../API_by_feature/Aggregation_tree.html" class="folder"><i class="Nav__arrow">&nbsp;</i>API by feature</a><ul class='Nav'><li class='Nav__item '><a href="../API_by_feature/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../API_by_feature/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../API_by_feature/Validation.html">Validation</a></li><li class='Nav__item '><a href="../API_by_feature/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../API_by_feature/id-references_and_Stores.html">id-references and Stores</a></li><li class='Nav__item '><a href="../API_by_feature/Polymorphic_and_recursive_data.html">Polymorphic and recursive data</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
+            <ul class='Nav'><li class='Nav__item '><a href="../Getting_Started.html">Getting Started</a></li><li class='Nav__item  has-children'><a href="../Record/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Record</a><ul class='Nav'><li class='Nav__item '><a href="../Record/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Record/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item '><a href="../Record/Observable_changes.html">Observable changes</a></li></ul></li><li class='Nav__item Nav__item--open has-children'><a href="../Collection/Definition.html" class="folder"><i class="Nav__arrow">&nbsp;</i>Collection</a><ul class='Nav'><li class='Nav__item '><a href="../Collection/Definition.html">Definition</a></li><li class='Nav__item '><a href="../Collection/Updates_and_transactions.html">Updates and transactions</a></li><li class='Nav__item Nav__item--active'><a href="../Collection/Observable_changes.html">Observable changes</a></li><li class='Nav__item '><a href="../Collection/Iteration_methods.html">Iteration methods</a></li><li class='Nav__item '><a href="../Collection/Sorted_collections.html">Sorted collections</a></li><li class='Nav__item '><a href="../Collection/Proxied_array_methods.html">Proxied array methods</a></li></ul></li><li class='Nav__item  has-children'><a href="../API_by_feature/Aggregation_tree.html" class="folder"><i class="Nav__arrow">&nbsp;</i>API by feature</a><ul class='Nav'><li class='Nav__item '><a href="../API_by_feature/Aggregation_tree.html">Aggregation tree</a></li><li class='Nav__item '><a href="../API_by_feature/Serialization.html">Serialization</a></li><li class='Nav__item '><a href="../API_by_feature/Validation.html">Validation</a></li><li class='Nav__item '><a href="../API_by_feature/Shared_objects.html">Shared objects</a></li><li class='Nav__item '><a href="../API_by_feature/id-references_and_Stores.html">id-references and Stores</a></li><li class='Nav__item '><a href="../API_by_feature/Polymorphic_and_recursive_data.html">Polymorphic and recursive data</a></li></ul></li><li class='Nav__item '><a href="../Events.html">Events</a></li><li class='Nav__item '><a href="../Mixins.html">Mixins</a></li></ul>
 
             <div class="Links">
                                     <hr/>
@@ -75,25 +75,44 @@
                 <article class="Page">
 
     <div class="Page__header">
-        <h1>Listening to events</h1>
+        <h1>Observable changes</h1>
                         <span style="float: right; font-size: 10px; color: gray;">
-            <a href="https://github.com/Volicon/Type-R/blob/master/docsource/05_Collection/02_Listening_to_events.md" target="_blank">Edit on GitHub</a>
+            <a href="https://github.com/Volicon/Type-R/blob/master/docsource/05_Collection/02_Observable_changes.md" target="_blank">Edit on GitHub</a>
         </span>
             </div>
 
 
     <div class="s-content">
         <h2 id="page_Observable+changes">Observable changes</h2>
-<p>Object tree formed by records and collection is deeply observable by default; changes in tree leafs triggers the changes of all parent elements in sequence.</p>
-<p>Collection automatically listens to <code>change</code> events of all of its records, and triggers <code>change</code> and <code>changes</code> events.</p>
+<p>Object tree formed by nested records is deeply observable by default; changes in every item trigger change events for the collection and all parent elements in sequence.</p>
+<p>Collection triggers following events on change:</p>
+<ul>
+<li>
+<code>change</code> <em>( record, options )</em> for every changed record.</li>
+<li>
+<code>add</code> <em>( record, collection, options )</em> for every added record.</li>
+<li>
+<code>remove</code> <em>( record, collection, options )</em> for every removed record.</li>
+<li>
+<code>update</code> <em>( collection, options )</em> when any records were added or removed.</li>
+<li>
+<code>sort</code> <em>( collection, options )</em> when any records changed their order.</li>
+<li>
+<code>reset</code> <em>( collection, options )</em> if <code>collection.reset()</code> was used to update the collection.</li>
+<li>
+<code>changes</code> <em>( collection, options )</em> in case of any changes.</li>
+</ul>
+<h2 id="page_Listening+to+changes+with+Events+API">Listening to changes with Events API</h2>
+<p><a href="../Events.html">Events API</a> is used for managing events subscriptions.</p>
+<h3 id="page_listener.listenTo%28+record%2C+event%2C+handler+%29">listener.listenTo( record, event, handler )</h3>
+<p><a href="../Events.html">Events API</a> method used to listen to the any of the change events.</p>
+<h3 id="page_listener.stopListening%28+record+%29">listener.stopListening( record )</h3>
+<p><a href="../Events.html">Events API</a> method to explicitly stop all event subscriptions from the record.</p>
+<p>Not needed if the listener is other record or collection.</p>
 <h2 id="page_Listening+to+item+events+in+the+collection">Listening to item events in the collection</h2>
 <h3 id="page_itemEvents+%3D+%7B+eventName+%3A++%2C+...+%7D"><code>static</code> itemEvents = { eventName : <code>handler</code>, ... }</h3>
 <p>Subscribe for events from records. The <code>hander</code> is either the collection's method name, the handler function, or <code>true</code>.</p>
 <p>When <code>true</code> is passed as a handler, the corresponding event will be triggered on the collection.</p>
-<h2 id="page_Events+subscription+with+Events+API">Events subscription with Events API</h2>
-<p><code>listener.listenTo()</code> and <code>listener.listenToOnce()</code> methods can be used to listen to the any of the collection events.s</p>
-<p>If listener itself is the record or collection, subscriptions will be stopped automatically. Otherwise they must be stopped
-manually with <code>listener.stopListening()</code> call to prevent memory leaks.</p>
     </div>
 
         <nav>
