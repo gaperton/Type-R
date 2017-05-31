@@ -84,11 +84,11 @@
 
     <div class="s-content">
         <h1 id="page_Introduction">Introduction</h1>
-<p>Type-R is the universal state container for both UI and domain state management.</p>
-<p>Application state is described with the superposition of two main container types - <a href="Record/Overview.html">Record</a> and <a href="Collection/Overview.html">Collection</a> or records. The state has observable changes and is serializable by default.</p>
+<p>Type-R is the universal state management framework for both UI and domain state.</p>
+<p>Application state is described with the superposition of two main container types - <a href="Record/Overview.html">Record</a> and <a href="Collection/Overview.html">Collection</a> of records. The state has observable changes and is serializable by default.</p>
 <ul>
-<li>Records are classes with typed attributes. They are protected from assignment of incompatible types with run-time type assertions and conversions. Which means that the client-server protocol is protected from both ends.</li>
-<li>Records distinguish <a href="API_by_feature/Aggregation_tree.html">aggregated attributes</a> and those which are <a href="API_by_feature/Shared_objects.html">references to shared objects</a>. Aggregated attributes are serialized as nested JSON, while references might be <a href="API_by_feature/id-references_and_Stores.html">serialized as ids</a>. Many operations like <code>clone()</code>, <code>dispose()</code>, and <code>toJSON()</code> are performed recursively on elements of aggregation tree.</li>
+<li>Records are classes with typed attributes. They are protected from attributes assignment of incompatible types with run-time type assertions and conversions. Which means that the client-server protocol is protected from both ends.</li>
+<li>Records distinguish <a href="API_by_feature/Aggregation_tree.html">aggregated attributes</a> and those which are <a href="API_by_feature/Shared_objects.html">references to shared objects</a>. Aggregated attributes are serialized as nested JSON, while references might be <a href="API_by_feature/id-references_and_Stores.html">serialized as ids</a>. Operations like <code>clone()</code>, <code>dispose()</code>, and <code>toJSON()</code> are performed recursively on elements of aggregation tree.</li>
 <li>Type-R features declarative <a href="API_by_feature/Validation.html">validation</a> with attribute-level rules. Validation is transparent and lazily evaluated.</li>
 <li>Architecture does not depend on stores and singletons. <a href="API_by_feature/id-references_and_Stores.html">Stores</a> are optional and used for shared data only. There might be as many stores as you need, and they can be created and disposed dynamically.</li>
 <li>Type-R data structures are pretty efficient. They are about 10 times faster in real-world data scenarios than BackboneJS.</li>
@@ -97,7 +97,7 @@
 <p>Is packed as UMD and ES6 module. No side dependencies.</p>
 <p><code>npm install type-r --save-dev</code></p>
 <h2 id="page_Requirements">Requirements</h2>
-<p>IE10+, Edge, Safari, Chrome, Firefox are supported.</p>
+<p>IE10+, Edge, Safari, Chrome, and Firefox are supported.</p>
 <p>IE9 and Opera may work but has not been tested. IE8 <em>won't work</em>.</p>
     </div>
 

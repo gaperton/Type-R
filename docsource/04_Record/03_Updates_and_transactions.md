@@ -4,8 +4,8 @@
 
 Assign the record's attribute. If the value is not compatible with attribute's type from the declaration, it is converted:
 
-- with `Type( value )` call, for primitive types.
-- with `record.attrName.set( value )`, for existing record or collection (updated in place).
+- with `Type( value )` call, for primitive types;
+- with `record.attrName.set( value )`, for existing record or collection (updated in place);
 - with `new Type( value )` in all other cases.
 
 Record triggers events on changes:

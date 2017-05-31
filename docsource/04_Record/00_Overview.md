@@ -1,11 +1,8 @@
-Record is the serializable class with typed attributes, observable changes, and custom validation checks.
-It is the main building block for managing the application state; component local state, stores, and collection elements are all subclasses of the `Record`.
+Record is the serializable class with typed attributes, observable changes, and custom validation checks. It is the main building block for managing the application state; component local state, stores, and collection elements are all subclasses of the `Record`.
 
-In contrast to the "model" class in the majority of data frameworks, Record is *not the key-value hash*. It's the class with statically
-defined set of attributes of known types.
+In contrast to the "model" class in the majority of data frameworks, Record is *not the key-value hash*. It's the class with statically defined set of attributes of known types.
 
-`Record` itself is an abstract class. The subclass needs to be defined for every data structure of different shape,
-in a similar way as it's done in statically typed languages.
+`Record` itself is an abstract class. The subclass needs to be defined for every data structure of different shape, in a similar way as it's done in statically typed languages.
 
 ```javascript
 import { define, Record } from 'type-r'
@@ -35,7 +32,11 @@ users.updateEach( user => user.firstName = '' ); // ⟵ bulk update triggering '
 
 # Record definition
 
-Record must extend `Record` base class, it must have `static attributes` definition, and the class definition must be preceded with `@define` decorator.
+Record definition must:
+
+- be the class extending the `Record`;
+- be preceded with the `@define` decorator;
+- have `static attributes` definition.
 
 ### `decorator` @define
 
@@ -51,9 +52,7 @@ import { define, Record } from 'type-r'
 
 ### `static` attributes = { name : `attrDef`, ... }
 
-Record is a class with an observable and serializable public attributes. Attributes *must* be declared statically
-in `static attributes` class member, which is an object hash mapping an attribute name name to its declaration, encapsulating
-attribute type, default value, and metadata controlling different aspects of attribute behavior.
+Record's attributes definition. Lists attribute names along with their types, default values, and metadata controlling different aspects of attribute behavior.
 
 ```javascript
 @define class User extends Record {
@@ -65,28 +64,15 @@ attribute type, default value, and metadata controlling different aspects of att
 }
 ```
 
-The Record guarantee that _every attribute will always hold the value of the declared type_. Whenever the an attribute is being assigned
-with the value which is not compatible with its declared type, the type is being converted with an invocation of the constructor: `new Type( value )` (primitive types are treated specially).
+The Record guarantee that _every attribute will retain the value of the declared type_. Whenever an attribute is being assigned with the value which is not compatible with its declared type, the type is being converted with an invocation of the constructor: `new Type( value )` (primitive types are treated specially).
 
 ## Attribute definitions
 
-### `attrDef` name : Type.value( defaultValue )
-
-The general form of type annotation is `Type.value( defaultValue )`, where the `Type` is the corresponding constructor function.
-
-```javascript
-@define class Person extends Record {
-    static attributes = {
-        phone : String.value( null ) // String attribute which is null by default.
-        ...
-    }
-}
-```
-
 ### `attrDef` name : Type
 
-When the function is used as `attrDef`, it's treated as the constructor function.
-Any constructor function may be used as an attribute type, if it behaves as _converting constructor_ (like `new Date( msecs )`).
+When the function is used as `attrDef`, it's treated as the constructor function. Any constructor function which behaves as _converting constructor_ (like `new Date( msecs )`) may be used as an attribute type.
+
+You can use other record's and collection's constructors as attribute types. They will be treated as an _integral part_ of the record (created, serialized, validated, and disposed together), i.e. as _aggregated members_.
 
 ```javascript
 @define class Person extends Record {
@@ -100,8 +86,9 @@ Any constructor function may be used as an attribute type, if it behaves as _con
 
 ### `attrDef` name : defaultValue
 
-When other value than function is passed, it's treated as the default value and the type is being inferred form the value.
- If you need to pass function as the default value, use `Function.value( theFunction )`.
+When value of other type than function is used as `attrDef` it's treated as attribute's default value. Attribute's type is being inferred from the value.
+
+Use the general form of attribute definition for attributes of `Function` type: `Function.value( theFunction )`.
 
 ```javascript
 @define class GridColumn extends Record {
@@ -113,24 +100,36 @@ When other value than function is passed, it's treated as the default value and 
 }
 ```
 
+### `attrDef` name : Type.value( defaultValue )
+
+The general form of attribute definition is `Type.value( defaultValue )`, where the `Type` is the corresponding constructor function.
+
+```javascript
+@define class Person extends Record {
+    static attributes = {
+        phone : String.value( null ) // String attribute which is null by default.
+        ...
+    }
+}
+```
+
 # Create the record
 
 Record behaves as regular ES6 class with attributes accessible as properties.
 
 ### new Record()
 
-Create an instance of the record with the default attribute values taken from the attributes definition.
+Create an instance of the record with default attribute values taken from the attributes definition.
 
-When no default value is explicitly provided, it's `new Type()` (just `Type()` for primitives). When the default value is provided and it's not compatible with the attribute type, it's converted with `new Type( defaultValue )` call.
+When no default value is explicitly provided for an attribute, it's initialized as `new Type()` (just `Type()` for primitives). When the default value is provided and it's not compatible with the attribute type, it's converted with `new Type( defaultValue )` call.
 
 ### new Record({ attrName : value, ... }, options? )
 
-When creating an instance of a record, you can pass in the initial values of the attributes,
- which will be set on the record.
+When creating an instance of a record, you can pass in the initial attribute values to override the defaults.
 
-If `{parse: true}` is passed as an option, `attrs` is assumed to be the JSON.
+If `{parse: true}` option is used, `attrs` is assumed to be the JSON.
 
-If the value of the particular attribute is not compatible with its type, it's converted to this type invoking the constructor `new Type( value )` (just `Type( value )` for primitives).
+If the value of the particular attribute is not compatible with its type, it's converted to the declared type invoking the constructor `new Type( value )` (just `Type( value )` for primitives).
 
 ```javascript
 @define class Book extends Record {
@@ -148,15 +147,14 @@ const book = new Book({
 
 ### `abstract` record.initialize( attrs?, options? )
 
-Called at the end of the `Record` constructor when all attributes are assigned
-and record's inner state is properly initialized. Takes the same arguments as
+Called at the end of the `Record` constructor when all attributes are assigned and the record's inner state is properly initialized. Takes the same arguments as
 a constructor.
 
 ### record.attrName
 
-Record's attributes may be directly accessed with `record.name`, as if they would be the members of the class.
+Record's attributes may be directly accessed as `record.name`.
 
-> Please note, that you *have to declare all attributes* in `static attributes` declaration before use.
+> Please note, that you *have to declare all attributes* in `static attributes` declaration.
 
 ```javascript
 @define class Account extends Record {

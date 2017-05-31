@@ -2,7 +2,7 @@
 
 ![master build](https://api.travis-ci.org/Volicon/Type-R.svg?branch=master)
 
-Universal state container for modern JS applications written with TypeScript for both UI and domain state management.
+Type-R is the universal state container for modern JS applications written with TypeScript for both UI and domain state management.
 
 API docs are here: https://volicon.github.io/Type-R/
 

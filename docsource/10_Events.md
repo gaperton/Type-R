@@ -8,7 +8,7 @@ It is also available separately as part of [MixtureJS](https://github.com/Volico
 
 # Events mixin
 
-Events is a [mixin](11_Mixins.md) giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.
+`Events` is a [mixin](11_Mixins.md) giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.
 
 ```javascript
 import { mixins, Events } from 'type-r'
@@ -56,7 +56,7 @@ This API is more efficient but requires manual action to stop the subscription. 
 
 ### eventSource.on(event, callback, [context])
 
-Bind a callback function to an object. The callback will be invoked whenever the event is fired. If you have a large number of different events on a page, the convention is to use colons to namespace them: "poll:start", or "change:selection". The event string may also be a space-delimited list of several events...
+Bind a callback function to an object. The callback will be invoked whenever the event is fired. If you have a large number of different events on a page, the convention is to use colons to namespace them: `poll:start`, or `change:selection`. The event string may also be a space-delimited list of several events...
 
     book.on("change:title change:author", ...);
 
@@ -78,7 +78,7 @@ To supply a context value for this when the callback is invoked, pass the option
 
 ### eventSource.off([event], [callback], [context])
 
-Remove a previously-bound callback function from an object. If no context is specified, all of the versions of the callback with different contexts will be removed. If no callback is specified, all callbacks for the event will be removed. If no event is specified, callbacks for all events will be removed.
+Remove a previously bound callback function from an object. If no context is specified, all of the versions of the callback with different contexts will be removed. If no callback is specified, all callbacks for the event will be removed. If no event is specified, callbacks for all events will be removed.
 
     // Removes just the `onChange` callback.
     object.off("change", onChange);
@@ -98,7 +98,7 @@ Remove a previously-bound callback function from an object. If no context is spe
 Note that calling `model.off()`, for example, will indeed remove all events on the model — including events that Backbone uses for internal bookkeeping.
 
 ### eventsSource.once(event, callback, [context])
-Just like on, but causes the bound callback to fire only once before being removed. Handy for saying "the next time that X happens, do this". When multiple events are passed in using the space separated syntax, the event will fire once for every event you passed in, not once for a combination of all events
+Just like `on()`, but causes the bound callback to fire only once before being removed. Handy for saying "the next time that X happens, do this". When multiple events are passed in using the space separated syntax, the event will fire once for every event you passed in, not once for a combination of all events
 
 # Messenger
 

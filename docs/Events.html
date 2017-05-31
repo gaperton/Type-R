@@ -88,7 +88,7 @@
 <p><img src="./events-performance.jpg" alt="performance" /></p>
 <p>It is also available separately as part of <a href="https://github.com/Volicon/MixtureJS" class="external">MixtureJS</a> package.</p>
 <h1 id="page_Events+mixin">Events mixin</h1>
-<p>Events is a <a href="Mixins.html">mixin</a> giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.</p>
+<p><code>Events</code> is a <a href="Mixins.html">mixin</a> giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.</p>
 <pre><code class="language-javascript">import { mixins, Events } from 'type-r'
 
 @mixins( Events )
@@ -120,7 +120,7 @@ view.stopListening(model); // Unsubscribe from all events from the model
 <h2 id="page_Low-level+listening+API">Low-level listening API</h2>
 <p>This API is more efficient but requires manual action to stop the subscription. Must be used with care.</p>
 <h3 id="page_eventSource.on%28event%2C+callback%2C++%5B+context%5D%29">eventSource.on(event, callback, [context])</h3>
-<p>Bind a callback function to an object. The callback will be invoked whenever the event is fired. If you have a large number of different events on a page, the convention is to use colons to namespace them: &quot;poll:start&quot;, or &quot;change:selection&quot;. The event string may also be a space-delimited list of several events...</p>
+<p>Bind a callback function to an object. The callback will be invoked whenever the event is fired. If you have a large number of different events on a page, the convention is to use colons to namespace them: <code>poll:start</code>, or <code>change:selection</code>. The event string may also be a space-delimited list of several events...</p>
 <pre><code>book.on(&quot;change:title change:author&quot;, ...);
 </code></pre>
 <p>Callbacks bound to the special &quot;all&quot; event will be triggered when any event occurs, and are passed the name of the event as the first argument. For example, to proxy all events from one object to another:</p>
@@ -137,7 +137,7 @@ view.stopListening(model); // Unsubscribe from all events from the model
 </code></pre>
 <p>To supply a context value for this when the callback is invoked, pass the optional last argument: <code>model.on('change', this.render, this)</code> or <code>model.on({change: this.render}, this)</code>.</p>
 <h3 id="page_eventSource.off%28+%5B+event%5D%2C++%5B+callback%5D%2C++%5B+context%5D%29">eventSource.off([event], [callback], [context])</h3>
-<p>Remove a previously-bound callback function from an object. If no context is specified, all of the versions of the callback with different contexts will be removed. If no callback is specified, all callbacks for the event will be removed. If no event is specified, callbacks for all events will be removed.</p>
+<p>Remove a previously bound callback function from an object. If no context is specified, all of the versions of the callback with different contexts will be removed. If no callback is specified, all callbacks for the event will be removed. If no event is specified, callbacks for all events will be removed.</p>
 <pre><code>// Removes just the `onChange` callback.
 object.off(&quot;change&quot;, onChange);
 
@@ -155,7 +155,7 @@ object.off();
 </code></pre>
 <p>Note that calling <code>model.off()</code>, for example, will indeed remove all events on the model — including events that Backbone uses for internal bookkeeping.</p>
 <h3 id="page_eventsSource.once%28event%2C+callback%2C++%5B+context%5D%29">eventsSource.once(event, callback, [context])</h3>
-<p>Just like on, but causes the bound callback to fire only once before being removed. Handy for saying &quot;the next time that X happens, do this&quot;. When multiple events are passed in using the space separated syntax, the event will fire once for every event you passed in, not once for a combination of all events</p>
+<p>Just like <code>on()</code>, but causes the bound callback to fire only once before being removed. Handy for saying &quot;the next time that X happens, do this&quot;. When multiple events are passed in using the space separated syntax, the event will fire once for every event you passed in, not once for a combination of all events</p>
 <h1 id="page_Messenger">Messenger</h1>
 <p>Messenger is an abstract base class implementing Events mixin and some convenience methods.
 As all Type-R classes, its definition must be preceded with the <code>@define</code> decorator.</p>
