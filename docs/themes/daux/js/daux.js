@@ -2,10 +2,16 @@
 
 // Add logo
 $(function(){
+    var depth = $( 'link[rel=icon]')[ 0 ].getAttribute( 'href' ).split( '..' ).length - 1;
     var brand = document.getElementsByClassName("Navbar__brand")[ 0 ].parentElement;
 	
+    var path = [ "logo.png" ];
+    for( var i = 0; i < depth; i++ ){
+        path.unshift( '..' );
+    }
+
 	var img2 = document.createElement( 'img' );
-	img2.src = "logo.png";
+	img2.src = path.join( '/' );
     img2.alt = "";
 	img2.style = "float: left; margin-top: 12px; width: 29px; margin-left: 17px; margin-right: -10px;";
 	

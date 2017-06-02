@@ -410,6 +410,9 @@ body {
 .Columns__left {
   background-color: #f5f5f6;
 }
+.Columns__right {
+  background-color: #8acc37;
+}
 .Columns__right__content {
   background-color: #fff;
   margin: auto;
@@ -489,7 +492,6 @@ body {
   }
   .Columns__left {
     width: 25%;
-    border-right: 1px solid #e7e7e9;
     overflow-x: hidden;
   }
   .Columns__right {
@@ -569,7 +571,7 @@ h6 {
 .s-content h1 {
   font-size: 2em;
   color: black;
-  border-bottom: 1px solid gray;
+  border-bottom: 1px solid #8acc37;
   padding: 5px 0px 5px 20px;
   border-top-color: #8acc37;
   border-top-width: 6px;
@@ -583,7 +585,7 @@ h6 {
   color: black;
   border-bottom-style: dotted;
   border-bottom-width: 1px;
-  border-bottom-color: gray;
+  border-bottom-color: #8acc37;
   margin-bottom: 12px;
   padding: 5px 0px 3px 20px;
   margin-left: -20px;
@@ -1100,7 +1102,7 @@ Components
   padding: 6px 15px 6px 20px;
   font-family: "Roboto Slab", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400;
-  color: #000;
+  color: #8acc37;
   font-size: 15px;
   text-shadow: none;
   border-color: #e7e7e9;
@@ -1119,7 +1121,7 @@ Components
   margin-left: -15px;
   padding: 3px 30px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: #2d2d2d;
+  color: #8acc37;
   opacity: 0.7;
 }
 .Nav .Nav .Nav__item a:hover {
