@@ -54,7 +54,21 @@
     <div class="container">
         <div class="container--inner">
             <div class="doc_content s-content">
-                <p class="lead">
+                <script type="text/javascript">
+	var brand = document.getElementsByClassName("Navbar__brand")[ 0 ].parentElement;
+
+	var img1 = document.createElement( 'img' );
+	img1.src = "images/volicon_verizon_dm.png";
+	img1.style = "float: left; margin-top: 10px;";
+	
+	var img2 = document.createElement( 'img' );
+	img2.src = "images/tr-logo-light.png";
+	img2.style = "float: left; margin-top: 12px; width: 29px; margin-left: 17px; margin-right: -10px;";
+	
+	brand.prepend( img2 );
+	brand.prepend( img1 );
+</script>
+<p class="lead">
 	<strong>Type-R</strong> is the modern state management JS framework designed to handle both UI and domain application state.
 </p>
 <hr/>
