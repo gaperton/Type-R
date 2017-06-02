@@ -15,6 +15,8 @@ And add the following to your daux documentation `config.json`
 
 ## Features
 
+There must be the logo.png image in the root directory.
+
 - Fixed content width with inline code examples. Code floating must be turned off.
 - `#` - Separate disconnected section
 - `##` - Subsection

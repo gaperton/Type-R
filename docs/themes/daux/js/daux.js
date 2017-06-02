@@ -5,17 +5,22 @@ $(function(){
     var depth = $( 'link[rel=icon]')[ 0 ].getAttribute( 'href' ).split( '..' ).length - 1;
     var brand = document.getElementsByClassName("Navbar__brand")[ 0 ].parentElement;
 	
-    var path = [ "logo.png" ];
+    var root = [];
     for( var i = 0; i < depth; i++ ){
-        path.unshift( '..' );
+        root.push( '..' );
     }
 
 	var img2 = document.createElement( 'img' );
-	img2.src = path.join( '/' );
+	img2.src = root.concat([ 'logo.png' ]).join( '/' );
     img2.alt = "";
-	img2.style = "float: left; margin-top: 12px; width: 29px; margin-left: 17px; margin-right: -10px;";
+	img2.style = "float: left; margin-top: 12px; height: 26px; margin-left: 17px; margin-right: -10px;";
 	
 	brand.prepend( img2 );
+
+    $( 'img[path]' ).each( function( i, el ){
+        var $el = $( el );
+        $el.attr( 'src', root.concat( [ $el.attr( 'path' ) ] ).join( '/' ) );
+    });
 });
 
 //Initialize CodeBlock Visibility Settings

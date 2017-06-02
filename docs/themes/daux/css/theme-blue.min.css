@@ -519,7 +519,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Roboto Slab", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 300;
 }
 .s-content body {
@@ -1059,7 +1059,7 @@ Components
   height: 50px;
   color: #82becd;
   text-shadow: none;
-  font-family: "Roboto Slab", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 700;
 }
 .CodeToggler__text {
@@ -1088,8 +1088,8 @@ Components
   top: 50%;
   width: 0.5em;
   height: 0.5em;
-  border-right: 0.15em solid #3f4657;
-  border-top: 0.15em solid #3f4657;
+  border-right: 0.15em solid #e7e7e9;
+  border-top: 0.15em solid #e7e7e9;
   transform: rotate(45deg);
   transition-duration: 0.3s;
 }
@@ -1100,7 +1100,7 @@ Components
   display: block;
   margin: 0;
   padding: 6px 15px 6px 20px;
-  font-family: "Roboto Slab", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400;
   color: #82becd;
   font-size: 15px;
@@ -1108,7 +1108,7 @@ Components
   border-color: #e7e7e9;
 }
 .Nav__item a:hover {
-  color: #3f4657;
+  color: #82becd;
   text-shadow: none;
   background-color: #c5c5cb;
 }
@@ -1128,7 +1128,7 @@ Components
   opacity: 1;
 }
 .Nav .Nav .Nav__item--active a {
-  color: #3f4657;
+  color: #82becd;
 }
 .Nav__item--open > a,
 .Nav__item--active > a {
@@ -1179,7 +1179,7 @@ Components
   padding: 0 20px;
 }
 .Links a {
-  font-family: "Roboto Slab", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400;
   color: #82becd;
   line-height: 2em;
@@ -1338,7 +1338,7 @@ Homepage
   margin: 0 10px;
   text-transform: uppercase;
   border: 5px solid #3f4657;
-  font-family: "Roboto Slab", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 700;
   background-image: none;
   filter: none;
@@ -1400,7 +1400,7 @@ Homepage
   margin: 6px 6px 6px -12px;
 }
 .HomepageContent .lead {
-  font-family: "Roboto Slab", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 300;
   font-size: 16px;
   margin-bottom: 20px;
@@ -1445,7 +1445,7 @@ Homepage
 .HomepageFooter__links li a {
   line-height: 32px;
   font-size: 16px;
-  font-family: "Roboto Slab", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 700;
 }
 .HomepageFooter__links li a:hover {

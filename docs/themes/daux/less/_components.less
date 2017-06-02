@@ -157,8 +157,8 @@ Components
             top: 50%;
             width: 0.5em;
             height: 0.5em;
-            border-right: 0.15em solid @dark;
-            border-top: 0.15em solid @dark;
+            border-right: 0.15em solid @lines;
+            border-top: 0.15em solid @lines;
             transform: rotate(45deg);
             transition-duration: 0.3s;
         }
@@ -179,7 +179,7 @@ Components
             border-color: @lines;
 
             &:hover {
-                color: @dark;
+                color: @light;
                 text-shadow: none;
                 background-color: @sidebar-hover;
             }
@@ -205,7 +205,7 @@ Components
             }
 
             &--active a {
-                color: @dark;
+                color: @light;
             }
         }
     }

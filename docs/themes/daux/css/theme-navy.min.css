@@ -432,7 +432,7 @@ body {
 }
 .Collapsible__trigger {
   padding: 7px 10px;
-  background-color: #c5c5cb;
+  background-color: #484c5a;
   border: none;
   background-image: none;
   filter: none;
@@ -452,12 +452,12 @@ body {
   box-shadow: none;
 }
 .Collapsible__trigger:hover .icon-bar {
-  background-color: #7795b4;
+  background-color: #a3d0ff;
   box-shadow: none;
 }
 @media screen and (min-width: 768px) {
   body {
-    background-color: #7795b4;
+    background-color: #a3d0ff;
   }
   .Navbar {
     position: fixed;
@@ -519,7 +519,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Roboto Slab", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 300;
 }
 .s-content body {
@@ -962,7 +962,7 @@ Base tags
 ============================================================================================== */
 a {
   text-decoration: none;
-  color: #7795b4;
+  color: #a3d0ff;
 }
 a.external::after {
   content: " " url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAVklEQVR4Xn3PgQkAMQhDUXfqTu7kTtkpd5RA8AInfArtQ2iRXFWT2QedAfttj2FsPIOE1eCOlEuoWWjgzYaB/IkeGOrxXhqB+uA9Bfcm0lAZuh+YIeAD+cAqSz4kCMUAAAAASUVORK5CYII=);
@@ -1057,9 +1057,9 @@ Components
   font-size: 18px;
   line-height: 20px;
   height: 50px;
-  color: #7795b4;
+  color: #a3d0ff;
   text-shadow: none;
-  font-family: "Roboto Slab", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 700;
 }
 .CodeToggler__text {
@@ -1088,8 +1088,8 @@ Components
   top: 50%;
   width: 0.5em;
   height: 0.5em;
-  border-right: 0.15em solid #13132a;
-  border-top: 0.15em solid #13132a;
+  border-right: 0.15em solid #e7e7e9;
+  border-top: 0.15em solid #e7e7e9;
   transform: rotate(45deg);
   transition-duration: 0.3s;
 }
@@ -1100,17 +1100,17 @@ Components
   display: block;
   margin: 0;
   padding: 6px 15px 6px 20px;
-  font-family: "Roboto Slab", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400;
-  color: #7795b4;
+  color: #a3d0ff;
   font-size: 15px;
   text-shadow: none;
   border-color: #e7e7e9;
 }
 .Nav__item a:hover {
-  color: #13132a;
+  color: #a3d0ff;
   text-shadow: none;
-  background-color: #c5c5cb;
+  background-color: #484c5a;
 }
 .Nav .Nav {
   display: none;
@@ -1121,18 +1121,18 @@ Components
   margin-left: -15px;
   padding: 3px 30px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: #7795b4;
+  color: #a3d0ff;
   opacity: 0.7;
 }
 .Nav .Nav .Nav__item a:hover {
   opacity: 1;
 }
 .Nav .Nav .Nav__item--active a {
-  color: #13132a;
+  color: #a3d0ff;
 }
 .Nav__item--open > a,
 .Nav__item--active > a {
-  background-color: #c5c5cb;
+  background-color: #484c5a;
 }
 .Nav__item--open > .Nav {
   display: block;
@@ -1142,7 +1142,7 @@ Components
   transform: rotate(135deg);
 }
 .Page__header {
-  border-bottom: 1px solid #7795b4;
+  border-bottom: 1px solid #a3d0ff;
   font-size: 1.5em;
   padding: 0px 0px 0px 20px;
   margin-left: -20px;
@@ -1179,9 +1179,9 @@ Components
   padding: 0 20px;
 }
 .Links a {
-  font-family: "Roboto Slab", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400;
-  color: #7795b4;
+  color: #a3d0ff;
   line-height: 2em;
 }
 .Search {
@@ -1202,7 +1202,7 @@ Components
   transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 }
 .Search__field:focus {
-  border-color: #7795b4;
+  border-color: #a3d0ff;
   outline: 0;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px 2px rgba(102, 175, 233, 0.6);
 }
@@ -1304,7 +1304,7 @@ Homepage
 }
 .Homepage {
   padding-top: 60px !important;
-  background-color: #7795b4;
+  background-color: #a3d0ff;
   border-radius: 0;
   border: none;
   color: #13132a;
@@ -1327,7 +1327,7 @@ Homepage
 }
 .HomepageButtons {
   padding: 20px 0;
-  background-color: #c5c5cb;
+  background-color: #484c5a;
   text-align: center;
 }
 .HomepageButtons .Button--hero {
@@ -1338,7 +1338,7 @@ Homepage
   margin: 0 10px;
   text-transform: uppercase;
   border: 5px solid #13132a;
-  font-family: "Roboto Slab", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 700;
   background-image: none;
   filter: none;
@@ -1354,7 +1354,7 @@ Homepage
   opacity: 1;
 }
 .HomepageButtons .Button--hero.Button--secondary {
-  background-color: #c5c5cb;
+  background-color: #484c5a;
   color: #13132a;
 }
 .HomepageButtons .Button--hero.Button--primary {
@@ -1394,13 +1394,13 @@ Homepage
   width: 0;
   height: 0;
   border: 3px solid transparent;
-  border-left: 3px solid #7795b4;
+  border-left: 3px solid #a3d0ff;
   float: left;
   display: block;
   margin: 6px 6px 6px -12px;
 }
 .HomepageContent .lead {
-  font-family: "Roboto Slab", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 300;
   font-size: 16px;
   margin-bottom: 20px;
@@ -1417,7 +1417,7 @@ Homepage
 .HomepageFooter {
   background-color: #13132a;
   border-radius: 0;
-  color: #7795b4;
+  color: #a3d0ff;
   border: none;
   box-shadow: none;
 }
@@ -1445,11 +1445,11 @@ Homepage
 .HomepageFooter__links li a {
   line-height: 32px;
   font-size: 16px;
-  font-family: "Roboto Slab", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 700;
 }
 .HomepageFooter__links li a:hover {
-  color: #7795b4;
+  color: #a3d0ff;
   text-decoration: underline;
 }
 .HomepageFooter__twitter {
