@@ -22,7 +22,7 @@
         "twitter": ["gaperton"],
         "links": {
             "Help/Support/Bugs": "https://github.com/Volicon/Type-R/issues",
-            "Made by Volicon (a Verizon company)": "http://volicon.com"
+            "<img src=\"images/volicon_verizon_dm.png\" style=\"vertical-align: middle;\"/>": "http://volicon.com"
         }
     }
 }

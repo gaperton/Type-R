@@ -1,5 +1,17 @@
 /** global localStorage */
 
+// Add logo
+$(function(){
+    var brand = document.getElementsByClassName("Navbar__brand")[ 0 ].parentElement;
+	
+	var img2 = document.createElement( 'img' );
+	img2.src = "logo.png";
+    img2.alt = "";
+	img2.style = "float: left; margin-top: 12px; width: 29px; margin-left: 17px; margin-right: -10px;";
+	
+	brand.prepend( img2 );
+});
+
 //Initialize CodeBlock Visibility Settings
 $(function () {
     var codeBlockView = $('.Columns__right'),
