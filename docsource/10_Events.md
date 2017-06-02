@@ -34,7 +34,7 @@ This is the preferable listening API and must be used in all application code.
 ### listener.listenTo(other, event, callback)
 Tell an object to listen to a particular event on an other object. The advantage of using this form, instead of other.on(event, callback, object), is that listenTo allows the object to keep track of the events, and they can be removed all at once later on. The callback will always be called with object as context.
 
-    view.listenTo(model, 'change', view.render );
+    view.listenTo(record, 'change', view.render );
 
 ### listener.stopListening([other], [event], [callback])
 
@@ -42,7 +42,7 @@ Tell an object to stop listening to events. Either call stopListening with no ar
 
     view.stopListening(); // Unsubscribe from all events
 
-    view.stopListening(model); // Unsubscribe from all events from the model
+    view.stopListening(record); // Unsubscribe from all events from the record
 
 All Type-R classes execute `this.stopListening()` from their `dispose()` method.
 
@@ -74,7 +74,7 @@ All event methods also support an event map syntax, as an alternative to positio
         "destroy": bookView.remove
     });
 
-To supply a context value for this when the callback is invoked, pass the optional last argument: `model.on('change', this.render, this)` or `model.on({change: this.render}, this)`.
+To supply a context value for this when the callback is invoked, pass the optional last argument: `record.on('change', this.render, this)` or `record.on({change: this.render}, this)`.
 
 ### eventSource.off([event], [callback], [context])
 
@@ -95,7 +95,7 @@ Remove a previously bound callback function from an object. If no context is spe
     // Removes all callbacks on `object`.
     object.off();
 
-Note that calling `model.off()`, for example, will indeed remove all events on the model — including events that Backbone uses for internal bookkeeping.
+Note that calling `record.off()`, for example, will indeed remove all events on the record — including events that Backbone uses for internal bookkeeping.
 
 ### eventsSource.once(event, callback, [context])
 Just like `on()`, but causes the bound callback to fire only once before being removed. Handy for saying "the next time that X happens, do this". When multiple events are passed in using the space separated syntax, the event will fire once for every event you passed in, not once for a combination of all events

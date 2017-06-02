@@ -5,7 +5,7 @@ Methods to update the collection. They accept common options:
 - `sort : false` - do not sort the collection.
 - `parse : true` - parse raw JSON (used to set collection with a data from the server).
 
-### collection.add( models, options? )
+### collection.add( records, options? )
 
 Add a record (or an array of records) to the collection. If this is the `Record.Collection`, you may also pass raw attributes objects, and have them be vivified as instances of the `Record`. Returns the added (or preexisting, if duplicate) records.
 

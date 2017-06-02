@@ -87,7 +87,7 @@
 <li>
 <code>parse : true</code> - parse raw JSON (used to set collection with a data from the server).</li>
 </ul>
-<h3 id="page_collection.add%28+models%2C+options%3F+%29">collection.add( models, options? )</h3>
+<h3 id="page_collection.add%28+records%2C+options%3F+%29">collection.add( records, options? )</h3>
 <p>Add a record (or an array of records) to the collection. If this is the <code>Record.Collection</code>, you may also pass raw attributes objects, and have them be vivified as instances of the <code>Record</code>. Returns the added (or preexisting, if duplicate) records.</p>
 <p>Pass <code>{at: index}</code> to splice the record into the collection at the specified index. If you're adding records to the collection that are already in the collection, they'll be ignored, unless you pass <code>{merge: true}</code>, in which case their attributes will be merged into the corresponding records.</p>
 <ol>

@@ -5,12 +5,12 @@ Add a record at the end of a collection. Takes the same options as add.
 ### collection.pop( options? )
 Remove and return the last record from a collection. Takes the same options as remove.
 
-### collection.unshift( model, options? )
+### collection.unshift( record, options? )
 
-Add a model at the beginning of a collection. Takes the same options as add.
+Add a record at the beginning of a collection. Takes the same options as add.
 
 ### collection.shift( options? )
-Remove and return the first model from a collection. Takes the same options as remove.
+Remove and return the first record from a collection. Takes the same options as remove.
 
 ### collection.slice( begin, end )
 

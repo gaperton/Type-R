@@ -59,16 +59,15 @@ Specify the record type inside of the collection's definition. This property is 
 
 Create an empty collection.
 
-### new Collection( models, options? )
+### new Collection( records, options? )
 
-When creating a Collection, you may choose to pass in the initial array of models. The collection's comparator may be included as an option. Passing `false` as the comparator option will prevent sorting. If you define an `initialize() ` function, it will be invoked when the collection is created. There are a couple of options that, if provided, are attached to the collection directly: model and comparator.
-Pass `null` for `models` to create an empty Collection with options.
+When creating a Collection, you may choose to pass in the initial array of records. The collection's comparator may be included as an option. Passing `false` as the comparator option will prevent sorting. If you define an `initialize() ` function, it will be invoked when the collection is created.
 
 ```javascript
 var tabs = new TabSet([tab1, tab2, tab3]);
 ```
 
-### collection.initialize( models?, options? )
+### collection.initialize( records?, options? )
 
 Initialization function which is called at the end of the constructor.
 
@@ -84,8 +83,8 @@ const book = library.get(110);
 Get a record from a collection, specified by index. Useful if your collection is sorted, and if your collection isn't sorted, at will still retrieve records in insertion order. When passed a negative index, it will retrieve the record from the back of the collection.
 
 ### collection.length
-Like an array, a Collection maintains a length property, counting the number of models it contains.
+Like an array, a Collection maintains a length property, counting the number of records it contains.
 
 ### collection.models
 
-Raw access to the JavaScript array of models inside of the collection. Usually you'll want to use `get`, `at`, or the other methods to access model objects, but occasionally a direct reference to the array is desired.
+Raw access to the JavaScript array of records inside of the collection. Usually you'll want to use `get`, `at`, or the other methods to access record objects, but occasionally a direct reference to the array is desired.

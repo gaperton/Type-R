@@ -122,12 +122,11 @@ class Comics extends Book {
 <h1 id="page_Create+and+access+the+collection">Create and access the collection</h1>
 <h3 id="page_new+Collection%28%29">new Collection()</h3>
 <p>Create an empty collection.</p>
-<h3 id="page_new+Collection%28+models%2C+options%3F+%29">new Collection( models, options? )</h3>
-<p>When creating a Collection, you may choose to pass in the initial array of models. The collection's comparator may be included as an option. Passing <code>false</code> as the comparator option will prevent sorting. If you define an <code>initialize()</code> function, it will be invoked when the collection is created. There are a couple of options that, if provided, are attached to the collection directly: model and comparator.
-Pass <code>null</code> for <code>models</code> to create an empty Collection with options.</p>
+<h3 id="page_new+Collection%28+records%2C+options%3F+%29">new Collection( records, options? )</h3>
+<p>When creating a Collection, you may choose to pass in the initial array of records. The collection's comparator may be included as an option. Passing <code>false</code> as the comparator option will prevent sorting. If you define an <code>initialize()</code> function, it will be invoked when the collection is created.</p>
 <pre><code class="language-javascript">var tabs = new TabSet([tab1, tab2, tab3]);
 </code></pre>
-<h3 id="page_collection.initialize%28+models%3F%2C+options%3F+%29">collection.initialize( models?, options? )</h3>
+<h3 id="page_collection.initialize%28+records%3F%2C+options%3F+%29">collection.initialize( records?, options? )</h3>
 <p>Initialization function which is called at the end of the constructor.</p>
 <h3 id="page_collection.get%28+id+%29">collection.get( id )</h3>
 <p>Get a record from a collection, specified by an <code>id</code>, a <code>cid</code>, or by passing in a record.</p>
@@ -136,9 +135,9 @@ Pass <code>null</code> for <code>models</code> to create an empty Collection wit
 <h3 id="page_collection.at%28+index+%29">collection.at( index )</h3>
 <p>Get a record from a collection, specified by index. Useful if your collection is sorted, and if your collection isn't sorted, at will still retrieve records in insertion order. When passed a negative index, it will retrieve the record from the back of the collection.</p>
 <h3 id="page_collection.length">collection.length</h3>
-<p>Like an array, a Collection maintains a length property, counting the number of models it contains.</p>
+<p>Like an array, a Collection maintains a length property, counting the number of records it contains.</p>
 <h3 id="page_collection.models">collection.models</h3>
-<p>Raw access to the JavaScript array of models inside of the collection. Usually you'll want to use <code>get</code>, <code>at</code>, or the other methods to access model objects, but occasionally a direct reference to the array is desired.</p>
+<p>Raw access to the JavaScript array of records inside of the collection. Usually you'll want to use <code>get</code>, <code>at</code>, or the other methods to access record objects, but occasionally a direct reference to the array is desired.</p>
     </div>
 
         <nav>

@@ -4,7 +4,7 @@ Record's attributes can hold the records and collections from _other_ aggregatio
 
 ### `attrDef` attr : RecordOrCollection.shared
 
-Record's attribute with a reference to the shared model or collection.
+Record's attribute with a reference to the shared record or collection.
 
 - It's initialized with `null`
 - It's not cloned when the record is cloned (just the reference is copied over).
