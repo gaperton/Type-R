@@ -95,6 +95,72 @@
 <h2 id="page_Requirements">Requirements</h2>
 <p>IE10+, Edge, Safari, Chrome, and Firefox are supported.</p>
 <p>IE9 and Opera may work but has not been tested. IE8 <em>won't work</em>.</p>
+<h1 id="page_FAQ">FAQ</h1>
+<h2 id="page_How+the+Type-R+compares+with+X%3F">How the Type-R compares with X?</h2>
+<p>Type-R is designed to be the substitution for BackboneJS, which was used extensively 3 years ago in Volicon/Verizon Observer products. While it largely backward compatible by its API with BackboneJS (for Events and Collections), it's entirely different internally.</p>
+<p>In its core, it's an engine for managing the <em>aggregation trees</em> composed of nested Records and Collections. It contains no View, Router, REST, and jQuery/Underscore dependencies.</p>
+<table>
+<thead>
+<tr>
+<th>Type-R</th>
+<th>BackboneJS</th>
+<th>EmberJS</th>
+<th>mobx</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>View and Router</td>
+<td>-</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Models</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>Objects as models</td>
+</tr>
+<tr>
+<td>Collections</td>
+<td>✓</td>
+<td>✓</td>
+<td>modeled as relations</td>
+<td>Arrays as collections</td>
+</tr>
+<tr>
+<td>Nested Data Strictures</td>
+<td>as aggregation trees and relations</td>
+<td>-</td>
+<td>as relations</td>
+<td>as object graph</td>
+</tr>
+<tr>
+<td>Relations by id</td>
+<td>resolved agains the chain of dynamic stores</td>
+<td>-</td>
+<td>resolved agains the global store</td>
+<td>-</td>
+</tr>
+<tr>
+<td>JSON Serialization</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Validation</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
     </div>
 
         <nav>
