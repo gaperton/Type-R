@@ -29,7 +29,7 @@ Type-R is designed to be the substitution for BackboneJS, which was used extensi
 
 In its core, it's an engine for managing the _aggregation trees_ composed of nested Records and Collections. It contains no View, Router, REST, and jQuery/Underscore dependencies.
 
- | Type-R | BackboneJS | EmberJS | mobx
+Feature | Type-R | BackboneJS | EmberJS | mobx
 -|-|-|-|-
 View and Router | - | ✓ | ✓ | - |
 Models | ✓ | ✓ | ✓ | Objects as models
