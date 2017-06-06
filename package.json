@@ -17,7 +17,7 @@
     "prepublish": "node_modules/.bin/webpack -p",
     "test": "tests/nestedtypes/node_modules/.bin/mocha tests/nestedtypes/functionality",
     "build": "node_modules/.bin/tsc && npm run prepublish",
-    "docs": "~/.composer/vendor/bin/daux --source=docsource --destination=docs"
+    "docs": "node docs/build.js"
   },
   "repository": {
     "type": "git",

@@ -1,154 +1,301 @@
-<!DOCTYPE html>
-<!--[if lt IE 7]>       <html class="no-js ie6 oldie" lang="en"> <![endif]-->
-<!--[if IE 7]>          <html class="no-js ie7 oldie" lang="en"> <![endif]-->
-<!--[if IE 8]>          <html class="no-js ie8 oldie" lang="en"> <![endif]-->
-<!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
-<head>
-    <title>Type-R </title>
-    <meta name="description" content="Universal state management for JS" />
-    <meta name="author" content="Vlad Balin">
-    <meta charset="UTF-8">
-    <link rel="icon" href="themes/daux/img/favicon-navy.png" type="image/x-icon">
-    <!-- Mobile -->
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>API Reference</title>
 
-    <!-- Font -->
-    <link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700&subset=latin,cyrillic-ext,cyrillic' rel='stylesheet' type='text/css'>
-    <!-- CSS -->
-    <link href='themes/daux/css/theme-navy.min.css' rel='stylesheet' type='text/css'>
-            <!-- Tipue Search -->
-        <link href="tipuesearch/tipuesearch.css" rel="stylesheet">
-    
-    <!--[if lt IE 9]>
-    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-</head>
-<body class="">
-    <div class="Navbar hidden-print">
-    <div class="container">
-        <a class="Navbar__brand" href="index.html">Type-R</a>
+    <link rel="icon" href="images/type-r-logo-dark.png" />
+    <link href="lib/stylesheets/screen.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="lib/stylesheets/print.css" rel="stylesheet" type="text/css" media="print" />
+    <link href="lib/stylesheets/default.css" rel="stylesheet" type="text/css" />
 
-    <div class="Search">
-        <svg class="Search__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 451 451"><path d="M447.05 428l-109.6-109.6c29.4-33.8 47.2-77.9 47.2-126.1C384.65 86.2 298.35 0 192.35 0 86.25 0 .05 86.3.05 192.3s86.3 192.3 192.3 192.3c48.2 0 92.3-17.8 126.1-47.2L428.05 447c2.6 2.6 6.1 4 9.5 4s6.9-1.3 9.5-4c5.2-5.2 5.2-13.8 0-19zM26.95 192.3c0-91.2 74.2-165.3 165.3-165.3 91.2 0 165.3 74.2 165.3 165.3s-74.1 165.4-165.3 165.4c-91.1 0-165.3-74.2-165.3-165.4z"/></svg>
-        <input type="search" id="tipue_search_input" class="Search__field" placeholder="Search..." autocomplete="on" results=25 autosave=text_search>
+    <style>
+      .logo-section img {
+        vertical-align: middle;
+        margin: 15px;
+        height: 48px;
+      }
+
+      .logo-section .logo-text {
+        vertical-align: middle;
+        color: white;
+        display: inline-block;
+      }
+
+      .logo-section .logo-caption {
+        font-size: 28px;
+      }
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+      <script src="lib/javascripts/all.js" type="text/javascript"></script>
+
+      <script>
+        $(function() {
+          var langs = [];
+          setupLanguages( langs );
+        });
+      </script>
+  </head>
+
+  <body class="index">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="images/navbar.png" />
+      </span>
+    </a>
+    <div class="tocify-wrapper">
+      <div class="logo-section">
+        <img src="images/logo.png" />
+        <div class="logo-text">
+          <div class="logo-caption">Type-R</div>
+          <div>universal state management</div>
+        </div>
+        
+      </div>
+        <div class="lang-selector">
+        </div>
+        <div class="search">
+          <input type="text" class="search" id="input-search" placeholder="Search">
+        </div>
+        <ul class="search-results"></ul>
+      <div id="toc">
+      </div>
+        <ul class="toc-footer">
+                <li>Developed by <img style="vertical-align: middle" src="images/volicon_verizon_dm.png" href='#'/></li>
+        </ul>
     </div>
-    </div>
-</div>
+    <div class="page-wrapper">
+        <div class="content">
+          <h1 id="getting-started">Getting started</h1>
+<p>Type-R is the universal state management framework for both UI and domain state.</p>
+<p>Application state is described with the superposition of two main container types - <a href="04_Record/00_Overview.md">Record</a> and <a href="./05_Collection/00_Overview.md">Collection</a> of records. The state has observable changes and is serializable by default.</p>
+<ul>
+<li>Records are classes with typed attributes. They are protected from attributes assignment of incompatible types with run-time type assertions and conversions. Which means that the client-server protocol is protected from both ends.</li>
+<li>Records distinguish <a href="06_API_by_feature/01_Aggregation_tree.md">aggregated attributes</a> and those which are <a href="06_API_by_feature/04_Shared_objects.md">references to shared objects</a>. Aggregated attributes are serialized as nested JSON, while references might be <a href="06_API_by_feature/05_id-references_and_Stores.md">serialized as ids</a>. Operations like <code>clone()</code>, <code>dispose()</code>, and <code>toJSON()</code> are performed recursively on elements of aggregation tree.</li>
+<li>Type-R features declarative <a href="06_API_by_feature/03_Validation.md">validation</a> with attribute-level rules. Validation is transparent and lazily evaluated.</li>
+<li>Architecture does not depend on stores and singletons. <a href="05_API_by_feature/05_id-references_and_Stores.md">Stores</a> are optional and used for shared data only. There might be as many stores as you need, and they can be created and disposed dynamically.</li>
+<li>Type-R data structures are pretty efficient. They are about 10 times faster in real-world data scenarios than BackboneJS.</li>
+</ul>
+<h2 id="installation">Installation</h2>
+<p>Is packed as UMD and ES6 module. No side dependencies.</p>
+<p><code>npm install type-r --save-dev</code></p>
+<h2 id="requirements">Requirements</h2>
+<p>IE10+, Edge, Safari, Chrome, and Firefox are supported.</p>
+<p>IE9 and Opera may work but has not been tested. IE8 <em>won&#39;t work</em>.</p>
+<h2 id="how-the-type-r-compares-with-x-">How the Type-R compares with X?</h2>
+<p>Type-R is designed to be the substitution for BackboneJS, which was used extensively 3 years ago in Volicon/Verizon Observer products. While it largely backward compatible by its API with BackboneJS (for Events and Collections), it&#39;s entirely different internally.</p>
+<p>In its core, it&#39;s an engine for managing the <em>aggregation trees</em> composed of nested Records and Collections. It contains no View, Router, REST, and jQuery/Underscore dependencies.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Type-R</th>
+<th>BackboneJS</th>
+<th>EmberJS</th>
+<th>mobx</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>View and Router</td>
+<td>-</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Models</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>Objects as models</td>
+</tr>
+<tr>
+<td>Collections</td>
+<td>✓</td>
+<td>✓</td>
+<td>modeled as relations</td>
+<td>Arrays as collections</td>
+</tr>
+<tr>
+<td>Nested Data Strictures</td>
+<td>as aggregation trees and relations</td>
+<td>-</td>
+<td>as relations</td>
+<td>as object graph</td>
+</tr>
+<tr>
+<td>Relations by id</td>
+<td>resolved agains the chain of dynamic stores</td>
+<td>-</td>
+<td>resolved agains the global store</td>
+<td>- </td>
+</tr>
+<tr>
+<td>JSON Serialization</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Validation</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
 
-<div class="Homepage">
-    <div class="HomepageTitle container">
-        <h2>Universal state management for JS</h2>    </div>
+<h1 id="mixins">Mixins</h1>
+<h2 id="decorators">Decorators</h2>
+<p>Type-R is based on mixins with configurable properties merge rules.</p>
+<h3 id="-decorator-mixins-mixina-mixinb-class-x-"><code>decorator</code> @mixins( mixinA, mixinB, ... ) class X ...</h3>
+<p>Merge specified mixins to the class definition. Both plain JS object and class constructor may be used as mixin. In the case of the class constructor, missing static members will copied over as well.</p>
+<pre><code class="highlight javascript">    <span class="hljs-keyword">import</span> { mixins, Events } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
+    ...
 
-    <div class="HomepageImage container">
-        <img class="homepage-image img-responsive" src="voliconverizon.png" alt="Type-R">    </div>
+    @mixins( Events, plainObject, MyClass, ... )
+    class X {
+        ...
+    }
+</code></pre>
+<h3 id="-decorator-mixinrules-propname-rule-class-"><code>decorator</code> @mixinRules({ propName : <code>rule</code>, ... }) class ...</h3>
+<p>Specified class properties will be merged according to the given rule.
+Rules can be extended and overridden in any subclass.</p>
+<h2 id="mixin-rules">Mixin rules</h2>
+<h3 id="-rule-propname-merge-"><code>rule</code> propName : &#39;merge&#39;</h3>
+<p>Assume the property to be an object. Merge objects from mixins.</p>
+<h3 id="-rule-propname-name1-rule-"><code>rule</code> propName : { name1 : <code>rule</code>, ... }</h3>
+<p>Assume the property to be an object. Recursively define merge rules for its properties.</p>
+<h3 id="-rule-propname-pipe-"><code>rule</code> propName : &#39;pipe&#39;</h3>
+<p>Assume the property to be the function with a signature <code>( x : T ) =&gt; T</code>. Join functions from mixins in a pipe: <code>f1( f2( f3( x ) ) )</code>.</p>
+<h3 id="-rule-propname-sequence-"><code>rule</code> propName : &#39;sequence&#39;</h3>
+<p>Assume the property to be the function. Call functions from mixins in sequence: <code>f1.apply( this, arguments ); f2.apply( this, arguments );...</code></p>
+<h3 id="-rule-propname-reverse-"><code>rule</code> propName : &#39;reverse&#39;</h3>
+<p>Same as sequence, but functions are called in the reverse sequence.</p>
+<h3 id="-rule-propname-mergesequence-"><code>rule</code> propName : &#39;mergeSequence&#39;</h3>
+<p>Assume the property to be the function returning object. Merge objects returned by functions from mixins, executing them in sequence.</p>
+<h3 id="-rule-propname-every-"><code>rule</code> propName : &#39;every&#39;</h3>
+<p>Assume property to be the function returning boolean. Return <code>true</code> if all functions from mixins return truthy values.</p>
+<h3 id="-rule-propname-some-"><code>rule</code> propName : &#39;some&#39;</h3>
+<p>Same as <code>every</code>, but return true when at least one function from mixins returns true.</p>
+<h1 id="events">Events</h1>
+<p>Both <code>Record</code> and <code>Collection</code> uses an efficient synchronous events implementation which is compatible with Backbone 1.1 Events API but is twice faster in average. It comes in form of <code>Events</code> mixin and the <code>Messenger</code> base class.</p>
+<p>An implementation is optimized for the large amount of relatively small subscriptions (5-10 events). Here are the benchmark results (lower is the better).</p>
+<p><img src="./events-performance.jpg" alt="performance"></p>
+<p>It is also available separately as part of <a href="https://github.com/Volicon/MixtureJS">MixtureJS</a> package.</p>
+<h2 id="events-mixin">Events mixin</h2>
+<p><code>Events</code> is a <a href="11_Mixins.md">mixin</a> giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { mixins, Events } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
-    <div class="HomepageButtons">
-        <div class="container">
-            <a href="https://github.com/Volicon/Type-R" class="Button Button--secondary Button--hero">View On GitHub</a><a href="Getting_Started.html" class="Button Button--primary Button--hero">View Documentation</a>            <div class="clearfix"></div>
+@mixins( Events )
+class Messenger {
+    ...
+}
+</code></pre>
+<blockquote>
+<p><code>Messenger</code> abstract base class is included with Type-R, see below.</p>
+</blockquote>
+<h3 id="eventssource-trigger-event-arg1-arg2-">eventsSource.trigger(event, arg1, arg2, ... )</h3>
+<p>Trigger callbacks for the given event, or space-delimited list of events. Subsequent arguments to trigger will be passed along to the event callbacks.</p>
+<h2 id="messenger">Messenger</h2>
+<p>Messenger is an abstract base class implementing Events mixin and some convenience methods.
+As all Type-R classes, its definition must be preceded with the <code>@define</code> decorator.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, Messenger } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
+
+@define class MyMessenger extends Messenger {
+
+}
+</code></pre>
+<h3 id="-readonly-messenger-cid"><code>readonly</code> messenger.cid</h3>
+<p>Unique run-time only messenger instance id (string).</p>
+<h3 id="messenger-initialize-">messenger.initialize()</h3>
+<p>Callback which is called at the end of the constructor.</p>
+<h3 id="messenger-dispose-">messenger.dispose()</h3>
+<p>Executes <code>messenger.stopListening()</code> and <code>messenger.off()</code>.</p>
+<p>Objects must be disposed to prevent memory leaks caused by subscribing for events from singletons.</p>
+<h2 id="high-level-listening-api">High-level listening API</h2>
+<p>All high-level event subscriptions are stopped automatically on the listener&#39;s disposal, and thus does not introduce memory leaks.</p>
+<p>This is the preferable listening API and must be used in all application code.</p>
+<h3 id="listener-listento-other-event-callback-">listener.listenTo(other, event, callback)</h3>
+<p>Tell an object to listen to a particular event on an other object. The advantage of using this form, instead of other.on(event, callback, object), is that listenTo allows the object to keep track of the events, and they can be removed all at once later on. The callback will always be called with object as context.</p>
+<pre><code class="highlight javascript">    view.listenTo(record, <span class="hljs-string">'change'</span>, view.render );
+</code></pre>
+<h3 id="listener-stoplistening-other-event-callback-">listener.stopListening([other], [event], [callback])</h3>
+<p>Tell an object to stop listening to events. Either call stopListening with no arguments to have the object remove all of its registered callbacks ... or be more precise by telling it to remove just the events it&#39;s listening to on a specific object, or a specific event, or just a specific callback.</p>
+<pre><code class="highlight javascript">    view.stopListening(); <span class="hljs-comment">// Unsubscribe from all events</span>
+
+    view.stopListening(record); <span class="hljs-comment">// Unsubscribe from all events from the record</span>
+</code></pre>
+<p>All Type-R classes execute <code>this.stopListening()</code> from their <code>dispose()</code> method.</p>
+<h3 id="listener-listentoonce-other-event-callback-">listener.listenToOnce(other, event, callback)</h3>
+<p>Just like listenTo, but causes the bound callback to fire only once before being removed.</p>
+<h2 id="low-level-listening-api">Low-level listening API</h2>
+<p>This API is more efficient but requires manual action to stop the subscription. Must be used with care.</p>
+<h3 id="eventsource-on-event-callback-context-">eventSource.on(event, callback, [context])</h3>
+<p>Bind a callback function to an object. The callback will be invoked whenever the event is fired. If you have a large number of different events on a page, the convention is to use colons to namespace them: <code>poll:start</code>, or <code>change:selection</code>. The event string may also be a space-delimited list of several events...</p>
+<pre><code class="highlight javascript">    book.on(<span class="hljs-string">"change:title change:author"</span>, ...);
+</code></pre>
+<p>Callbacks bound to the special &quot;all&quot; event will be triggered when any event occurs, and are passed the name of the event as the first argument. For example, to proxy all events from one object to another:</p>
+<pre><code class="highlight javascript">    proxy.on(<span class="hljs-string">"all"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">eventName</span>) </span>{
+        object.trigger(eventName);
+    });
+</code></pre>
+<p>All event methods also support an event map syntax, as an alternative to positional arguments:</p>
+<pre><code class="highlight javascript">    book.on({
+        <span class="hljs-string">"change:author"</span>: authorPane.update,
+        <span class="hljs-string">"change:title change:subtitle"</span>: titleView.update,
+        <span class="hljs-string">"destroy"</span>: bookView.remove
+    });
+</code></pre>
+<p>To supply a context value for this when the callback is invoked, pass the optional last argument: <code>record.on(&#39;change&#39;, this.render, this)</code> or <code>record.on({change: this.render}, this)</code>.</p>
+<h3 id="eventsource-off-event-callback-context-">eventSource.off([event], [callback], [context])</h3>
+<p>Remove a previously bound callback function from an object. If no context is specified, all of the versions of the callback with different contexts will be removed. If no callback is specified, all callbacks for the event will be removed. If no event is specified, callbacks for all events will be removed.</p>
+<pre><code class="highlight javascript">    <span class="hljs-comment">// Removes just the `onChange` callback.</span>
+    object.off(<span class="hljs-string">"change"</span>, onChange);
+
+    <span class="hljs-comment">// Removes all "change" callbacks.</span>
+    object.off(<span class="hljs-string">"change"</span>);
+
+    <span class="hljs-comment">// Removes the `onChange` callback for all events.</span>
+    object.off(<span class="hljs-literal">null</span>, onChange);
+
+    <span class="hljs-comment">// Removes all callbacks for `context` for all events.</span>
+    object.off(<span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, context);
+
+    <span class="hljs-comment">// Removes all callbacks on `object`.</span>
+    object.off();
+</code></pre>
+<p>Note that calling <code>record.off()</code>, for example, will indeed remove all events on the record — including events that Backbone uses for internal bookkeeping.</p>
+<h3 id="eventssource-once-event-callback-context-">eventsSource.once(event, callback, [context])</h3>
+<p>Just like <code>on()</code>, but causes the bound callback to fire only once before being removed. Handy for saying &quot;the next time that X happens, do this&quot;. When multiple events are passed in using the space separated syntax, the event will fire once for every event you passed in, not once for a combination of all events</p>
+<h2 id="record-events">Record events</h2>
+<h3 id="-event-change-attrname-record-value-options-"><code>event</code> &quot;change:attrName&quot; (record, value, options)</h3>
+<p>When a specific attribute has been updated</p>
+<h3 id="-event-change-record-options-"><code>event</code> &quot;change&quot; (record, options)</h3>
+<p>When a record&#39;s attributes have changed.</p>
+<h2 id="collection-events">Collection events</h2>
+<h3 id="-event-changes-collection-options-"><code>event</code> &quot;changes&quot; (collection, options)</h3>
+<p>The main change event. Single event triggered when the collection has been changed.</p>
+<h3 id="-event-update-collection-options-"><code>event</code> &quot;update&quot; (collection, options)</h3>
+<p>Single event triggered after any number of records have been added or removed from a collection.</p>
+<h3 id="-event-reset-collection-options-"><code>event</code> &quot;reset&quot; (collection, options)</h3>
+<p>When the collection&#39;s entire contents have been reset.</p>
+<h3 id="-event-sort-collection-options-"><code>event</code> &quot;sort&quot; (collection, options)</h3>
+<p>When the collection has been re-sorted.</p>
+<h3 id="-event-add-record-collection-options-"><code>event</code> &quot;add&quot; (record, collection, options)</h3>
+<p>When a record is added to a collection.</p>
+<h3 id="-event-remove-record-collection-options-"><code>event</code> &quot;remove&quot; (record, collection, options)</h3>
+<p>When a record is removed from a collection.</p>
+<h3 id="-event-change-record-options-"><code>event</code> &quot;change&quot; (record, options)</h3>
+<p>When a record&#39;s attributes have changed.</p>
         </div>
     </div>
-</div>
-
-<div class="HomepageContent">
-    <div class="container">
-        <div class="container--inner">
-            <div class="doc_content s-content">
-                <p class="lead">
-	<strong>Type-R</strong> is the modern state management JS framework designed to handle both UI and domain application state.
-</p>
-<hr/>
-<br/>
-<div class=row>
-<div class=col-third>
-<h3 id="page_JSON+Serialization">JSON Serialization</h3>
-<ul>
-<li>State is serializable by default.</li>
-<li>Both nested JSON and relations by id are supported.</li>
-</ul>
-</div>
-<div class=col-third>
-<h3 id="page_Validation">Validation</h3>
-<ul>
-<li>Declarative validation checks.</li>
-<li>Validation is lazily evaluated.</li>
-</ul>
-</div>
-<div class=col-third>
-<h3 id="page_Dynamic+type-safety">Dynamic type-safety</h3>
-<ul>
-<li>State elements are <em>typed</em>.</li>
-<li>Client-server communication is guarded against
-type errors from both ends.</li>
-</ul>
-</div>
-</div>
-<div class=row>
-<div class=col-third>
-<h3 id="page_Observable+Changes">Observable Changes</h3>
-<ul>
-<li>Changes are observable by default.</li>
-</ul>
-</div>
-<div class=col-third>
-<h3 id="page_Scalability">Scalability</h3>
-<ul>
-<li>Not dependent on singletons.</li>
-<li>Stores are optional and can be created dynamically.</li>
-</ul>
-</div>
-<div class=col-third>
-<h3 id="page_Performance">Performance</h3>
-<ul>
-<li>10 times faster than BackboneJS in all browsers.</li>
-</ul>
-</div>
-</div>
-<hr/>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="HomepageFooter">
-    <div class="container">
-        <div class="container--inner">
-                            <ul class="HomepageFooter__links">
-                    <li><a href="http://volicon.com" target="_blank">Supported by <img style="vertical-align: middle" path="images/volicon_verizon_dm.png"/></a></li><li><a href="https://github.com/Volicon/Type-R/issues" target="_blank">Ask question or report the bug</a></li>                </ul>
-            
-                            <div class="HomepageFooter__twitter">
-                                        <div class="Twitter">
-                        <iframe allowtransparency="true" frameborder="0" scrolling="no" style="width:162px; height:20px;" src="https://platform.twitter.com/widgets/follow_button.html?screen_name=gaperton&amp;show_count=false"></iframe>
-                    </div>
-                                    </div>
-                    </div>
-    </div>
-    <div class="clearfix"></div>
-</div>
-
-    
-    <!-- jQuery -->
-    <script src="themes/daux/js/jquery-1.11.3.min.js"></script>
-
-    <!-- hightlight.js -->
-    <script src="themes/daux/js/highlight.pack.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
-
-    <!-- JS -->
-    
-    <script src="themes/daux/js/daux.js"></script>
-
-            <!-- Tipue Search -->
-        <script type="text/javascript" src="tipuesearch/tipuesearch.js"></script>
-
-        <script>
-            window.onunload = function(){}; // force $(document).ready to be called on back/forward navigation in firefox
-            $(function() {
-                tipuesearch({
-                    'base_url': ''
-                });
-            });
-        </script>
-    
-</body>
+  </body>
 </html>
