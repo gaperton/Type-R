@@ -25,15 +25,16 @@ IE9 and Opera may work but has not been tested. IE8 _won't work_.
 # FAQ
 ## How the Type-R compares with X?
 
-Type-R is designed to be the substitution for BackboneJS, which was used extensively 3 years ago in Volicon/Verizon Observer products. While it shares some parts of its API with BackboneJS (for Events, Collections, and Models), it's entirely different internally.
+Type-R is designed to be the substitution for BackboneJS, which was used extensively 3 years ago in Volicon/Verizon Observer products. While it largely backward compatible by its API with BackboneJS (for Events and Collections), it's entirely different internally.
 
-In its core, it's an engine for managing the _aggregation trees_ composed of nested Records and Collections.
+In its core, it's an engine for managing the _aggregation trees_ composed of nested Records and Collections. It contains no View, Router, REST, and jQuery/Underscore dependencies.
 
  | Type-R | BackboneJS | EmberJS | mobx
 -|-|-|-|-
 View and Router | - | ✓ | ✓ | - |
 Models | ✓ | ✓ | ✓ | Objects as models
 Collections | ✓ | ✓ | modeled as relations | Arrays as collections
-Nested Data | ✓ | - | modeled as relations | ✓
-Relations by id | ✓ | - | ✓ | - 
+Nested Data Strictures | as aggregation trees and relations | - | as relations | as object graph
+Relations by id | resolved agains the chain of dynamic stores | - | resolved agains the global store | - 
 JSON Serialization | ✓ | ✓ | ✓ | -
+Validation | ✓ | ✓ | ✓ | -
