@@ -1,3 +1,7 @@
+# Aggregation tree
+
+## Aggregation tree methods
+
 Record's attributes can hold other Records and Collections, forming indefinitely nested data structures of arbitrary complexity.
 To create nested record or collection you should just mention its constructor function in attribute's definition.
 
@@ -26,8 +30,6 @@ All nested records and collections are *aggregated* by default and behave as int
 - They are disposed when the record is disposed.
 - They are validated as part of the record.
 - They are serialized as nested JSON.
-
-# Aggregation tree methods
 
 ### recordOrCollection.getOwner()
 
@@ -66,3 +68,41 @@ clonedRecord.assignFrom( record );
 Recursively dispose the record and its aggregated members. "Dispose" means that elements of the aggregation tree will unsubscribe from all event sources. It's crucial to prevent memory leaks in SPA.
 
 The whole aggregation tree will be recursively disposed, shared members won't.
+
+All records and collections except [shared objects](04_Shared_objects.md) are serializable by default as nested JSON reflecting the structure of their aggregation tree.
+
+## Shared objects
+
+Record's attributes can hold the records and collections from _other_ aggregation trees if they are marked as `shared`.
+
+### `attrDef` attr : RecordOrCollection.shared
+
+Record's attribute with a reference to the shared record or collection.
+
+- It's initialized with `null`
+- It's not cloned when the record is cloned (just the reference is copied over).
+- It's not disposed when the record is disposed.
+- It's not validated as part of the record (always valid by default)
+- It's excluded from serialization.
+
+```javascript
+@define class UsersListState extends Record {
+    static attributes = {
+        users : User.Collection,
+        selected : User.shared // Can be assigned with the user from this.users
+    }
+}
+```
+
+### `attrDef` attr : Collection.Refs
+### new Collection.Refs()
+
+Collection of references to shared records, which _does not aggregate_ its elements. In contrast to the `Collection.shared`, `Collection.Refs` creates an instance of collection which _is the part the parent record_. Still, its items are not validated and serialized.
+
+```javascript
+    @define class MyRecord extends Record {
+        static attributes = {
+            notCloned : SomeCollection.shared, // Reference to the _shared collection_ object.
+            cloned : SomeCollection.Refs // _Aggregated_ collection of references to the _shared records_.
+    }
+```

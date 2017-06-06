@@ -1,4 +1,4 @@
-All records and collections except [shared objects](04_Shared_objects.md) are serializable by default as nested JSON reflecting the structure of their aggregation tree.
+# Serialization
 
 ## Serialization API
 

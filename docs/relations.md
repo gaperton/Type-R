@@ -1,4 +1,6 @@
-# Record's id
+# Relations by id
+
+## Record's id
 
 ### record.id
 
@@ -33,7 +35,7 @@ alert("Cake id: " + cake.id);
 
 Has this record been saved to the server yet? If the record does not yet have an `id`, it is considered to be new.
 
-# id-references
+## id-references
 
 Serializable references to shared records are called an _id-references_. It is represented as `record.id` in JSON,
 and there must be the populated master collection of records on the client in order to resolve ids on parse.
@@ -58,10 +60,12 @@ Serialized as an array of record ids.
 `sourceCollection` may be the string with the dot-separated _relative object path_ to the collection.
 In this case, it is resolved dynamically relative to the record's `this`.
 
+```javascript
     @define class State extends Record {
         items : Item.Collection,
         selected : Record.from( 'items' ) // Will resolve to `this.items`
     }
+```
 
 ### `sourceCollection` '^path.relative.to.owner'
 
@@ -69,7 +73,7 @@ In this case, it is resolved dynamically relative to the record's `this`.
 
 > It's recommended to use tilda-references and stores instead.
 
-# Stores and tilda-references
+## Stores and tilda-references
 
 ### `abstract class` Store
 ### `sourceCollection` '~path.relative.to.store'
