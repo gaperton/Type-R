@@ -68,11 +68,29 @@ Record's attributes definition. Lists attribute names along with their types, de
 
 The Record guarantee that _every attribute will retain the value of the declared type_. Whenever an attribute is being assigned with the value which is not compatible with its declared type, the type is being converted with an invocation of the constructor: `new Type( value )` (primitive types are treated specially).
 
-### `attrDef` name : Type
+### `static` idAttribute = 'attrName'
+
+A record's unique identifier is stored under the pre-defined `id` attribute.
+If you're directly communicating with a backend (CouchDB, MongoDB) that uses a different unique key, you may set a Record's `idAttribute` to transparently map from that key to id.
+
+Record's `id` property will still be linked to Record's id, no matter which value `idAttribute` has.
+
+```javascript
+@define class Meal extends Record {
+  static idAttribute =  "_id";
+  static attributes = {
+      _id : Number,
+      name : ''
+  }
+}
+
+const cake = new Meal({ _id: 1, name: "Cake" });
+alert("Cake id: " + cake.id);
+```
+
+### `attrDef` : Type
 
 When the function is used as `attrDef`, it's treated as the constructor function. Any constructor function which behaves as _converting constructor_ (like `new Date( msecs )`) may be used as an attribute type.
-
-You can use other record's and collection's constructors as attribute types. They will be treated as an _integral part_ of the record (created, serialized, validated, and disposed together), i.e. as _aggregated members_.
 
 ```javascript
 @define class Person extends Record {
@@ -84,7 +102,7 @@ You can use other record's and collection's constructors as attribute types. The
 }
 ```
 
-### `attrDef` name : defaultValue
+### `attrDef` : defaultValue
 
 When value of other type than function is used as `attrDef` it's treated as attribute's default value. Attribute's type is being inferred from the value.
 
@@ -100,7 +118,7 @@ Use the general form of attribute definition for attributes of `Function` type: 
 }
 ```
 
-### `attrDef` name : Type.value( defaultValue )
+### `attrDef` : Type.value( defaultValue )
 
 The general form of attribute definition is `Type.value( defaultValue )`, where the `Type` is the corresponding constructor function.
 
@@ -113,7 +131,179 @@ The general form of attribute definition is `Type.value( defaultValue )`, where 
 }
 ```
 
-## Create
+The record is _recursive_ if it's uses the type of itself in its attribute definition.
+
+### `attrDef` : Date
+
+Date attribute initialized as `new Date()`. Represented in JSON as string or number depending on the type:
+
+* `Date` - as ISO date string.
+* `Date.microsoft` - as Microsoft's `"/Date(msecs)/"` string.
+* `Date.timestamp` - as UNIX integer timestamp.
+
+### `static` Collection
+
+The default record's collection class automatically defined for every Record subclass. Can be referenced as `Record.Collection`.
+
+May be explicitly assigned in record's definition with custom collection class.
+
+```javascript
+// Declare the collection class.
+@define class Comments extends Record.Collection {}
+
+@define class Comment extends Record({
+    static Collection = Comments; // Make it the default Comment collection.
+
+    attributes : {
+        text : String,
+        replies : Comments
+    }
+});
+```
+
+## Nested records and collections
+
+Record's attributes can hold other Records and Collections, forming indefinitely nested data structures of arbitrary complexity.
+To create nested record or collection you should just mention its constructor function in attribute's definition.
+
+```javascript
+import { Record } from 'type-r'
+
+@define class User extends Record {
+    static attributes = {
+        name : String,
+        email : String,
+        isActive : true
+    }
+}
+
+@define class UsersListState extends Record {
+    static attributes = {
+        users : User.Collection
+    }
+}
+```
+
+All nested records and collections are *aggregated* by default and behave as integral parts of the containing record. Aggregated attributes are _exclusively owned_ by the record, and taken with it together form an _ownership tree_. Many operations are performed recursively on aggregated elements:
+
+- They are created when the owner record is created.
+- They are cloned when the record is cloned.
+- They are disposed when the record is disposed.
+- They are validated as part of the record.
+- They are serialized as nested JSON.
+
+### `attrDef` : RecordOrCollection
+
+Aggregated record or collection. Represented as nested object or array in record's JSON. Aggregated members are owned by the record and treated as its _integral part_ (recursively created, cloned, serialized, validated, and disposed).
+One object can have single owner. The record with its aggregated attributes forms an _aggregation tree_.
+
+All changes in aggregated record or collections are detected and cause change events on the containing record.
+
+### record.getOwner()
+
+Return the record which is an owner of the current record, or `null` there are no one.
+
+Due to the nature of _aggregation_, an object may have one and only one owner.
+
+### record.collection
+
+Return the collection which aggregates the record, or `null` if there are no one.
+
+### `attrDef` : RecordOrCollection.shared
+
+Non-serializable reference to the record or collection possibly from the different aggregation tree. Initialized with `null`. Is not recursively cloned, serialized, validated, or disposed.
+
+All changes in shared records or collections are detected and cause change events of the containing record.
+
+<aside class="notice">The type of <code>attrDef</code>{ name : defaultValue } is inferred as `Type.shared` if it extends Record or Collection</aside>
+
+```javascript
+@define class UsersListState extends Record {
+    static attributes = {
+        users : User.Collection,
+        selected : User.shared // Can be assigned with the user from this.users
+    }
+}
+```
+
+### `attrDef` : Collection.Refs
+
+Non-aggregating collection. Collection of references to shared records which itself is _aggregated_ by the record, but _does not aggregate_ its elements. In contrast to the `Collection.shared`, `Collection.Refs` creates an instance of collection which _is the part the parent record_.
+
+The collection itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, serialized, or disposed.
+
+All changes in the collection and its elements are detected and cause change events of the containing record.
+
+<aside class="notice"><code>Collection.Refs</code> is the constructor and can be used to create non-aggregating collection with `new` operator.</aside>
+
+```javascript
+    @define class MyRecord extends Record {
+        static attributes = {
+            notCloned : SomeCollection.shared, // Reference to the _shared collection_ object.
+            cloned : SomeCollection.Refs // _Aggregated_ collection of references to the _shared records_.
+    }
+```
+
+### `attrDef` : Record.from( `sourceCollection` )
+
+Serializable reference to the record from the particular collection.
+Initialized as `null` and serialized as `record.id`. Is not recursively cloned, validated, or disposed. Used to model one-to-many relationships.
+
+Changes in shared record are not detected.
+
+`sourceCollection` may be the singleton collection, the function returning the collection, or the string with the dot-separated _relative object path_ to the collection. In the last case, it is resolved dynamically relative to the record's `this`.
+
+```javascript
+    @define class State extends Record {
+        items : Item.Collection,
+        selected : Record.from( 'items' ) // Will resolve to `this.items`
+    }
+```
+
+`^` symbol in path is being translated to the `getOwner()` call.
+
+<aside class="info">It's recommended to use ~paths and stores instead of ^paths.</aside>
+
+### `attrDef` : Collection.subsetOf( `sourceCollection` )
+
+Serializable non-aggregating collection which is the subset of the particular collection. Serialized as an array of record ids. Used to model many-to-many relationships.
+
+The collection itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, or disposed.
+
+`sourceCollection` may be the same as for `Record.from()`.
+
+### `attrDef` : Type.has.changeEvents( false )
+
+Turn off changes observation for nested records or collections.
+
+Record automatically listens to change events of all nested records and collections, triggering appropriate change events for its attributes. This declaration turns it off for the specific attribute.
+
+### `attrDef` : Type.has.events({ eventName : handler, ... })
+
+Automatically manage custom event subscription for the attribute. `handler` is either the method name or the handler function.
+
+### `decorator` @predefine
+
+Make forward declaration for the record to define its attributes later with `RecordClass.define()`. Used instead of `@define` for recursive record definitions.
+
+Creates the default `RecordClass.Collection` type which can be referenced in attribute definitions.
+
+### `static` define({ attributes : { name : `attrDef`, ... } })
+
+May be called to define attributes in conjunction with `@predefine` decorator to make recursive record definitions.
+
+```javascript
+@predefine class Comment extends Record{}
+
+Comment.define({
+    attributes : {
+        text : String,
+        replies : Comment.Collection
+    }
+});
+```
+
+## Create and dispose
 
 Record behaves as regular ES6 class with attributes accessible as properties.
 
@@ -145,16 +335,44 @@ const book = new Book({
 });
 ```
 
-### `abstract` record.initialize( attrs?, options? )
+### record.clone()
+
+Create the deep copy of the aggregation tree, recursively cloning all aggregated records and collections. References to shared members will be copied, but not shared members themselves.
+
+### `callback` record.initialize( attrs?, options? )
 
 Called at the end of the `Record` constructor when all attributes are assigned and the record's inner state is properly initialized. Takes the same arguments as
 a constructor.
+
+### record.dispose()
+
+Recursively dispose the record and its aggregated members. "Dispose" means that elements of the aggregation tree will unsubscribe from all event sources. It's crucial to prevent memory leaks in SPA.
+
+The whole aggregation tree will be recursively disposed, shared members won't.
+
+All records and collections except [shared objects](04_Shared_objects.md) are serializable by default as nested JSON reflecting the structure of their aggregation tree.
+
+## Read and Update
+
+### record.cid
+
+Read-only client-side record's identifier. Generated upon creation of the record and is unique for every record's instance. Cloned records will have different `cid`.
+
+### record.id
+
+Predefined record's attribute, the `id` is an arbitrary string (integer id or UUID). `id` is typically generated by the server. It is used in JSON for id-references.
+
+Records can be retrieved by `id` from collections, and there can be just one instance of the record with the same `id` in the particular collection.
+
+### record.isNew()
+
+Has this record been saved to the server yet? If the record does not yet have an `id`, it is considered to be new.
 
 ### record.attrName
 
 Record's attributes may be directly accessed as `record.name`.
 
-> Please note, that you *have to declare all attributes* in `static attributes` declaration.
+<aside class="warning">Please note, that you *have to declare all attributes* in `static attributes` declaration.</aside>
 
 ```javascript
 @define class Account extends Record {
@@ -167,8 +385,6 @@ Record's attributes may be directly accessed as `record.name`.
 const myAccount = new Account({ name : 'mine' });
 myAccount.balance += 1000000; // That works. Good, eh?
 ```
-
-## Update
 
 ### record.attrName = value
 
@@ -217,17 +433,6 @@ Record triggers events after all changes are applied:
 1. `change:attrName` *( record, val, options )* for any changed attribute.
 2. `change` *(record, options)*, if there were changed attributes.
 
-### `options` { parse : true }
-
-Assume `record.set` argument is the raw JSON and parse it. Must be used to process the response from the server.
-
-```javascript
-// Another way of doing the bestSeller.clone()
-// Amazingly, this is guaranteed to work by default.
-const book = new Book();
-book.set( bestSeller.toJSON(), { parse : true } );
-```
-
 ### record.assignFrom( otherRecord )
 
 Makes an existing `record` to be the full clone of `otherRecord`, recursively assigning all attributes.
@@ -258,41 +463,19 @@ Manual transactions with attribute assignments are superior to `record.set()` in
 
 ## Change events
 
-Object tree formed by nested records and collection is deeply observable by default; changes in every attribute trigger change events for the record and all parent elements in sequence.
+Record implements all methods Messenger class has.
 
-Record triggers following events on change:
+### `event` "change" ( record )
 
-- `change:attrName` *( record, value )* for every changed attribute.
-- `change` *( record )* when record is changed.
+Triggered by the record at the end of the attributes update transaction in case if there were any changes applied.
 
-### `attrDef` attr : Type.has.changeEvents( false )
+### `event` "change:attrName" ( record, value )
 
-Record automatically listens to change events of all nested records and collections, triggering appropriate change events for its attributes. This declaration turns it off for the specific attribute.
+Triggered by the record during the attributes update transaction for every changed attribute.
 
-## Listening to changes with Events API
+### `attrDef` : Type.has.watcher( watcher )
 
-[Events API](../10_Events.md) is used for managing events subscriptions.
-
-### listener.listenTo( record, event, handler )
-
-[Events API](../10_Events.md) method used to listen to the any of the change events.
-
-### listener.stopListening( record )
-
-[Events API](../10_Events.md) method to explicitly stop all event subscriptions from the record.
-
-Not needed if the listener is other record or collection.
-
-## Listening to events in a record
-
-Record has declarative API for managing custom event subscriptions for its attributes.
-
-### `attrDef` attr : Type.has.watcher( 'methodName' )
-### `attrDef` attr : Type.has.watcher( function( value, name ){ ... } )
-
-Attach `change:attr` event listener to the particular record's attribute.
-
-_Watcher function_ has the signature `( attrValue, attrName ) => void` and is executed in the context of the record. Note that it differs from the event signature.
+Attach `change:attr` event listener to the particular record's attribute. `watcher` can either be the record's method name or the function `( newValue, attr ) => void`. Watcher is always executed in the context of the record.
 
 ```javascript
 @define class User extends Record {
@@ -307,14 +490,6 @@ _Watcher function_ has the signature `( attrValue, attrName ) => void` and is ex
     }
 }
 ```
-
-### `attrDef` attr : Type.has.events({ eventName : handler, ... })
-
-Automatically manage custom event subscription for the attribute. `handler` is either the method name or the handler function.
-
-## Change inspection methods
-
-Following API might be useful in change event listeners.
 
 ### record.changed
 
@@ -355,3 +530,188 @@ bill.name = "Bill Jones";
 ### record.previousAttributes()
 
 Return a copy of the record's previous attributes. Useful for getting a diff between versions of a record, or getting back to a valid state after an error occurs.
+
+## Serialization
+
+### record.toJSON()
+
+Produces the JSON for the given record and its aggregated members. Aggregation tree is serialized as nested JSON. Record corresponds to an object in JSON, while the collection is represented as an array.
+
+May be overridden in the particular record class.
+
+```javascript
+@define class Comment extends Record {
+    static attributes = {
+        body : ''
+    }
+}
+
+@define class BlogPost extends Record {
+    static attributes = {
+        title : '',
+        body : '',
+        comments : Comment.Collection
+    }
+}
+
+const post = new BlogPost({
+    title: "Type-R is cool!",
+    comments : [ { body : "Agree" }]
+});
+
+const rawJSON = post.toJSON()
+// { title : "Type-R is cool!", body : "", comments : [{ body : "Agree" }] }
+```
+
+### `attrDef` : Type.has.toJSON( false )
+
+Do _not_ serialize the specific attribute.
+
+### `attrDef` : Type.has.toJSON( ( value, name ) => json )
+
+Override the default serialization for the specific record's attribute.
+
+Attribute is not serialized when the function return `undefined`.
+
+### `option` { parse : true }
+
+`record.set` and constructor's option to force parsing of the raw JSON.
+
+Must be used to process the data received from the server.
+
+```javascript
+// Another way of doing the bestSeller.clone()
+// Amazingly, this is guaranteed to work by default.
+const book = new Book();
+book.set( bestSeller.toJSON(), { parse : true } );
+```
+
+### `callback` record.parse( json )
+
+Invoked internally when `{ parse : true }` option is passed. May be overridden to define custom JSON transformation. Should not be called explicitly.
+
+### `attrDef` : Type.has.parse( ( json, name ) => value )
+
+Transform the data before it will be assigned to the record's attribute.
+
+Invoked when the `{ parse : true }` option is set.
+
+```javascript
+// Define custom boolean attribute type which is serialized as 0 or 1.
+const MyWeirdBool = Boolean.has
+                      .parse( x => x === 1 )
+                      .toJSON( x => x ? 1 : 0 );
+```
+
+### `static` create( attrs, options )
+
+Static factory function used internally by Type-R to create instances of the record.
+
+May be redefined in the abstract Record base class to make it serializable type.
+
+```javascript
+@define class Widget extends Record {
+    static attributes = {
+        type : String
+    }
+
+    static create( attrs, options ){
+        switch( attrs.type ){
+            case "typeA" : return new TypeA( attrs, options );
+            case "typeB" : return new TypeB( attrs, options );
+        }
+    }
+}
+
+@define class TypeA extends Widget {
+    static attributes = {
+        type : "typeA",
+        ...
+    }
+}
+
+@define class TypeB extends Widget {
+    static attributes = {
+        type : "typeB",
+        ...
+    }
+}
+```
+
+## Validation
+
+Validation happens transparently on the first access to any part of the validation API. Validation results are cached. Only the required parts of aggregation tree will be validated again
+
+### `attrDef` : Type.has.check( predicate, errorMsg? )
+
+Attribute-level validator.
+
+- `predicate : value => boolean` is the function taking attribute's value and returning `true` whenever the value is valid.
+- optional `errorMsg` is the error message which will be passed in case if the validation fail.
+
+If `errorMsg` is omitted, error message will be taken from `predicate.error`. It makes possible to define reusable validation functions.
+
+```javascript
+function isAge( years ){
+    return years >= 0 && years < 200;
+}
+
+isAge.error = "Age must be between 0 and 200";
+```
+
+Attribute may have any number of checks attached, which are execute in sequence. Validation stops when first check in sequence fails.
+
+```javascript
+// Define new attribute metatype encapsulating validation checks.
+const Age = Number.has
+                .check( x => x >= 0, 'I guess you are a bit older' )
+                .check( x => x < 200, 'No way man can be that old' );
+```
+
+### `attrDef` : Type.isRequired
+
+The special case of attribute-level check cutting out empty values. Attribute value must be truthy to pass, `"Required"` is used as validation error.
+
+`isRequired` is the first validator to check, no matter in which order validators were attached.
+
+### `callback` record.validate()
+
+Override in the subclass to add object-level validation. Whatever is returned from `validate()` is treated as an error message and triggers the validation error.
+
+### record.isValid( attrName? )
+
+Returns `true` whenever the record and all of its attributes are valid.
+
+If `attrName` is provided, returns `true` whenever the record's attribute is valid.
+
+### record.validationError
+
+Detailed validation error information, or `null` if the record and its _aggregated attributes_ are valid.
+An error object has tree structure mapping the invalid subtree of the aggregation tree.
+
+```javascript
+// ValidationError object shape
+{
+    error : /* record-level validation error msg as returned from record.validate() */,
+
+    // Attribute-level validation errors, one entry for each invalid attribute.
+    nested : {
+        // Contains nested ValidationError object for nested records and collections...
+        nestedRecord : /* ValidationError */
+        nestedCollection : /* ValidationError */
+
+        // ...and error msg for all other attributes.
+        otherAttr : /* attribute validation error as returned from .has.check() validator */
+    }
+}
+```
+
+### record.getValidationError( attr )
+
+Return the validation error for the given `attr` or collection's item.
+
+### record.eachValidationError( iteratee : ( error, key, recordOrCollection ) => void )
+
+Recursively traverse aggregation tree errors. `key` is `null` for the record-level validation error (returned from `validate()`).
+`recordOrCollection` is the reference to the current object.
+

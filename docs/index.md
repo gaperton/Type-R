@@ -5,14 +5,11 @@ toc_footers:
   - Developed by <img style="vertical-align: middle" src="images/volicon_verizon_dm.png" href='#'/>
 
 includes:
+  - events
   - record
   - collection
-  - aggregation
-  - serialization
-  - relations
-  - byfeature
-  - Mixins
-  - Events
+  - store
+  - mixins
 
 search: true
 ---
