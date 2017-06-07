@@ -463,7 +463,9 @@ Manual transactions with attribute assignments are superior to `record.set()` in
 
 ## Change events
 
-Record implements all methods Messenger class has.
+### Events mixin methods (7)
+
+Record implements [Events](#events-mixin) mixin.
 
 ### `event` "change" ( record )
 

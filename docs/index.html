@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>API Reference</title>
 
-    <link rel="icon" href="images/type-r-logo-dark.png" />
+    <link rel="icon" href="images/logo-dark.png" />
     <link href="lib/stylesheets/screen.css" rel="stylesheet" type="text/css" media="screen" />
     <link href="lib/stylesheets/print.css" rel="stylesheet" type="text/css" media="print" />
     <link href="lib/stylesheets/default.css" rel="stylesheet" type="text/css" />
@@ -51,7 +51,7 @@
       <div class="logo-section">
         <img src="images/logo.png" />
         <div class="logo-text">
-          <div class="logo-caption">Type-R</div>
+          <div class="logo-caption">Type-R 1.0</div>
           <div>universal state management</div>
         </div>
         
@@ -586,7 +586,8 @@ Any additional changes made to the record in <code>change:attr</code> event hand
 </code></pre>
 <p>Manual transactions with attribute assignments are superior to <code>record.set()</code> in terms of both performance and flexibility.</p>
 <h2 id="change-events">Change events</h2>
-<p>Record implements all methods Messenger class has.</p>
+<h3 id="events-mixin-methods-7-">Events mixin methods (7)</h3>
+<p>Record implements <a href="#events-mixin">Events</a> mixin.</p>
 <h3 id="-event-change-record-"><code>event</code> &quot;change&quot; ( record )</h3>
 <p>Triggered by the record at the end of the attributes update transaction in case if there were any changes applied.</p>
 <h3 id="-event-change-attrname-record-value-"><code>event</code> &quot;change:attrName&quot; ( record, value )</h3>
