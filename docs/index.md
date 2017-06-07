@@ -2,7 +2,9 @@
 title: API Reference
 
 toc_footers:
-  - Developed by <img style="vertical-align: middle" src="images/volicon_verizon_dm.png" href='#'/>
+  - <a href="https://github.com/Volicon/Type-R">GitHub repository</a>
+  - <a href="https://github.com/Volicon/Type-R/issues">Ask the question or report the bug</a>
+  - <a href="http://www.volicon.com/">Supported by <img style="vertical-align: middle" src="images/volicon_verizon_dm.png"/></a>
 
 includes:
   - events
