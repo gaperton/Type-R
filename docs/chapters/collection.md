@@ -1,6 +1,6 @@
 # Collection
 
-Collections are ordered sets of records. You can bind "changes" events to be notified when the collection has been modified, listen for "add" and "remove" events, fetch the collection from the server, and use a full suite of iteration methods.
+Collections are ordered sets of records. You can bind "changes" events to be notified when the collection has been modified, listen for the record "add",  "remove", and "change" events, and use a full suite of iteration methods.
 
 ```javascript
 // Implicitly defined collection.
@@ -51,11 +51,9 @@ Specify the record type inside of the collection's definition. This property is 
 
 ## Create and dispose
 
-### new Collection()
+### new Collection( records?, options? )
 
-Create an empty collection.
-
-### new Collection( records, options? )
+Create an aggregating serializable collection of records. The collection will take an ownership on its records and will put an error in the console if it can't.
 
 When creating a Collection, you may choose to pass in the initial array of records. The collection's comparator may be included as an option. Passing `false` as the comparator option will prevent sorting. If you define an `initialize() ` function, it will be invoked when the collection is created.
 
@@ -63,15 +61,27 @@ When creating a Collection, you may choose to pass in the initial array of recor
 var tabs = new TabSet([tab1, tab2, tab3]);
 ```
 
-### collection.initialize( records?, options? )
+### new Collection.Refs( records?, options? )
+
+Create a non-aggregating non-serializable collection. The collection does not take ownership in its records. In all other aspects it behaves as the regular collection.
+
+### collection.createSubset( records?, options? )
+
+Create a non-aggregating serializable collection which is the subset of the given collection. Takes the same arguments as the collection's constructor.
+
+<aside class="notice">Records in the collection must have an `id` attribute populated to work properly with subsets.</aside>
+
+### `callback` collection.initialize( records?, options? )
 
 Initialization function which is called at the end of the constructor.
 
-### collection.dispose()
-
 ### collection.clone()
 
-### collection.createSubset()
+Clone the collection. Aggregating collection will be recursively cloned, non-aggregated collections will be shallow cloned.
+
+### collection.dispose()
+
+Dispose the collection. Aggregating collection will recursively dispose its records.
 
 ## Read and iterate
 
@@ -192,6 +202,12 @@ vanHalen.set([ eddie, alex, stone, hagar ]);
 // Updates any of stone, alex, and eddie's attributes that may have
 // changed over the years.
 ```
+
+### collection.assignFrom( otherCollection )
+
+Synchronize the state of the collection and its aggregation tree with other collection of the same type. Updates existing objects in place. Record in the collection is considered to be "existing" if it has the same `id`.
+
+Equivalent to `collection.set( otherCollection.models, { merge : true } )` and triggers similar events on change.
 
 ### collection.reset( records, options? )
 

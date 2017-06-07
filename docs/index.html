@@ -824,7 +824,7 @@ An error object has tree structure mapping the invalid subtree of the aggregatio
 <p>Recursively traverse aggregation tree errors. <code>key</code> is <code>null</code> for the record-level validation error (returned from <code>validate()</code>).
 <code>recordOrCollection</code> is the reference to the current object.</p>
 <h1 id="collection">Collection</h1>
-<p>Collections are ordered sets of records. You can bind &quot;changes&quot; events to be notified when the collection has been modified, listen for &quot;add&quot; and &quot;remove&quot; events, fetch the collection from the server, and use a full suite of iteration methods.</p>
+<p>Collections are ordered sets of records. You can bind &quot;changes&quot; events to be notified when the collection has been modified, listen for the record &quot;add&quot;,  &quot;remove&quot;, and &quot;change&quot; events, and use a full suite of iteration methods.</p>
 <pre><code class="highlight javascript"><span class="hljs-comment">// Implicitly defined collection.</span>
 <span class="hljs-keyword">const</span> books = <span class="hljs-keyword">new</span> Book.Collection();
 
@@ -861,17 +861,23 @@ An error object has tree structure mapping the invalid subtree of the aggregatio
 }
 </code></pre>
 <h2 id="create-and-dispose">Create and dispose</h2>
-<h3 id="new-collection-">new Collection()</h3>
-<p>Create an empty collection.</p>
-<h3 id="new-collection-records-options-">new Collection( records, options? )</h3>
+<h3 id="new-collection-records-options-">new Collection( records?, options? )</h3>
+<p>Create an aggregating serializable collection of records. The collection will take an ownership on its records and will put an error in the console if it can&#39;t.</p>
 <p>When creating a Collection, you may choose to pass in the initial array of records. The collection&#39;s comparator may be included as an option. Passing <code>false</code> as the comparator option will prevent sorting. If you define an <code>initialize()</code> function, it will be invoked when the collection is created.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">var</span> tabs = <span class="hljs-keyword">new</span> TabSet([tab1, tab2, tab3]);
 </code></pre>
-<h3 id="collection-initialize-records-options-">collection.initialize( records?, options? )</h3>
+<h3 id="new-collection-refs-records-options-">new Collection.Refs( records?, options? )</h3>
+<p>Create a non-aggregating non-serializable collection. The collection does not take ownership in its records. In all other aspects it behaves as the regular collection.</p>
+<h3 id="collection-createsubset-records-options-">collection.createSubset( records?, options? )</h3>
+<p>Create a non-aggregating serializable collection which is the subset of the given collection. Takes the same arguments as the collection&#39;s constructor.</p>
+<aside class="notice">Records in the collection must have an `id` attribute populated to work properly with subsets.</aside>
+
+<h3 id="-callback-collection-initialize-records-options-"><code>callback</code> collection.initialize( records?, options? )</h3>
 <p>Initialization function which is called at the end of the constructor.</p>
-<h3 id="collection-dispose-">collection.dispose()</h3>
 <h3 id="collection-clone-">collection.clone()</h3>
-<h3 id="collection-createsubset-">collection.createSubset()</h3>
+<p>Clone the collection. Aggregating collection will be recursively cloned, non-aggregated collections will be shallow cloned.</p>
+<h3 id="collection-dispose-">collection.dispose()</h3>
+<p>Dispose the collection. Aggregating collection will recursively dispose its records.</p>
 <h2 id="read-and-iterate">Read and iterate</h2>
 <h3 id="collection-get-id-">collection.get( id )</h3>
 <p>Get a record from a collection, specified by an <code>id</code>, a <code>cid</code>, or by passing in a record.</p>
@@ -964,6 +970,9 @@ vanHalen.set([ eddie, alex, stone, hagar ]);
 <span class="hljs-comment">// Updates any of stone, alex, and eddie's attributes that may have</span>
 <span class="hljs-comment">// changed over the years.</span>
 </code></pre>
+<h3 id="collection-assignfrom-othercollection-">collection.assignFrom( otherCollection )</h3>
+<p>Synchronize the state of the collection and its aggregation tree with other collection of the same type. Updates existing objects in place. Record in the collection is considered to be &quot;existing&quot; if it has the same <code>id</code>.</p>
+<p>Equivalent to <code>collection.set( otherCollection.models, { merge : true } )</code> and triggers similar events on change.</p>
 <h3 id="collection-reset-records-options-">collection.reset( records, options? )</h3>
 <p>Replace the collection&#39;s content with the new records. More efficient than <code>collection.set</code>, but does not send record-level events.</p>
 <p>Calling <code>collection.reset()</code> without passing any records as arguments will empty the entire collection.</p>
