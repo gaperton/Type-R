@@ -251,7 +251,10 @@ Initialized as `null` and serialized as `record.id`. Is not recursively cloned, 
 
 Changes in shared record are not detected.
 
-`sourceCollection` may be the singleton collection, the function returning the collection, or the string with the dot-separated _relative object path_ to the collection. In the last case, it is resolved dynamically relative to the record's `this`.
+`sourceCollection` may be:
+- the singleton collection;
+- the function returning the collection;
+- the string with the dot-separated _relative object path_ to the collection. It is resolved dynamically relative to the record's `this`. `^` symbol in path is being translated to the `getOwner()` call.
 
 ```javascript
     @define class State extends Record {
@@ -259,8 +262,6 @@ Changes in shared record are not detected.
         selected : Record.from( 'items' ) // Will resolve to `this.items`
     }
 ```
-
-`^` symbol in path is being translated to the `getOwner()` call.
 
 <aside class="info">It's recommended to use ~paths and stores instead of ^paths.</aside>
 
@@ -460,6 +461,16 @@ some.record.transaction( record => {
 ```
 
 Manual transactions with attribute assignments are superior to `record.set()` in terms of both performance and flexibility.
+
+### `attrDef` : Type.has.get( `hook` )
+
+Attach get hook to the record's attribute. `hook` is the function of signature `( value, attr ) => value` which is used to transform the attribute's value _before it will be read_. Hook is executed in the context of the record.
+
+### `attrDef` : Type.has.set( `hook` )
+
+Attach the set hook to the record's attribute. `hook` is the function of signature `( value, attr ) => value` which is used to transform the attribute's value _before it will be assigned_. Hook is executed in the context of the record.
+
+If set hook will return `undefined`, it will cancel attribute update.
 
 ## Change events
 

@@ -49,6 +49,39 @@ Specify the record type inside of the collection's definition. This property is 
 }
 ```
 
+### `static` comparator = 'attrName'
+
+Maintain the collection in sorted order by the given record's attribute.
+
+### `static` comparator = x => number | string
+
+"sortBy" comparator functions take a record and return a numeric or string value by which the record should be ordered relative to others.
+
+### `static` comparator = ( x, y ) => -1 | 0 | 1
+
+"sort" comparator functions take two records, and return -1 if the first record should come before the second, 0 if they are of the same rank and 1 if the first record should come after.
+
+Note how even though all of the chapters in this example are added backwards, they come out in the proper order:
+
+```javascript
+@define class Chapter extends Record {
+    static attributes = {
+        page : Number,
+        title : String
+    }
+}
+
+var chapters = new Chapter.Collection();
+
+chapters.comparator = 'page';
+
+chapters.add(new Chapter({page: 9, title: "The End"}));
+chapters.add(new Chapter({page: 5, title: "The Middle"}));
+chapters.add(new Chapter({page: 1, title: "The Beginning"}));
+
+alert(chapters.map( x => x.title ));
+```
+
 ## Create and dispose
 
 ### new Collection( records?, options? )
@@ -231,6 +264,10 @@ Any additional changes made to the collection or its items in event handlers wil
 
 Similar to the `collection.each`, but wraps an iteration in a transaction. The single `changes` event will be emitted for the group of changes to the records made in `updateEach`.
 
+### collection.sort( options? )
+
+Force a collection to re-sort itself. You don't need to call this under normal circumstances, as a collection with a comparator will sort itself whenever a record is added. To disable sorting when adding a record, pass `{sort: false}` to add. Calling sort triggers a "sort" event on the collection.
+
 ### collection.push( record, options? )
 
 Add a record at the end of a collection. Takes the same options as add.
@@ -247,17 +284,9 @@ Remove and return the first record from a collection. Takes the same options as 
 
 ## Change events
 
-Object tree formed by nested records is deeply observable by default; changes in every item trigger change events for the collection and all parent elements in sequence.
+All changes in the records cause change events in the collections they are contained in.
 
-Collection triggers following events on change:
-
-- `change` *( record, options )* for every changed record.
-- `add` *( record, collection, options )* for every added record.
-- `remove` *( record, collection, options )* for every removed record.
-- `update` *( collection, options )* when any records were added or removed.
-- `sort` *( collection, options )* when any records changed their order.
-- `reset` *( collection, options )* if `collection.reset()` was used to update the collection.
-- `changes` *( collection, options )* in case of any changes.
+Subset collections is an exception; they don't observe changes of its elements by default.
 
 ### Events mixin methods (7)
 
@@ -297,46 +326,96 @@ When a record is removed from a collection.
 
 When a record inside of the collection is changed.
 
-## Sorting
+## Serialization
 
-### `static` comparator = 'attrName'
+All kinds of collections except `Collection.Refs` are serializable.
 
-Maintain the collection in sorted order by the given record's attribute.
+### collection.toJSON()
 
-### `static` comparator = x => number | string
+Produces the JSON for the given collection:
 
-"sortBy" comparator functions take a record and return a numeric or string value by which the record should be ordered relative to others.
+- `[ { record json }, ... ]` - array of objects for regular aggregating collection.
+- `[ id1, id2, ... ]` - array of record ids for the subset collection.
 
-### `static` comparator = ( x, y ) => -1 | 0 | 1
+<aside class="warning">Although the direct call to <code>toJSON()</code> will produce the correct JSON for the <code>Collection.Refs</code>, it cannot be restored from JSON properly. Therefore, records attributes of the <code>Collection.Refs</code> type are not serialized by default. </aside>
 
-"sort" comparator functions take two records, and return -1 if the first record should come before the second, 0 if they are of the same rank and 1 if the first record should come after.
-
-Note how even though all of the chapters in this example are added backwards, they come out in the proper order:
+May be overridden in the particular record or collection class to customize the JSON representation.
 
 ```javascript
-@define class Chapter extends Record {
+@define class Comment extends Record {
     static attributes = {
-        page : Number,
-        title : String
+        body : ''
     }
 }
 
-var chapters = new Chapter.Collection();
+@define class BlogPost extends Record {
+    static attributes = {
+        title : '',
+        body : '',
+        comments : Comment.Collection
+    }
+}
 
-chapters.comparator = 'page';
+const post = new BlogPost({
+    title: "Type-R is cool!",
+    comments : [ { body : "Agree" }]
+});
 
-chapters.add(new Chapter({page: 9, title: "The End"}));
-chapters.add(new Chapter({page: 5, title: "The Middle"}));
-chapters.add(new Chapter({page: 1, title: "The Beginning"}));
-
-alert(chapters.map( x => x.title ));
+const rawJSON = post.toJSON()
+// { title : "Type-R is cool!", body : "", comments : [{ body : "Agree" }] }
 ```
 
-### collection.sort( options? )
+### `options` { parse : true }
 
-Force a collection to re-sort itself. You don't need to call this under normal circumstances, as a collection with a comparator will sort itself whenever a record is added. To disable sorting when adding a record, pass `{sort: false}` to add. Calling sort triggers a "sort" event on the collection.
+Parse raw JSON when passed as an option to the collection's constructor or update methods.
 
-## Serialization
+### `callback` collection.parse( json )
+
+Invoked internally when `{ parse : true }` is passed. May be overridden to define custom JSON transformation. Should not be called explicitly.
 
 ## Validation
 
+Validation happens transparently on the first access to any part of the validation API. Validation results are cached. Only the changed parts of aggregation tree will be validated again.
+
+### `callback` collection.validate()
+
+Override in the collection subclass to add collection-level validation. Whatever is returned from `validate()` is treated as an error message and triggers the validation error.
+
+<aside class="notice">Do not call this method directly, that's not the way how validation works.</aside>
+
+### collection.isValid()
+
+Returns `true` if the collection is valid. Similar to `!collection.validationError`.
+
+### collection.isValid( recordId )
+
+Returns `true` whenever the record from the collection is valid.
+
+### record.validationError
+
+`null` if the collection is valid, or the detailed information on validation errors.
+
+- Aggregating collection is valid whenever `collection.validate()` returns `undefined` _and_ all of its records are valid.
+- Non-aggregating collections are valid whenever `collection.validate()` returns `undefined`.
+
+```javascript
+// ValidationError object shape
+{
+    error : /* collection-level validation error msg as returned from collection.validate() */,
+
+    // Collection items validation errors
+    nested : {
+        // Contains nested ValidationError object for nested records...
+        /* record.cid */ : /* record.validationError */
+    }
+}
+```
+
+### collection.getValidationError( recordId )
+
+Return the validation error for the given collection's item.
+
+### collection.eachValidationError( iteratee : ( error, key, recordOrCollection ) => void )
+
+Recursively traverse aggregation tree errors. `key` is `null` for the record-level validation error (returned from `validate()`).
+`recordOrCollection` is the reference to the current object.
