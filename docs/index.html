@@ -229,7 +229,7 @@
 
 }
 </code></pre>
-<h3 id="-implements-events"><code>implements</code> Events</h3>
+<h3 id="events-mixin-methods-7-">Events mixin methods (7)</h3>
 <p>Messenger implements <a href="#events-mixin">Events</a> mixin.</p>
 <h3 id="cid">cid</h3>
 <p>Unique run-time only messenger instance id (string).</p>
@@ -767,9 +767,7 @@ An error object has tree structure mapping the invalid subtree of the aggregatio
 <p>Recursively traverse aggregation tree errors. <code>key</code> is <code>null</code> for the record-level validation error (returned from <code>validate()</code>).
 <code>recordOrCollection</code> is the reference to the current object.</p>
 <h1 id="collection">Collection</h1>
-<p>Collections are ordered sets of records. You can bind &quot;change&quot; events to be notified when any record in the collection has been modified, listen for &quot;add&quot; and &quot;remove&quot; events, fetch the collection from the server, and use a full suite of Underscore.js methods.</p>
-<p>Collection is implicitly defined for every record with a constructor accessible as <code>MyRecord.Collection</code>. In most cases, you
-don&#39;t need to declare it manually.</p>
+<p>Collections are ordered sets of records. You can bind &quot;changes&quot; events to be notified when the collection has been modified, listen for &quot;add&quot; and &quot;remove&quot; events, fetch the collection from the server, and use a full suite of iteration methods.</p>
 <pre><code class="highlight javascript"><span class="hljs-comment">// Implicitly defined collection.</span>
 <span class="hljs-keyword">const</span> books = <span class="hljs-keyword">new</span> Book.Collection();
 
@@ -793,18 +791,19 @@ don&#39;t need to declare it manually.</p>
     }
 }
 </code></pre>
-<h2 id="collection-definition">Collection definition</h2>
-<h3 id="recordconstructor-collection">RecordConstructor.Collection</h3>
-<p>Every <code>Record</code> class has implicitly defined Collection, which can be referenced adding the <code>.Collection</code> to the record&#39;s constructor.</p>
-<h3 id="-record-definition-static-collection-collectionconstructor">(record definition) <code>static</code> Collection = CollectionConstructor</h3>
-<p>Replaces implicitly defined collection with externally defined collection class.</p>
-<h3 id="-collection-definition-static-model-recordconstructor">(collection definition) <code>static</code> model = RecordConstructor</h3>
+<h2 id="definition">Definition</h2>
+<h3 id="recordclass-collection">RecordClass.Collection</h3>
+<p>Default collection constructor for the given Record class.</p>
+<p>Collection is implicitly defined for every record with a constructor accessible as <code>MyRecord.Collection</code>. In most cases, you don&#39;t need to declare it manually.</p>
+<h3 id="collectionclass-refs">CollectionClass.Refs</h3>
+<p>Non-aggregating collection constructor.</p>
+<h3 id="-static-model-recordconstructor"><code>static</code> model = RecordConstructor</h3>
 <p>Specify the record type inside of the collection&#39;s definition. This property is being set automatically for collection types referenced as <code>MyRecord.Collection</code>.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Library</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span>.<span class="hljs-title">Collection</span> </span>{
     <span class="hljs-keyword">static</span> model = Book;
 }
 </code></pre>
-<h2 id="create-and-access-the-collection">Create and access the collection</h2>
+<h2 id="create-and-dispose">Create and dispose</h2>
 <h3 id="new-collection-">new Collection()</h3>
 <p>Create an empty collection.</p>
 <h3 id="new-collection-records-options-">new Collection( records, options? )</h3>
@@ -813,6 +812,15 @@ don&#39;t need to declare it manually.</p>
 </code></pre>
 <h3 id="collection-initialize-records-options-">collection.initialize( records?, options? )</h3>
 <p>Initialization function which is called at the end of the constructor.</p>
+<h3 id="collection-dispose-">collection.dispose()</h3>
+<h3 id="collection-clone-">collection.clone()</h3>
+<h3 id="collection-createsubset-">collection.createSubset()</h3>
+<h2 id="read-and-update">Read and Update</h2>
+<p>Methods to update the collection. They accept common options:</p>
+<ul>
+<li><code>sort : false</code> - do not sort the collection.</li>
+<li><code>parse : true</code> - parse raw JSON (used to set collection with a data from the server).</li>
+</ul>
 <h3 id="collection-get-id-">collection.get( id )</h3>
 <p>Get a record from a collection, specified by an <code>id</code>, a <code>cid</code>, or by passing in a record.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">const</span> book = library.get(<span class="hljs-number">110</span>);
@@ -823,12 +831,6 @@ don&#39;t need to declare it manually.</p>
 <p>Like an array, a Collection maintains a length property, counting the number of records it contains.</p>
 <h3 id="collection-models">collection.models</h3>
 <p>Raw access to the JavaScript array of records inside of the collection. Usually you&#39;ll want to use <code>get</code>, <code>at</code>, or the other methods to access record objects, but occasionally a direct reference to the array is desired.</p>
-<h2 id="updates">Updates</h2>
-<p>Methods to update the collection. They accept common options:</p>
-<ul>
-<li><code>sort : false</code> - do not sort the collection.</li>
-<li><code>parse : true</code> - parse raw JSON (used to set collection with a data from the server).</li>
-</ul>
 <h3 id="collection-add-records-options-">collection.add( records, options? )</h3>
 <p>Add a record (or an array of records) to the collection. If this is the <code>Record.Collection</code>, you may also pass raw attributes objects, and have them be vivified as instances of the <code>Record</code>. Returns the added (or preexisting, if duplicate) records.</p>
 <p>Pass <code>{at: index}</code> to splice the record into the collection at the specified index. If you&#39;re adding records to the collection that are already in the collection, they&#39;ll be ignored, unless you pass <code>{merge: true}</code>, in which case their attributes will be merged into the corresponding records.</p>
@@ -887,15 +889,27 @@ vanHalen.set([ eddie, alex, stone, hagar ]);
 <li>Trigger event <code>reset</code>( collection, options ).</li>
 <li>Trigger event <code>changes</code>( collection, options ).</li>
 </ol>
-<h2 id="transactions">Transactions</h2>
+<h3 id="collection-transaction-fun-">collection.transaction( fun )</h3>
+<p>Execute the sequence of updates in <code>fun</code> function in the scope of the transaction.</p>
 <p>All collection updates occurs in the scope of transactions. Transaction is the sequence of changes which results in a single <code>changes</code> event.</p>
 <p>Transaction can be opened either manually or implicitly with calling any of collection update methods.
 Any additional changes made to the collection or its items in event handlers will be executed in the scope of the original transaction, and won&#39;t trigger an additional <code>changes</code> events.</p>
-<h3 id="collection-transaction-fun-">collection.transaction( fun )</h3>
-<p>Execute the sequence of updates in <code>fun</code> function in the scope of the transaction.</p>
 <h3 id="collection-updateeach-iteratee-val-record-index-void-context-">collection.updateEach( iteratee : ( val : Record, index ) =&gt; void, context? )</h3>
 <p>Similar to the <code>collection.each</code>, but wraps the loop in a transaction.</p>
-<h2 id="observable-changes">Observable changes</h2>
+<h3 id="collection-push-record-options-">collection.push( record, options? )</h3>
+<p>Add a record at the end of a collection. Takes the same options as add.</p>
+<h3 id="collection-pop-options-">collection.pop( options? )</h3>
+<p>Remove and return the last record from a collection. Takes the same options as remove.</p>
+<h3 id="collection-unshift-record-options-">collection.unshift( record, options? )</h3>
+<p>Add a record at the beginning of a collection. Takes the same options as add.</p>
+<h3 id="collection-shift-options-">collection.shift( options? )</h3>
+<p>Remove and return the first record from a collection. Takes the same options as remove.</p>
+<h3 id="collection-slice-begin-end-">collection.slice( begin, end )</h3>
+<p>Return a shallow copy of the <code>collection.models</code>, using the same options as native Array#slice.</p>
+<h3 id="collection-indexof-recordorid-any-number">collection.indexOf( recordOrId : any ) : number</h3>
+<p>Return an index of the record in the collection, and -1 if there are no such a record in the collection.</p>
+<p>Can take the record itself as an argument, <code>id</code>, or <code>cid</code> of the record.</p>
+<h2 id="change-events">Change events</h2>
 <p>Object tree formed by nested records is deeply observable by default; changes in every item trigger change events for the collection and all parent elements in sequence.</p>
 <p>Collection triggers following events on change:</p>
 <ul>
@@ -907,19 +921,14 @@ Any additional changes made to the collection or its items in event handlers wil
 <li><code>reset</code> <em>( collection, options )</em> if <code>collection.reset()</code> was used to update the collection.</li>
 <li><code>changes</code> <em>( collection, options )</em> in case of any changes.</li>
 </ul>
-<h2 id="listening-to-changes-with-events-api">Listening to changes with Events API</h2>
-<p><a href="../10_Events.md">Events API</a> is used for managing events subscriptions.</p>
-<h3 id="listener-listento-record-event-handler-">listener.listenTo( record, event, handler )</h3>
-<p><a href="../10_Events.md">Events API</a> method used to listen to the any of the change events.</p>
-<h3 id="listener-stoplistening-record-">listener.stopListening( record )</h3>
-<p><a href="../10_Events.md">Events API</a> method to explicitly stop all event subscriptions from the record.</p>
-<p>Not needed if the listener is other record or collection.</p>
-<h2 id="listening-to-item-events-in-the-collection">Listening to item events in the collection</h2>
+<h3 id="events-mixin-methods-7-">Events mixin methods (7)</h3>
+<p>Collection implements <a href="#events-mixin">Events</a> mixin.</p>
 <h3 id="-static-itemevents-eventname-handler-"><code>static</code> itemEvents = { eventName : <code>handler</code>, ... }</h3>
 <p>Subscribe for events from records. The <code>hander</code> is either the collection&#39;s method name, the handler function, or <code>true</code>.</p>
 <p>When <code>true</code> is passed as a handler, the corresponding event will be triggered on the collection.</p>
-<h2 id="map-and-foreach">map and forEach</h2>
+<h2 id="iteration">Iteration</h2>
 <h3 id="collection-foreach-iteratee-val-record-index-void-context-">collection.forEach( iteratee : ( val : Record, index ) =&gt; void, context? )</h3>
+<p>Same as <code>collection.each()</code>.</p>
 <h3 id="collection-each-iteratee-val-record-index-void-context-">collection.each( iteratee : ( val : Record, index ) =&gt; void, context? )</h3>
 <p>Iterate through the elements of the collection. Similar to <code>Array.forEach</code>.</p>
 <h3 id="collection-updateeach-iteratee-val-record-index-void-context-">collection.updateEach( iteratee : ( val : Record, index ) =&gt; void, context? )</h3>
@@ -929,10 +938,9 @@ for the group of changes to the records made in <code>updateEach</code>.</p>
 <h3 id="collection-map-iteratee-val-record-index-t-context-">collection.map( iteratee : ( val : Record, index ) =&gt; T, context? )</h3>
 <p>Map elements of the collection. Similar to <code>Array.map</code>, but <code>undefined</code> values returned by iteratee are filtered out.</p>
 <p>Thus, <code>collection.map</code> can be used to map and filter elements in a single pass.</p>
-<h2 id="predicate-methods">Predicate methods</h2>
-<p>Predicate is either the iteratee function returning boolean, or an object with attribute values used to match with record&#39;s attributes.</p>
 <h3 id="collection-filter-iteratee-predicate-context-">collection.filter( iteratee : Predicate, context? )</h3>
 <p>Return filtered array of records matching the predicate.</p>
+<p>Predicate is either the iteratee function returning boolean, or an object with attribute values used to match with record&#39;s attributes.</p>
 <h3 id="collection-every-iteratee-predicate-context-boolean">collection.every( iteratee : Predicate, context? ) : boolean</h3>
 <p>Return <code>true</code> if all records match the predicate.</p>
 <h3 id="collection-some-iteratee-predicate-context-boolean">collection.some( iteratee : Predicate, context? ) : boolean</h3>
@@ -940,6 +948,7 @@ for the group of changes to the records made in <code>updateEach</code>.</p>
 <p>By default there is no comparator for a collection. If you define a comparator, it will be used to maintain the collection in sorted order. This means that as records are added, they are inserted at the correct index in <code>collection.models</code>.</p>
 <p>Note that Type-R depends on the arity of your comparator function to determine between the two styles, so be careful if your comparator function is bound.</p>
 <p>Collections with a comparator will not automatically re-sort if you later change record attributes, so you may wish to call sort after changing record attributes that would affect the order.</p>
+<h2 id="sorting">Sorting</h2>
 <h3 id="-static-comparator-attrname-"><code>static</code> comparator = &#39;attrName&#39;</h3>
 <p>Maintain the collection in sorted order by the given record&#39;s attribute.</p>
 <h3 id="-static-comparator-x-number-string"><code>static</code> comparator = x =&gt; number | string</h3>
@@ -966,19 +975,8 @@ alert(chapters.map( <span class="hljs-function"><span class="hljs-params">x</spa
 </code></pre>
 <h3 id="collection-sort-options-">collection.sort( options? )</h3>
 <p>Force a collection to re-sort itself. You don&#39;t need to call this under normal circumstances, as a collection with a comparator will sort itself whenever a record is added. To disable sorting when adding a record, pass <code>{sort: false}</code> to add. Calling sort triggers a &quot;sort&quot; event on the collection.</p>
-<h3 id="collection-push-record-options-">collection.push( record, options? )</h3>
-<p>Add a record at the end of a collection. Takes the same options as add.</p>
-<h3 id="collection-pop-options-">collection.pop( options? )</h3>
-<p>Remove and return the last record from a collection. Takes the same options as remove.</p>
-<h3 id="collection-unshift-record-options-">collection.unshift( record, options? )</h3>
-<p>Add a record at the beginning of a collection. Takes the same options as add.</p>
-<h3 id="collection-shift-options-">collection.shift( options? )</h3>
-<p>Remove and return the first record from a collection. Takes the same options as remove.</p>
-<h3 id="collection-slice-begin-end-">collection.slice( begin, end )</h3>
-<p>Return a shallow copy of the <code>collection.models</code>, using the same options as native Array#slice.</p>
-<h3 id="collection-indexof-recordorid-any-number">collection.indexOf( recordOrId : any ) : number</h3>
-<p>Return an index of the record in the collection, and -1 if there are no such a record in the collection.</p>
-<p>Can take the record itself as an argument, <code>id</code>, or <code>cid</code> of the record.</p>
+<h2 id="serialization">Serialization</h2>
+<h2 id="validation">Validation</h2>
 <h1 id="store">Store</h1>
 <p><code>Store</code> is the special kind of record which serves as a root for ~references.</p>
 <p>For all records inside of the store&#39;s aggregation tree <code>~attrName</code> will resolve to the attribute of the store class found with <code>record.getStore()</code> method. If there are no such an attribute in the store, the next available store upper in aggregation tree will be used (as regular records stores can be nested), or the default store if there are no one.</p>
@@ -1036,8 +1034,8 @@ Store.global = <span class="hljs-keyword">new</span> MyStore();
 }
 </code></pre>
 <h1 id="mixins">Mixins</h1>
-<h2 id="decorators">Decorators</h2>
 <p>Type-R is based on mixins with configurable properties merge rules.</p>
+<h2 id="definition">Definition</h2>
 <h3 id="-decorator-mixins-mixina-mixinb-class-x-"><code>decorator</code> @mixins( mixinA, mixinB, ... ) class X ...</h3>
 <p>Merge specified mixins to the class definition. Both plain JS object and class constructor may be used as mixin. In the case of the class constructor, missing static members will copied over as well.</p>
 <pre><code class="highlight javascript">    <span class="hljs-keyword">import</span> { mixins, Events } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>

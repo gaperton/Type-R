@@ -116,7 +116,7 @@ class MyMessenger extends Messenger {
 }
 ```
 
-### `implements` Events
+### Events mixin methods (7)
 
 Messenger implements [Events](#events-mixin) mixin.
  

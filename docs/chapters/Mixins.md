@@ -1,8 +1,8 @@
 # Mixins
 
-## Decorators
-
 Type-R is based on mixins with configurable properties merge rules.
+
+## Definition
 
 ### `decorator` @mixins( mixinA, mixinB, ... ) class X ...
 

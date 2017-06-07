@@ -1,9 +1,6 @@
 # Collection
 
-Collections are ordered sets of records. You can bind "change" events to be notified when any record in the collection has been modified, listen for "add" and "remove" events, fetch the collection from the server, and use a full suite of Underscore.js methods.
-
-Collection is implicitly defined for every record with a constructor accessible as `MyRecord.Collection`. In most cases, you
-don't need to declare it manually.
+Collections are ordered sets of records. You can bind "changes" events to be notified when the collection has been modified, listen for "add" and "remove" events, fetch the collection from the server, and use a full suite of iteration methods.
 
 ```javascript
 // Implicitly defined collection.
@@ -30,17 +27,19 @@ class Comics extends Book {
 }
 ```
 
-## Collection definition
+## Definition
 
-### RecordConstructor.Collection
+### RecordClass.Collection
 
-Every `Record` class has implicitly defined Collection, which can be referenced adding the `.Collection` to the record's constructor.
+Default collection constructor for the given Record class.
 
-### (record definition) `static` Collection = CollectionConstructor
+Collection is implicitly defined for every record with a constructor accessible as `MyRecord.Collection`. In most cases, you don't need to declare it manually.
 
-Replaces implicitly defined collection with externally defined collection class.
+### CollectionClass.Refs
 
-### (collection definition) `static` model = RecordConstructor
+Non-aggregating collection constructor.
+
+### `static` model = RecordConstructor
 
 Specify the record type inside of the collection's definition. This property is being set automatically for collection types referenced as `MyRecord.Collection`.
 
@@ -50,7 +49,7 @@ Specify the record type inside of the collection's definition. This property is 
 }
 ```
 
-## Create and access the collection
+## Create and dispose
 
 ### new Collection()
 
@@ -67,6 +66,19 @@ var tabs = new TabSet([tab1, tab2, tab3]);
 ### collection.initialize( records?, options? )
 
 Initialization function which is called at the end of the constructor.
+
+### collection.dispose()
+
+### collection.clone()
+
+### collection.createSubset()
+
+## Read and Update
+
+Methods to update the collection. They accept common options:
+
+- `sort : false` - do not sort the collection.
+- `parse : true` - parse raw JSON (used to set collection with a data from the server).
 
 ### collection.get( id )
 Get a record from a collection, specified by an `id`, a `cid`, or by passing in a record.
@@ -85,13 +97,6 @@ Like an array, a Collection maintains a length property, counting the number of 
 ### collection.models
 
 Raw access to the JavaScript array of records inside of the collection. Usually you'll want to use `get`, `at`, or the other methods to access record objects, but occasionally a direct reference to the array is desired.
-
-## Updates
-
-Methods to update the collection. They accept common options:
-
-- `sort : false` - do not sort the collection.
-- `parse : true` - parse raw JSON (used to set collection with a data from the server).
 
 ### collection.add( records, options? )
 
@@ -149,22 +154,44 @@ Calling `collection.reset()` without passing any records as arguments will empty
 1. Trigger event `reset`( collection, options ).
 2. Trigger event `changes`( collection, options ).
 
-## Transactions
+### collection.transaction( fun )
+
+Execute the sequence of updates in `fun` function in the scope of the transaction.
 
 All collection updates occurs in the scope of transactions. Transaction is the sequence of changes which results in a single `changes` event.
 
 Transaction can be opened either manually or implicitly with calling any of collection update methods.
 Any additional changes made to the collection or its items in event handlers will be executed in the scope of the original transaction, and won't trigger an additional `changes` events.
 
-### collection.transaction( fun )
-
-Execute the sequence of updates in `fun` function in the scope of the transaction.
-
 ### collection.updateEach( iteratee : ( val : Record, index ) => void, context? )
 
 Similar to the `collection.each`, but wraps the loop in a transaction.
 
-## Observable changes
+### collection.push( record, options? )
+
+Add a record at the end of a collection. Takes the same options as add.
+
+### collection.pop( options? )
+Remove and return the last record from a collection. Takes the same options as remove.
+
+### collection.unshift( record, options? )
+
+Add a record at the beginning of a collection. Takes the same options as add.
+
+### collection.shift( options? )
+Remove and return the first record from a collection. Takes the same options as remove.
+
+### collection.slice( begin, end )
+
+Return a shallow copy of the `collection.models`, using the same options as native Array#slice.
+
+### collection.indexOf( recordOrId : any ) : number
+
+Return an index of the record in the collection, and -1 if there are no such a record in the collection.
+
+Can take the record itself as an argument, `id`, or `cid` of the record.
+
+## Change events
 
 Object tree formed by nested records is deeply observable by default; changes in every item trigger change events for the collection and all parent elements in sequence.
 
@@ -178,21 +205,9 @@ Collection triggers following events on change:
 - `reset` *( collection, options )* if `collection.reset()` was used to update the collection.
 - `changes` *( collection, options )* in case of any changes.
 
-## Listening to changes with Events API
+### Events mixin methods (7)
 
-[Events API](../10_Events.md) is used for managing events subscriptions.
-
-### listener.listenTo( record, event, handler )
-
-[Events API](../10_Events.md) method used to listen to the any of the change events.
-
-### listener.stopListening( record )
-
-[Events API](../10_Events.md) method to explicitly stop all event subscriptions from the record.
-
-Not needed if the listener is other record or collection.
-
-## Listening to item events in the collection
+Collection implements [Events](#events-mixin) mixin.
 
 ### `static` itemEvents = { eventName : `handler`, ... }
 
@@ -200,9 +215,12 @@ Subscribe for events from records. The `hander` is either the collection's metho
 
 When `true` is passed as a handler, the corresponding event will be triggered on the collection.
 
-## map and forEach
+## Iteration
 
 ### collection.forEach( iteratee : ( val : Record, index ) => void, context? )
+
+Same as `collection.each()`.
+
 ### collection.each( iteratee : ( val : Record, index ) => void, context? )
 
 Iterate through the elements of the collection. Similar to `Array.forEach`.
@@ -220,13 +238,11 @@ Map elements of the collection. Similar to `Array.map`, but `undefined` values r
 
 Thus, `collection.map` can be used to map and filter elements in a single pass.
 
-## Predicate methods
-
-Predicate is either the iteratee function returning boolean, or an object with attribute values used to match with record's attributes.
-
 ### collection.filter( iteratee : Predicate, context? )
 
 Return filtered array of records matching the predicate.
+
+Predicate is either the iteratee function returning boolean, or an object with attribute values used to match with record's attributes.
 
 ### collection.every( iteratee : Predicate, context? ) : boolean
 
@@ -241,6 +257,8 @@ By default there is no comparator for a collection. If you define a comparator, 
 Note that Type-R depends on the arity of your comparator function to determine between the two styles, so be careful if your comparator function is bound.
 
 Collections with a comparator will not automatically re-sort if you later change record attributes, so you may wish to call sort after changing record attributes that would affect the order.
+
+## Sorting
 
 ### `static` comparator = 'attrName'
 
@@ -279,26 +297,7 @@ alert(chapters.map( x => x.title ));
 
 Force a collection to re-sort itself. You don't need to call this under normal circumstances, as a collection with a comparator will sort itself whenever a record is added. To disable sorting when adding a record, pass `{sort: false}` to add. Calling sort triggers a "sort" event on the collection.
 
-### collection.push( record, options? )
+## Serialization
 
-Add a record at the end of a collection. Takes the same options as add.
+## Validation
 
-### collection.pop( options? )
-Remove and return the last record from a collection. Takes the same options as remove.
-
-### collection.unshift( record, options? )
-
-Add a record at the beginning of a collection. Takes the same options as add.
-
-### collection.shift( options? )
-Remove and return the first record from a collection. Takes the same options as remove.
-
-### collection.slice( begin, end )
-
-Return a shallow copy of the `collection.models`, using the same options as native Array#slice.
-
-### collection.indexOf( recordOrId : any ) : number
-
-Return an index of the record in the collection, and -1 if there are no such a record in the collection.
-
-Can take the record itself as an argument, `id`, or `cid` of the record.
