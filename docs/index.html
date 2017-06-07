@@ -153,38 +153,38 @@
 </table>
 
 <h1 id="events">Events</h1>
-<p>Both <code>Record</code> and <code>Collection</code> uses an efficient synchronous events implementation which is compatible with Backbone 1.1 Events API but is twice faster in average. It comes in form of <code>Events</code> mixin and the <code>Messenger</code> base class.</p>
-<p>An implementation is optimized for the large amount of relatively small subscriptions (5-10 events). Here are the benchmark results (lower is the better).</p>
-<p><img src="./events-performance.jpg" alt="performance"></p>
-<p>It is also available separately as part of <a href="https://github.com/Volicon/MixtureJS">MixtureJS</a> package.</p>
+<p>Type-R uses an efficient synchronous events implementation which is backward compatible with Backbone 1.1 Events API but is about twice faster in all major browsers. It comes in form of <code>Events</code> mixin and the <code>Messenger</code> base class.</p>
 <h2 id="events-mixin">Events mixin</h2>
-<p><code>Events</code> is a <a href="11_Mixins.md">mixin</a> giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.</p>
+<p><code>Events</code> is a <a href="#mixins">mixin</a> giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.</p>
+<p>Both <code>source</code> and <code>listener</code> mentioned in method signatures must implement Events methods.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { mixins, Events } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
 @mixins( Events )
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Messenger</span> </span>{
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EventfulClass</span> </span>{
     ...
 }
 </code></pre>
-<blockquote>
-<p><code>Messenger</code> abstract base class is included with Type-R, see below.</p>
-</blockquote>
-<h3 id="trigger-event-arg1-arg2-">trigger(event, arg1, arg2, ... )</h3>
+<aside class="notice">There's the <code>Messenger</code> abstract base class with Events mixed in.</aside>
+
+<h3 id="source-trigger-event-arg1-arg2-">source.trigger(event, arg1, arg2, ... )</h3>
 <p>Trigger callbacks for the given event, or space-delimited list of events. Subsequent arguments to trigger will be passed along to the event callbacks.</p>
-<h3 id="listento-source-event-callback-">listenTo(source, event, callback)</h3>
+<h3 id="listener-listento-source-event-callback-">listener.listenTo(source, event, callback)</h3>
 <p>Tell an object to listen to a particular event on an other object. The advantage of using this form, instead of other.on(event, callback, object), is that listenTo allows the object to keep track of the events, and they can be removed all at once later on. The callback will always be called with object as context.</p>
 <pre><code class="highlight javascript">    view.listenTo(record, <span class="hljs-string">'change'</span>, view.render );
 </code></pre>
-<h3 id="stoplistening-source-event-callback-">stopListening([source], [event], [callback])</h3>
+<aside class="success">Subscriptions made with <code>listenTo()</code> will be stopped automatically if an object is properly disposed (<code>dispose()</code> method is called).</aside>
+
+<h3 id="listener-stoplistening-source-event-callback-">listener.stopListening([source], [event], [callback])</h3>
 <p>Tell an object to stop listening to events. Either call stopListening with no arguments to have the object remove all of its registered callbacks ... or be more precise by telling it to remove just the events it&#39;s listening to on a specific object, or a specific event, or just a specific callback.</p>
 <pre><code class="highlight javascript">    view.stopListening(); <span class="hljs-comment">// Unsubscribe from all events</span>
 
     view.stopListening(record); <span class="hljs-comment">// Unsubscribe from all events from the record</span>
 </code></pre>
-<p>All Type-R classes execute <code>this.stopListening()</code> from their <code>dispose()</code> method.</p>
-<h3 id="listentoonce-source-event-callback-">listenToOnce(source, event, callback)</h3>
-<p>Just like listenTo, but causes the bound callback to fire only once before being removed.</p>
-<h3 id="on-event-callback-context-">on(event, callback, [context])</h3>
+<aside class="notice">Messenger, Record, Collection, and Store execute <code>this.stopListening()</code> from their <code>dispose()</code> method. You don't have to unsubscribe from events explicitly if you are using <code>listenTo()</code> method and disposing your objects properly.</aside>
+
+<h3 id="listener-listentoonce-source-event-callback-">listener.listenToOnce(source, event, callback)</h3>
+<p>Just like <code>listenTo()</code>, but causes the bound callback to fire only once before being automatically removed.</p>
+<h3 id="source-on-event-callback-context-">source.on(event, callback, [context])</h3>
 <p>Bind a callback function to an object. The callback will be invoked whenever the event is fired. If you have a large number of different events on a page, the convention is to use colons to namespace them: <code>poll:start</code>, or <code>change:selection</code>. The event string may also be a space-delimited list of several events...</p>
 <pre><code class="highlight javascript">    book.on(<span class="hljs-string">"change:title change:author"</span>, ...);
 </code></pre>
@@ -201,7 +201,9 @@
     });
 </code></pre>
 <p>To supply a context value for this when the callback is invoked, pass the optional last argument: <code>record.on(&#39;change&#39;, this.render, this)</code> or <code>record.on({change: this.render}, this)</code>.</p>
-<h3 id="off-event-callback-context-">off([event], [callback], [context])</h3>
+<aside class="warning">Event subscription with <code>source.on()</code> may create memory leaks if it's not stopped properly with <code>source.off()</code></aside>
+
+<h3 id="source-off-event-callback-context-">source.off([event], [callback], [context])</h3>
 <p>Remove a previously bound callback function from an object. If no context is specified, all of the versions of the callback with different contexts will be removed. If no callback is specified, all callbacks for the event will be removed. If no event is specified, callbacks for all events will be removed.</p>
 <pre><code class="highlight javascript">    <span class="hljs-comment">// Removes just the `onChange` callback.</span>
     object.off(<span class="hljs-string">"change"</span>, onChange);
@@ -219,7 +221,7 @@
     object.off();
 </code></pre>
 <p>Note that calling <code>record.off()</code>, for example, will indeed remove all events on the record — including events that Backbone uses for internal bookkeeping.</p>
-<h3 id="once-event-callback-context-">once(event, callback, [context])</h3>
+<h3 id="source-once-event-callback-context-">source.once(event, callback, [context])</h3>
 <p>Just like <code>on()</code>, but causes the bound callback to fire only once before being removed. Handy for saying &quot;the next time that X happens, do this&quot;. When multiple events are passed in using the space separated syntax, the event will fire once for every event you passed in, not once for a combination of all events</p>
 <h2 id="messenger-class">Messenger class</h2>
 <p>Messenger is an abstract base class implementing Events mixin and some convenience methods.</p>
@@ -231,30 +233,84 @@
 </code></pre>
 <h3 id="events-mixin-methods-7-">Events mixin methods (7)</h3>
 <p>Messenger implements <a href="#events-mixin">Events</a> mixin.</p>
-<h3 id="cid">cid</h3>
+<h3 id="messenger-cid">messenger.cid</h3>
 <p>Unique run-time only messenger instance id (string).</p>
-<h3 id="initialize-">initialize()</h3>
+<h3 id="-callback-messenger-initialize-"><code>callback</code> messenger.initialize()</h3>
 <p>Callback which is called at the end of the constructor.</p>
-<h3 id="dispose-">dispose()</h3>
+<h3 id="messenger-dispose-">messenger.dispose()</h3>
 <p>Executes <code>messenger.stopListening()</code> and <code>messenger.off()</code>.</p>
 <p>Objects must be disposed to prevent memory leaks caused by subscribing for events from singletons.</p>
 <h2 id="built-in-events">Built-in events</h2>
-<h3 id="-event-change-record-options-"><code>event</code> &quot;change&quot; (record, options)</h3>
-<p>When a record&#39;s attributes have changed. Triggered by both record and collection containing the record.</p>
-<h3 id="-event-change-attrname-record-value-options-"><code>event</code> &quot;change:attrName&quot; (record, value, options)</h3>
-<p>When a specific record&#39;s attribute has been updated</p>
-<h3 id="-event-changes-collection-options-"><code>event</code> &quot;changes&quot; (collection, options)</h3>
-<p>When collection has changed. Single event triggered when the collection has been changed.</p>
-<h3 id="-event-reset-collection-options-"><code>event</code> &quot;reset&quot; (collection, options)</h3>
-<p>When the collection&#39;s entire contents have been reset (<code>reset()</code> method was called).</p>
-<h3 id="-event-update-collection-options-"><code>event</code> &quot;update&quot; (collection, options)</h3>
-<p>Single event triggered after any number of records have been added or removed from a collection.</p>
-<h3 id="-event-sort-collection-options-"><code>event</code> &quot;sort&quot; (collection, options)</h3>
-<p>When the collection has been re-sorted.</p>
-<h3 id="-event-add-record-collection-options-"><code>event</code> &quot;add&quot; (record, collection, options)</h3>
-<p>When a record is added to a collection.</p>
-<h3 id="-event-remove-record-collection-options-"><code>event</code> &quot;remove&quot; (record, collection, options)</h3>
-<p>When a record is removed from a collection.</p>
+<p>All Type-R objects implement Events mixin and use events to notify listeners on changes.</p>
+<p>Record and Store change events:</p>
+<table>
+<thead>
+<tr>
+<th>Event name</th>
+<th>Handler arguments</th>
+<th>When triggered</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>change</td>
+<td>(record, options)</td>
+<td>At the end of any changes.</td>
+</tr>
+<tr>
+<td>change:attrName</td>
+<td>(record, value, options)</td>
+<td>The record&#39;s attribute has been changed.</td>
+</tr>
+</tbody>
+</table>
+<p>Collection change events:</p>
+<table>
+<thead>
+<tr>
+<th>Event name</th>
+<th>Handler arguments</th>
+<th>When triggered</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>changes</td>
+<td>(collection, options)</td>
+<td>At the end of any changes.</td>
+</tr>
+<tr>
+<td>reset</td>
+<td>(collection, options)</td>
+<td><code>reset()</code> method was called.</td>
+</tr>
+<tr>
+<td>update</td>
+<td>(collection, options)</td>
+<td>Any records added or removed.</td>
+</tr>
+<tr>
+<td>sort</td>
+<td>(collection, options)</td>
+<td>Order of records is changed. </td>
+</tr>
+<tr>
+<td>add</td>
+<td>(record, collection, options)</td>
+<td>The record is added to a collection.</td>
+</tr>
+<tr>
+<td>remove</td>
+<td>(record, collection, options)</td>
+<td>The record is removed from a collection.</td>
+</tr>
+<tr>
+<td>change</td>
+<td>(record, options)</td>
+<td>The record is changed inside of collection.</td>
+</tr>
+</tbody>
+</table>
 <h1 id="record">Record</h1>
 <p>Record is the serializable class with typed attributes, observable changes, and custom validation checks. It is the main building block for managing the application state; component local state, stores, and collection elements are all subclasses of the <code>Record</code>.</p>
 <p>In contrast to the &quot;model&quot; class in the majority of data frameworks, Record is <em>not the key-value hash</em>. It&#39;s the class with statically defined set of attributes of known types.</p>
@@ -816,12 +872,7 @@ An error object has tree structure mapping the invalid subtree of the aggregatio
 <h3 id="collection-dispose-">collection.dispose()</h3>
 <h3 id="collection-clone-">collection.clone()</h3>
 <h3 id="collection-createsubset-">collection.createSubset()</h3>
-<h2 id="read-and-update">Read and Update</h2>
-<p>Methods to update the collection. They accept common options:</p>
-<ul>
-<li><code>sort : false</code> - do not sort the collection.</li>
-<li><code>parse : true</code> - parse raw JSON (used to set collection with a data from the server).</li>
-</ul>
+<h2 id="read-and-iterate">Read and iterate</h2>
 <h3 id="collection-get-id-">collection.get( id )</h3>
 <p>Get a record from a collection, specified by an <code>id</code>, a <code>cid</code>, or by passing in a record.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">const</span> book = library.get(<span class="hljs-number">110</span>);
@@ -832,6 +883,36 @@ An error object has tree structure mapping the invalid subtree of the aggregatio
 <p>Like an array, a Collection maintains a length property, counting the number of records it contains.</p>
 <h3 id="collection-models">collection.models</h3>
 <p>Raw access to the JavaScript array of records inside of the collection. Usually you&#39;ll want to use <code>get</code>, <code>at</code>, or the other methods to access record objects, but occasionally a direct reference to the array is desired.</p>
+<h3 id="collection-slice-begin-end-">collection.slice( begin, end )</h3>
+<p>Return a shallow copy of the <code>collection.models</code>, using the same options as native Array#slice.</p>
+<h3 id="collection-indexof-recordorid-any-number">collection.indexOf( recordOrId : any ) : number</h3>
+<p>Return an index of the record in the collection, and -1 if there are no such a record in the collection.</p>
+<p>Can take the record itself as an argument, <code>id</code>, or <code>cid</code> of the record.</p>
+<h3 id="collection-foreach-iteratee-val-record-index-void-context-">collection.forEach( iteratee : ( val : Record, index ) =&gt; void, context? )</h3>
+<p>Same as <code>collection.each()</code>.</p>
+<h3 id="collection-each-iteratee-val-record-index-void-context-">collection.each( iteratee : ( val : Record, index ) =&gt; void, context? )</h3>
+<p>Iterate through the elements of the collection. Similar to <code>Array.forEach</code>.</p>
+<aside class="notice">Use <code>collection.updateEach( iteratee, index )</code> method to update records in a loop.</aside>
+
+<h3 id="collection-map-iteratee-val-record-index-t-context-">collection.map( iteratee : ( val : Record, index ) =&gt; T, context? )</h3>
+<p>Map elements of the collection. Similar to <code>Array.map</code>, but <code>undefined</code> values returned by iteratee are filtered out.</p>
+<p>Thus, <code>collection.map</code> can be used to map and filter elements in a single pass.</p>
+<h3 id="collection-filter-iteratee-predicate-context-">collection.filter( iteratee : Predicate, context? )</h3>
+<p>Return filtered array of records matching the predicate.</p>
+<p>Predicate is either the iteratee function returning boolean, or an object with attribute values used to match with record&#39;s attributes.</p>
+<h3 id="collection-every-iteratee-predicate-context-boolean">collection.every( iteratee : Predicate, context? ) : boolean</h3>
+<p>Return <code>true</code> if all records match the predicate.</p>
+<h3 id="collection-some-iteratee-predicate-context-boolean">collection.some( iteratee : Predicate, context? ) : boolean</h3>
+<p>Return <code>true</code> if at least one record match the predicated.</p>
+<p>By default there is no comparator for a collection. If you define a comparator, it will be used to maintain the collection in sorted order. This means that as records are added, they are inserted at the correct index in <code>collection.models</code>.</p>
+<p>Note that Type-R depends on the arity of your comparator function to determine between the two styles, so be careful if your comparator function is bound.</p>
+<p>Collections with a comparator will not automatically re-sort if you later change record attributes, so you may wish to call sort after changing record attributes that would affect the order.</p>
+<h2 id="update">Update</h2>
+<p>Methods to update the collection. They accept common options:</p>
+<ul>
+<li><code>sort : false</code> - do not sort the collection.</li>
+<li><code>parse : true</code> - parse raw JSON (used to set collection with a data from the server).</li>
+</ul>
 <h3 id="collection-add-records-options-">collection.add( records, options? )</h3>
 <p>Add a record (or an array of records) to the collection. If this is the <code>Record.Collection</code>, you may also pass raw attributes objects, and have them be vivified as instances of the <code>Record</code>. Returns the added (or preexisting, if duplicate) records.</p>
 <p>Pass <code>{at: index}</code> to splice the record into the collection at the specified index. If you&#39;re adding records to the collection that are already in the collection, they&#39;ll be ignored, unless you pass <code>{merge: true}</code>, in which case their attributes will be merged into the corresponding records.</p>
@@ -896,7 +977,7 @@ vanHalen.set([ eddie, alex, stone, hagar ]);
 <p>Transaction can be opened either manually or implicitly with calling any of collection update methods.
 Any additional changes made to the collection or its items in event handlers will be executed in the scope of the original transaction, and won&#39;t trigger an additional <code>changes</code> events.</p>
 <h3 id="collection-updateeach-iteratee-val-record-index-void-context-">collection.updateEach( iteratee : ( val : Record, index ) =&gt; void, context? )</h3>
-<p>Similar to the <code>collection.each</code>, but wraps the loop in a transaction.</p>
+<p>Similar to the <code>collection.each</code>, but wraps an iteration in a transaction. The single <code>changes</code> event will be emitted for the group of changes to the records made in <code>updateEach</code>.</p>
 <h3 id="collection-push-record-options-">collection.push( record, options? )</h3>
 <p>Add a record at the end of a collection. Takes the same options as add.</p>
 <h3 id="collection-pop-options-">collection.pop( options? )</h3>
@@ -905,11 +986,6 @@ Any additional changes made to the collection or its items in event handlers wil
 <p>Add a record at the beginning of a collection. Takes the same options as add.</p>
 <h3 id="collection-shift-options-">collection.shift( options? )</h3>
 <p>Remove and return the first record from a collection. Takes the same options as remove.</p>
-<h3 id="collection-slice-begin-end-">collection.slice( begin, end )</h3>
-<p>Return a shallow copy of the <code>collection.models</code>, using the same options as native Array#slice.</p>
-<h3 id="collection-indexof-recordorid-any-number">collection.indexOf( recordOrId : any ) : number</h3>
-<p>Return an index of the record in the collection, and -1 if there are no such a record in the collection.</p>
-<p>Can take the record itself as an argument, <code>id</code>, or <code>cid</code> of the record.</p>
 <h2 id="change-events">Change events</h2>
 <p>Object tree formed by nested records is deeply observable by default; changes in every item trigger change events for the collection and all parent elements in sequence.</p>
 <p>Collection triggers following events on change:</p>
@@ -927,28 +1003,20 @@ Any additional changes made to the collection or its items in event handlers wil
 <h3 id="-static-itemevents-eventname-handler-"><code>static</code> itemEvents = { eventName : <code>handler</code>, ... }</h3>
 <p>Subscribe for events from records. The <code>hander</code> is either the collection&#39;s method name, the handler function, or <code>true</code>.</p>
 <p>When <code>true</code> is passed as a handler, the corresponding event will be triggered on the collection.</p>
-<h2 id="iteration">Iteration</h2>
-<h3 id="collection-foreach-iteratee-val-record-index-void-context-">collection.forEach( iteratee : ( val : Record, index ) =&gt; void, context? )</h3>
-<p>Same as <code>collection.each()</code>.</p>
-<h3 id="collection-each-iteratee-val-record-index-void-context-">collection.each( iteratee : ( val : Record, index ) =&gt; void, context? )</h3>
-<p>Iterate through the elements of the collection. Similar to <code>Array.forEach</code>.</p>
-<h3 id="collection-updateeach-iteratee-val-record-index-void-context-">collection.updateEach( iteratee : ( val : Record, index ) =&gt; void, context? )</h3>
-<p>Similar to the <code>collection.each</code>, but wraps an iteration in a transaction. The single <code>changes</code> event will be emitted
-for the group of changes to the records made in <code>updateEach</code>.</p>
-<p><em>Use this method if you modify records in a loop</em>.</p>
-<h3 id="collection-map-iteratee-val-record-index-t-context-">collection.map( iteratee : ( val : Record, index ) =&gt; T, context? )</h3>
-<p>Map elements of the collection. Similar to <code>Array.map</code>, but <code>undefined</code> values returned by iteratee are filtered out.</p>
-<p>Thus, <code>collection.map</code> can be used to map and filter elements in a single pass.</p>
-<h3 id="collection-filter-iteratee-predicate-context-">collection.filter( iteratee : Predicate, context? )</h3>
-<p>Return filtered array of records matching the predicate.</p>
-<p>Predicate is either the iteratee function returning boolean, or an object with attribute values used to match with record&#39;s attributes.</p>
-<h3 id="collection-every-iteratee-predicate-context-boolean">collection.every( iteratee : Predicate, context? ) : boolean</h3>
-<p>Return <code>true</code> if all records match the predicate.</p>
-<h3 id="collection-some-iteratee-predicate-context-boolean">collection.some( iteratee : Predicate, context? ) : boolean</h3>
-<p>Return <code>true</code> if at least one record match the predicated.</p>
-<p>By default there is no comparator for a collection. If you define a comparator, it will be used to maintain the collection in sorted order. This means that as records are added, they are inserted at the correct index in <code>collection.models</code>.</p>
-<p>Note that Type-R depends on the arity of your comparator function to determine between the two styles, so be careful if your comparator function is bound.</p>
-<p>Collections with a comparator will not automatically re-sort if you later change record attributes, so you may wish to call sort after changing record attributes that would affect the order.</p>
+<h3 id="-event-changes-collection-options-"><code>event</code> &quot;changes&quot; (collection, options)</h3>
+<p>When collection has changed. Single event triggered when the collection has been changed.</p>
+<h3 id="-event-reset-collection-options-"><code>event</code> &quot;reset&quot; (collection, options)</h3>
+<p>When the collection&#39;s entire contents have been reset (<code>reset()</code> method was called).</p>
+<h3 id="-event-update-collection-options-"><code>event</code> &quot;update&quot; (collection, options)</h3>
+<p>Single event triggered after any number of records have been added or removed from a collection.</p>
+<h3 id="-event-sort-collection-options-"><code>event</code> &quot;sort&quot; (collection, options)</h3>
+<p>When the collection has been re-sorted.</p>
+<h3 id="-event-add-record-collection-options-"><code>event</code> &quot;add&quot; (record, collection, options)</h3>
+<p>When a record is added to a collection.</p>
+<h3 id="-event-remove-record-collection-options-"><code>event</code> &quot;remove&quot; (record, collection, options)</h3>
+<p>When a record is removed from a collection.</p>
+<h3 id="-event-change-record-options-"><code>event</code> &quot;change&quot; (record, options)</h3>
+<p>When a record inside of the collection is changed.</p>
 <h2 id="sorting">Sorting</h2>
 <h3 id="-static-comparator-attrname-"><code>static</code> comparator = &#39;attrName&#39;</h3>
 <p>Maintain the collection in sorted order by the given record&#39;s attribute.</p>

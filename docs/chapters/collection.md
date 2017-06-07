@@ -73,12 +73,7 @@ Initialization function which is called at the end of the constructor.
 
 ### collection.createSubset()
 
-## Read and Update
-
-Methods to update the collection. They accept common options:
-
-- `sort : false` - do not sort the collection.
-- `parse : true` - parse raw JSON (used to set collection with a data from the server).
+## Read and iterate
 
 ### collection.get( id )
 Get a record from a collection, specified by an `id`, a `cid`, or by passing in a record.
@@ -97,6 +92,59 @@ Like an array, a Collection maintains a length property, counting the number of 
 ### collection.models
 
 Raw access to the JavaScript array of records inside of the collection. Usually you'll want to use `get`, `at`, or the other methods to access record objects, but occasionally a direct reference to the array is desired.
+
+### collection.slice( begin, end )
+
+Return a shallow copy of the `collection.models`, using the same options as native Array#slice.
+
+### collection.indexOf( recordOrId : any ) : number
+
+Return an index of the record in the collection, and -1 if there are no such a record in the collection.
+
+Can take the record itself as an argument, `id`, or `cid` of the record.
+
+### collection.forEach( iteratee : ( val : Record, index ) => void, context? )
+
+Same as `collection.each()`.
+
+### collection.each( iteratee : ( val : Record, index ) => void, context? )
+
+Iterate through the elements of the collection. Similar to `Array.forEach`.
+
+<aside class="notice">Use <code>collection.updateEach( iteratee, index )</code> method to update records in a loop.</aside>
+
+### collection.map( iteratee : ( val : Record, index ) => T, context? )
+
+Map elements of the collection. Similar to `Array.map`, but `undefined` values returned by iteratee are filtered out.
+
+Thus, `collection.map` can be used to map and filter elements in a single pass.
+
+### collection.filter( iteratee : Predicate, context? )
+
+Return filtered array of records matching the predicate.
+
+Predicate is either the iteratee function returning boolean, or an object with attribute values used to match with record's attributes.
+
+### collection.every( iteratee : Predicate, context? ) : boolean
+
+Return `true` if all records match the predicate.
+
+### collection.some( iteratee : Predicate, context? ) : boolean
+
+Return `true` if at least one record match the predicated.
+
+By default there is no comparator for a collection. If you define a comparator, it will be used to maintain the collection in sorted order. This means that as records are added, they are inserted at the correct index in `collection.models`.
+
+Note that Type-R depends on the arity of your comparator function to determine between the two styles, so be careful if your comparator function is bound.
+
+Collections with a comparator will not automatically re-sort if you later change record attributes, so you may wish to call sort after changing record attributes that would affect the order.
+
+## Update
+
+Methods to update the collection. They accept common options:
+
+- `sort : false` - do not sort the collection.
+- `parse : true` - parse raw JSON (used to set collection with a data from the server).
 
 ### collection.add( records, options? )
 
@@ -165,7 +213,7 @@ Any additional changes made to the collection or its items in event handlers wil
 
 ### collection.updateEach( iteratee : ( val : Record, index ) => void, context? )
 
-Similar to the `collection.each`, but wraps the loop in a transaction.
+Similar to the `collection.each`, but wraps an iteration in a transaction. The single `changes` event will be emitted for the group of changes to the records made in `updateEach`.
 
 ### collection.push( record, options? )
 
@@ -180,16 +228,6 @@ Add a record at the beginning of a collection. Takes the same options as add.
 
 ### collection.shift( options? )
 Remove and return the first record from a collection. Takes the same options as remove.
-
-### collection.slice( begin, end )
-
-Return a shallow copy of the `collection.models`, using the same options as native Array#slice.
-
-### collection.indexOf( recordOrId : any ) : number
-
-Return an index of the record in the collection, and -1 if there are no such a record in the collection.
-
-Can take the record itself as an argument, `id`, or `cid` of the record.
 
 ## Change events
 
@@ -215,48 +253,33 @@ Subscribe for events from records. The `hander` is either the collection's metho
 
 When `true` is passed as a handler, the corresponding event will be triggered on the collection.
 
-## Iteration
+### `event` "changes" (collection, options)
 
-### collection.forEach( iteratee : ( val : Record, index ) => void, context? )
+When collection has changed. Single event triggered when the collection has been changed.
 
-Same as `collection.each()`.
+### `event` "reset" (collection, options)
 
-### collection.each( iteratee : ( val : Record, index ) => void, context? )
+When the collection's entire contents have been reset (`reset()` method was called).
 
-Iterate through the elements of the collection. Similar to `Array.forEach`.
+### `event` "update" (collection, options)
 
-### collection.updateEach( iteratee : ( val : Record, index ) => void, context? )
+Single event triggered after any number of records have been added or removed from a collection.
 
-Similar to the `collection.each`, but wraps an iteration in a transaction. The single `changes` event will be emitted
-for the group of changes to the records made in `updateEach`.
+### `event` "sort" (collection, options)
 
-*Use this method if you modify records in a loop*.
+When the collection has been re-sorted.
 
-### collection.map( iteratee : ( val : Record, index ) => T, context? )
+### `event` "add" (record, collection, options)
 
-Map elements of the collection. Similar to `Array.map`, but `undefined` values returned by iteratee are filtered out.
+When a record is added to a collection.
 
-Thus, `collection.map` can be used to map and filter elements in a single pass.
+### `event` "remove" (record, collection, options)
 
-### collection.filter( iteratee : Predicate, context? )
+When a record is removed from a collection.
 
-Return filtered array of records matching the predicate.
+### `event` "change" (record, options)
 
-Predicate is either the iteratee function returning boolean, or an object with attribute values used to match with record's attributes.
-
-### collection.every( iteratee : Predicate, context? ) : boolean
-
-Return `true` if all records match the predicate.
-
-### collection.some( iteratee : Predicate, context? ) : boolean
-
-Return `true` if at least one record match the predicated.
-
-By default there is no comparator for a collection. If you define a comparator, it will be used to maintain the collection in sorted order. This means that as records are added, they are inserted at the correct index in `collection.models`.
-
-Note that Type-R depends on the arity of your comparator function to determine between the two styles, so be careful if your comparator function is bound.
-
-Collections with a comparator will not automatically re-sort if you later change record attributes, so you may wish to call sort after changing record attributes that would affect the order.
+When a record inside of the collection is changed.
 
 ## Sorting
 
