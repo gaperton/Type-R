@@ -156,29 +156,29 @@
 <p>Record is the serializable class with typed attributes, observable changes, and custom validation checks. It is the main building block for managing the application state; component local state, stores, and collection elements are all subclasses of the <code>Record</code>.</p>
 <p>In contrast to the &quot;model&quot; class in the majority of data frameworks, Record is <em>not the key-value hash</em>. It&#39;s the class with statically defined set of attributes of known types.</p>
 <p><code>Record</code> itself is an abstract class. The subclass needs to be defined for every data structure of different shape, in a similar way as it&#39;s done in statically typed languages.</p>
-<pre><code class="highlight javascript">import { define, Record } from 'type-r'
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
-// ⤹ required to make magic work  
-@define class User extends Record {
-    // ⤹ attribute's declaration
-    static attributes = {
-        firstName : '', // ⟵ String type is inferred from the default value
-        lastName  : String, // ⟵ Or you can just mention its constructor
-        email     : String.value( null ), //⟵ Or you can provide both
-        createdAt : Date, // ⟵ And it works for any constructor.
-        // And you can attach ⤹ metadata to fine-tune attribute's behavior
-        lastLogin : Date.value( null ).has.toJSON( false ) // ⟵ not serializable
+<span class="hljs-comment">// ⤹ required to make magic work  </span>
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-comment">// ⤹ attribute's declaration</span>
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">firstName</span> : <span class="hljs-string">''</span>, <span class="hljs-comment">// ⟵ String type is inferred from the default value</span>
+        lastName  : <span class="hljs-built_in">String</span>, <span class="hljs-comment">// ⟵ Or you can just mention its constructor</span>
+        email     : <span class="hljs-built_in">String</span>.value( <span class="hljs-literal">null</span> ), <span class="hljs-comment">//⟵ Or you can provide both</span>
+        createdAt : <span class="hljs-built_in">Date</span>, <span class="hljs-comment">// ⟵ And it works for any constructor.</span>
+        <span class="hljs-comment">// And you can attach ⤹ metadata to fine-tune attribute's behavior</span>
+        lastLogin : <span class="hljs-built_in">Date</span>.value( <span class="hljs-literal">null</span> ).has.toJSON( <span class="hljs-literal">false</span> ) <span class="hljs-comment">// ⟵ not serializable</span>
     }
 }
 
-const user = new User();
-console.log( user.createdAt ); // ⟵ this is an instance of Date created for you.
+<span class="hljs-keyword">const</span> user = <span class="hljs-keyword">new</span> User();
+<span class="hljs-built_in">console</span>.log( user.createdAt ); <span class="hljs-comment">// ⟵ this is an instance of Date created for you.</span>
 
-const users = new User.Collection(); // ⟵ Collections are defined automatically.
-users.on( 'changes', () =&gt; updateUI( users ) ); // ⟵ listen to the changes.
+<span class="hljs-keyword">const</span> users = <span class="hljs-keyword">new</span> User.Collection(); <span class="hljs-comment">// ⟵ Collections are defined automatically.</span>
+users.on( <span class="hljs-string">'changes'</span>, () =&gt; updateUI( users ) ); <span class="hljs-comment">// ⟵ listen to the changes.</span>
 
-users.set( json, { parse : true } ); // ⟵ parse raw JSON from the server.
-users.updateEach( user =&gt; user.firstName = '' ); // ⟵ bulk update triggering 'changes' once
+users.set( json, { <span class="hljs-attr">parse</span> : <span class="hljs-literal">true</span> } ); <span class="hljs-comment">// ⟵ parse raw JSON from the server.</span>
+users.updateEach( <span class="hljs-function"><span class="hljs-params">user</span> =&gt;</span> user.firstName = <span class="hljs-string">''</span> ); <span class="hljs-comment">// ⟵ bulk update triggering 'changes' once</span>
 </code></pre>
 <h2 id="define">Define</h2>
 <p>Record definition must:</p>
@@ -191,16 +191,16 @@ users.updateEach( user =&gt; user.firstName = '' ); // ⟵ bulk update triggerin
 <p><em>Must</em> be placed before record class definition.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
-@define class X extends Record {
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">X</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     ...    
 }
 </code></pre>
 <h3 id="-static-attributes-name-attrdef-"><code>static</code> attributes = { name : <code>attrDef</code>, ... }</h3>
 <p>Record&#39;s attributes definition. Lists attribute names along with their types, default values, and metadata controlling different aspects of attribute behavior.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    static attributes = {
-        name    : <span class="hljs-built_in">String</span>.value( <span class="hljs-string">'John Dow'</span> ),
-        email   : <span class="hljs-string">'john.dow@mail.com'</span>, <span class="hljs-comment">// Same as String.value( 'john.dow@mail.com' )</span>
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">name</span>    : <span class="hljs-built_in">String</span>.value( <span class="hljs-string">'John Dow'</span> ),
+        <span class="hljs-attr">email</span>   : <span class="hljs-string">'john.dow@mail.com'</span>, <span class="hljs-comment">// Same as String.value( 'john.dow@mail.com' )</span>
         address : <span class="hljs-built_in">String</span>, <span class="hljs-comment">// Same as String.value( '' )</span>
     }
 }
@@ -210,8 +210,8 @@ users.updateEach( user =&gt; user.firstName = '' ); // ⟵ bulk update triggerin
 <p>When the function is used as <code>attrDef</code>, it&#39;s treated as the constructor function. Any constructor function which behaves as <em>converting constructor</em> (like <code>new Date( msecs )</code>) may be used as an attribute type.</p>
 <p>You can use other record&#39;s and collection&#39;s constructors as attribute types. They will be treated as an <em>integral part</em> of the record (created, serialized, validated, and disposed together), i.e. as <em>aggregated members</em>.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    static attributes = {
-        name : <span class="hljs-built_in">String</span> <span class="hljs-comment">// String attribute which is "" by default.</span>
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span> <span class="hljs-comment">// String attribute which is "" by default.</span>
         createdAt : <span class="hljs-built_in">Date</span> <span class="hljs-comment">// Date attribute</span>
         ...
     }
@@ -221,9 +221,9 @@ users.updateEach( user =&gt; user.firstName = '' ); // ⟵ bulk update triggerin
 <p>When value of other type than function is used as <code>attrDef</code> it&#39;s treated as attribute&#39;s default value. Attribute&#39;s type is being inferred from the value.</p>
 <p>Use the general form of attribute definition for attributes of <code>Function</code> type: <code>Function.value( theFunction )</code>.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">GridColumn</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    static attributes = {
-        name : <span class="hljs-string">''</span>, <span class="hljs-comment">// String attribute which is '' by default.</span>
-        render : <span class="hljs-built_in">Function</span>.value( x =&gt; x ),
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">name</span> : <span class="hljs-string">''</span>, <span class="hljs-comment">// String attribute which is '' by default.</span>
+        render : <span class="hljs-built_in">Function</span>.value( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x ),
         ...
     }
 }
@@ -231,8 +231,8 @@ users.updateEach( user =&gt; user.firstName = '' ); // ⟵ bulk update triggerin
 <h3 id="-attrdef-name-type-value-defaultvalue-"><code>attrDef</code> name : Type.value( defaultValue )</h3>
 <p>The general form of attribute definition is <code>Type.value( defaultValue )</code>, where the <code>Type</code> is the corresponding constructor function.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    static attributes = {
-        phone : <span class="hljs-built_in">String</span>.value( <span class="hljs-literal">null</span> ) <span class="hljs-comment">// String attribute which is null by default.</span>
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">phone</span> : <span class="hljs-built_in">String</span>.value( <span class="hljs-literal">null</span> ) <span class="hljs-comment">// String attribute which is null by default.</span>
         ...
     }
 }
@@ -247,15 +247,15 @@ users.updateEach( user =&gt; user.firstName = '' ); // ⟵ bulk update triggerin
 <p>If <code>{parse: true}</code> option is used, <code>attrs</code> is assumed to be the JSON.</p>
 <p>If the value of the particular attribute is not compatible with its type, it&#39;s converted to the declared type invoking the constructor <code>new Type( value )</code> (just <code>Type( value )</code> for primitives).</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Book</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    static attributes = {
-        title  : <span class="hljs-string">''</span>,
-        author : <span class="hljs-string">''</span>
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">title</span>  : <span class="hljs-string">''</span>,
+        <span class="hljs-attr">author</span> : <span class="hljs-string">''</span>
     }
 }
 
 <span class="hljs-keyword">const</span> book = <span class="hljs-keyword">new</span> Book({
-  title: <span class="hljs-string">"One Thousand and One Nights"</span>,
-  author: <span class="hljs-string">"Scheherazade"</span>
+  <span class="hljs-attr">title</span>: <span class="hljs-string">"One Thousand and One Nights"</span>,
+  <span class="hljs-attr">author</span>: <span class="hljs-string">"Scheherazade"</span>
 });
 </code></pre>
 <h3 id="-abstract-record-initialize-attrs-options-"><code>abstract</code> record.initialize( attrs?, options? )</h3>
@@ -267,13 +267,13 @@ a constructor.</p>
 <p>Please note, that you <em>have to declare all attributes</em> in <code>static attributes</code> declaration.</p>
 </blockquote>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Account</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    static attributes = {
-        name : <span class="hljs-built_in">String</span>,
-        balance : <span class="hljs-built_in">Number</span>
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span>,
+        <span class="hljs-attr">balance</span> : <span class="hljs-built_in">Number</span>
     }
 }
 
-<span class="hljs-keyword">const</span> myAccount = <span class="hljs-keyword">new</span> Account({ name : <span class="hljs-string">'mine'</span> });
+<span class="hljs-keyword">const</span> myAccount = <span class="hljs-keyword">new</span> Account({ <span class="hljs-attr">name</span> : <span class="hljs-string">'mine'</span> });
 myAccount.balance += <span class="hljs-number">1000000</span>; <span class="hljs-comment">// That works. Good, eh?</span>
 </code></pre>
 <h2 id="update">Update</h2>
@@ -290,16 +290,16 @@ myAccount.balance += <span class="hljs-number">1000000</span>; <span class="hljs
 <li><code>change</code> <em>( record )</em>.</li>
 </ul>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Book</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    static attributes = {
-        title : <span class="hljs-built_in">String</span>,
-        author : <span class="hljs-built_in">String</span>
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">title</span> : <span class="hljs-built_in">String</span>,
+        <span class="hljs-attr">author</span> : <span class="hljs-built_in">String</span>
         price : <span class="hljs-built_in">Number</span>,
-        publishedAt : <span class="hljs-built_in">Date</span>,
-        available : <span class="hljs-built_in">Boolean</span>
+        <span class="hljs-attr">publishedAt</span> : <span class="hljs-built_in">Date</span>,
+        <span class="hljs-attr">available</span> : <span class="hljs-built_in">Boolean</span>
     }
 }
 
-<span class="hljs-keyword">const</span> myBook = <span class="hljs-keyword">new</span> Book({ title : <span class="hljs-string">"State management with Type-R"</span> });
+<span class="hljs-keyword">const</span> myBook = <span class="hljs-keyword">new</span> Book({ <span class="hljs-attr">title</span> : <span class="hljs-string">"State management with Type-R"</span> });
 myBook.author = <span class="hljs-string">'Vlad'</span>; <span class="hljs-comment">// That works.</span>
 myBook.price = <span class="hljs-string">'Too much'</span>; <span class="hljs-comment">// Converted with Number( 'Too much' ), resulting in NaN.</span>
 myBook.price = <span class="hljs-string">'123'</span>; <span class="hljs-comment">// = Number( '123' ).</span>
@@ -325,7 +325,7 @@ myBook.available = some &amp;&amp; weird || condition; <span class="hljs-comment
 <pre><code class="highlight javascript"><span class="hljs-comment">// Another way of doing the bestSeller.clone()</span>
 <span class="hljs-comment">// Amazingly, this is guaranteed to work by default.</span>
 <span class="hljs-keyword">const</span> book = <span class="hljs-keyword">new</span> Book();
-book.set( bestSeller.toJSON(), { parse : <span class="hljs-literal">true</span> } );
+book.set( bestSeller.toJSON(), { <span class="hljs-attr">parse</span> : <span class="hljs-literal">true</span> } );
 </code></pre>
 <h3 id="record-assignfrom-otherrecord-">record.assignFrom( otherRecord )</h3>
 <p>Makes an existing <code>record</code> to be the full clone of <code>otherRecord</code>, recursively assigning all attributes.</p>
@@ -338,7 +338,7 @@ book.assignFrom( bestSeller );
 <p>All record updates occurs in the scope of transactions. Transaction is the sequence of changes which results in a single <code>change</code> event.
 Transaction can be opened either manually or implicitly with calling <code>set()</code> or assigning an attribute.
 Any additional changes made to the record in <code>change:attr</code> event handler will be executed in the scope of the original transaction, and won&#39;t trigger additional <code>change</code> events.</p>
-<pre><code class="highlight javascript">some.record.transaction( record =&gt; {
+<pre><code class="highlight javascript">some.record.transaction( <span class="hljs-function"><span class="hljs-params">record</span> =&gt;</span> {
     record.a = <span class="hljs-number">1</span>; <span class="hljs-comment">// `change:a` event is triggered.</span>
     record.b = <span class="hljs-number">2</span>; <span class="hljs-comment">// `change:b` event is triggered.</span>
 }); <span class="hljs-comment">// `change` event is triggered.</span>
@@ -367,9 +367,9 @@ Any additional changes made to the record in <code>change:attr</code> event hand
 <p>Attach <code>change:attr</code> event listener to the particular record&#39;s attribute.</p>
 <p><em>Watcher function</em> has the signature <code>( attrValue, attrName ) =&gt; void</code> and is executed in the context of the record. Note that it differs from the event signature.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    static attributes = {
-        name : <span class="hljs-built_in">String</span>.has.watcher( <span class="hljs-string">'onNameChange'</span> ),
-        isAdmin : <span class="hljs-built_in">Boolean</span>,
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span>.has.watcher( <span class="hljs-string">'onNameChange'</span> ),
+        <span class="hljs-attr">isAdmin</span> : <span class="hljs-built_in">Boolean</span>,
     }
 
     onNameChange(){
@@ -395,17 +395,17 @@ or what calls need to be made to sync the changes to the server.</p>
 <h3 id="record-previous-attr-">record.previous( attr )</h3>
 <p>During a &quot;change&quot; event, this method can be used to get the previous value of a changed attribute.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span></span>{
-    static attributes = {
-        name: <span class="hljs-string">''</span>
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">name</span>: <span class="hljs-string">''</span>
     }
 }
 
 <span class="hljs-keyword">const</span> bill = <span class="hljs-keyword">new</span> Person({
-  name: <span class="hljs-string">"Bill Smith"</span>
+  <span class="hljs-attr">name</span>: <span class="hljs-string">"Bill Smith"</span>
 });
 
 bill.on(<span class="hljs-string">"change:name"</span>, ( record, name ) =&gt; {
-  alert( <span class="hljs-string">`Changed name from <span class="hljs-subst">${ bill.previous('name') }</span> to <span class="hljs-subst">${ name }</span>`</span>);
+  alert( <span class="hljs-string">`Changed name from <span class="hljs-subst">${ bill.previous(<span class="hljs-string">'name'</span>) }</span> to <span class="hljs-subst">${ name }</span>`</span>);
 });
 
 bill.name = <span class="hljs-string">"Bill Jones"</span>;
@@ -421,7 +421,7 @@ don&#39;t need to declare it manually.</p>
 
 @define
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ComicsShelve</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Book</span>.<span class="hljs-title">Collection</span> </span>{
-    static itemEvents = {
+    <span class="hljs-keyword">static</span> itemEvents = {
         <span class="hljs-comment">// List of records's events we want to be triggered on the collection</span>
         <span class="hljs-string">'change:inMyReadingList'</span> : <span class="hljs-literal">true</span>,
         <span class="hljs-string">'customEvent'</span> : <span class="hljs-literal">true</span>
@@ -431,11 +431,11 @@ don&#39;t need to declare it manually.</p>
 @define
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Comics</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Book</span> </span>{
     <span class="hljs-comment">// Use custom collection instead of the implicitly created one</span>
-    static Collection = ComicsShelve;
+    <span class="hljs-keyword">static</span> Collection = ComicsShelve;
 
     <span class="hljs-comment">// Extend record's attributes</span>
-    static attributes = {
-        artist : Author
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">artist</span> : Author
     }
 }
 </code></pre>
@@ -447,7 +447,7 @@ don&#39;t need to declare it manually.</p>
 <h3 id="-collection-definition-static-model-recordconstructor">(collection definition) <code>static</code> model = RecordConstructor</h3>
 <p>Specify the record type inside of the collection&#39;s definition. This property is being set automatically for collection types referenced as <code>MyRecord.Collection</code>.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Library</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span>.<span class="hljs-title">Collection</span> </span>{
-    static model = Book;
+    <span class="hljs-keyword">static</span> model = Book;
 }
 </code></pre>
 <h2 id="create-and-access-the-collection">Create and access the collection</h2>
@@ -594,9 +594,9 @@ for the group of changes to the records made in <code>updateEach</code>.</p>
 <p>&quot;sort&quot; comparator functions take two records, and return -1 if the first record should come before the second, 0 if they are of the same rank and 1 if the first record should come after.</p>
 <p>Note how even though all of the chapters in this example are added backwards, they come out in the proper order:</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Chapter</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    static attributes = {
-        page : <span class="hljs-built_in">Number</span>,
-        title : <span class="hljs-built_in">String</span>
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">page</span> : <span class="hljs-built_in">Number</span>,
+        <span class="hljs-attr">title</span> : <span class="hljs-built_in">String</span>
     }
 }
 
@@ -604,11 +604,11 @@ for the group of changes to the records made in <code>updateEach</code>.</p>
 
 chapters.comparator = <span class="hljs-string">'page'</span>;
 
-chapters.add(<span class="hljs-keyword">new</span> Chapter({page: <span class="hljs-number">9</span>, title: <span class="hljs-string">"The End"</span>}));
-chapters.add(<span class="hljs-keyword">new</span> Chapter({page: <span class="hljs-number">5</span>, title: <span class="hljs-string">"The Middle"</span>}));
-chapters.add(<span class="hljs-keyword">new</span> Chapter({page: <span class="hljs-number">1</span>, title: <span class="hljs-string">"The Beginning"</span>}));
+chapters.add(<span class="hljs-keyword">new</span> Chapter({<span class="hljs-attr">page</span>: <span class="hljs-number">9</span>, <span class="hljs-attr">title</span>: <span class="hljs-string">"The End"</span>}));
+chapters.add(<span class="hljs-keyword">new</span> Chapter({<span class="hljs-attr">page</span>: <span class="hljs-number">5</span>, <span class="hljs-attr">title</span>: <span class="hljs-string">"The Middle"</span>}));
+chapters.add(<span class="hljs-keyword">new</span> Chapter({<span class="hljs-attr">page</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">title</span>: <span class="hljs-string">"The Beginning"</span>}));
 
-alert(chapters.map( x =&gt; x.title ));
+alert(chapters.map( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x.title ));
 </code></pre>
 <h3 id="collection-sort-options-">collection.sort( options? )</h3>
 <p>Force a collection to re-sort itself. You don&#39;t need to call this under normal circumstances, as a collection with a comparator will sort itself whenever a record is added. To disable sorting when adding a record, pass <code>{sort: false}</code> to add. Calling sort triggers a &quot;sort&quot; event on the collection.</p>
@@ -631,17 +631,17 @@ alert(chapters.map( x =&gt; x.title ));
 To create nested record or collection you should just mention its constructor function in attribute&#39;s definition.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
-@define class User extends Record {
-    static attributes = {
-        name : String,
-        email : String,
-        isActive : true
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span>,
+        <span class="hljs-attr">email</span> : <span class="hljs-built_in">String</span>,
+        <span class="hljs-attr">isActive</span> : <span class="hljs-literal">true</span>
     }
 }
 
-@define class UsersListState extends Record {
-    static attributes = {
-        users : User.Collection
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UsersListState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">users</span> : User.Collection
     }
 }
 </code></pre>
@@ -661,7 +661,7 @@ To create nested record or collection you should just mention its constructor fu
 <h3 id="recordorcollection-set-json-parse-true-">recordOrCollection.set( json, { parse : true } )</h3>
 <p>Recursively update an aggregation tree in place with the raw JSON data.</p>
 <pre><code class="highlight javascript"><span class="hljs-comment">// Has the same effect as assignFrom():</span>
-record.set( otherRecord.toJSON(), { parse : <span class="hljs-literal">true</span> });
+record.set( otherRecord.toJSON(), { <span class="hljs-attr">parse</span> : <span class="hljs-literal">true</span> });
 </code></pre>
 <h3 id="record-assignfrom-otherrecord-">record.assignFrom( otherRecord )</h3>
 <h3 id="collection-assignfrom-othercollection-">collection.assignFrom( otherCollection )</h3>
@@ -687,9 +687,9 @@ clonedRecord.assignFrom( record );
 <li>It&#39;s excluded from serialization.</li>
 </ul>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UsersListState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    static attributes = {
-        users : User.Collection,
-        selected : User.shared <span class="hljs-comment">// Can be assigned with the user from this.users</span>
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">users</span> : User.Collection,
+        <span class="hljs-attr">selected</span> : User.shared <span class="hljs-comment">// Can be assigned with the user from this.users</span>
     }
 }
 </code></pre>
@@ -697,8 +697,8 @@ clonedRecord.assignFrom( record );
 <h3 id="new-collection-refs-">new Collection.Refs()</h3>
 <p>Collection of references to shared records, which <em>does not aggregate</em> its elements. In contrast to the <code>Collection.shared</code>, <code>Collection.Refs</code> creates an instance of collection which <em>is the part the parent record</em>. Still, its items are not validated and serialized.</p>
 <pre><code class="highlight javascript">    @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyRecord</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-        static attributes = {
-            notCloned : SomeCollection.shared, <span class="hljs-comment">// Reference to the _shared collection_ object.</span>
+        <span class="hljs-keyword">static</span> attributes = {
+            <span class="hljs-attr">notCloned</span> : SomeCollection.shared, <span class="hljs-comment">// Reference to the _shared collection_ object.</span>
             cloned : SomeCollection.Refs <span class="hljs-comment">// _Aggregated_ collection of references to the _shared records_.</span>
     }
 </code></pre>
@@ -708,22 +708,22 @@ clonedRecord.assignFrom( record );
 <p>Produces the JSON for the given record or collection and its aggregated members. Aggregation tree is serialized as nested JSON. Record corresponds to an object in JSON, while the collection is represented as an array.</p>
 <p>May be overridden in the particular record or collection class.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Comment</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    static attributes = {
-        body : <span class="hljs-string">''</span>
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">body</span> : <span class="hljs-string">''</span>
     }
 }
 
 @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BlogPost</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    static attributes = {
-        title : <span class="hljs-string">''</span>,
-        body : <span class="hljs-string">''</span>,
-        comments : Comment.Collection
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">title</span> : <span class="hljs-string">''</span>,
+        <span class="hljs-attr">body</span> : <span class="hljs-string">''</span>,
+        <span class="hljs-attr">comments</span> : Comment.Collection
     }
 }
 
 <span class="hljs-keyword">const</span> post = <span class="hljs-keyword">new</span> BlogPost({
-    title: <span class="hljs-string">"Type-R is cool!"</span>,
-    comments : [ { body : <span class="hljs-string">"Agree"</span> }]
+    <span class="hljs-attr">title</span>: <span class="hljs-string">"Type-R is cool!"</span>,
+    <span class="hljs-attr">comments</span> : [ { <span class="hljs-attr">body</span> : <span class="hljs-string">"Agree"</span> }]
 });
 
 <span class="hljs-keyword">const</span> rawJSON = post.toJSON()
@@ -732,18 +732,18 @@ clonedRecord.assignFrom( record );
 <h3 id="new-recordorcollection-json-parse-true-">new RecordOrCollection( json, { parse : true } )</h3>
 <p>Create an object and its aggregated members from its JSON representation.</p>
 <pre><code class="highlight javascript"><span class="hljs-comment">// Create the blog post from previous example.</span>
-<span class="hljs-keyword">const</span> rawJSON = { title : <span class="hljs-string">"Type-R is cool!"</span>, body : <span class="hljs-string">""</span>, comments : [{ body : <span class="hljs-string">"Agree"</span> }] };
+<span class="hljs-keyword">const</span> rawJSON = { <span class="hljs-attr">title</span> : <span class="hljs-string">"Type-R is cool!"</span>, <span class="hljs-attr">body</span> : <span class="hljs-string">""</span>, <span class="hljs-attr">comments</span> : [{ <span class="hljs-attr">body</span> : <span class="hljs-string">"Agree"</span> }] };
 
-<span class="hljs-keyword">const</span> post = <span class="hljs-keyword">new</span> BlogPost( rawJSON, { parse : <span class="hljs-literal">true</span> });
+<span class="hljs-keyword">const</span> post = <span class="hljs-keyword">new</span> BlogPost( rawJSON, { <span class="hljs-attr">parse</span> : <span class="hljs-literal">true</span> });
 </code></pre>
 <h3 id="recordorcollection-set-json-parse-true-">recordOrCollection.set( json, { parse : true } )</h3>
 <p>Update an existing object and its aggregated members from its JSON representation.</p>
 <pre><code class="highlight javascript"><span class="hljs-comment">// Create the blog post from previous example.</span>
-<span class="hljs-keyword">const</span> rawJSON = { title : <span class="hljs-string">"Type-R is cool!"</span>, body : <span class="hljs-string">""</span>, comments : [{ body : <span class="hljs-string">"Agree"</span> }] };
+<span class="hljs-keyword">const</span> rawJSON = { <span class="hljs-attr">title</span> : <span class="hljs-string">"Type-R is cool!"</span>, <span class="hljs-attr">body</span> : <span class="hljs-string">""</span>, <span class="hljs-attr">comments</span> : [{ <span class="hljs-attr">body</span> : <span class="hljs-string">"Agree"</span> }] };
 
 <span class="hljs-comment">// Similar to new BlogPost( rawJSON, { parse : true });</span>
 <span class="hljs-keyword">const</span> post = <span class="hljs-keyword">new</span> BlogPost();
-post.set( rawJSON, { parse : <span class="hljs-literal">true</span> });
+post.set( rawJSON, { <span class="hljs-attr">parse</span> : <span class="hljs-literal">true</span> });
 </code></pre>
 <h3 id="-abstract-recordorcollection-parse-json-"><code>abstract</code> recordOrCollection.parse( json )</h3>
 <p>Invoked internally when <code>{ parse : true }</code> is passed. May be overridden to define custom JSON transformation. Should not be called explicitly.</p>
@@ -759,8 +759,8 @@ post.set( rawJSON, { parse : <span class="hljs-literal">true</span> });
 <p>Invoked when the <code>{ parse : true }</code> option is set.</p>
 <pre><code class="highlight javascript"><span class="hljs-comment">// Define custom boolean attribute type which is serialized as 0 or 1.</span>
 <span class="hljs-keyword">const</span> MyWeirdBool = <span class="hljs-built_in">Boolean</span>.has
-                      .parse( x =&gt; x === <span class="hljs-number">1</span> )
-                      .toJSON( x =&gt; x ? <span class="hljs-number">1</span> : <span class="hljs-number">0</span> );
+                      .parse( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x === <span class="hljs-number">1</span> )
+                      .toJSON( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x ? <span class="hljs-number">1</span> : <span class="hljs-number">0</span> );
 </code></pre>
 <h2 id="serialization-of-date">Serialization of Date</h2>
 <p>There&#39;s no built-in Date type in JSON. Type-R address this issue providing the attribute-level control on date&#39;s JSON representation.</p>
@@ -783,14 +783,14 @@ If you&#39;re directly communicating with a backend (CouchDB, MongoDB) that uses
 you may set a Record&#39;s <code>idAttribute</code> to transparently map from that key to id.</p>
 <p>Record&#39;s <code>id</code> property will still be linked to Record&#39;s id, no matter which value <code>idAttribute</code> has.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Meal</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-  static idAttribute =  <span class="hljs-string">"_id"</span>;
-  static attributes = {
-      _id : <span class="hljs-built_in">Number</span>,
-      name : <span class="hljs-string">''</span>
+  <span class="hljs-keyword">static</span> idAttribute =  <span class="hljs-string">"_id"</span>;
+  <span class="hljs-keyword">static</span> attributes = {
+      <span class="hljs-attr">_id</span> : <span class="hljs-built_in">Number</span>,
+      <span class="hljs-attr">name</span> : <span class="hljs-string">''</span>
   }
 }
 
-<span class="hljs-keyword">const</span> cake = <span class="hljs-keyword">new</span> Meal({ _id: <span class="hljs-number">1</span>, name: <span class="hljs-string">"Cake"</span> });
+<span class="hljs-keyword">const</span> cake = <span class="hljs-keyword">new</span> Meal({ <span class="hljs-attr">_id</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">name</span>: <span class="hljs-string">"Cake"</span> });
 alert(<span class="hljs-string">"Cake id: "</span> + cake.id);
 </code></pre>
 <h3 id="record-isnew-">record.isNew()</h3>
@@ -811,7 +811,7 @@ Id-references behaves in the same way as shared attributes, but <em>inner change
 In this case, it is resolved dynamically relative to the record&#39;s <code>this</code>.</p>
 <pre><code class="highlight javascript">    @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">State</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
         items : Item.Collection,
-        selected : Record.from( <span class="hljs-string">'items'</span> ) <span class="hljs-comment">// Will resolve to `this.items`</span>
+        <span class="hljs-attr">selected</span> : Record.from( <span class="hljs-string">'items'</span> ) <span class="hljs-comment">// Will resolve to `this.items`</span>
     }
 </code></pre>
 <h3 id="-sourcecollection-path-relative-to-owner-"><code>sourceCollection</code> &#39;^path.relative.to.owner&#39;</h3>
@@ -831,23 +831,23 @@ If the lookup will fail, the next available store upper in aggregation tree will
 <p>Stores in Type-R is <em>very different</em> to stores in other framework. Pay attention.</p>
 </blockquote>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Role</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    static attributes = {
-        name : <span class="hljs-built_in">String</span>,
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span>,
         ...
     }
 }
 
 @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    static attributes = {
-        name : <span class="hljs-built_in">String</span>,
-        roles : Role.Collection.subsetOf( <span class="hljs-string">'~roles'</span> )
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span>,
+        <span class="hljs-attr">roles</span> : Role.Collection.subsetOf( <span class="hljs-string">'~roles'</span> )
     }
 }
 
 @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UsersDirectory</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Store</span> </span>{
-    static attributes = {
-        roles : Role.Collection,
-        users : User.Collection <span class="hljs-comment">// `~roles` references will be resolved against this.roles</span>
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">roles</span> : Role.Collection,
+        <span class="hljs-attr">users</span> : User.Collection <span class="hljs-comment">// `~roles` references will be resolved against this.roles</span>
     }
 }
 </code></pre>
@@ -855,9 +855,9 @@ If the lookup will fail, the next available store upper in aggregation tree will
 <p>The default store class. Is always the last store to lookup when resolving tilda-reference.</p>
 <p>Use the default store for the <em>globally shared data only</em>. Each application page must have its local store.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyStore</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Store</span> </span>{
-    static attributes = {
-        users : User.Collection,
-        roles : Role.Collection
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">users</span> : User.Collection,
+        <span class="hljs-attr">roles</span> : Role.Collection
     }
 }
 
@@ -885,8 +885,8 @@ isAge.error = <span class="hljs-string">"Age must be between 0 and 200"</span>;
 <p>Attribute may have any number of checks attached, which are execute in sequence. Validation stops when first check in sequence fails.</p>
 <pre><code class="highlight javascript"><span class="hljs-comment">// Define new attribute metatype encapsulating validation checks.</span>
 <span class="hljs-keyword">const</span> Age = <span class="hljs-built_in">Number</span>.has
-                .check( x =&gt; x &gt;= <span class="hljs-number">0</span>, <span class="hljs-string">'I guess you are a bit older'</span> )
-                .check( x =&gt; x &lt; <span class="hljs-number">200</span>, <span class="hljs-string">'No way man can be that old'</span> );
+                .check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x &gt;= <span class="hljs-number">0</span>, <span class="hljs-string">'I guess you are a bit older'</span> )
+                .check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x &lt; <span class="hljs-number">200</span>, <span class="hljs-string">'No way man can be that old'</span> );
 </code></pre>
 <h3 id="-attrdef-attr-type-isrequired"><code>attrDef</code> attr : Type.isRequired</h3>
 <p>The special case of attribute-level check cutting out empty values. Attribute value must be truthy to pass, <code>&quot;Required&quot;</code> is used as validation error.</p>
@@ -906,7 +906,7 @@ isAge.error = <span class="hljs-string">"Age must be between 0 and 200"</span>;
 An error object has tree structure mapping the invalid subtree of the aggregation tree.</p>
 <pre><code class="highlight javascript"><span class="hljs-comment">// ValidationError object shape</span>
 {
-    error : <span class="hljs-comment">/* record-level validation error msg as returned from record.validate() */</span>,
+    <span class="hljs-attr">error</span> : <span class="hljs-comment">/* record-level validation error msg as returned from record.validate() */</span>,
 
     <span class="hljs-comment">// Attribute-level validation errors, one entry for each invalid attribute.</span>
     nested : {
@@ -924,7 +924,7 @@ An error object has tree structure mapping the invalid subtree of the aggregatio
 An error object has tree structure mapping the invalid subtree of the aggregation tree.</p>
 <pre><code class="highlight javascript"><span class="hljs-comment">// ValidationError object shape</span>
 {
-    error : <span class="hljs-comment">/* collection-level validation error msg as returned from collection.validate() */</span>,
+    <span class="hljs-attr">error</span> : <span class="hljs-comment">/* collection-level validation error msg as returned from collection.validate() */</span>,
 
     <span class="hljs-comment">// Collection items validation errors</span>
     nested : {
@@ -951,11 +951,11 @@ Type-R solves it with <em>abstract records</em>.</p>
 <p>The factory function used internally by Type-R to create the instance of the record.
 Must be defined in the base class for the polymorphic record.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Widget</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    static attributes = {
-        type : <span class="hljs-built_in">String</span>
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">type</span> : <span class="hljs-built_in">String</span>
     }
 
-    static create( attrs, options ){
+    <span class="hljs-keyword">static</span> create( attrs, options ){
         <span class="hljs-keyword">switch</span>( attrs.type ){
             <span class="hljs-keyword">case</span> <span class="hljs-string">"typeA"</span> : <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> TypeA( attrs, options );
             <span class="hljs-keyword">case</span> <span class="hljs-string">"typeB"</span> : <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> TypeB( attrs, options );
@@ -964,15 +964,15 @@ Must be defined in the base class for the polymorphic record.</p>
 }
 
 @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TypeA</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Widget</span> </span>{
-    static attributes = {
-        type : <span class="hljs-string">"typeA"</span>,
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">type</span> : <span class="hljs-string">"typeA"</span>,
         ...
     }
 }
 
 @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TypeB</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Widget</span> </span>{
-    static attributes = {
-        type : <span class="hljs-string">"typeB"</span>,
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">type</span> : <span class="hljs-string">"typeB"</span>,
         ...
     }
 }
@@ -992,9 +992,9 @@ referencing the same type.</p>
 <pre><code class="highlight javascript">@predefine <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Comment</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span></span>{}
 
 Comment.define({
-    attributes : {
-        text : <span class="hljs-built_in">String</span>,
-        replies : Comment.Collection
+    <span class="hljs-attr">attributes</span> : {
+        <span class="hljs-attr">text</span> : <span class="hljs-built_in">String</span>,
+        <span class="hljs-attr">replies</span> : Comment.Collection
     }
 });
 </code></pre>
@@ -1004,11 +1004,11 @@ Comment.define({
 @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Comments</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span>.<span class="hljs-title">Collection</span> </span>{}
 
 @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Comment</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span>(</span>{
-    static Collection = Comments; <span class="hljs-comment">// Make it the default Comment collection.</span>
+    <span class="hljs-keyword">static</span> Collection = Comments; <span class="hljs-comment">// Make it the default Comment collection.</span>
 
     attributes : {
-        text : <span class="hljs-built_in">String</span>,
-        replies : Comments
+        <span class="hljs-attr">text</span> : <span class="hljs-built_in">String</span>,
+        <span class="hljs-attr">replies</span> : Comments
     }
 });
 </code></pre>
@@ -1021,7 +1021,7 @@ Comment.define({
     ...
 
     @mixins( Events, plainObject, MyClass, ... )
-    class X {
+    <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">X</span> </span>{
         ...
     }
 </code></pre>
@@ -1055,7 +1055,7 @@ Rules can be extended and overridden in any subclass.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { mixins, Events } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
 @mixins( Events )
-class Messenger {
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Messenger</span> </span>{
     ...
 }
 </code></pre>
@@ -1069,7 +1069,7 @@ class Messenger {
 As all Type-R classes, its definition must be preceded with the <code>@define</code> decorator.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, Messenger } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
-@define class MyMessenger extends Messenger {
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyMessenger</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Messenger</span> </span>{
 
 }
 </code></pre>
