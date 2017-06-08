@@ -28,40 +28,42 @@ The state defined with Type-R classes is deeply observable and serializable by d
 
 Type-R is your perfect M and VM in MVVM and MVC architecture imposing no restrictions on V and C parts.
 
-    import { define, Record } from 'type-r'
+```javascript
+import { define, Record } from 'type-r'
 
-    const Email = String.has.check( x => x! || x.indexOf( '@' ) >= 0, 'Invalid email' );
+// Define email attribute type with encapsulated validation check.
+const Email = String.has.check( x => x! || x.indexOf( '@' ) >= 0, 'Invalid email' );
 
-    @define class User extends Record {
-        static attributes = {
-            name  : String.isRequired,
-            email : Email.isRequired
-        }
+@define class User extends Record {
+    static attributes = {
+        name  : String.isRequired, // should not be empty for the record to be valid.
+        email : Email.isRequired
     }
+}
 
-    @define class Message extends Record {
-        static attributes = {
-            created : Date
-            author  : User,
-            to      : User.Collection,
-            subject : '',
-            body    : ''
-        }
+@define class Message extends Record {
+    static attributes = {
+        created : Date //  = new Date()
+        author  : User, // aggregated User record.
+        to      : User.Collection, // aggregating collection of users
+        subject : '',
+        body    : ''
     }
+}
 
-    const msg = new Message();
-    assert( !msg.isValid() );
+const msg = new Message();
+assert( !msg.isValid() ); // Is not valid because msg.author has empty attributes
 
-    msg.on( 'change', () => console.log( "something is changed!" ) );
+// Listen for the changes in aggregation tree...
+msg.on( 'change', () => console.log( 'change!!!' ) );
 
-    msg.transaction( () => {
-        msg.author.name = 'John Dee';
-        msg.author.email = 'dee@void.com';
+msg.transaction( () => { // Prepare to make the sequence of changes on msg
+    msg.author.name = 'John Dee'; // No 'change' event yet as we're in the transaction. 
+    msg.author.email = 'dee@void.com'; 
 
-        assert( msg.isValid() );
-    });
-> something is changed!
-
+    assert( msg.isValid() ); // Now msg is valid as all of its attributes are valid.
+}); // Got single 'change!!!' message in the console.
+```
 
 ## Installation and requirements
 

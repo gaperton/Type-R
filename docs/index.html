@@ -81,42 +81,41 @@
 </ul>
 <p>The state defined with Type-R classes is deeply observable and serializable by default. While being an advanced JSON serialization engine handling sophisticated scenarios (like cross-collections many-to-many relationships), Type-R is completely unopinionated on the client-server transport protocol.</p>
 <p>Type-R is your perfect M and VM in MVVM and MVC architecture imposing no restrictions on V and C parts.</p>
-<pre><code><span class="hljs-keyword">import</span> { define, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
+<span class="hljs-comment">// Define email attribute type with encapsulated validation check.</span>
 <span class="hljs-keyword">const</span> Email = <span class="hljs-built_in">String</span>.has.check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x! || x.indexOf( <span class="hljs-string">'@'</span> ) &gt;= <span class="hljs-number">0</span>, <span class="hljs-string">'Invalid email'</span> );
 
 @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">name</span>  : <span class="hljs-built_in">String</span>.isRequired,
-        <span class="hljs-attr">email</span> : Email.isRequired
+        <span class="hljs-attr">name</span>  : <span class="hljs-built_in">String</span>.isRequired, <span class="hljs-comment">// should not be empty for the record to be valid.</span>
+        email : Email.isRequired
     }
 }
 
 @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Message</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">created</span> : <span class="hljs-built_in">Date</span>
-        author  : User,
-        <span class="hljs-attr">to</span>      : User.Collection,
-        <span class="hljs-attr">subject</span> : <span class="hljs-string">''</span>,
+        <span class="hljs-attr">created</span> : <span class="hljs-built_in">Date</span> <span class="hljs-comment">//  = new Date()</span>
+        author  : User, <span class="hljs-comment">// aggregated User record.</span>
+        to      : User.Collection, <span class="hljs-comment">// aggregating collection of users</span>
+        subject : <span class="hljs-string">''</span>,
         <span class="hljs-attr">body</span>    : <span class="hljs-string">''</span>
     }
 }
 
 <span class="hljs-keyword">const</span> msg = <span class="hljs-keyword">new</span> Message();
-assert( !msg.isValid() );
+assert( !msg.isValid() ); <span class="hljs-comment">// Is not valid because msg.author has empty attributes</span>
 
-msg.on( <span class="hljs-string">'change'</span>, () =&gt; <span class="hljs-built_in">console</span>.log( <span class="hljs-string">"something is changed!"</span> ) );
+<span class="hljs-comment">// Listen for the changes in aggregation tree...</span>
+msg.on( <span class="hljs-string">'change'</span>, () =&gt; <span class="hljs-built_in">console</span>.log( <span class="hljs-string">'change!!!'</span> ) );
 
-msg.transaction( <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-    msg.author.name = <span class="hljs-string">'John Dee'</span>;
-    msg.author.email = <span class="hljs-string">'dee@void.com'</span>;
+msg.transaction( <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> { <span class="hljs-comment">// Prepare to make the sequence of changes on msg</span>
+    msg.author.name = <span class="hljs-string">'John Dee'</span>; <span class="hljs-comment">// No 'change' event yet as we're in the transaction. </span>
+    msg.author.email = <span class="hljs-string">'dee@void.com'</span>; 
 
-    assert( msg.isValid() );
-});
-
-</code></pre><blockquote>
-<p>something is changed!</p>
-</blockquote>
+    assert( msg.isValid() ); <span class="hljs-comment">// Now msg is valid as all of its attributes are valid.</span>
+}); <span class="hljs-comment">// Got single 'change!!!' message in the console.</span>
+</code></pre>
 <h2 id="installation-and-requirements">Installation and requirements</h2>
 <p>Is packed as UMD and ES6 module. No peer dependencies are required.</p>
 <p><code>npm install type-r --save-dev</code></p>
