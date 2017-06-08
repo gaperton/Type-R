@@ -73,22 +73,32 @@
     <div class="page-wrapper">
         <div class="content">
           <h1 id="getting-started">Getting started</h1>
-<p>Type-R is the universal state management framework for both UI and domain state.</p>
-<p>Application state is described with the superposition of two main container types - <a href="04_Record/00_Overview.md">Record</a> and <a href="./05_Collection/00_Overview.md">Collection</a> of records. The state has observable changes and is serializable by default.</p>
+<p>Type-R helps to declaratively define complex domain and UI application state in modern JS applications as a superposition of three kinds of building blocks:</p>
 <ul>
-<li>Records are classes with typed attributes. They are protected from attributes assignment of incompatible types with run-time type assertions and conversions. Which means that the client-server protocol is protected from both ends.</li>
-<li>Records distinguish <a href="06_API_by_feature/01_Aggregation_tree.md">aggregated attributes</a> and those which are <a href="06_API_by_feature/04_Shared_objects.md">references to shared objects</a>. Aggregated attributes are serialized as nested JSON, while references might be <a href="06_API_by_feature/05_id-references_and_Stores.md">serialized as ids</a>. Operations like <code>clone()</code>, <code>dispose()</code>, and <code>toJSON()</code> are performed recursively on elements of aggregation tree.</li>
+<li><em>Record</em> classes with typed attributes.</li>
+<li>Ordered <em>collections</em> of records.</li>
+<li><em>Stores</em> to hold collections used to resolve id-references in JSON.</li>
+</ul>
+<p>The state defined with Type-R classes is deeply observable and serializable by default. While being an advanced JSON serialization engine handling sophisticated scenarios (like cross-collections many-to-many relationships), Type-R is completely unopinionated on the client-server communication protocol.</p>
+<p>Type-R is your perfect M and VM in MVVM and MVC architecture imposing no restrictions on V and C parts.</p>
+<h2 id="installation-and-requirements">Installation and Requirements</h2>
+<p>Is packed as UMD and ES6 module. No peer dependencies are required.</p>
+<p><code>npm install type-r --save-dev</code></p>
+<aside class="success">IE10+, Edge, Safari, Chrome, and Firefox are supported</aside>
+
+<aside class="warning">IE9 and Opera may work but has not been tested. IE8 won't work.</aside>
+
+<h2 id="how-the-type-r-compares-with-x-">How the Type-R compares with X?</h2>
+<p>The closest things to the Type-R are <a href="https://guides.emberjs.com/v2.2.0/models/">Ember Data</a>,  <a href="http://backbonejs.org/#Model">BackboneJS models and collections</a>, and <a href="https://github.com/mobxjs/mobx">mobx</a>. It has an API resembling the one in BackboneJS, it supports transactional observable changes in the way close to mobx, and it has powerful serialization and validation capabilities as Ember Data.</p>
+<ul>
+<li><p>Records attributes are typed at run-time. They are protected from assignment of incompatible types with run-time type assertions and conversions. Which means that the client-server protocol is protected agains errors from both ends. There are no </p>
+</li>
+<li><p>Records distinguish <a href="06_API_by_feature/01_Aggregation_tree.md">aggregated attributes</a> and those which are <a href="06_API_by_feature/04_Shared_objects.md">references to shared objects</a>. Aggregated attributes are serialized as nested JSON, while references might be <a href="06_API_by_feature/05_id-references_and_Stores.md">serialized as ids</a>. Operations like <code>clone()</code>, <code>dispose()</code>, and <code>toJSON()</code> are performed recursively on elements of aggregation tree.</p>
+</li>
 <li>Type-R features declarative <a href="06_API_by_feature/03_Validation.md">validation</a> with attribute-level rules. Validation is transparent and lazily evaluated.</li>
 <li>Architecture does not depend on stores and singletons. <a href="05_API_by_feature/05_id-references_and_Stores.md">Stores</a> are optional and used for shared data only. There might be as many stores as you need, and they can be created and disposed dynamically.</li>
 <li>Type-R data structures are pretty efficient. They are about 10 times faster in real-world data scenarios than BackboneJS.</li>
 </ul>
-<h2 id="installation">Installation</h2>
-<p>Is packed as UMD and ES6 module. No side dependencies.</p>
-<p><code>npm install type-r --save-dev</code></p>
-<h2 id="requirements">Requirements</h2>
-<p>IE10+, Edge, Safari, Chrome, and Firefox are supported.</p>
-<p>IE9 and Opera may work but has not been tested. IE8 <em>won&#39;t work</em>.</p>
-<h2 id="how-the-type-r-compares-with-x-">How the Type-R compares with X?</h2>
 <p>Type-R is designed to be the substitution for BackboneJS, which was used extensively 3 years ago in Volicon/Verizon Observer products. While it largely backward compatible by its API with BackboneJS (for Events and Collections), it&#39;s entirely different internally.</p>
 <p>In its core, it&#39;s an engine for managing the <em>aggregation trees</em> composed of nested Records and Collections. It contains no View, Router, REST, and jQuery/Underscore dependencies.</p>
 <table>

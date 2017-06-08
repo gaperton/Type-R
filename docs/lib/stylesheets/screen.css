@@ -803,8 +803,12 @@ html, body {
     text-shadow: 0 1px 0 #cecece;
     margin-top: 1.5em;
     margin-bottom: 1.5em;
+    margin-left: 28px;
     background: #c6dde9;
-    line-height: 1.6
+    line-height: 1.6;
+    margin-right: 30px;
+    border-radius: 3px;
+    padding-left: 15px;
 }
 
 .content aside.warning {
