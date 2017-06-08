@@ -117,7 +117,7 @@
     var M = Backbone.Model.defaults({p: 1});
     var foo = new M({p: 1});
     var bar = new M({p: 2});
-    bar.set( 'p', void 0 );
+    bar.p = void 0;
     assert.equal(foo.get('p'), 1);
     assert.equal(bar.get('p'), undefined);
   });
@@ -262,15 +262,15 @@
       switch (model.get('a')) {
       case 1:
         assert.equal(options, o1);
-        return model.set('a', 2, o2);
+        return model.set({ a : 2 }, o2);
       case 2:
         assert.equal(options, o2);
-        return model.set('a', 3, o3);
+        return model.set({ a : 3}, o3);
       case 3:
         assert.equal(options, o3);
       }
     });
-    model.set('a', 1, o1);
+    model.set({ a : 1 }, o1);
   });
 
   QUnit.test("multiple unsets", function(assert) {
@@ -887,12 +887,12 @@
     assert.expect(1);
     var model = new ( Backbone.Model.defaults({ property : void 0 }) );
     model.on('change:property', function() {
-      model.set('property', 'bar');
+      model.property = 'bar';
     });
     model.on('change', function() {
       assert.ok(true);
     });
-    model.set('property', 'foo');
+    model.property = 'foo';
   });
 
   QUnit.test("isValid", function(assert) {

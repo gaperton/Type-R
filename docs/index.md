@@ -28,6 +28,41 @@ The state defined with Type-R classes is deeply observable and serializable by d
 
 Type-R is your perfect M and VM in MVVM and MVC architecture imposing no restrictions on V and C parts.
 
+    import { define, Record } from 'type-r'
+
+    const Email = String.has.check( x => x! || x.indexOf( '@' ) >= 0, 'Invalid email' );
+
+    @define class User extends Record {
+        static attributes = {
+            name  : String.isRequired,
+            email : Email.isRequired
+        }
+    }
+
+    @define class Message extends Record {
+        static attributes = {
+            created : Date
+            author  : User,
+            to      : User.Collection,
+            subject : '',
+            body    : ''
+        }
+    }
+
+    const msg = new Message();
+    assert( !msg.isValid() );
+
+    msg.on( 'change', () => console.log( "something is changed!" ) );
+
+    msg.transaction( () => {
+        msg.author.name = 'John Dee';
+        msg.author.email = 'dee@void.com';
+
+        assert( msg.isValid() );
+    });
+> something is changed!
+
+
 ## Installation and requirements
 
 Is packed as UMD and ES6 module. No peer dependencies are required.

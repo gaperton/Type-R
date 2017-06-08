@@ -81,6 +81,42 @@
 </ul>
 <p>The state defined with Type-R classes is deeply observable and serializable by default. While being an advanced JSON serialization engine handling sophisticated scenarios (like cross-collections many-to-many relationships), Type-R is completely unopinionated on the client-server transport protocol.</p>
 <p>Type-R is your perfect M and VM in MVVM and MVC architecture imposing no restrictions on V and C parts.</p>
+<pre><code><span class="hljs-keyword">import</span> { define, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
+
+<span class="hljs-keyword">const</span> Email = <span class="hljs-built_in">String</span>.has.check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x! || x.indexOf( <span class="hljs-string">'@'</span> ) &gt;= <span class="hljs-number">0</span>, <span class="hljs-string">'Invalid email'</span> );
+
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">name</span>  : <span class="hljs-built_in">String</span>.isRequired,
+        <span class="hljs-attr">email</span> : Email.isRequired
+    }
+}
+
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Message</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">created</span> : <span class="hljs-built_in">Date</span>
+        author  : User,
+        <span class="hljs-attr">to</span>      : User.Collection,
+        <span class="hljs-attr">subject</span> : <span class="hljs-string">''</span>,
+        <span class="hljs-attr">body</span>    : <span class="hljs-string">''</span>
+    }
+}
+
+<span class="hljs-keyword">const</span> msg = <span class="hljs-keyword">new</span> Message();
+assert( !msg.isValid() );
+
+msg.on( <span class="hljs-string">'change'</span>, () =&gt; <span class="hljs-built_in">console</span>.log( <span class="hljs-string">"something is changed!"</span> ) );
+
+msg.transaction( <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    msg.author.name = <span class="hljs-string">'John Dee'</span>;
+    msg.author.email = <span class="hljs-string">'dee@void.com'</span>;
+
+    assert( msg.isValid() );
+});
+
+</code></pre><blockquote>
+<p>something is changed!</p>
+</blockquote>
 <h2 id="installation-and-requirements">Installation and requirements</h2>
 <p>Is packed as UMD and ES6 module. No peer dependencies are required.</p>
 <p><code>npm install type-r --save-dev</code></p>

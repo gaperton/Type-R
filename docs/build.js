@@ -27,7 +27,7 @@ marked.setOptions({
   smartLists: true,
   smartypants: false,
   highlight: function (code, lang) {
-    return highlight.highlight(lang, code).value
+    return highlight.highlight(lang || 'javascript', code).value
   }
 })
 
