@@ -17,7 +17,7 @@
     "prepublish": "node_modules/.bin/webpack -p",
     "test": "tests/nestedtypes/node_modules/.bin/mocha tests/nestedtypes/functionality",
     "build": "node_modules/.bin/tsc && npm run prepublish",
-    "docs": "~/.composer/vendor/bin/daux --source=docsource --destination=docs"
+    "docs": "node docs/build.js"
   },
   "repository": {
     "type": "git",
@@ -38,7 +38,9 @@
   },
   "homepage": "https://github.com/gaperton/TransactionalJS#readme",
   "devDependencies": {
-    "daux-api-docs-theme": "^1.0.2",
+    "handlebars": "^4.0.10",
+    "highlight.js": "^9.12.0",
+    "marked": "^0.3.6",
     "source-map-loader": "*",
     "ts-loader": "*",
     "typescript": "*",

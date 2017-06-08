@@ -1,6 +1,20 @@
-# Type-R
+---
+title: API Reference
 
-![master build](https://api.travis-ci.org/Volicon/Type-R.svg?branch=master)
+toc_footers:
+  - <a href="https://github.com/Volicon/Type-R">GitHub repository</a>
+  - <a href="https://github.com/Volicon/Type-R/issues">Ask the question or report the bug</a>
+  - <a href="http://www.volicon.com/">Supported by <img style="vertical-align: middle" src="images/volicon_verizon_dm.png"/></a>
+
+includes:
+  - events
+  - record
+  - collection
+  - store
+  - mixins
+
+search: true
+---
 
 # Getting started
 
@@ -13,8 +27,6 @@ Type-R helps to declaratively define complex domain and UI application state in 
 The state defined with Type-R classes is deeply observable and serializable by default. While being an advanced JSON serialization engine handling sophisticated scenarios (like cross-collections many-to-many relationships), Type-R is completely unopinionated on the client-server transport protocol.
 
 Type-R is your perfect M and VM in MVVM and MVC architecture imposing no restrictions on V and C parts.
-
-API docs site: https://volicon.github.io/Type-R/
 
 ## Installation and requirements
 
@@ -55,11 +67,3 @@ Validation | ✓ | ✓ | ✓ | -
 Dynamic Type Safety | ✓ | - | For serialization only | -
 Aggregation | ✓ | - | - | -
 Relations by id | ✓ | - | ✓ | - 
-
-## Roadmap
-
-- Implement I/O adapter abstraction (#12). It will bring back standard BackboneJS I/O methods, and makes it trivial to substitute the transport.
-- Implement TypeScript support (#11). Records will become accurately typed.
-- API cleanup. Remove deprecated stuff to reduce size.
-- Maybe, implement proper two-phase update transactions. If it won't slow down the bulk updates.
-- Your ideas. The most wonderful features of NestedTypes and Type-R appeared as result of user's issues.
