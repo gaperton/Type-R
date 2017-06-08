@@ -351,8 +351,6 @@ Recursively dispose the record and its aggregated members. "Dispose" means that 
 
 The whole aggregation tree will be recursively disposed, shared members won't.
 
-All records and collections except [shared objects](04_Shared_objects.md) are serializable by default as nested JSON reflecting the structure of their aggregation tree.
-
 ## Read and Update
 
 ### record.cid

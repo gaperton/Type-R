@@ -81,6 +81,13 @@
 </ul>
 <p>The state defined with Type-R classes is deeply observable and serializable by default. While being an advanced JSON serialization engine handling sophisticated scenarios (like cross-collections many-to-many relationships), Type-R is completely unopinionated on the client-server transport protocol.</p>
 <p>Type-R is your perfect M and VM in MVVM and MVC architecture imposing no restrictions on V and C parts.</p>
+<h2 id="installation-and-requirements">Installation and requirements</h2>
+<p>Is packed as UMD and ES6 module. No peer dependencies are required.</p>
+<p><code>npm install type-r --save-dev</code></p>
+<aside class="success">IE10+, Edge, Safari, Chrome, and Firefox are supported</aside>
+
+<aside class="warning">IE9 and Opera may work but has not been tested. IE8 won't work.</aside>
+
 <h2 id="how-the-type-r-compares-with-x-">How the Type-R compares with X?</h2>
 <p>Type-R started to develop in 2014 as the modern substitution for BackboneJS, which would retain the spirit of the BackboneJS simplicity but would be superior to Ember Data in its capabilities and an order of magnitude faster than Backbone.</p>
 <p>The closest things to the Type-R are <a href="https://guides.emberjs.com/v2.2.0/models/">Ember Data</a>, <a href="http://backbonejs.org/#Model">BackboneJS models and collections</a>, and <a href="https://github.com/mobxjs/mobx">mobx</a>. </p>
@@ -154,12 +161,6 @@
 </tr>
 </tbody>
 </table>
-<h2 id="installation-and-requirements">Installation and requirements</h2>
-<p>Is packed as UMD and ES6 module. No peer dependencies are required.</p>
-<p><code>npm install type-r --save-dev</code></p>
-<aside class="success">IE10+, Edge, Safari, Chrome, and Firefox are supported</aside>
-
-<aside class="warning">IE9 and Opera may work but has not been tested. IE8 won't work.</aside>
 
 <h1 id="events">Events</h1>
 <p>Type-R uses an efficient synchronous events implementation which is backward compatible with Backbone 1.1 Events API but is about twice faster in all major browsers. It comes in form of <code>Events</code> mixin and the <code>Messenger</code> base class.</p>
@@ -571,7 +572,6 @@ a constructor.</p>
 <h3 id="record-dispose-">record.dispose()</h3>
 <p>Recursively dispose the record and its aggregated members. &quot;Dispose&quot; means that elements of the aggregation tree will unsubscribe from all event sources. It&#39;s crucial to prevent memory leaks in SPA.</p>
 <p>The whole aggregation tree will be recursively disposed, shared members won&#39;t.</p>
-<p>All records and collections except <a href="04_Shared_objects.md">shared objects</a> are serializable by default as nested JSON reflecting the structure of their aggregation tree.</p>
 <h2 id="read-and-update">Read and Update</h2>
 <h3 id="record-cid">record.cid</h3>
 <p>Read-only client-side record&#39;s identifier. Generated upon creation of the record and is unique for every record&#39;s instance. Cloned records will have different <code>cid</code>.</p>

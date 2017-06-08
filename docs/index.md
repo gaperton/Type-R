@@ -28,6 +28,16 @@ The state defined with Type-R classes is deeply observable and serializable by d
 
 Type-R is your perfect M and VM in MVVM and MVC architecture imposing no restrictions on V and C parts.
 
+## Installation and requirements
+
+Is packed as UMD and ES6 module. No peer dependencies are required.
+
+`npm install type-r --save-dev`
+
+<aside class="success">IE10+, Edge, Safari, Chrome, and Firefox are supported</aside>
+
+<aside class="warning">IE9 and Opera may work but has not been tested. IE8 won't work.</aside>
+
 ## How the Type-R compares with X?
 
 Type-R started to develop in 2014 as the modern substitution for BackboneJS, which would retain the spirit of the BackboneJS simplicity but would be superior to Ember Data in its capabilities and an order of magnitude faster than Backbone.
@@ -57,13 +67,3 @@ Validation | ✓ | ✓ | ✓ | -
 Dynamic Type Safety | ✓ | - | For serialization only | -
 Aggregation | ✓ | - | - | -
 Relations by id | ✓ | - | ✓ | - 
-
-## Installation and requirements
-
-Is packed as UMD and ES6 module. No peer dependencies are required.
-
-`npm install type-r --save-dev`
-
-<aside class="success">IE10+, Edge, Safari, Chrome, and Firefox are supported</aside>
-
-<aside class="warning">IE9 and Opera may work but has not been tested. IE8 won't work.</aside>
