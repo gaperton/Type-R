@@ -92,7 +92,7 @@
                     var spies = createSpies();
 
                     var m = new B();
-                    m.set( 'first', {id : 1, a : 2, b : 2}, { parse : true });
+                    m.set({ first : {id : 1, a : 2, b : 2} }, { parse : true });
 
                     expect( spies.model ).to.be.calledOnce;
                 });
@@ -101,7 +101,7 @@
                     var spies = createSpies();
 
                     var m = new B({ first : null });
-                    m.set( 'first', {id : 1, a : 1, b : 2}, { parse : true } );
+                    m.set({ first :  {id : 1, a : 1, b : 2} }, { parse : true } );
                     expect( spies.model ).to.be.calledOnce;
                 });
             });
@@ -123,7 +123,7 @@
                     var spies = createSpies();
 
                     var m = new B();
-                    m.set( 'c', [{id : 1, a : 1, b : 2}], { parse : true } );
+                    m.set({ c : [{id : 1, a : 1, b : 2}] }, { parse : true } );
 
                     expect( spies.collection ).to.be.calledOnce;
                     expect( spies.model ).to.be.calledOnce;
@@ -133,7 +133,7 @@
                     var spies = createSpies();
 
                     var m = new B({ c : null });
-                    m.set( 'c', [{id : 1, a : 1, b : 2}], { parse : true } );
+                    m.set({ c : [{id : 1, a : 1, b : 2}] }, { parse : true } );
 
                     expect( spies.collection ).to.be.calledOnce;
                     expect( spies.model ).to.be.calledOnce;
