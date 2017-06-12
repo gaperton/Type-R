@@ -2,7 +2,7 @@
 
 ![master build](https://api.travis-ci.org/Volicon/Type-R.svg?branch=master)
 
-# Getting started
+## Getting started
 
 Type-R is the modern JS data framework allowing declaratively definitions of complex domain and UI application state. The state is defined as the superposition of JS classes extending `Record` and `Collection`, and has following features:
 
