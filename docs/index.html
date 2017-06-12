@@ -73,14 +73,22 @@
     <div class="page-wrapper">
         <div class="content">
           <h1 id="getting-started">Getting started</h1>
-<p>Type-R helps to declaratively define complex domain and UI application state in modern JS applications as a superposition of three kinds of building blocks:</p>
+<p>Type-R is the modern JS data framework allowing declaratively definitions of complex domain and UI application state. The state is defined as the superposition of JS classes extending <code>Record</code> and <code>Collection</code>, and has following features:</p>
+<ul>
+<li><em>It&#39;s mapped to JSON by default</em>. The mapping can handle sophisticated scenarios with nested JSON and relations by id, and can be easily customized for every particular attribute or class.</li>
+<li><em>All changes are observable</em>, happens in the scope of transactions, and there&#39;s the fine-grained change events system.</li>
+<li><em>Validation</em> is performed on the first access to the validation error and never happens twice for unchanged data.</li>
+<li><em>Everything is typed at run-time</em> and is protected from improper updates. The shape of generated JSON and data classes is guaranteed to match the definitions.</li>
+<li>It still looks like regular JS classes and is freaking fast. Type-R data structures are about 10 times faster than Backbone models and collections.</li>
+</ul>
+<p><img src="images/overview.png" alt="overview"></p>
+<p>Data layer is defined as a superposition of three kinds of building blocks:</p>
 <ul>
 <li><em>Record</em> classes with typed attributes.</li>
 <li>Ordered <em>collections</em> of records.</li>
-<li><em>Stores</em> to hold collections used to resolve id-references in JSON.</li>
+<li><em>Stores</em> are records with a set of collections in its attributes used to resolve id-references in JSON.</li>
 </ul>
-<p>The state defined with Type-R classes is deeply observable and serializable by default. While being an advanced JSON serialization engine handling sophisticated scenarios (like cross-collections many-to-many relationships), Type-R is completely unopinionated on the client-server transport protocol.</p>
-<p>Type-R is your perfect M and VM in MVVM and MVC architecture imposing no restrictions on V and C parts.</p>
+<p>Type-R is completely unopinionated on the client-server transport protocol and the view layer technology. It&#39;s your perfect M and VM in modern MVVM or MVC architecture.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
 <span class="hljs-comment">// Define email attribute type with encapsulated validation check.</span>

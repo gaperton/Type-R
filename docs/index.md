@@ -18,15 +18,23 @@ search: true
 
 # Getting started
 
-Type-R helps to declaratively define complex domain and UI application state in modern JS applications as a superposition of three kinds of building blocks:
+Type-R is the modern JS data framework allowing declaratively definitions of complex domain and UI application state. The state is defined as the superposition of JS classes extending `Record` and `Collection`, and has following features:
+
+- _It's mapped to JSON by default_. The mapping can handle sophisticated scenarios with nested JSON and relations by id, and can be easily customized for every particular attribute or class.
+- _All changes are observable_, happens in the scope of transactions, and there's the fine-grained change events system.
+- _Validation_ is performed on the first access to the validation error and never happens twice for unchanged data.
+- _Everything is typed at run-time_ and is protected from improper updates. The shape of generated JSON and data classes is guaranteed to match the definitions.
+- It still looks like regular JS classes and is freaking fast. Type-R data structures are about 10 times faster than Backbone models and collections.
+
+![overview](images/overview.png)
+
+Data layer is defined as a superposition of three kinds of building blocks:
 
 - *Record* classes with typed attributes.
 - Ordered *collections* of records.
-- *Stores* to hold collections used to resolve id-references in JSON.
+- *Stores* are records with a set of collections in its attributes used to resolve id-references in JSON.
 
-The state defined with Type-R classes is deeply observable and serializable by default. While being an advanced JSON serialization engine handling sophisticated scenarios (like cross-collections many-to-many relationships), Type-R is completely unopinionated on the client-server transport protocol.
-
-Type-R is your perfect M and VM in MVVM and MVC architecture imposing no restrictions on V and C parts.
+Type-R is completely unopinionated on the client-server transport protocol and the view layer technology. It's your perfect M and VM in modern MVVM or MVC architecture.
 
 ```javascript
 import { define, Record } from 'type-r'
