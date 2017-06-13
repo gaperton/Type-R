@@ -206,7 +206,7 @@ export class Mixable {
             const baseProto = getBaseClass( this );
 
             for( let name of Object.keys( proto ) ){
-                if( name !== 'constructor' && name in this._mixinRules ){
+                if( name !== 'constructor' && this._mixinRules.hasOwnProperty( name ) && name in baseProto ){
                     proto[ name ] = mergeProp( proto[ name ], baseProto[ name ], this._mixinRules[ name ] );
                 }
             }
