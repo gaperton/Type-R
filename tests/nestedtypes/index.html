@@ -40,7 +40,7 @@
                 mocha.setup( 'bdd' );
 
                 var search = window.location.search;
-                require( [ 'functionality/memory', 'functionality/basic', 'functionality/advanced', 'functionality/types', 'functionality/backboneTypes', 'functionality/relations' ], function(){
+                require( [ 'functionality/memory', 'functionality/basic', 'functionality/advanced', 'functionality/types', 'functionality/backboneTypes', 'functionality/relations', 'functionality/collections' ], function(){
                     mocha.run();
                 } );
             }
