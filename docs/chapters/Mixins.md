@@ -20,8 +20,14 @@ Merge specified mixins to the class definition. Both plain JS object and class c
 
 ### `decorator` @mixinRules({ propName : `rule`, ... }) class ...
 
-Specified class properties will be merged according to the given rule.
-Rules can be extended and overridden in any subclass.
+Specified class properties will be merged according to the given rule when both merging properties from
+the mixin or the base class. Rules can be extended and overridden in any subclass.
+
+This allows for automatic chaining of the methods on inheritance.
+
+<aside class="warning">
+This is an experimental feature to support React-style mixins. Should be used with an extreme care.
+</aside>
 
 ## Mixin rules
 

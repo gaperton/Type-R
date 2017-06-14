@@ -1243,8 +1243,13 @@ Store.global = <span class="hljs-keyword">new</span> MyStore();
     }
 </code></pre>
 <h3 id="-decorator-mixinrules-propname-rule-class-"><code>decorator</code> @mixinRules({ propName : <code>rule</code>, ... }) class ...</h3>
-<p>Specified class properties will be merged according to the given rule.
-Rules can be extended and overridden in any subclass.</p>
+<p>Specified class properties will be merged according to the given rule when both merging properties from
+the mixin or the base class. Rules can be extended and overridden in any subclass.</p>
+<p>This allows for automatic chaining of the methods on inheritance.</p>
+<aside class="warning">
+This is an experimental feature to support React-style mixins. Should be used with an extreme care.
+</aside>
+
 <h2 id="mixin-rules">Mixin rules</h2>
 <h3 id="-rule-propname-merge-"><code>rule</code> propName : &#39;merge&#39;</h3>
 <p>Assume the property to be an object. Merge objects from mixins.</p>
