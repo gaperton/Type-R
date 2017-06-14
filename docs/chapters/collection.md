@@ -33,15 +33,25 @@ class Comics extends Book {
 
 Default collection constructor for the given Record class.
 
-Collection is implicitly defined for every record with a constructor accessible as `MyRecord.Collection`. In most cases, you don't need to declare it manually.
+`MyRecord.Collection` is defined automatically for every record class. In most cases, there is no need to define collections explicitly.
 
 ### CollectionClass.Refs
 
 Non-aggregating collection constructor.
 
+By default, the collection aggregates its elements, which are treated as an integral part of the collection (serialized, cloned, disposed, and validated recursively). An aggregation means the _single owner_, as the single object cannot be an integral part of two distinct things.
+
+`Collection.Refs` doesn't aggregate its elements, and it's not mapped to JSON. It is useful for the local application state only.
+
+<aside class="notice">
+Use the <code>Collection.subsetOf()</code> attribute definition and the <code>collection.createSubset()</code> factory method to create the collection which should be mapped to JSON.
+</aside>
+
 ### `static` model = RecordConstructor
 
-Specify the record type inside of the collection's definition. This property is being set automatically for collection types referenced as `MyRecord.Collection`.
+Part of the collection's definition specifying the record type. The collection must know the type of its records to restore its elements from JSON properly.
+
+When not specified, the collection can hold any Record subclass, but it cannot deserialize itself.
 
 ```javascript
 @define class Library extends Record.Collection {
@@ -55,9 +65,13 @@ Maintain the collection in sorted order by the given record's attribute.
 
 ### `static` comparator = x => number | string
 
+Maintain the collection in sorted order according to the "sortBy" comparator function.
+
 "sortBy" comparator functions take a record and return a numeric or string value by which the record should be ordered relative to others.
 
 ### `static` comparator = ( x, y ) => -1 | 0 | 1
+
+Maintain the collection in sorted order according to the "sort" comparator function.
 
 "sort" comparator functions take two records, and return -1 if the first record should come before the second, 0 if they are of the same rank and 1 if the first record should come after.
 
