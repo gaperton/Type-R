@@ -344,7 +344,7 @@ const mergeFunctions : IMergeFunctions = {
 
     mergeSequence( a : Function, b : Function ) : Function {
         return function() : Object {
-            return defaults( a.call( this ), b.call( this ) );
+            return defaults( a.apply( this, arguments ), b.apply( this, arguments ) );
         }
     },
 
