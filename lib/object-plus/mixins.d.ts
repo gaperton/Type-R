@@ -44,5 +44,6 @@ export declare function mixinRules(rules: MixinRules): (Ctor: Function) => void;
 export declare function mixins(...list: {}[]): (Ctor: Function) => void;
 export declare function extendable(Type: Function): void;
 export declare function predefine(Constructor: MixableConstructor<any>): void;
-export declare function define(spec: ClassDefinition | MixableConstructor<any>): (Ctor: Function) => void;
+export declare function define(spec: ClassDefinition): ClassDecorator;
+export declare function define(spec: MixableConstructor<any>): void;
 export declare function mergeProps<T extends {}>(target: T, source: {}, rules?: MixinRules): T;

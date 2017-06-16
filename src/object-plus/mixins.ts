@@ -295,6 +295,8 @@ export function predefine( Constructor : MixableConstructor< any > ) : void {
 /** @decorator `@define` for metaprogramming magic. Can be used with [[Mixable]] classes only.
  *  Forwards the call to [[Mixable.define]].
  */
+export function define( spec : ClassDefinition ) : ClassDecorator;
+export function define( spec : MixableConstructor< any > ) : void;
 export function define( spec : ClassDefinition | MixableConstructor< any > ){
     // Handle the case when `@define` used without arguments.
     if( typeof spec === 'function' ){
