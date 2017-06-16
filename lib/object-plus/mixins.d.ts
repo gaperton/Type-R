@@ -12,7 +12,7 @@ export declare type Mixin = Constructor<any> | {};
 export interface MixinRules {
     [propertyName: string]: MergeRule | MixinRules;
 }
-export declare type MergeRule = 'merge' | 'overwrite' | 'mergeSequence' | 'pipe' | 'sequence' | 'reverse' | 'every' | 'some';
+export declare type MergeRule = 'merge' | 'mergeSequence' | 'pipe' | 'sequence' | 'reverse' | 'every' | 'some';
 export interface Constructor<T> {
     new (...args: any[]): T;
 }

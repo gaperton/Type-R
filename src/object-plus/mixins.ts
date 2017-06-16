@@ -39,7 +39,7 @@ export interface MixinRules {
  * - *every* - property is the function `( ...args : any[] ) => boolean`. Resulting method will return true if every single function returns true.
  * - *some* - same as previous, but method will return true when at least one function returns true.
  */
-export type MergeRule = 'merge' | 'overwrite' | 'mergeSequence' | 'pipe' | 'sequence' | 'reverse' | 'every' | 'some'
+export type MergeRule = 'merge' | 'mergeSequence' | 'pipe' | 'sequence' | 'reverse' | 'every' | 'some'
 
 /** @hidden */
 declare function __extends( a, b )
@@ -346,10 +346,6 @@ const mergeFunctions : IMergeFunctions = {
         return function() : Object {
             return defaults( a.call( this ), b.call( this ) );
         }
-    },
-
-    overwrite( a, b ){
-        return b;
     },
 
     sequence( a : Function, b : Function ){
