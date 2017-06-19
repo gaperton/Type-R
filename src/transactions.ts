@@ -1,4 +1,4 @@
-import { Messenger, CallbacksByEvents, MessengersByCid, MixinRules, MessengerDefinition, tools, extendable, mixins, eventsApi, define, Constructor, MixableConstructor } from './object-plus'
+import { Messenger, CallbacksByEvents, MessengersByCid, MixinMergeRules, MessengerDefinition, tools, extendable, mixins, eventsApi, define, Constructor, MixableConstructor } from './object-plus'
 import { ValidationError, Validatable, ChildrenErrors } from './validation'
 import { Traversable, resolveReference } from './traversable'
 
@@ -28,7 +28,7 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     // Define extendable mixin static properties.
     static create : ( a : any, b? : any, c? : any ) => Transactional
     static mixins : ( ...mixins : ( Constructor<any> | {} )[] ) => MixableConstructor< Transactional >
-    static mixinRules : ( mixinRules : MixinRules ) => MixableConstructor< Transactional >
+    static mixinRules : ( mixinRules : MixinMergeRules ) => MixableConstructor< Transactional >
     static mixTo : ( ...args : Constructor<any>[] ) => MixableConstructor< Transactional >
     static extend : (spec? : TransactionalDefinition, statics? : {} ) => MixableConstructor< Transactional >
     static define : (spec? : TransactionalDefinition, statics? : {} ) => MixableConstructor< Transactional >

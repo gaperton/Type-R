@@ -42,7 +42,7 @@ export abstract class Messenger implements Mixins.Mixable, EventSource {
     // Define extendable mixin static properties.
     static create : ( a : any, b? : any, c? : any ) => Messenger
     static mixins : ( ...mixins : ( Mixins.Constructor<any> | {} )[] ) => Mixins.MixableConstructor< Messenger >
-    static mixinRules : ( mixinRules : Mixins.MixinRules ) => Mixins.MixableConstructor< Messenger >
+    static mixinRules : ( mixinRules : Mixins.MixinMergeRules ) => Mixins.MixableConstructor< Messenger >
     static mixTo : ( ...args : Mixins.Constructor<any>[] ) => Mixins.MixableConstructor< Messenger >
     static extend : (spec? : MessengerDefinition, statics? : {} ) => Mixins.MixableConstructor< Messenger >
     static predefine : () => Mixins.MixableConstructor< Messenger >
