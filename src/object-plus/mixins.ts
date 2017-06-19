@@ -2,7 +2,7 @@
  * Mixins helpers
  */
 
-import { assign, defaults } from './tools'
+import { assign, defaults, getBaseClass } from './tools'
 
 // Mixin rule is the reducer function which is applied to the mixins chain starting from the class prototype. 
 export type MixinMergeRule = ( a : any, b : any ) => any;
@@ -86,6 +86,22 @@ export function defineMixinRules<T extends object, X extends MixableConstrictor<
 
     this._mixinRules = mixinRules;
     return this;
+}
+
+// Apply mixins merge rules on inheritance
+export function applyInheritance<T extends object, X extends MixableConstrictor< T >>( this : X ){
+    const { _mixinRules } = this;
+
+    if( _mixinRules ){
+        const proto = this.prototype,
+            baseProto = getBaseClass( this ).prototype;
+
+        for( let name of Object.keys( proto ) ){
+            if( name !== 'constructor' && _mixinRules.hasOwnProperty( name ) && name in baseProto ){
+                proto[ name ] = mergeProp( proto[ name ], baseProto[ name ], _mixinRules[ name ] );
+            }
+        }
+    }
 }
 
 export function applyMixins<T extends object, X extends MixableConstrictor< T >>( this : X, ...mixins : ( Mixin | Mixin[] )[] ) : X {
