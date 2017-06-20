@@ -152,7 +152,7 @@ export class Mixable {
         this.__super__ = BaseClass.prototype;
     }
 
-    static define( definition : ClassDefinition = {}, staticProps? : {} ) : typeof Mixable {
+    static define( protoProps : ClassDefinition = {}, staticProps? : {} ) : typeof Mixable {
         // Assign statics.
         staticProps && assign( this, staticProps );
 
@@ -168,38 +168,51 @@ export class Mixable {
             }
         }
 
+        //!!!
+        // Instead of what I'm doing here, consider this:
+        // 0. apply legacy mixins (ES6 mixins are applied already).
+        // 1. remove definitions from protoProps.
+        // 2. assign the rest to prototype.
+        //
+
         // Process legacy mixins (ES6 mixins are applied already)...
-        const { mixins, mixinRules, ...protoProps } = definition;
+        const { mixins, mixinRules, ...protoProps } = protoProps;
         mixinRules && defineMixinRules.call( this, mixinRules );
         mixins && applyMixins.call( this, mixins );
 
-        // Extract the definition from statics...
+        // Obtain references to prototype and base class.
+        const { prototype, _mergeRules } = this;
+
+        // Extract the definition from statics and mixins...
         for( let key of this._definitionKeys ){
             // Pick up definitions from statics...
             if( BaseClass[ key ] !== this[ key ] ){
                 definition[ key ] = this[ key ];
             }
-        }
 
-        // Obtain references to prototype and base class.
-        const { prototype, _mergeRules } = this;
+            // Pick up definitions from mixins and clean up the prototype...
+            if( prototype.hasOwnProperty( key ) ){
+                if( definition[ key ] ){
+                    const rule = _mergeRules[ key ];
 
-        // Pick up definitions coming from mixins...
-        // Whatever has merge rules must be traversed.
-        for( let key in _mergeRules ){
-
-        }
-
-        if( prototype.hasOwnProperty( key ) ){
-            if( definition[ key ] ){
-                const rule = _mergeRules[ key ];
-
-                if( rule ){
-                    definition[ key ] =  mergeProp( definition[ key ], prototype[ key ], rule ); 
+                    if( rule ){
+                        definition[ key ] = mergeProp( definition[ key ], prototype[ key ], rule ); 
+                    }
                 }
+                else{
+                    definition[ key ] =  prototype[ key ];
+                }
+
+                // Clean up the prototype.
+                prototype[ key ] = void 0; // TODO: check if delete is needed.
             }
-            else{
-                definition[ key ] =  prototype[ key ];
+        }
+
+        // Process legacy methods definitions.
+        // Whatever is left in prototype with merge rules must be merged with local definitions.
+        for( let key in _mergeRules ){
+            if( prototype.hasOwnProperty[ key ] && prototype[ key ] && definition[ key ] ){
+                definition[ key ] = 
             }
         }
 
