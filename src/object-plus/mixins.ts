@@ -6,7 +6,7 @@ import { assign, defaults, getBaseClass } from './tools'
 
 // Mixin rule is the reducer function which is applied to the mixins chain starting from the class prototype.
 // Pre-defined string mixin rules are for definitions which must be extracted from mixins.
-export type MixinMergeRule = ( a : any, b : any ) => any | 'merge' | 'assign';
+export type MixinMergeRule = ( ( a : any, b : any ) => any ) | 'merge' | 'assign';
 
 export interface MixinMergeRules {
     [ name : string ] : MixinMergeRule
@@ -53,7 +53,7 @@ export function mergeProp( destVal, sourceVal, rule : MixinMergeRule, unshift : 
 
     switch( rule ){
         case 'merge' : return defaults( {}, dest, source );
-        case 'assign' : return dest;
+        case 'assign' : return dest === void 0 ? source : dest;
     }
     if( typeof rule === 'function' ){
         return rule( destVal, sourceVal );
@@ -139,6 +139,7 @@ export function applyMixins<T extends object, X extends MixableConstrictor< T >>
             // For constructors, merge _both_ static and prototype members.
             if( typeof mixin === 'function' ){
                 // Statics are merged by simple substitution.
+                // TODO: must check for definitions in rules.
                 defaults( this, mixin );
 
                 // Prototypes are merged according with a rules.
