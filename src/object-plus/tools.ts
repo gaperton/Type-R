@@ -169,9 +169,9 @@ export function getBaseClass( Class : Function ) {
  * @param names comma-separated list of static property names to compare.
  * @returns hash of listed statics which are added or overriden in the class.
  */
-export function getChangedStatics( Ctor : Function, ...names : string[] ) : {}{
+export function getChangedStatics<F extends Function, K extends keyof F>( Ctor : F, ...names : K[] ){
     const Base = getBaseClass( Ctor ),
-          props = {};
+          props : { [ P in K ]: F[P] } = {} as any;
 
     for( let name of names ){
         const value = Ctor[ name ];

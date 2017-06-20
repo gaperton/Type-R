@@ -3,7 +3,7 @@
  *
  * Vlad Balin & Volicon, (c) 2016
  */
-import { log, assign, omit, getPropertyDescriptor, getBaseClass, defaults, transform } from './tools'
+import { log, assign, omit, getPropertyDescriptor, getBaseClass, defaults, transform, getChangedStatics } from './tools'
 
 /**
  * Class definition recognized by [[Mixable.define]]
@@ -123,7 +123,118 @@ export class Mixable {
      * - Assign mixinRules static property, and merge it with parent.
      * - Adds mixins.
      */
+
+    /** 
+     *  Must be called after inheritance and before 'define'.
+     */
+    static predefine(){
+        const BaseClass : typeof Mixable = getBaseClass( this ),
+            { onExtend } = this;
+
+        // Build the hook chain.
+        if( BaseClass.onExtend !== onExtend ){
+            this.onExtend = function( BaseClass ){
+                BaseClass.onExtend.call( this, BaseClass );
+                onExtend.call( this, BaseClass );
+            }
+        }
+
+        // Call the hook chain.
+        this.onExtend( BaseClass );
+    }
+
+    static onExtend( BaseClass ) : void {
+        // Make sure we don't inherit class factories.
+        if( BaseClass.create === this.create ) {
+            this.create = Mixable.create;
+        }
+
+        this.__super__ = BaseClass.prototype;
+    }
+
     static define( definition : ClassDefinition = {}, staticProps? : {} ) : typeof Mixable {
+        // Assign statics.
+        staticProps && assign( this, staticProps );
+
+        // Build the hook chain.
+        const BaseClass : typeof Mixable = getBaseClass( this ),
+            { onDefine } = this;
+
+        // Build the hook chain.
+        if( BaseClass.onDefine !== onDefine ){
+            this.onDefine = function( spec, BaseClass ){
+                const spec1 = onDefine.call( this, spec, BaseClass );
+                return BaseClass.onDefine.call( this, spec1, BaseClass );
+            }
+        }
+
+        // Process legacy mixins (ES6 mixins are applied already)...
+        const { mixins, mixinRules, ...protoProps } = definition;
+        mixinRules && defineMixinRules.call( this, mixinRules );
+        mixins && applyMixins.call( this, mixins );
+
+        // Extract the definition from statics...
+        for( let key of this._definitionKeys ){
+            // Pick up definitions from statics...
+            if( BaseClass[ key ] !== this[ key ] ){
+                definition[ key ] = this[ key ];
+            }
+        }
+
+        // Obtain references to prototype and base class.
+        const { prototype, _mergeRules } = this;
+
+        // Pick up definitions coming from mixins...
+        // Whatever has merge rules must be traversed.
+        for( let key in _mergeRules ){
+
+        }
+
+        if( prototype.hasOwnProperty( key ) ){
+            if( definition[ key ] ){
+                const rule = _mergeRules[ key ];
+
+                if( rule ){
+                    definition[ key ] =  mergeProp( definition[ key ], prototype[ key ], rule ); 
+                }
+            }
+            else{
+                definition[ key ] =  prototype[ key ];
+            }
+        }
+
+        // Call the hook chain to transform the definition.
+        const spec = this.onDefine( definition, BaseClass );
+
+
+        // Extract prototype properties from the definition.
+        const { properties = <PropertyMap> {}, mixins, mixinRules, ...protoProps } = definition;
+
+        // Update prototype and statics.
+        assign( proto, protoProps );
+        assign( this, staticProps );
+
+        // Define native properties.
+        properties && Object.defineProperties( proto, transform( {}, <PropertyMap>properties, toPropertyDescriptor ) );
+
+        // Apply mixin rules.
+
+        // Apply mixins.
+        mixins && this.mixins( mixins );
+
+        // Apply merge rules to overriden prototype members.
+        // For each merge rule defined, if there is something in prototype it must be merged with the base class
+        // according to the rules.
+        applyInheritance.call( this );
+
+        return this;
+    }
+
+    static onDefine( spec : object, BaseClass ) : object {
+        return spec;
+    }
+
+    static _define( definition : ClassDefinition = {}, staticProps? : {} ) : typeof Mixable {
         // That actually might happen when we're using @define decorator...
         if( !this.define ){
             log.error( "[Class Defininition] Class must have class extensions to use @define decorator. Use '@extendable' before @define, or extend the base class with class extensions.", definition );
@@ -177,23 +288,6 @@ export class Mixable {
 
         // 2. Apply definitions
         return spec ? Subclass.define( spec, statics ) : Subclass.predefine();
-    }
-
-    /** Do the magic necessary for forward declarations.
-     *  Can be overriden by subclasses.
-     *  Must be written in the way that it's safe to call twice.
-     */
-    static predefine() : typeof Mixable {
-        const BaseClass : typeof Mixable = getBaseClass( this );
-
-        // Make sure we don't inherit class factories.
-        if( BaseClass.create === this.create ) {
-            this.create = Mixable.create;
-        }
-
-        this.__super__ = BaseClass.prototype;
-
-        return this;
     }
 
     /** @hidden */
