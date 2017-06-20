@@ -4,32 +4,41 @@
 
 import { assign, defaults, getBaseClass } from './tools'
 
-// Mixin rule is the reducer function which is applied to the mixins chain starting from the class prototype. 
-export type MixinMergeRule = ( a : any, b : any ) => any;
+// Mixin rule is the reducer function which is applied to the mixins chain starting from the class prototype.
+// Pre-defined string mixin rules are for definitions which must be extracted from mixins.
+export type MixinMergeRule = ( a : any, b : any ) => any | 'merge' | 'assign';
 
 export interface MixinMergeRules {
-    [ propertyName : string ] : MixinMergeRules | MixinMergeRule
+    [ name : string ] : MixinMergeRule
 }
 
-/** @hidden */
-export function mergeObjects( dest : object, source : object, rules : MixinMergeRules = {}) : object {
+export function applyMixin( dest : object, definition : object, source : object, rules : MixinMergeRules, unshift = false ) : object {
     for( let name of Object.keys( source ) ) {
         if( name !== 'constructor' ){
             const sourceProp = Object.getOwnPropertyDescriptor( source, name ),
                 destProp   = Object.getOwnPropertyDescriptor( dest, name ),
-                destValue = destProp && destProp.value;
-
-            if( destValue == null ) {
-                // Just copy the prop over if the destination prop is not defined.
-                Object.defineProperty( dest, name, sourceProp );
+                destValue = destProp && destProp.value,
+                rule  = rules[ name ];
+            
+            // cut off definitions
+            if( typeof rule === 'string' ){
+                definition[ name ] = definition.hasOwnProperty( name ) ? 
+                    mergeProp( definition[ name ], sourceProp.value, rule, unshift ) :
+                    sourceProp.value;
             }
-            else {
-                // Destination prop is defined, thus merge rules must be applied.
-                const rule  = rules[ name ];
+            else{
+                if( destValue == null ) {
+                    // Just copy the prop over if the destination prop is not defined.
+                    Object.defineProperty( dest, name, sourceProp );
+                }
+                else {
+                    // Destination prop is defined, thus merge rules must be applied.
+                    
 
-                // Proceed with merge only if there is the rule for the prop defined.
-                if( rule ) {
-                    dest[ name ] = mergeProp( destValue, sourceProp.value, rule );
+                    // Proceed with merge only if there is the rule for the prop defined.
+                    if( rule ) {
+                        dest[ name ] = mergeProp( destValue, sourceProp.value, rule, unshift );
+                    }
                 }
             }
         }
@@ -38,12 +47,19 @@ export function mergeObjects( dest : object, source : object, rules : MixinMerge
     return dest;
 }
 
-export function mergeProp( destVal, sourceVal, rule : MixinMergeRule | MixinMergeRules ){
+export function mergeProp( destVal, sourceVal, rule : MixinMergeRule, unshift : boolean ){
+    const dest = unshift ? sourceVal : destVal,
+        source = unshift ? destVal : sourceVal;
+
+    switch( rule ){
+        case 'merge' : return defaults( {}, dest, source );
+        case 'assign' : return dest;
+    }
     if( typeof rule === 'function' ){
-        return rule( destVal, sourceVal ); 
+        return rule( destVal, sourceVal );
     }
     else{
-        return mergeObjects( assign( {}, destVal ), sourceVal, rule );
+        return rule == 'merge' ? ;
     }
 }
 
@@ -81,7 +97,7 @@ export function defineMixinRules<T extends object, X extends MixableConstrictor<
     const Base = Object.getPrototypeOf( this.prototype ).constructor;
 
     if( Base._mixinRules ) {
-        mergeObjects( mixinRules, Base._mixinRules );
+        applyMixin( mixinRules, Base._mixinRules );
     }
 
     this._mixinRules = mixinRules;
@@ -126,11 +142,11 @@ export function applyMixins<T extends object, X extends MixableConstrictor< T >>
                 defaults( this, mixin );
 
                 // Prototypes are merged according with a rules.
-                mergeObjects( proto, (<Constructor<any>>mixin).prototype, mergeRules );
+                applyMixin( proto, (<Constructor<any>>mixin).prototype, mergeRules );
             }
             // Handle plain object mixins.
             else {
-                mergeObjects( proto, mixin, mergeRules );
+                applyMixin( proto, mixin, mergeRules );
             }
         }
     }
