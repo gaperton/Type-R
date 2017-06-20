@@ -42,6 +42,28 @@ Record.define = function( protoProps : RecordDefinition = {}, staticProps ){
     return this;
 }
 
+Record.onDefine = function( definition, BaseClass ){
+    const baseProto : Record = BaseClass.prototype;
+
+    if( 'Collection' in this && this.Collection === void 0 ){
+        tools.log.error( `[Model Definition] ${ this.prototype.getClassName() }.Collection is undefined. It must be defined _before_ the model.`, definition );
+    }
+
+    // Compile attributes spec, creating definition mixin.
+    const dynamicMixin = compile( this.attributes = getAttributes( definition ), <AttributesSpec> baseProto._attributes );
+
+    // Explicit 'properties' declaration overrides auto-generated attribute properties.
+    if( definition.properties === false ){
+        dynamicMixin.properties = {};
+    }
+
+    this.mixin( dynamicMixin );
+
+    defineCollection.call( this, definition.collection || definition.Collection );
+
+    return this;
+}
+
 Record.predefine = function(){
     Transactional.predefine.call( this );
 
@@ -52,6 +74,14 @@ Record.predefine = function(){
 
     return this;
 }
+
+Record.onExtend = function( BaseClass ){
+    this.Collection = BaseClass.Collection.extend();
+    this.Collection.prototype.model = this;
+
+    createSharedTypeSpec( this, SharedType );
+}
+
 
 Record._attribute = AggregatedType;
 createSharedTypeSpec( Record, SharedType );
