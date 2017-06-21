@@ -80,7 +80,7 @@ export declare class Record extends Transactional implements Owner {
     _keys: string[];
     Attributes(x: AttributesValues): void;
     forEachAttr(attrs: {}, iteratee: (value: any, key?: string, spec?: Attribute) => void): void;
-    each(iteratee: (value?: any, key?: string) => void, context?: any): void;
+    each(iteratee: (value?: any, key?: string | number) => void, context?: any): void;
     keys(): string[];
     values(): any[];
     _toJSON(): {};
