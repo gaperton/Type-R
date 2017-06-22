@@ -4,11 +4,12 @@
 import * as tools from './tools'
 export { tools }
 export * from './mixins'
+export * from './define'
 export * from './messenger'
 import * as eventsApi from './eventsource'
 export { eventsApi }
 
-import { Mixable, MixableConstructor } from './mixins'
+import { Mixable, MixableConstructor } from './define'
 
 declare global {
     interface ObjectConstructor {

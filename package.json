@@ -16,7 +16,8 @@
   "scripts": {
     "prepublish": "node_modules/.bin/webpack -p",
     "test": "tests/nestedtypes/node_modules/.bin/mocha tests/nestedtypes/functionality",
-    "build": "node_modules/.bin/tsc && npm run prepublish",
+    "test:ts": "tests/nestedtypes/node_modules/.bin/mocha --opts tests/typescript/mocha.opts",
+    "build": "node_modules/.bin/tsc --project tsconfig.prod.json && npm run prepublish",
     "docs": "node docs/build.js"
   },
   "repository": {
@@ -38,11 +39,16 @@
   },
   "homepage": "https://github.com/gaperton/TransactionalJS#readme",
   "devDependencies": {
+    "@types/chai": "^4.0.0",
+    "@types/mocha": "^2.2.41",
+    "chai": "^4.0.2",
     "handlebars": "^4.0.10",
     "highlight.js": "^9.12.0",
     "marked": "^0.3.6",
+    "mocha": "^3.4.2",
     "source-map-loader": "*",
     "ts-loader": "*",
+    "ts-node": "^3.0.6",
     "typescript": "<2.4.0",
     "webpack": "*"
   }

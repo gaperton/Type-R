@@ -4,136 +4,110 @@
 
 import { assign, defaults, getBaseClass } from './tools'
 
+/**
+ * Public mixins API
+ */
 // Mixin rule is the reducer function which is applied to the mixins chain starting from the class prototype.
 // Pre-defined string mixin rules are for definitions which must be extracted from mixins.
-export type MixinMergeRule = ( ( a : any, b : any ) => any ) | 'merge' | 'assign';
+
+// @mixinRules({ name : rule, ... }) decorator.
+export function mixinRules( rules : MixinMergeRules ){
+    return ( Class : Function ) => staticMixinRules.call( Class, rules );
+}
 
 export interface MixinMergeRules {
     [ name : string ] : MixinMergeRule
 }
 
-export function applyMixin( dest : object, definition : object, source : object, rules : MixinMergeRules, unshift = false ) : object {
-    for( let name of Object.keys( source ) ) {
-        if( name !== 'constructor' ){
-            const sourceProp = Object.getOwnPropertyDescriptor( source, name ),
-                destProp   = Object.getOwnPropertyDescriptor( dest, name ),
-                destValue = destProp && destProp.value,
-                rule  = rules[ name ];
-            
-            // cut off definitions
-            if( typeof rule === 'string' ){
-                definition[ name ] = definition.hasOwnProperty( name ) ? 
-                    mergeProp( definition[ name ], sourceProp.value, rule, unshift ) :
-                    sourceProp.value;
-            }
-            else{
-                if( destValue == null ) {
-                    // Just copy the prop over if the destination prop is not defined.
-                    Object.defineProperty( dest, name, sourceProp );
-                }
-                else {
-                    // Destination prop is defined, thus merge rules must be applied.
-                    
+export type DefinitionMergeRule = 'merge' | 'assign';
+export type MethodMergeRule = ( a : any, b : any ) => any
+export type MixinMergeRule = MethodMergeRule | DefinitionMergeRule;
 
-                    // Proceed with merge only if there is the rule for the prop defined.
-                    if( rule ) {
-                        dest[ name ] = mergeProp( destValue, sourceProp.value, rule, unshift );
-                    }
-                }
-            }
+// @mixins( A, B, ... ) decorator.
+export function mixins( ...list : Mixin[] ){
+    return ( Class : Function ) => staticMixins.apply( Class, list )
+}
+
+export type Mixin = object | Function
+
+/**
+ * Main mixin function. Mix the stuff in according with the rules, and separate definitions out.
+ * @param dest - target object which will be updated.
+ * @param definition - target definitions object which will be updated.
+ * @param source - source object with the mix of definitions and regular members.
+ * @param rules - mixin merge rules
+ * @param unshift - when true, merge rules are applied as if the source would be the target.
+ */
+export function applyMixin( dest : object, definition : object, source : object, rules : MixinMergeRules, unshift = false ) : object {
+    forEachOwnProp( source, rules, ( sourceProp, name, rule ) =>{
+        // Filter out definitions.
+        if( typeof rule === 'string' ){
+            assignProperty( definition, name, sourceProp, rule, unshift );
         }
-    }
+        // Everything else must go to the dest.
+        else{
+            assignProperty( dest, name, sourceProp, rule, unshift );
+        }
+    });
 
     return dest;
 }
 
-export function mergeProp( destVal, sourceVal, rule : MixinMergeRule, unshift : boolean ){
-    const dest = unshift ? sourceVal : destVal,
-        source = unshift ? destVal : sourceVal;
+// Apply mixins merge rules on inheritance
+export function applyInheritanceRules( Class : MixableConstructor ){
+    const { _mixinRules } = Class;
 
-    switch( rule ){
-        case 'merge' : return defaults( {}, dest, source );
-        case 'assign' : return dest === void 0 ? source : dest;
-    }
-    if( typeof rule === 'function' ){
-        return rule( destVal, sourceVal );
-    }
-    else{
-        return rule == 'merge' ? ;
+    if( _mixinRules ){
+        const proto = Class.prototype,
+            baseProto = getBaseClass( Class ).prototype;
+
+        forEachOwnProp( proto, _mixinRules, ( prop, name, rule ) =>{
+            if( typeof rule === 'function' && name in baseProto ){
+                proto[ name ] = resolveRule( prop.value, baseProto[ name ], rule );
+            }
+        });
     }
 }
 
-export type Constructor<T extends object> = {
-    new ( ...args : any[] ) : T
-    prototype : T
-}
-
-export type Mixin = object | Constructor< any >
-
-export interface MixableConstrictor<T extends object> extends Constructor<T>{
+export interface MixableConstructor extends Function {
     _mixinRules? : MixinMergeRules
     _appliedMixins? : Mixin[]
+    _definition? : object
 }
 
-/** @decorator `@mixinRules({ ... })`. Has the same effect as [[Mixable.mixinRules]]. Can be used with any ES6 class.
- *  See [[MixinRules]] for rules specification.
- */
-export function mixinRules( rules : MixinMergeRules ) {
-    return function<T extends object>( Class : Constructor<T>){
-        defineMixinRules.call( Class, rules );
-    }
-}
-
-/** @decorator `@mixins( A, B, C... )`.
- * Has the same effect as [[Mixable.mixins]]. Can be used with any ES6 class.
- */
-export function mixins( ...list : {}[] ) {
-    return function<T extends object>( Class : Constructor<T>){
-        applyMixins.apply( Class, list );
-    }
-}
-
-export function defineMixinRules<T extends object, X extends MixableConstrictor< T >>( this : X, mixinRules : MixinMergeRules ) : X {
-    const Base = Object.getPrototypeOf( this.prototype ).constructor;
+export function staticMixinRules( this : MixableConstructor, mixinRules : MixinMergeRules ) {
+    const Base = getBaseClass( this );
 
     if( Base._mixinRules ) {
-        applyMixin( mixinRules, Base._mixinRules );
+        defaults( mixinRules, Base._mixinRules );
     }
 
     this._mixinRules = mixinRules;
-    return this;
 }
 
-// Apply mixins merge rules on inheritance
-export function applyInheritance<T extends object, X extends MixableConstrictor< T >>( this : X ){
-    const { _mixinRules } = this;
-
-    if( _mixinRules ){
-        const proto = this.prototype,
-            baseProto = getBaseClass( this ).prototype;
-
-        for( let name of Object.keys( proto ) ){
-            if( name !== 'constructor' && _mixinRules.hasOwnProperty( name ) && name in baseProto ){
-                proto[ name ] = mergeProp( proto[ name ], baseProto[ name ], _mixinRules[ name ] );
-            }
-        }
+export function getDefinitions( Class : MixableConstructor ){
+    // _definition might be inherited from the parent. If it's the case, fix it.
+    if( Class._definition === getBaseClass( Class )._definition ){
+        Class._definition = {};
     }
+
+    return Class._definition;
 }
 
-export function applyMixins<T extends object, X extends MixableConstrictor< T >>( this : X, ...mixins : ( Mixin | Mixin[] )[] ) : X {
+export function staticMixins( this : MixableConstructor, ...mixins : ( Mixin | Mixin[] )[] ){
     const proto      = this.prototype,
-            mergeRules : MixinMergeRules = this._mixinRules || {},
-            _appliedMixins = this._appliedMixins = ( this._appliedMixins || [] ).slice();
+          _mixinRules = this._mixinRules || {},
+          _appliedMixins = this._appliedMixins = ( this._appliedMixins || [] ).slice(),
+          definition = getDefinitions( this );
 
     // Apply mixins in sequence...
     for( let mixin of mixins ) {
         // Mixins array should be flattened.
         if( mixin instanceof Array ) {
-            return applyMixins.apply( this, mixin );
+            staticMixins.apply( this, mixin );
         }
-
         // Don't apply mixins twice.
-        if( _appliedMixins.indexOf( mixin ) < 0 ){
+        else if( _appliedMixins.indexOf( mixin ) < 0 ){
             _appliedMixins.push( mixin );
 
             // For constructors, merge _both_ static and prototype members.
@@ -142,12 +116,12 @@ export function applyMixins<T extends object, X extends MixableConstrictor< T >>
                 // TODO: must check for definitions in rules.
                 defaults( this, mixin );
 
-                // Prototypes are merged according with a rules.
-                applyMixin( proto, (<Constructor<any>>mixin).prototype, mergeRules );
+                // Prototypes are merged according with rules.
+                applyMixin( proto, definition, mixin.prototype, _mixinRules );
             }
             // Handle plain object mixins.
             else {
-                applyMixin( proto, mixin, mergeRules );
+                applyMixin( proto, definition, mixin, _mixinRules );
             }
         }
     }
@@ -204,3 +178,52 @@ export const mixinMergeRules = {
         }
     }
 };
+
+/**
+ * Helpers
+ */
+
+type PropertyIteratee = ( prop : PropertyDescriptor, name : string, rule : MixinMergeRule ) => void;
+
+function forEachOwnProp( obj : object, rules : MixinMergeRules, fun : PropertyIteratee ){
+    for( let name of Object.keys( obj ) ) {
+        if( name !== 'constructor' ){
+            fun( Object.getOwnPropertyDescriptor( obj, name ), name, rules[ name ] );
+        }
+    }
+
+    return obj;
+}
+
+function assignProperty( dest, name, sourceProp, rule, unshift ){
+    // Destination prop is defined, thus the merge rules must be applied.
+    if( dest.hasOwnProperty( name ) ){
+        let first, last;
+        
+        if( unshift ){
+            first = dest[ name ];
+            last = sourceProp.value;
+        }
+        else{
+            last = dest[ name ];
+            first = sourceProp.value;
+        }
+
+        dest[ name ] = resolveRule( first, last, rule );
+    }
+    // If destination is empty, just copy the prop over.
+    else{
+        Object.defineProperty( dest, name, sourceProp );
+    }
+}
+
+function resolveRule( dest, source, rule : MixinMergeRule ){
+    // When destination is empty, take the source.
+    if( dest === void 0 ) return source;
+
+    // In these cases we take non-empty destination:
+    if( rule === void 0 || source === void 0 || rule === 'assign' ) return dest;
+
+    // In other cases we must merge values.
+    return rule === 'merge' ? defaults( {}, dest, source ) : rule( dest, source );
+}

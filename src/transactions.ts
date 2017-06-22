@@ -1,4 +1,4 @@
-import { Messenger, CallbacksByEvents, MessengersByCid, MixinMergeRules, MessengerDefinition, tools, extendable, mixins, eventsApi, define, Constructor, MixableConstructor } from './object-plus'
+import { Messenger, CallbacksByEvents, MessengersByCid, MixinMergeRules, MessengerDefinition, tools, extendable, mixins, eventsApi, define, Constructor } from './object-plus'
 import { ValidationError, Validatable, ChildrenErrors } from './validation'
 import { Traversable, resolveReference } from './traversable'
 
@@ -11,7 +11,6 @@ const { assign } = tools,
  */
 
 /** @private */
-export type TransactionalConstructor = MixableConstructor< Transactional >
 export type TransactionalDefinition = MessengerDefinition
 
 export enum ItemsBehavior {
@@ -27,11 +26,11 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     // Mixins are hard in TypeScript. We need to copy type signatures over...
     // Define extendable mixin static properties.
     static create : ( a : any, b? : any, c? : any ) => Transactional
-    static mixins : ( ...mixins : ( Constructor<any> | {} )[] ) => MixableConstructor< Transactional >
-    static mixinRules : ( mixinRules : MixinMergeRules ) => MixableConstructor< Transactional >
-    static mixTo : ( ...args : Constructor<any>[] ) => MixableConstructor< Transactional >
-    static extend : (spec? : TransactionalDefinition, statics? : {} ) => MixableConstructor< Transactional >
-    static define : (spec? : TransactionalDefinition, statics? : {} ) => MixableConstructor< Transactional >
+    static mixins : ( ...mixins : ( Constructor<any> | {} )[] ) => typeof Transactional
+    static mixinRules : ( mixinRules : MixinMergeRules ) => typeof Transactional
+    static mixTo : ( ...args : Constructor<any>[] ) => typeof Transactional
+    static extend : (spec? : TransactionalDefinition, statics? : {} ) => typeof Transactional
+    static define : (spec? : TransactionalDefinition, statics? : {} ) => typeof Transactional
     static predefine : () => typeof Messenger
 
     on : ( events : string | CallbacksByEvents, callback, context? ) => this

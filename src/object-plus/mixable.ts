@@ -4,14 +4,18 @@
  * Vlad Balin & Volicon, (c) 2016
  */
 import { log, assign, omit, getPropertyDescriptor, getBaseClass, defaults, transform, getChangedStatics } from './tools'
-import { applyMixins, applyInheritance, defineMixinRules } from './mixins'
+import { Mixin, MixableConstructor, getDefinitions, MixinMergeRules, staticMixins, applyInheritanceRules, applyMixin, staticMixinRules } from './mixins'
 /**
  * Class definition recognized by [[Mixable.define]]
  */
-export interface ClassDefinition {
+
+export interface MixableDefinition {
     properties? : PropertyMap | boolean
+}
+
+export interface ClassDefinition extends MixableDefinition {
     mixins? : Mixin[]
-    mixinRules? : MixinRules
+    mixinRules? : MixinMergeRules
     [ name : string ] : any
 }
 
@@ -44,21 +48,6 @@ export interface Constructor< T >{
 }
 
 /**
- * Generic interface to reference constructor function of any Mixable type T.
- * @hidden
- */
-export interface MixableConstructor< T > extends Constructor< T >{
-    prototype : T
-    create( a : any, b? : any ) : T
-    mixins( ...mixins : ( Constructor<any> | {} )[] ) : MixableConstructor< T >
-    mixinRules( mixinRules : MixinRules ) : MixableConstructor< T >
-    mixTo( ...args : Constructor<any>[] ) : MixableConstructor< T >
-    define( definition : ClassDefinition, staticProps? : {} ) : MixableConstructor< T >
-    extend(spec? : ClassDefinition, statics? : {} ) : MixableConstructor< T >
-    predefine() : MixableConstructor< T >
-}
-
-/**
  * Base class, holding metaprogramming class extensions.
  * Supports mixins and Class.define metaprogramming method.
  *
@@ -81,7 +70,7 @@ export class Mixable {
     }
 
     /** @hidden */
-    protected static _mixinRules : MixinRules = { properties : 'merge' };
+    static _mixinRules : MixinMergeRules = { properties : 'merge' };
 
     /** @hidden */
     static _appliedMixins : any[]
@@ -96,7 +85,7 @@ export class Mixable {
      *
      * @param mixins The list of class constructors or plain objects. Both static and prototype properties are mixed in for constructors.
      */
-    static mixins = applyMixins;
+    static mixins = staticMixins;
 
     /** Inversion of control version of [[Mixable.mixin]].
      * `Class.mixTo( A, B, ... )` will mix static and prototype `Class` members to the given list of classes.
@@ -113,7 +102,7 @@ export class Mixable {
     /** Define specific rules for mixin some particular class members.
      *  mixinRules of the base class are properly merged on inheritance.
      */
-    static mixinRules = defineMixinRules;
+    static mixinRules = staticMixinRules;
 
     /**
      * Main metaprogramming method. May be overriden in subclasses to customize the behavior.
@@ -157,8 +146,8 @@ export class Mixable {
 
         // Apply legacy mixins...
         const { mixins, mixinRules, ...definition } = protoProps;
-        mixinRules && defineMixinRules.call( this, mixinRules );
-        mixins && applyMixins.call( this, mixins );
+        mixinRules && staticMixinRules.call( this, mixinRules );
+        mixins && staticMixins.call( this, mixins );
 
         // Assign statics.
         staticProps && assign( this, staticProps );
@@ -171,35 +160,39 @@ export class Mixable {
         });
 
         // Unshift definition to applied mixins.
-        applyMixin( this.prototype, this._definition, definition, this._mixinRules, true );
+        const definitions = getDefinitions( this );
+        applyMixin( this.prototype, definitions, definition, this._mixinRules, true );
 
         // Build the hook chain.
         const { onDefine } = this;
 
         // Build the hook chain.
-        if( BaseClass.onDefine !== onDefine ){
+        if( BaseClass.onDefine && BaseClass.onDefine !== onDefine ){
             this.onDefine = function( spec, BaseClass ){
-                onDefine.call( this, spec, BaseClass );
-                BaseClass.onDefine.call( this, spec, BaseClass );
+                const transformedSpec = onDefine.call( this, spec, BaseClass );
+                return (BaseClass as typeof Mixable).onDefine.call( this, transformedSpec, BaseClass );
             }
         }
 
-        this.onDefine( this._definitions, BaseClass );
+        if( this.onDefine ){
+            const { properties } = this.onDefine( definitions, BaseClass );
+
+            if( properties ){
+                Object.defineProperties( this.prototype, transform( {}, <PropertyMap>properties, toPropertyDescriptor ) );
+            }
+        }
+        
 
         // Apply merge rules to overriden prototype members.
         // For each merge rule defined, if there is something in prototype it must be merged with the base class
         // according to the rules.
-        applyInheritance.call( this );
+        applyInheritanceRules( this );
 
         return this;
     }
 
     // Define properties
-    static onDefine({ properties }, BaseClass ){
-        if( properties ){
-            Object.defineProperties( this.prototype, transform( {}, <PropertyMap>properties, toPropertyDescriptor ) );
-        }
-    }
+    static onDefine : ( definition : object, BaseClass : Function ) => object;
 
     /** Backbone-compatible extend method to be used in ES5 and for backward compatibility */
     static extend(spec? : ClassDefinition, statics? : {} ) : typeof Mixable {
@@ -242,7 +235,7 @@ export function extendable( Type : Function ) : void {
 /** @decorator `@predefine` for forward definitions. Can be used with [[Mixable]] classes only.
  * Forwards the call to the [[Mixable.predefine]];
  */
-export function predefine( Constructor : MixableConstructor< any > ) : void {
+export function predefine( Constructor : typeof Mixable ) : void {
     Constructor.predefine();
 }
 
@@ -250,8 +243,8 @@ export function predefine( Constructor : MixableConstructor< any > ) : void {
  *  Forwards the call to [[Mixable.define]].
  */
 export function define( spec : ClassDefinition ) : ClassDecorator;
-export function define( spec : MixableConstructor< any > ) : void;
-export function define( ClassOrDefinition : ClassDefinition | MixableConstructor< any > ){
+export function define( spec : typeof Mixable ) : void;
+export function define( ClassOrDefinition : ClassDefinition | typeof Mixable ){
     // @define class
     if( typeof ClassOrDefinition === 'function' ){
         ClassOrDefinition.predefine();
