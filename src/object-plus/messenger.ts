@@ -1,5 +1,5 @@
 import { Mixin, MixinMergeRules } from './mixins'
-import { define, extendable, MixableDefinition, Mixable } from './mixable'
+import { define, mixins, Mixable } from './mixable'
 import { omit } from './tools'
 import { EventMap, EventsDefinition, EventSource, HandlersByEvent } from './eventsource'
 import * as _eventsApi from './eventsource'
@@ -36,10 +36,9 @@ export type CallbacksByEvents = { [ events : string ] : Function }
  * Messenger is mixable class with capabilities of sending and receiving synchronous events.
  * This class itself can serve as both mixin and base class.
  */
-@extendable
+@mixins( Mixable )
 export abstract class Messenger implements Mixable, EventSource {
     // Define extendable mixin static properties.
-    static create : ( a : any, b? : any, c? : any ) => Messenger
     static mixins : ( ...mixins : Mixin[] ) => typeof Messenger
     static mixinRules : ( mixinRules : MixinMergeRules ) => typeof Messenger
     static mixTo : ( ...args : Function[] ) => typeof Messenger

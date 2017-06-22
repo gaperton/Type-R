@@ -9,16 +9,6 @@ import { Mixin, MixinMergeRules, MixinsState } from './mixins'
  * Class definition recognized by [[Mixable.define]]
  */
 
-export interface MixableDefinition {
-    properties? : PropertyMap | boolean
-}
-
-export interface ClassDefinition extends MixableDefinition {
-    mixins? : Mixin[]
-    mixinRules? : MixinMergeRules
-    [ name : string ] : any
-}
-
 export interface PropertyMap {
     [ name : string ] : Property
 }
@@ -70,7 +60,7 @@ export class Mixable {
     /** 
      *  Must be called after inheritance and before 'define'.
      */
-    static define( protoProps : ClassDefinition = {}, staticProps? : {} ) : typeof Mixable {
+    static define( protoProps : object = {}, staticProps? : {} ) : typeof Mixable {
         const BaseClass : typeof Mixable = getBaseClass( this );
 
         // Assign statics.
@@ -87,7 +77,7 @@ export class Mixable {
     }
 
     /** Backbone-compatible extend method to be used in ES5 and for backward compatibility */
-    static extend(spec? : ClassDefinition, statics? : {} ) : typeof Mixable {
+    static extend(spec? : object, statics? : {} ) : typeof Mixable {
         let Subclass : typeof Mixable;
 
         // 1. Create the subclass (ES5 compatibility shim).
@@ -131,9 +121,9 @@ export function predefine( Constructor : typeof Mixable ) : void {
 /** @decorator `@define` for metaprogramming magic. Can be used with [[Mixable]] classes only.
  *  Forwards the call to [[Mixable.define]].
  */
-export function define( spec : ClassDefinition ) : ClassDecorator;
+export function define( spec : object ) : ClassDecorator;
 export function define( spec : typeof Mixable ) : void;
-export function define( ClassOrDefinition : ClassDefinition | typeof Mixable ){
+export function define( ClassOrDefinition : object | typeof Mixable ){
     // @define class
     if( typeof ClassOrDefinition === 'function' ){
         predefine( ClassOrDefinition );

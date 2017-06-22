@@ -1,5 +1,5 @@
 /***********************
- * Mixins helpers
+ * Mixins engine
  */
 
 import { assign, transform, defaults, getBaseClass } from './tools'
@@ -58,8 +58,8 @@ export class MixinsState {
         // Apply mixins in sequence...
         for( let mixin of mixins ) {
             // Mixins array should be flattened.
-            if( mixin instanceof Array ) {
-                this.merge.apply( this, mixin );
+            if( Array.isArray( mixin ) ) {
+                this.merge( mixin );
             }
             // Don't apply mixins twice.
             else if( appliedMixins.indexOf( mixin ) < 0 ){
