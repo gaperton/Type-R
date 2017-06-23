@@ -79,7 +79,7 @@ export function predefine( Constructor : MixableConstructor ) : void {
     Constructor.__super__ = BaseClass.prototype;
     
     // Initialize mixins structures...
-    Constructor.define || Mixable.mixins.populate( Constructor );
+    Constructor.define || MixinsState.get( Mixable ).populate( Constructor );
 
     // Make sure Ctor.mixins are ready before the callback...
     MixinsState.get( Constructor );
@@ -212,7 +212,7 @@ export class MixinsState {
     }
 
     mergeObject( dest : object, source : object ) {
-        for( let name of Object.keys( dest ) ) {
+        for( let name of Object.keys( source ) ) {
             if( name !== 'constructor' ){
                 const sourceProp = Object.getOwnPropertyDescriptor( source, name ),
                     rule = this.definitionRules[ name ];
@@ -330,7 +330,7 @@ mixinRules.some = ( a : Function, b : Function ) =>(
  * Helpers
  */
 
-function assignProperty( dest, name, sourceProp, rule ){
+function assignProperty( dest : object, name : string, sourceProp : PropertyDescriptor, rule : MixinMergeRule ){
     // Destination prop is defined, thus the merge rules must be applied.
     if( dest.hasOwnProperty( name ) ){
         dest[ name ] = resolveRule( sourceProp.value, dest[ name ], rule );
