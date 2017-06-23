@@ -3,9 +3,9 @@
  * The root of all definitions. 
  */
 
-import { tools, eventsApi, Mixable, ClassDefinition, Constructor, define } from '../object-plus'
+import { tools, eventsApi, Mixable, define } from '../object-plus'
 
-import { transactionApi, CloneOptions, Transactional, Transaction, TransactionOptions, Owner } from '../transactions'
+import { transactionApi, CloneOptions, Transactional, TransactionalDefinition, Transaction, TransactionOptions, Owner } from '../transactions'
 import { ChildrenErrors } from '../validation'
 
 const { trigger3 } = eventsApi,
@@ -17,7 +17,7 @@ const { trigger3 } = eventsApi,
  * Record Definition as accepted by Record.define( definition )
  */
 
-export interface RecordDefinition extends ClassDefinition {
+export interface RecordDefinition extends TransactionalDefinition {
     attributes? : AttributeDescriptorMap
     defaults? : AttributeDescriptorMap | ( () => AttributeDescriptorMap )
     collection? : typeof Transactional | {}

@@ -1,4 +1,4 @@
-import { Messenger, CallbacksByEvents, MessengersByCid, MixinMergeRules, MessengerDefinition, tools, extendable, mixins, eventsApi, define, Constructor } from './object-plus'
+import { Messenger, CallbacksByEvents, MessengersByCid, MixinsState, MixinMergeRules, MessengerDefinition, tools, mixins, eventsApi, define } from './object-plus'
 import { ValidationError, Validatable, ChildrenErrors } from './validation'
 import { Traversable, resolveReference } from './traversable'
 
@@ -20,19 +20,31 @@ export enum ItemsBehavior {
 }
 
 // Transactional object interface
+@define
 @mixins( Messenger )
-@extendable
 export abstract class Transactional implements Messenger, Validatable, Traversable {
     // Mixins are hard in TypeScript. We need to copy type signatures over...
-    // Define extendable mixin static properties.
-    static create : ( a : any, b? : any, c? : any ) => Transactional
-    static mixins : ( ...mixins : ( Constructor<any> | {} )[] ) => typeof Transactional
-    static mixinRules : ( mixinRules : MixinMergeRules ) => typeof Transactional
-    static mixTo : ( ...args : Constructor<any>[] ) => typeof Transactional
-    static extend : (spec? : TransactionalDefinition, statics? : {} ) => typeof Transactional
-    static define : (spec? : TransactionalDefinition, statics? : {} ) => typeof Transactional
-    static predefine : () => typeof Messenger
+    // Here goes 'Mixable' mixin.
+    static __super__ : object;
+    static mixins : MixinsState;
+    static define : ( definition? : TransactionalDefinition, statics? : object ) => typeof Transactional;
+    static extend : ( definition? : TransactionalDefinition, statics? : object ) => typeof Transactional;
 
+    static onDefine : ({ localEvents, _localEvents, properties } : MessengerDefinition ) => void;
+
+    static onExtend( BaseClass : typeof Transactional ) : void {
+        // Make sure we don't inherit class factories.
+        if( BaseClass.create === this.create ) {
+            this.create = Transactional.create;
+        }
+    }
+
+    // Define extendable mixin static properties.
+    static create( a : any, b? : any ) : Transactional {
+        return new (this as any)( a, b );
+    }
+
+    /** Generic class factory. May be overridden for abstract classes. Not inherited. */
     on : ( events : string | CallbacksByEvents, callback, context? ) => this
     once : ( events : string | CallbacksByEvents, callback, context? ) => this
     off : ( events? : string | CallbacksByEvents, callback?, context? ) => this
@@ -60,7 +72,8 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
         this._disposed = true;
     }
 
-    initialize() : void{}
+    // Must be called at the end of the constructor in the subclass.
+    initialize() : void {}
 
     /** @private */
     _events : eventsApi.HandlersByEvent = void 0;

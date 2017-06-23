@@ -1,8 +1,119 @@
-/***********************
- * Mixins engine
+/*****************************************************************
+ * Mixins engine and @define metaprogramming class extensions
+ *
+ * Vlad Balin & Volicon, (c) 2016-2017
  */
+import { log, assign, omit, getPropertyDescriptor, getBaseClass, defaults, transform, getChangedStatics } from './tools'
 
-import { assign, transform, defaults, getBaseClass } from './tools'
+/** @hidden */
+declare function __extends( a, b )
+
+export interface MixableConstructor extends Function{
+    __super__? : object;
+    mixins? : MixinsState;
+    onExtend? : ( BaseClass : Function ) => void;
+    onDefine? : ( definition : object, BaseClass : Function ) => void;
+    define? : ( definition? : object, statics? : object ) => MixableConstructor;
+    extend? : ( definition? : object, statics? : object ) => MixableConstructor;
+}
+
+/**
+ * Base class, holding metaprogramming class extensions.
+ * Supports mixins and Class.define metaprogramming method.
+ */
+export class Mixable {
+    static onExtend : ( BaseClass : Function ) => void;
+    static onDefine : ( definition : object, BaseClass : Function ) => object;    
+    static __super__ : object
+    static mixins : MixinsState;
+
+    /** 
+     *  Must be called after inheritance and before 'define'.
+     */
+    static define( protoProps : object = {}, staticProps? : {} ) : MixableConstructor {
+        const BaseClass : MixableConstructor = getBaseClass( this );
+
+        // Assign statics.
+        staticProps && assign( this, staticProps );
+
+        this.mixins.mergeStaticDefinitions();
+        this.mixins.mergeDefine( protoProps );
+
+        this.onDefine && this.onDefine( this.mixins.definitions, BaseClass );
+        
+        this.mixins.mergeInheritance();
+
+        return this;
+    }
+
+    /** Backbone-compatible extend method to be used in ES5 and for backward compatibility */
+    static extend(spec? : object, statics? : {} ) : MixableConstructor {
+        let Subclass : MixableConstructor;
+
+        // 1. Create the subclass (ES5 compatibility shim).
+        // If constructor function is given...
+        if( spec && spec.hasOwnProperty( 'constructor' ) ){
+            // ...we need to manually call internal TypeScript __extend function. Hack! Hack!
+            Subclass = <any>spec.constructor;
+            __extends( Subclass, this );
+        }
+        // Otherwise, create the subclall in usual way.
+        else{
+            Subclass = class Subclass extends this {};
+        }
+
+        predefine( Subclass );
+        spec && Subclass.define( spec, statics );
+
+        return Subclass;
+    }
+}
+
+/** @decorator `@predefine` for forward definitions. Can be used with [[Mixable]] classes only.
+ * Forwards the call to the [[Mixable.predefine]];
+ */
+export function predefine( Constructor : MixableConstructor ) : void {
+    const BaseClass : MixableConstructor = getBaseClass( Constructor );
+
+    // Legacy systems support
+    Constructor.__super__ = BaseClass.prototype;
+    
+    // Initialize mixins structures...
+    Constructor.define || Mixable.mixins.populate( Constructor );
+
+    // Make sure Ctor.mixins are ready before the callback...
+    MixinsState.get( Constructor );
+
+    // Call extend hook.
+    Constructor.onExtend && Constructor.onExtend( BaseClass );
+}
+
+/** @decorator `@define` for metaprogramming magic. Can be used with [[Mixable]] classes only.
+ *  Forwards the call to [[Mixable.define]].
+ */
+export function define( ClassOrDefinition : MixableConstructor ) : void;
+export function define( ClassOrDefinition : object ) : ClassDecorator;
+export function define( ClassOrDefinition : object | MixableConstructor ){
+    // @define class
+    if( typeof ClassOrDefinition === 'function' ){
+        predefine( ClassOrDefinition );
+        ClassOrDefinition.define();
+    }
+    // @define({ prop : val, ... }) class
+    else{
+        return function( Ctor : MixableConstructor ){
+            predefine( Ctor );
+            Ctor.define( ClassOrDefinition );
+        }
+    }
+}
+
+export function definitions( rules : MixinMergeRules ) : ClassDecorator {
+    return ( Class : Function ) => {
+        const mixins = MixinsState.get( Class );
+        mixins.definitionRules = defaults( rules, mixins.definitionRules );
+    }
+}
 
 export class MixinsState {
     mergeRules : MixinMergeRules;
@@ -18,7 +129,7 @@ export class MixinsState {
              Class.mixins = new MixinsState( Class );
     }
 
-    constructor( public Class : Function ){
+    constructor( public Class : MixableConstructor ){
         const { mixins } = getBaseClass( Class );
 
         this.mergeRules = ( mixins && mixins.mergeRules ) || {};
@@ -74,6 +185,14 @@ export class MixinsState {
 
                     // Merge static members
                     this.mergeObject( this.Class, mixin );
+
+                    // merge definitionRules and mergeRules
+                    const sourceMixins = this.Class.mixins;
+                    if( sourceMixins ){
+                        defaults( {}, this.mergeRules, sourceMixins.mergeRules );
+                        defaults( {}, this.definitionRules, sourceMixins.definitionRules );
+                        this.appliedMixins = this.appliedMixins.concat( sourceMixins.appliedMixins );
+                    }
 
                     // Prototypes are merged according with rules.
                     this.mergeObject( proto, mixin.prototype );
@@ -133,57 +252,79 @@ export interface MixinMergeRules {
 export type MixinMergeRule = ( a : any, b : any ) => any
 export type Mixin = object | Function
 
+// @mixins( A, B, ... ) decorator.
+export interface MixinRulesDecorator extends ClassDecorator {
+    value : null
+    merge( a : object, b : object ) : object;
+    pipe( a: Function, b : Function ) : Function;
+    defaults( a: Function, b : Function ) : Function;
+    classFirst( a: Function, b : Function ) : Function;
+    classLast( a: Function, b : Function ) : Function;
+    every( a: Function, b : Function ) : Function;
+    some( a: Function, b : Function ) : Function;
+}
+
+export const mixins = ( ...list : Mixin[] ) => (
+    ( Class : Function ) => MixinsState.get( Class ).merge( list )
+);
+
+// @mixinRules({ name : rule, ... }) decorator.
+export const mixinRules = ( ( rules : MixinMergeRules ) => (
+    ( Class : Function ) => {
+        const mixins = MixinsState.get( Class );
+        mixins.mergeRules = defaults( rules, mixins.mergeRules );
+    }
+) ) as MixinRulesDecorator;
+
 // Pre-defined mixin merge rules
-export const MergeRules = {
-    // Recursively merge members
-    merge( a : object, b : object ){
-        return defaults( {}, a, b );
-    },
+
+mixinRules.value = null;
+
+// Recursively merge members
+mixinRules.merge = ( a, b ) => defaults( {}, a, b );
 
     // Execute methods in pipe, with the class method executed last.
-    pipe< A, B, C >( a: ( x : B ) => C, b : ( x : A ) => B ) : ( x : A ) => C {
-        return function( x : A ) : C {
-            return a.call( this, b.call( this, x ) );
-        }
-    },
+mixinRules.pipe = ( a, b ) => (
+    function( x : any ) : any {
+        return a.call( this, b.call( this, x ) );
+    }
+);
 
     // Assume methods return an object, and merge results with defaults (class method executed first)
-    defaults( a : Function, b : Function ) : Function {
-        return function() : Object {
-            return defaults( a.apply( this, arguments ), b.apply( this, arguments ) );
-        }
-    },
+mixinRules.defaults = ( a : Function, b : Function ) => (
+    function() : object {
+        return defaults( a.apply( this, arguments ), b.apply( this, arguments ) );
+    }
+);
 
-    // Execute methods in sequence staring with the class method.
-    classFirst( a : Function, b : Function ){
-        return function() : void {
-            a.apply( this, arguments );
-            b.apply( this, arguments );
-        }
-    },
+// Execute methods in sequence staring with the class method.
+mixinRules.classFirst = ( a : Function, b : Function ) => (
+    function() : void {
+        a.apply( this, arguments );
+        b.apply( this, arguments );
+    }
+);
 
     // Execute methods in sequence ending with the class method.
-    classLast( a : Function, b : Function ){
-        return function() : void {
-            b.apply( this, arguments );
-            a.apply( this, arguments );
-        }
-    },
+mixinRules.classLast = ( a : Function, b : Function ) => (
+    function() : void {
+        b.apply( this, arguments );
+        a.apply( this, arguments );
+    }
+)
 
     // Execute methods in sequence returning the first falsy result.
-    every( a : Function, b : Function ){
-        return function() {
-            return a.apply( this, arguments ) && b.apply( this, arguments );
-        }
-    },
-
-    // Execute methods in sequence returning the first truthy result.
-    some( a : Function, b : Function ){
-        return function() {
-            return a.apply( this, arguments ) || b.apply( this, arguments );
-        }
+mixinRules.every = ( a : Function, b : Function ) =>(
+    function() : any {
+        return a.apply( this, arguments ) && b.apply( this, arguments );
     }
-};
+);
+    // Execute methods in sequence returning the first truthy result.
+mixinRules.some = ( a : Function, b : Function ) =>(
+    function() : any {
+        return a.apply( this, arguments ) || b.apply( this, arguments );
+    }
+);
 
 /**
  * Helpers

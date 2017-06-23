@@ -4,12 +4,11 @@
 import * as tools from './tools'
 export { tools }
 export * from './mixins'
-export * from './define'
-export * from './messenger'
+export * from './events'
 import * as eventsApi from './eventsource'
 export { eventsApi }
 
-import { Mixable, MixableConstructor } from './define'
+import { Mixable, MixableConstructor } from './mixins'
 
 declare global {
     interface ObjectConstructor {
@@ -20,7 +19,7 @@ declare global {
         log : tools.Log
 
         /** ES5 Object.extend */
-        extend( protoProps : {}, staticProps : {} ) : MixableConstructor< any >
+        extend( protoProps : {}, staticProps : {} ) : MixableConstructor
     }
 }
 

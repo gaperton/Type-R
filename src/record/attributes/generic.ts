@@ -1,5 +1,5 @@
 import { setAttribute, Record, Attribute, Transform, ChangeHandler, AttributeDescriptor } from '../transaction'
-import { Constructor, tools } from '../../object-plus'
+import { tools } from '../../object-plus'
 import { Owner, Transactional, TransactionOptions } from '../../transactions'
 
 const { notEqual, assign} = tools;
