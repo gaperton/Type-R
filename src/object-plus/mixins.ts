@@ -17,6 +17,10 @@ export interface MixableConstructor extends Function{
     extend? : ( definition? : object, statics? : object ) => MixableConstructor;
 }
 
+export interface MixableDefinition {
+    mixins? : Mixin[]
+}
+
 /**
  * Base class, holding metaprogramming class extensions.
  * Supports mixins and Class.define metaprogramming method.
@@ -30,18 +34,27 @@ export class Mixable {
     /** 
      *  Must be called after inheritance and before 'define'.
      */
-    static define( protoProps : object = {}, staticProps? : {} ) : MixableConstructor {
+    static define( protoProps : MixableDefinition = {}, staticProps? : object ) : MixableConstructor {
         const BaseClass : MixableConstructor = getBaseClass( this );
 
         // Assign statics.
         staticProps && assign( this, staticProps );
 
-        this.mixins.mergeStaticDefinitions();
-        this.mixins.mergeDefine( protoProps );
+        // Extract and apply mixins from the definition.
+        const { mixins, ...defineMixin } = protoProps;
+        mixins && this.mixins.merge( mixins );
 
+        // Unshift definition to the the prototype.
+        this.mixins.mergeObject( this.prototype, defineMixin, true );
+
+        // Unshift definition from statics to the prototype.
+        this.mixins.mergeObject( this.prototype, this.mixins.getStaticDefinitions( BaseClass ), true );
+
+        // Call onDefine hook, if it's present.
         this.onDefine && this.onDefine( this.mixins.definitions, BaseClass );
         
-        this.mixins.mergeInheritance();
+        // Apply merge rules to inherited members. No mixins can be added after this point.
+        this.mixins.mergeInheritedMembers( BaseClass );
 
         return this;
     }
@@ -91,7 +104,7 @@ export function predefine( Constructor : MixableConstructor ) : void {
 /** @decorator `@define` for metaprogramming magic. Can be used with [[Mixable]] classes only.
  *  Forwards the call to [[Mixable.define]].
  */
-export function define( ClassOrDefinition : MixableConstructor ) : void;
+export function define( ClassOrDefinition : Function ) : void;
 export function define( ClassOrDefinition : object ) : ClassDecorator;
 export function define( ClassOrDefinition : object | MixableConstructor ){
     // @define class
@@ -118,7 +131,7 @@ export function definitions( rules : MixinMergeRules ) : ClassDecorator {
 export class MixinsState {
     mergeRules : MixinMergeRules;
     definitionRules : MixinMergeRules;
-    definitions : object;
+    definitions : object = {};
     appliedMixins : Mixin[];
 
     // Return mixins state for the class. Initialize if it's not exist.
@@ -137,26 +150,15 @@ export class MixinsState {
         this.appliedMixins = ( mixins && mixins.appliedMixins ) || [];
     }
 
-    mergeStaticDefinitions(){
+    getStaticDefinitions( BaseClass : Function ){
         const definitions = {},
-            { Class } = this,
-            BaseClass = getBaseClass( Class );
+            { Class } = this;
 
-        transform( definitions, this.definitionRules, ( rule, name ) =>{
+        return transform( definitions, this.definitionRules, ( rule, name ) =>{
             if( BaseClass[ name ] !== Class[ name ]){
                 return Class[ name ];
             }
         });
-
-        this.mergeObject( null, definitions );
-    }
-
-    mergeDefine( protoProps ){
-        const { mixins, ...defineMixin } = protoProps
-        this.mergeObject( this.Class.prototype, defineMixin );
-        mixins && this.merge( mixins );
-
-        return this.definitions;
     }
 
     merge( mixins : Mixin[] ){
@@ -207,41 +209,60 @@ export class MixinsState {
 
     populate( ...ctors : Function[] ){
         for( let Ctor of ctors ) {
-            MixinsState.get( Ctor ).merge([ this ]);
+            MixinsState.get( Ctor ).merge([ this.Class ]);
         }
     }
 
-    mergeObject( dest : object, source : object ) {
-        for( let name of Object.keys( source ) ) {
-            if( name !== 'constructor' ){
-                const sourceProp = Object.getOwnPropertyDescriptor( source, name ),
-                    rule = this.definitionRules[ name ];
+    mergeObject( dest : object, source : object, unshift? : boolean ) {
+        forEachOwnProp( source, name => {
+            const sourceProp = Object.getOwnPropertyDescriptor( source, name ),
+                definitionRule = this.definitionRules[ name ];
 
-                if( rule  ){
-                    assignProperty( this.definitions, name, sourceProp, rule );
-                }
-                else{
-                    assignProperty( dest, name, sourceProp, this.mergeRules[ name ] );
-                }
+            if( definitionRule  ){
+                assignProperty( this.definitions, name, sourceProp, definitionRule, unshift );
             }
-        }
+            else{
+                assignProperty( dest, name, sourceProp, this.mergeRules[ name ], unshift );
+            }
+        });
     }
 
-    mergeInheritance(){
+    mergeInheritedMembers( BaseClass : Function ){
         const { mergeRules, Class } = this;
 
         if( mergeRules ){
             const proto = Class.prototype,
-                baseProto = getBaseClass( Class ).prototype;
+                baseProto = BaseClass.prototype;
 
-            for( let name of Object.keys( proto ) ) {
+            for( let name in mergeRules ) {
                 const rule = mergeRules[ name ];
 
-                if( rule && name in baseProto ){
+                if( proto.hasOwnProperty( name ) && name in baseProto ){
                     proto[ name ] = resolveRule( proto[ name ], baseProto[ name ], rule );
                 }
             }
         }
+    }
+}
+
+const dontMix = {
+    function : {
+        length : true,
+        prototype : true,
+        name : true,
+        __super__ : true
+    },
+    
+    object : {
+        constructor : true
+    }    
+}
+
+function forEachOwnProp( object : object, fun : ( name : string ) => void ){
+    const ignore = dontMix[ typeof object ];
+
+    for( let name of Object.getOwnPropertyNames( object ) ) {
+        name in ignore || fun( name );
     }
 }
 
@@ -330,10 +351,12 @@ mixinRules.some = ( a : Function, b : Function ) =>(
  * Helpers
  */
 
-function assignProperty( dest : object, name : string, sourceProp : PropertyDescriptor, rule : MixinMergeRule ){
+function assignProperty( dest : object, name : string, sourceProp : PropertyDescriptor, rule : MixinMergeRule, unshift? : boolean ){
     // Destination prop is defined, thus the merge rules must be applied.
     if( dest.hasOwnProperty( name ) ){
-        dest[ name ] = resolveRule( sourceProp.value, dest[ name ], rule );
+        dest[ name ] = unshift ?
+            resolveRule( sourceProp.value, dest[ name ], rule ) :
+            resolveRule( dest[ name ], sourceProp.value, rule ) ;
     }
     // If destination is empty, just copy the prop over.
     else{

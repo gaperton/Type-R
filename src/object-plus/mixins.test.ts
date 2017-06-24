@@ -11,6 +11,27 @@ const M = {
 }
 
 describe( "Mixins", () =>{
+    it( '@define makes plain class mixable', () =>{
+        @define class X {}
+
+        expect( (X as any).define ).to.exist;
+    });
+
+    it( '@define( props ) assign members to class proto', () =>{
+        @define({ a : 1, b : 2 }) class X {
+            a(){}
+        }
+
+        expect( (X as any).prototype.b ).to.equal( 2 );
+        expect( (X as any).prototype.a ).to.equal( 1 );
+    });
+
+    it( '@define does nothing when extend mixable', () =>{
+        @define class X extends Mixable {}
+
+        expect( (X as any).define ).to.exist;
+    });
+
     it( "merges in the plain objects", () =>{
         @define 
         @mixins( M )
