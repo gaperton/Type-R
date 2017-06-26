@@ -205,4 +205,47 @@ describe( '@definitions', ()=>{
             }
         }
     });
+
+    it( 'extract definitions from @define parameter', () => {
+        @define({
+            a : 'a',
+            b : { a : 1 }
+        })
+        @definitions({
+            a : mixinRules.value,
+            b : mixinRules.merge
+        })
+        class Y {
+            zzz : any;
+
+            static onDefine( spec ){
+                expect( spec ).to.deep.equal({ a : 'a', b : { a : 1 }});
+                this.prototype.zzz = 'Hurrah!';
+            }
+        }
+    });
+
+    it( 'extract definitions from mixins', () => {
+        @define({
+            a : 'a',
+            b : { a : 1 }
+        })
+        @mixins({
+            a : 'no',
+            b : { b : 1, a : 2 }
+        })
+        @definitions({
+            a : mixinRules.value,
+            b : mixinRules.merge
+        })
+        class Y {
+            zzz : any;
+            static b = { c : 1 };
+
+            static onDefine( spec ){
+                expect( spec ).to.deep.equal({ a : 'a', b : { a : 1, b : 1, c : 1 }});
+                this.prototype.zzz = 'Hurrah!';
+            }
+        }
+    });
 });
