@@ -8,6 +8,12 @@ import { log, assign, omit, getPropertyDescriptor, getBaseClass, defaults, trans
 /** @hidden */
 declare function __extends( a, b )
 
+
+export interface Subclass< T > extends MixableConstructor {
+    new ( ...args ) : T
+    prototype : T
+}
+
 export interface MixableConstructor extends Function{
     __super__? : object;
     mixins? : MixinsState;
@@ -60,19 +66,19 @@ export class Mixable {
     }
 
     /** Backbone-compatible extend method to be used in ES5 and for backward compatibility */
-    static extend(spec? : object, statics? : {} ) : MixableConstructor {
-        let Subclass : MixableConstructor;
+    static extend< T extends object>(spec? : T, statics? : {} ) : Subclass< T > {
+        let Subclass : Subclass< T >;
 
         // 1. Create the subclass (ES5 compatibility shim).
         // If constructor function is given...
         if( spec && spec.hasOwnProperty( 'constructor' ) ){
             // ...we need to manually call internal TypeScript __extend function. Hack! Hack!
-            Subclass = <any>spec.constructor;
+            Subclass = spec.constructor as any;
             __extends( Subclass, this );
         }
         // Otherwise, create the subclall in usual way.
         else{
-            Subclass = class Subclass extends this {};
+            Subclass = class Subclass extends this {} as any;
         }
 
         predefine( Subclass );
@@ -271,11 +277,12 @@ export interface MixinMergeRules {
 }
 
 export type MixinMergeRule = ( a : any, b : any ) => any
-export type Mixin = object | Function
+export type Mixin = { [ key : string ] : any } | Function
 
 // @mixins( A, B, ... ) decorator.
-export interface MixinRulesDecorator extends ClassDecorator {
-    value : null
+export interface MixinRulesDecorator {
+    ( rules : MixinMergeRules ) : ClassDecorator
+    value( a : object, b : object) : object;
     merge( a : object, b : object ) : object;
     pipe( a: Function, b : Function ) : Function;
     defaults( a: Function, b : Function ) : Function;
@@ -299,7 +306,7 @@ export const mixinRules = ( ( rules : MixinMergeRules ) => (
 
 // Pre-defined mixin merge rules
 
-mixinRules.value = null;
+mixinRules.value = ( a, b ) => a;
 
 // Recursively merge members
 mixinRules.merge = ( a, b ) => defaults( {}, a, b );
