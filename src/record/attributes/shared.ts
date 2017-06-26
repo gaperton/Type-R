@@ -1,6 +1,6 @@
 import { Record } from '../transaction'
 import { AnyType } from './generic'
-import { ItemsBehavior, Owner, transactionApi, Transactional, TransactionOptions, TransactionalConstructor } from '../../transactions' 
+import { ItemsBehavior, Owner, transactionApi, Transactional, TransactionOptions } from '../../transactions' 
 import { tools, eventsApi } from '../../object-plus'
 
 const { on, off } = eventsApi,
@@ -18,7 +18,7 @@ const shareAndListen = ItemsBehavior.listen | ItemsBehavior.share;
 
 /** @private */
 export class SharedType extends AnyType {
-    type : TransactionalConstructor
+    type : typeof Transactional
 
     clone( value : Transactional, record : Record ) : Transactional {
         // References are not cloned.
@@ -44,7 +44,7 @@ export class SharedType extends AnyType {
         if( value == null || value instanceof this.type ) return value;
 
         // Convert type using implicitly created rtransactional object.
-        const implicitObject = new this.type( value, options, shareAndListen );
+        const implicitObject = new ( this.type as any )( value, options, shareAndListen );
 
         // To prevent a leak, we need to take an ownership on it.
         aquire( record, implicitObject, this.name );

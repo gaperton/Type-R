@@ -1,9 +1,9 @@
 import { Record } from '../transaction';
 import { AnyType } from './generic';
-import { Transactional, TransactionOptions, TransactionalConstructor } from '../../transactions';
+import { Transactional, TransactionOptions } from '../../transactions';
 import { ValidationError } from '../../validation';
 export declare class AggregatedType extends AnyType {
-    type: TransactionalConstructor;
+    type: typeof Transactional;
     clone(value: Transactional): Transactional;
     toJSON(x: any): any;
     canBeUpdated(prev: Transactional, next: any, options: TransactionOptions): any;

@@ -1,13 +1,13 @@
 import { Record } from '../transaction' 
 import { AnyType } from './generic'
-import { Owner, transactionApi, Transactional, ItemsBehavior, TransactionOptions, TransactionalConstructor } from '../../transactions'
+import { Owner, transactionApi, Transactional, ItemsBehavior, TransactionOptions } from '../../transactions'
 import { tools } from '../../object-plus'
 import { ValidationError } from '../../validation'
 
 const { free, aquire } = transactionApi;
 
 export class AggregatedType extends AnyType {
-    type : TransactionalConstructor
+    type : typeof Transactional
 
     clone( value : Transactional ) : Transactional {
         return value ? value.clone() : value;

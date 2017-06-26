@@ -3,7 +3,7 @@
  *
  * Vlad Balin & Volicon, (c) 2016-2017
  */
-import { log, assign, omit, getPropertyDescriptor, getBaseClass, defaults, transform, getChangedStatics } from './tools'
+import { log, assign, omit, getPropertyDescriptor, getBaseClass, defaults, transform } from './tools'
 
 /** @hidden */
 declare function __extends( a, b )

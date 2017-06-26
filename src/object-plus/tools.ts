@@ -164,23 +164,11 @@ export function getBaseClass( Class : Function ) {
     return Object.getPrototypeOf( Class.prototype ).constructor
 }
 
-/** Get a hash of static (constructor) properties which have not been inherited.
- * @param Ctor class constructor function.
- * @param names comma-separated list of static property names to compare.
- * @returns hash of listed statics which are added or overriden in the class.
- */
-export function getChangedStatics<F extends Function, K extends keyof F>( Ctor : F, ...names : K[] ){
-    const Base = getBaseClass( Ctor ),
-          props : { [ P in K ]: F[P] } = {} as any;
-
+export function assignToClassProto<T, K extends keyof T>( Class, definition : T, ...names : K[] ) : void {
     for( let name of names ){
-        const value = Ctor[ name ];
-        if( value !== void 0 && value !== Base[ name ] ){
-            props[ name ] = value;
-        }
+        const value = definition[ name ];
+        value === void 0 || ( Class.prototype[ name ] = value );
     }
-
-    return props;
 }
 
 /** Checks whenever given object is an empty hash `{}` */

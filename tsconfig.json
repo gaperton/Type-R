@@ -11,6 +11,7 @@
     "experimentalDecorators": true
   },
   "files":[
-    "./src/index.ts"
+    "./src/index.ts",
+    "./src/**/*.test.ts"
   ]
 }

@@ -1,8 +1,8 @@
 import { Record } from '../transaction';
 import { AnyType } from './generic';
-import { Transactional, TransactionOptions, TransactionalConstructor } from '../../transactions';
+import { Transactional, TransactionOptions } from '../../transactions';
 export declare class SharedType extends AnyType {
-    type: TransactionalConstructor;
+    type: typeof Transactional;
     clone(value: Transactional, record: Record): Transactional;
     toJSON(): void;
     canBeUpdated(prev: Transactional, next: any, options: TransactionOptions): any;

@@ -123,7 +123,7 @@ export class AnyType implements Attribute {
     // Used as global default value for the given metatype  
     static defaultValue : any;
 
-    type : Constructor< any >
+    type : Function
 
     parse : ( value, key : string ) => any
 

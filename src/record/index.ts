@@ -1,5 +1,5 @@
 import { Record, RecordDefinition, AttributeDescriptorMap } from './transaction'
-import { Mixable, ClassDefinition, tools } from '../object-plus'
+import { Mixable, tools, define } from '../object-plus'
 import { compile, AttributesSpec } from './define'
 import { ChainableAttributeSpec } from './typespec'
 import { Transactional } from '../transactions'
@@ -11,18 +11,8 @@ export { Record, ChainableAttributeSpec }
 
 const { assign, defaults, omit, getBaseClass } = tools;
 
-Record.define = function( protoProps : RecordDefinition = {}, staticProps ){
-    const BaseConstructor : typeof Record = getBaseClass( this ),
-          baseProto : Record = BaseConstructor.prototype,
-          // Extract record definition from static members, if any.
-          staticsDefinition : RecordDefinition = tools.getChangedStatics( this, 'attributes', 'collection', 'Collection', 'idAttribute' ),
-          // Definition can be made either through statics or define argument.
-          // Merge them together, so we won't care about it below. 
-          definition = assign( staticsDefinition, protoProps );
-
-    if( 'Collection' in this && this.Collection === void 0 ){
-        tools.log.error( `[Model Definition] ${ this.prototype.getClassName() }.Collection is undefined. It must be defined _before_ the model.`, definition );
-    }
+Record.onDefine = function( definition : RecordDefinition, BaseClass : typeof Record ){
+    const baseProto : Record = BaseClass.prototype;
 
     // Compile attributes spec, creating definition mixin.
     const dynamicMixin = compile( this.attributes = getAttributes( definition ), <AttributesSpec> baseProto._attributes );
@@ -33,13 +23,9 @@ Record.define = function( protoProps : RecordDefinition = {}, staticProps ){
     }
 
     assign( dynamicMixin.properties, protoProps.properties || {} );
-
-    // Merge in definition.
-    assign( dynamicMixin, omit( definition, 'attributes', 'collection', 'defaults', 'properties', 'forEachAttr' ) );            
-    Mixable.define.call( this, dynamicMixin, staticProps );
+    
+    Transactional.onDefine.call( this, dynamicMixin, BaseClass );
     defineCollection.call( this, definition.collection || definition.Collection );
-
-    return this;
 }
 
 Record.onDefine = function( definition, BaseClass ){
@@ -64,24 +50,19 @@ Record.onDefine = function( definition, BaseClass ){
     return this;
 }
 
-Record.predefine = function(){
-    Transactional.predefine.call( this );
+Record.onExtend = function( this : typeof Record, BaseClass : typeof Record ){
+    Transactional.onExtend.call( this, BaseClass );
 
-    this.Collection = getBaseClass( this ).Collection.extend();
-    this.Collection.prototype.model = this;
+    const Class = this;
 
-    createSharedTypeSpec( this, SharedType );
+    @define class DefaultCollection extends ( BaseClass.Collection ) {
+        static model = Class;
+    }
 
-    return this;
-}
-
-Record.onExtend = function( BaseClass ){
-    this.Collection = BaseClass.Collection.extend();
-    this.Collection.prototype.model = this;
+    this.Collection = DefaultCollection;
 
     createSharedTypeSpec( this, SharedType );
 }
-
 
 Record._attribute = AggregatedType;
 createSharedTypeSpec( Record, SharedType );

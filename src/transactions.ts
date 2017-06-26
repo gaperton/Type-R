@@ -30,7 +30,7 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     static define : ( definition? : TransactionalDefinition, statics? : object ) => typeof Transactional;
     static extend : ( definition? : TransactionalDefinition, statics? : object ) => typeof Transactional;
 
-    static onDefine : ({ localEvents, _localEvents, properties } : MessengerDefinition ) => void;
+    static onDefine : ( definition : TransactionalDefinition, BaseClass : typeof Transactional ) => void;
 
     static onExtend( BaseClass : typeof Transactional ) : void {
         // Make sure we don't inherit class factories.

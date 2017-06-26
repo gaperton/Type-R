@@ -10,7 +10,7 @@ export interface CollectionOptions extends TransactionOptions {
 }
 export declare type Predicate = (val: Record, key: number) => boolean | object;
 export interface CollectionDefinition extends TransactionalDefinition {
-    model?: Record;
+    model?: typeof Record;
     itemEvents?: EventsDefinition;
     _itemEvents?: EventMap;
 }
@@ -21,8 +21,8 @@ export declare class Collection extends Transactional implements CollectionCore 
     static Refs: typeof Collection;
     static _SubsetOf: typeof Collection;
     createSubset(models: any, options: any): any;
-    static predefine(): any;
-    static define(protoProps?: CollectionDefinition, staticProps?: any): any;
+    static onExtend(): void;
+    static onDefine(definition: CollectionDefinition, BaseClass: any): void;
     static subsetOf: (collectionReference: any) => any;
     _itemEvents: EventMap;
     models: Record[];

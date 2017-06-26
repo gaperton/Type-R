@@ -3,7 +3,7 @@
  * The root of all definitions. 
  */
 
-import { tools, eventsApi, Mixable, define } from '../object-plus'
+import { tools, eventsApi, Mixable, definitions, mixinRules, define } from '../object-plus'
 
 import { transactionApi, CloneOptions, Transactional, TransactionalDefinition, Transaction, TransactionOptions, Owner } from '../transactions'
 import { ChildrenErrors } from '../validation'
@@ -29,7 +29,7 @@ export interface AttributeDescriptorMap {
 }
 
 export interface AttributeDescriptor {
-    type? : Constructor< any >
+    type? : Function
     value? : any
 
     parse? : AttributeParse
@@ -107,13 +107,13 @@ let _cidCounter : number = 0;
     idAttribute : 'id',
     _keys : [ 'id' ]
 })
+@definitions({
+    attributes : mixinRules.merge,
+    collection : mixinRules.merge,
+    Collection : mixinRules.value,
+    idAttribute : mixinRules.value
+})
 export class Record extends Transactional implements Owner {
-    // Implemented at the index.ts to avoid circular dependency. Here we have just proper singature.
-    static define( protoProps : RecordDefinition, staticProps? ) : typeof Record {
-        return <any>Transactional.define( protoProps, staticProps );
-    }
-
-    static predefine : () => typeof Record
     static Collection : typeof Transactional
 
     static from : ( collectionReference : any ) => any;
