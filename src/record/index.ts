@@ -11,57 +11,41 @@ export { Record, ChainableAttributeSpec }
 
 const { assign, defaults, omit, getBaseClass } = tools;
 
+Record.onExtend = function( this : typeof Record, BaseClass : typeof Record ){
+    Transactional.onExtend.call( this, BaseClass );
+
+    // Create the default collection
+    const Class = this;
+
+    if( Class.Collection === BaseClass.Collection ){
+        @define class DefaultCollection extends BaseClass.Collection {
+            static model = Class;
+        }
+
+        this.Collection = DefaultCollection;
+    }
+
+    // Create Class.shared modifier
+    createSharedTypeSpec( this, SharedType );
+}
+
 Record.onDefine = function( definition : RecordDefinition, BaseClass : typeof Record ){
     const baseProto : Record = BaseClass.prototype;
 
     // Compile attributes spec, creating definition mixin.
     const dynamicMixin = compile( this.attributes = getAttributes( definition ), <AttributesSpec> baseProto._attributes );
 
-    // Explicit 'properties' declaration overrides auto-generated attribute properties.
-    if( definition.properties === false ){
-        dynamicMixin.properties = {};
-    }
-
-    assign( dynamicMixin.properties, protoProps.properties || {} );
+    defaults( definition.properties || ( definition.properties = {} ), dynamicMixin.properties );
     
-    Transactional.onDefine.call( this, dynamicMixin, BaseClass );
-    defineCollection.call( this, definition.collection || definition.Collection );
-}
+    Transactional.onDefine.call( this, definition, BaseClass );
 
-Record.onDefine = function( definition, BaseClass ){
-    const baseProto : Record = BaseClass.prototype;
-
-    if( 'Collection' in this && this.Collection === void 0 ){
-        tools.log.error( `[Model Definition] ${ this.prototype.getClassName() }.Collection is undefined. It must be defined _before_ the model.`, definition );
+    const { Collection } = definition;
+        
+    if( definition.collection ){
+        Collection.mixins.merge([ definition.collection ]);
     }
-
-    // Compile attributes spec, creating definition mixin.
-    const dynamicMixin = compile( this.attributes = getAttributes( definition ), <AttributesSpec> baseProto._attributes );
-
-    // Explicit 'properties' declaration overrides auto-generated attribute properties.
-    if( definition.properties === false ){
-        dynamicMixin.properties = {};
-    }
-
-    this.mixin( dynamicMixin );
 
     defineCollection.call( this, definition.collection || definition.Collection );
-
-    return this;
-}
-
-Record.onExtend = function( this : typeof Record, BaseClass : typeof Record ){
-    Transactional.onExtend.call( this, BaseClass );
-
-    const Class = this;
-
-    @define class DefaultCollection extends ( BaseClass.Collection ) {
-        static model = Class;
-    }
-
-    this.Collection = DefaultCollection;
-
-    createSharedTypeSpec( this, SharedType );
 }
 
 Record._attribute = AggregatedType;

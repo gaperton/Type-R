@@ -8,6 +8,8 @@ import { tools, eventsApi, Mixable, definitions, mixinRules, define } from '../o
 import { transactionApi, CloneOptions, Transactional, TransactionalDefinition, Transaction, TransactionOptions, Owner } from '../transactions'
 import { ChildrenErrors } from '../validation'
 
+import { Collection } from '../collection'
+
 const { trigger3 } = eventsApi,
       { assign, isEmpty, log } = tools,
       { free, aquire, commit } = transactionApi,
@@ -16,11 +18,10 @@ const { trigger3 } = eventsApi,
 /***************************************************************
  * Record Definition as accepted by Record.define( definition )
  */
-
 export interface RecordDefinition extends TransactionalDefinition {
+    idAttribute? : string
     attributes? : AttributeDescriptorMap
-    defaults? : AttributeDescriptorMap | ( () => AttributeDescriptorMap )
-    collection? : typeof Transactional | {}
+    collection? : object
     Collection? : typeof Transactional
 }
 
@@ -114,7 +115,7 @@ let _cidCounter : number = 0;
     idAttribute : mixinRules.value
 })
 export class Record extends Transactional implements Owner {
-    static Collection : typeof Transactional
+    static Collection : typeof Collection
 
     static from : ( collectionReference : any ) => any;
     

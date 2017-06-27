@@ -1,5 +1,6 @@
 import { CloneOptions, Transactional, TransactionalDefinition, Transaction, TransactionOptions, Owner } from '../transactions';
 import { ChildrenErrors } from '../validation';
+import { Collection } from '../collection';
 export interface RecordDefinition extends TransactionalDefinition {
     attributes?: AttributeDescriptorMap;
     defaults?: AttributeDescriptorMap | (() => AttributeDescriptorMap);
@@ -54,7 +55,7 @@ export interface ConstructorOptions extends TransactionOptions {
     clone?: boolean;
 }
 export declare class Record extends Transactional implements Owner {
-    static Collection: typeof Transactional;
+    static Collection: typeof Collection;
     static from: (collectionReference: any) => any;
     static defaults(attrs: AttributeDescriptorMap): typeof Record;
     _previousAttributes: {};
