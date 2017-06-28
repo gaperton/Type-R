@@ -61,7 +61,7 @@ export class Collection extends Transactional implements CollectionCore {
         return subset;
     }
 
-    static onExtend(){
+    static onExtend( BaseClass : typeof Transactional ){
         // Cached subset collection must not be inherited.
         const Ctor = this;
         this._SubsetOf = null;
@@ -70,14 +70,14 @@ export class Collection extends Transactional implements CollectionCore {
             Ctor.call( this, a, b, ItemsBehavior.share | ( listen ? ItemsBehavior.listen : 0 ) );
         }
 
-        Mixable.mixins.populate( RefsCollection );
+        Collection.mixins.populate( RefsCollection );
         
         RefsCollection.prototype = this.prototype;
         RefsCollection._attribute = CollectionRefsType;
 
         this.Refs = this.Subset = <any>RefsCollection;
 
-        Transactional.onExtend.call( this );
+        Transactional.onExtend.call( this, BaseClass );
         createSharedTypeSpec( this, SharedType );
     }
     

@@ -109,6 +109,7 @@ let _cidCounter : number = 0;
     _keys : [ 'id' ]
 })
 @definitions({
+    defaults : mixinRules.merge,
     attributes : mixinRules.merge,
     collection : mixinRules.merge,
     Collection : mixinRules.value,
@@ -116,6 +117,7 @@ let _cidCounter : number = 0;
 })
 export class Record extends Transactional implements Owner {
     static Collection : typeof Collection
+    static DefaultCollection : typeof Collection
 
     static from : ( collectionReference : any ) => any;
     
@@ -123,6 +125,10 @@ export class Record extends Transactional implements Owner {
         return <any>this.extend({ attributes : attrs });
     }
     
+    static attributes( attrs : AttributeDescriptorMap ) : typeof Record {
+        return <any>this.extend({ attributes : attrs });
+    }
+
     /***********************************
      * Core Members
      */

@@ -1,5 +1,5 @@
 import { Record, RecordDefinition, AttributeDescriptorMap } from './transaction'
-import { Mixable, tools, define } from '../object-plus'
+import { Mixable, tools, predefine, define } from '../object-plus'
 import { compile, AttributesSpec } from './define'
 import { ChainableAttributeSpec } from './typespec'
 import { Transactional } from '../transactions'
@@ -17,11 +17,15 @@ Record.onExtend = function( this : typeof Record, BaseClass : typeof Record ){
     // Create the default collection
     const Class = this;
 
-    if( Class.Collection === BaseClass.Collection ){
-        @define class DefaultCollection extends BaseClass.Collection {
-            static model = Class;
-        }
+    @predefine class DefaultCollection extends BaseClass.Collection {
+        static model = Class;
+    }
 
+    this.DefaultCollection = DefaultCollection;
+
+    // If there are no collection defined in statics, use the default collection.
+    // It will appear in onDefine's definition, overriding all other settings.
+    if( Class.Collection === BaseClass.Collection ){
         this.Collection = DefaultCollection;
     }
 
@@ -33,26 +37,27 @@ Record.onDefine = function( definition : RecordDefinition, BaseClass : typeof Re
     const baseProto : Record = BaseClass.prototype;
 
     // Compile attributes spec, creating definition mixin.
-    const dynamicMixin = compile( this.attributes = getAttributes( definition ), <AttributesSpec> baseProto._attributes );
-
-    defaults( definition.properties || ( definition.properties = {} ), dynamicMixin.properties );
+    const { properties, ...dynamicMixin } = compile( this.attributes = getAttributes( definition ), <AttributesSpec> baseProto._attributes );
+    assign( this.prototype, dynamicMixin );
+    definition.properties = defaults( definition.properties || {}, properties );
+    
+    tools.assignToClassProto( this, definition, 'idAttribute' );
     
     Transactional.onDefine.call( this, definition, BaseClass );
 
-    const { Collection } = definition;
-        
-    if( definition.collection ){
-        Collection.mixins.merge([ definition.collection ]);
-    }
+    // Finalize the definition of the default collection.
+    this.DefaultCollection.define( definition.collection || {} );
 
-    defineCollection.call( this, definition.collection || definition.Collection );
+    // assign collection from the definition.
+    this.Collection = definition.Collection;
+    this.Collection.prototype.model = this;
 }
 
 Record._attribute = AggregatedType;
 createSharedTypeSpec( Record, SharedType );
 
 function getAttributes({ defaults, attributes, idAttribute } : RecordDefinition ) : AttributeDescriptorMap {
-    const definition = typeof defaults === 'function' ? (<any>defaults)() : attributes || defaults || {};
+    const definition = attributes || defaults || {};
     
     // If there is an undeclared idAttribute, add its definition as untyped generic attribute.
     if( idAttribute && !( idAttribute in definition ) ){
@@ -60,20 +65,6 @@ function getAttributes({ defaults, attributes, idAttribute } : RecordDefinition 
     }
 
     return definition;
-}
-
-function defineCollection( collection : {} ){
-    // If collection constructor is specified, take it as it is. 
-    if( typeof collection === 'function' ) {
-        this.Collection = collection;
-        
-        // Link collection with the record
-        this.Collection.prototype.model = this;
-    } 
-    // Otherwise, define implicitly created Collection.
-    else{
-        this.Collection.define( collection || {} );
-    }
 }
 
 // Add extended Date attribute types.

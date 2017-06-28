@@ -67,24 +67,24 @@ export class Mixable {
 
     /** Backbone-compatible extend method to be used in ES5 and for backward compatibility */
     static extend< T extends object>(spec? : T, statics? : {} ) : Subclass< T > {
-        let Subclass : Subclass< T >;
+        let TheSubclass : Subclass< T >;
 
         // 1. Create the subclass (ES5 compatibility shim).
         // If constructor function is given...
         if( spec && spec.hasOwnProperty( 'constructor' ) ){
             // ...we need to manually call internal TypeScript __extend function. Hack! Hack!
-            Subclass = spec.constructor as any;
-            __extends( Subclass, this );
+            TheSubclass = spec.constructor as any;
+            __extends( TheSubclass, this );
         }
         // Otherwise, create the subclall in usual way.
         else{
-            Subclass = class Subclass extends this {} as any;
+            TheSubclass = class Subclass extends this {} as any;
         }
 
-        predefine( Subclass );
-        spec && Subclass.define( spec, statics );
+        predefine( TheSubclass );
+        spec && TheSubclass.define( spec, statics );
 
-        return Subclass;
+        return TheSubclass;
     }
 }
 
@@ -195,10 +195,10 @@ export class MixinsState {
                     this.mergeObject( this.Class, mixin );
 
                     // merge definitionRules and mergeRules
-                    const sourceMixins = this.Class.mixins;
+                    const sourceMixins = ( mixin as any ).mixins;
                     if( sourceMixins ){
-                        defaults( {}, this.mergeRules, sourceMixins.mergeRules );
-                        defaults( {}, this.definitionRules, sourceMixins.definitionRules );
+                        this.mergeRules = defaults( {}, this.mergeRules, sourceMixins.mergeRules );
+                        this.definitionRules = defaults( {}, this.definitionRules, sourceMixins.definitionRules );
                         this.appliedMixins = this.appliedMixins.concat( sourceMixins.appliedMixins );
                     }
 

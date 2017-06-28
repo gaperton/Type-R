@@ -5,7 +5,7 @@
 import { Transactional } from '../transactions'
 import { ChangeAttrHandler, AttributeDescriptor } from './attributes'
 import { Record } from './transaction'
-import { EventMap, EventsDefinition, Constructor, tools } from '../object-plus'
+import { EventMap, EventsDefinition, tools } from '../object-plus'
 
 const { assign } = tools;
 
@@ -172,7 +172,7 @@ export function toAttributeDescriptor( spec : any ) : AttributeDescriptor {
     return attrSpec.options;
 }
 
-function inferType( value : {} ) : Constructor<any> {
+function inferType( value : {} ) : Function {
     switch( typeof value ) {
         case 'number' :
             return Number;

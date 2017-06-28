@@ -21,7 +21,7 @@ export declare class Collection extends Transactional implements CollectionCore 
     static Refs: typeof Collection;
     static _SubsetOf: typeof Collection;
     createSubset(models: any, options: any): any;
-    static onExtend(): void;
+    static onExtend(BaseClass: typeof Transactional): void;
     static onDefine(definition: CollectionDefinition, BaseClass: any): void;
     static subsetOf: (collectionReference: any) => any;
     _itemEvents: EventMap;
