@@ -116,6 +116,11 @@ let _cidCounter : number = 0;
     idAttribute : mixinRules.value
 })
 export class Record extends Transactional implements Owner {
+    // Hack
+    static onDefine( definition, BaseClass ){
+        tools.assignToClassProto( this, definition, 'idAttribute' );
+    }
+
     static Collection : typeof Collection
     static DefaultCollection : typeof Collection
 

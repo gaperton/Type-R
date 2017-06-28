@@ -55,6 +55,7 @@ export interface ConstructorOptions extends TransactionOptions {
     clone?: boolean;
 }
 export declare class Record extends Transactional implements Owner {
+    static onDefine(definition: any, BaseClass: any): void;
     static Collection: typeof Collection;
     static DefaultCollection: typeof Collection;
     static from: (collectionReference: any) => any;
