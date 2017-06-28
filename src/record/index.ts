@@ -39,10 +39,11 @@ Record.onDefine = function( definition : RecordDefinition, BaseClass : typeof Re
     // Compile attributes spec, creating definition mixin.
     const { properties, ...dynamicMixin } = compile( this.attributes = getAttributes( definition ), <AttributesSpec> baseProto._attributes );
     assign( this.prototype, dynamicMixin );
+    
     definition.properties = defaults( definition.properties || {}, properties );
     
     tools.assignToClassProto( this, definition, 'idAttribute' );
-    
+
     Transactional.onDefine.call( this, definition, BaseClass );
 
     // Finalize the definition of the default collection.

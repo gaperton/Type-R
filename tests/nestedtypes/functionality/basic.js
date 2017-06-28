@@ -242,8 +242,8 @@
                 expect( c.abc ).to.be.true;
             });
 
-            it( 'can have explicitly defined native properties', function(){
-                canHaveNativeProperties( Nested.Class );
+            it( 'Messenger can have explicitly defined native properties', function(){
+                canHaveNativeProperties( Nested.Messenger );
             });
         });
     });
