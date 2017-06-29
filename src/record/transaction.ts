@@ -10,6 +10,8 @@ import { ChildrenErrors } from '../validation'
 
 import { Collection } from '../collection'
 
+import { setAttribute, begin, markAsDirty, AttributesValues, AttributesDescriptors, AttributesContainer } from './updates'
+
 const { trigger3 } = eventsApi,
       { assign, isEmpty, log } = tools,
       { free, aquire, commit } = transactionApi,
@@ -29,38 +31,10 @@ export interface AttributeDescriptorMap {
     [ name : string ] : AttributeDescriptor
 }
 
-export interface AttributeDescriptor {
-    type? : Function
-    value? : any
-
-    parse? : AttributeParse
-    toJSON? : AttributeToJSON
-   
-    getHooks? : GetHook[]
-    transforms? : Transform[]
-    changeHandlers? : ChangeHandler[]
-
-    _onChange? : ChangeAttrHandler
-}
-
-export type GetHook = ( value : any, key : string ) => any;
 
 export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | string;
 export type Transform = ( next : any, options : TransactionOptions, prev : any, record : Record ) => any;
 export type ChangeHandler = ( next : any, prev : any, record : Record ) => void;
-
-export type AttributeToJSON = ( value : any, key : string ) => any
-export type AttributeParse = ( value : any, key : string ) => any
-
-/*************************************
- * Attribute definitions
- */
-export interface AttributesValues {
-    id? : string | number 
-    [ key : string ] : any
-}
-
-export type CloneAttributesCtor = new ( x : AttributesValues ) => AttributesValues
 
 export interface AttributesSpec {
     [ key : string ] : Attribute
@@ -115,7 +89,7 @@ let _cidCounter : number = 0;
     Collection : mixinRules.value,
     idAttribute : mixinRules.value
 })
-export class Record extends Transactional implements Owner {
+export class Record extends Transactional implements AttributesContainer {
     // Hack
     static onDefine( definition, BaseClass ){
         tools.assignToClassProto( this, definition, 'idAttribute' );
@@ -261,7 +235,7 @@ export class Record extends Transactional implements Owner {
 
     // Attributes object copy constructor
     // Attributes : CloneAttributesCtor
-    Attributes( x : AttributesValues ) : void { this.id = x.id; }
+    Attributes( x : AttributesValues ) { this.id = x.id; }
 
     // forEach function for traversing through attributes, with protective default implementation
     // Overriden by dynamically compiled loop unrolled function in define.ts
@@ -617,25 +591,6 @@ export class Record extends Transactional implements Owner {
  * Helper functions
  */
 
-function begin( record : Record ){
-    if( _begin( record ) ){
-        record._previousAttributes = new record.Attributes( record.attributes );
-        record._changedAttributes = null;
-        return true;
-    }
-    
-    return false;
-}
-
-function markAsDirty( record : Record, options : TransactionOptions ){
-    // Need to recalculate changed attributes, when we have nested set in change:attr handler
-    if( record._changedAttributes ){
-        record._changedAttributes = null;
-    }
-
-    return _markAsDirty( record, options );
-}
-
 // Deeply clone record attributes
 function cloneAttributes( record : Record, a_attributes : AttributesValues ) : AttributesValues {
     const attributes = new record.Attributes( a_attributes );
@@ -645,48 +600,6 @@ function cloneAttributes( record : Record, a_attributes : AttributesValues ) : A
     } );
 
     return attributes;
-}
-
- // Optimized single attribute transactional update. To be called from attributes setters
- // options.silent === false, parse === false. 
-export function setAttribute( record : Record, name : string, value : any ) : void {
-    const isRoot  = begin( record ),
-          options = {},
-        { attributes } = record,
-          spec = record._attributes[ name ],
-          prev = attributes[ name ];
-
-    let update;
-
-    // handle deep update...
-    if( update = spec.canBeUpdated( prev, value, options ) ) {
-        //TODO: Why not just forward the transaction, without telling that it's nested?
-        const nestedTransaction = ( <Transactional> prev )._createTransaction( update, options );
-        if( nestedTransaction ){
-            nestedTransaction.commit( record ); // <- null here, and no need to handle changes. Work with shared and aggregated.
-
-            if( spec.propagateChanges ){
-                markAsDirty( record, options );
-                trigger3( record, 'change:' + name, record, prev, options );
-            }
-        }
-    }
-    else {
-        // cast and hook...
-        const next = spec.transform( value, options, prev, record );
-
-        attributes[ name ] = next;
-
-        if( spec.isChanged( next, prev ) ) {
-            // Do the rest of the job after assignment
-            spec.handleChange( next, prev, record );
-
-            markAsDirty( record, options );
-            trigger3( record, 'change:' + name, record, next, options );
-        }
-    }
-
-    isRoot && commit( record );
 }
 
 // Transaction class. Implements two-phase transactions on object's tree. 

@@ -3,7 +3,7 @@
  * and returns object with spec.
  */
 import { Transactional } from '../transactions'
-import { ChangeAttrHandler, AttributeDescriptor } from './attributes'
+import { ChangeAttrHandler, AttributeOptions } from './attributes'
 import { Record } from './transaction'
 import { EventMap, EventsDefinition, tools } from '../object-plus'
 
@@ -15,9 +15,9 @@ export interface AttributeCheck {
 }
 
 export class ChainableAttributeSpec {
-    options : AttributeDescriptor;
+    options : AttributeOptions;
 
-    constructor( options : AttributeDescriptor ) {
+    constructor( options : AttributeOptions ) {
         // Shallow copy options, fill it with defaults.
         this.options = { getHooks : [], transforms : [], changeHandlers : []};
         if( options ) assign( this.options, options );
@@ -107,7 +107,7 @@ export class ChainableAttributeSpec {
         return this;
     }
 
-    metadata( options : AttributeDescriptor ) : ChainableAttributeSpec {
+    metadata( options : AttributeOptions ) : ChainableAttributeSpec {
         const cloned = new ChainableAttributeSpec( this.options );
         assign( cloned.options, options );
         return cloned;
@@ -146,7 +146,7 @@ Object.defineProperty( Function.prototype, 'has', {
     set( value ) { this._has = value; }
 } );
 
-export function toAttributeDescriptor( spec : any ) : AttributeDescriptor {
+export function toAttributeDescriptor( spec : any ) : AttributeOptions {
     let attrSpec : ChainableAttributeSpec;
 
     if( typeof spec === 'function' ) {
