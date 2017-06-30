@@ -1,6 +1,7 @@
-import { AnyType, AttributesContainer } from './generic'
+import { AnyType } from './any'
 import { Owner, transactionApi, Transactional, ItemsBehavior, TransactionOptions } from '../../transactions'
 import { tools } from '../../object-plus'
+import { AttributesContainer } from './updates'
 import { ValidationError } from '../../validation'
 
 const { free, aquire } = transactionApi;
@@ -72,5 +73,3 @@ export class AggregatedType extends AnyType {
         }
     }
 }
-
-Record._attribute = AggregatedType;

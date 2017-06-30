@@ -2,10 +2,10 @@
  * Type spec engine. Declare attributes using chainable syntax,
  * and returns object with spec.
  */
-import { Transactional } from '../transactions'
-import { ChangeAttrHandler, AttributeOptions } from './attributes'
-import { Record } from './transaction'
-import { EventMap, EventsDefinition, tools } from '../object-plus'
+import { Transactional } from '../../transactions'
+import { ChangeAttrHandler, AttributeOptions } from './any'
+import { AttributesContainer } from './updates'
+import { EventMap, EventsDefinition, tools } from '../../object-plus'
 
 const { assign } = tools;
 
@@ -91,7 +91,7 @@ export class ChainableAttributeSpec {
     events( map : EventsDefinition ) : ChainableAttributeSpec {
         const eventMap = new EventMap( map );
 
-        function handleEventsSubscribtion( next, prev, record : Record ){
+        function handleEventsSubscribtion( next, prev, record : AttributesContainer ){
             prev && prev.trigger && eventMap.unsubscribe( record, prev );
 
             next && next.trigger && eventMap.subscribe( record, next );
@@ -146,7 +146,7 @@ Object.defineProperty( Function.prototype, 'has', {
     set( value ) { this._has = value; }
 } );
 
-export function toAttributeDescriptor( spec : any ) : AttributeOptions {
+export function toAttributeOptions( spec : any ) : AttributeOptions {
     let attrSpec : ChainableAttributeSpec;
 
     if( typeof spec === 'function' ) {

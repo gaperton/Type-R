@@ -1,10 +1,9 @@
-import { Record, RecordDefinition, AttributeDescriptorMap } from './transaction'
+import { Record, RecordDefinition } from './record'
 import { Mixable, tools, predefine, define } from '../object-plus'
 import { compile, AttributesSpec } from './define'
-import { ChainableAttributeSpec } from './typespec'
 import { Transactional } from '../transactions'
 
-import { AggregatedType, MSDateType, TimestampType, NumericType, SharedType } from './attributes'
+import { createSharedTypeSpec, ChainableAttributeSpec, AggregatedType, MSDateType, TimestampType, NumericType, SharedType } from './attributes'
 
 export * from './attributes'
 export { Record, ChainableAttributeSpec }
@@ -57,7 +56,7 @@ Record.onDefine = function( definition : RecordDefinition, BaseClass : typeof Re
 Record._attribute = AggregatedType;
 createSharedTypeSpec( Record, SharedType );
 
-function getAttributes({ defaults, attributes, idAttribute } : RecordDefinition ) : AttributeDescriptorMap {
+function getAttributes({ defaults, attributes, idAttribute } : RecordDefinition ) {
     const definition = attributes || defaults || {};
     
     // If there is an undeclared idAttribute, add its definition as untyped generic attribute.
@@ -68,62 +67,3 @@ function getAttributes({ defaults, attributes, idAttribute } : RecordDefinition 
     return definition;
 }
 
-// Add extended Date attribute types.
-declare global {
-    interface DateConstructor {
-        microsoft
-        timestamp
-    }
-}
-
-Object.defineProperties( Date, {
-    microsoft : {
-        get(){
-            return new ChainableAttributeSpec({
-                type : Date,
-                _attribute : MSDateType
-            })
-        }
-    },
-
-    timestamp : {
-        get(){
-            return new ChainableAttributeSpec({
-                type : Date,
-                _attribute : TimestampType
-            })
-        }
-    }
-});
-
-// Add Number.integer attrubute type
-declare global {
-    interface NumberConstructor {
-        integer : Function
-    }
-
-    interface Window {
-        Integer : Function;
-    }
-}
-
-Number.integer = function( x ){ return x ? Math.round( x ) : 0; }
-Number.integer._attribute = NumericType;
-
-if( typeof window !== 'undefined' ){
-    window.Integer = Number.integer;
-}
-
-/** @private */
-export function createSharedTypeSpec( Constructor, Attribute ){
-    Constructor.hasOwnProperty( 'shared' ) ||
-        Object.defineProperty( Constructor, 'shared', {
-            get(){
-                return new ChainableAttributeSpec({
-                    value : null,
-                    type : Constructor,
-                    _attribute : Attribute
-                });
-            }
-        });
-}

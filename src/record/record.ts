@@ -10,55 +10,12 @@ import { ChildrenErrors } from '../validation'
 
 import { Collection } from '../collection'
 
-import { setAttribute, begin, markAsDirty, AttributesValues, AttributesDescriptors, AttributesContainer } from './updates'
+import { AnyType, AggregatedType, setAttribute, begin, markAsDirty, AttributesValues, AttributesDescriptors, AttributesContainer, CloneAttributesCtor } from './attributes'
 
 const { trigger3 } = eventsApi,
       { assign, isEmpty, log } = tools,
       { free, aquire, commit } = transactionApi,
       _begin = transactionApi.begin, _markAsDirty = transactionApi.markAsDirty;
-
-/***************************************************************
- * Record Definition as accepted by Record.define( definition )
- */
-export interface RecordDefinition extends TransactionalDefinition {
-    idAttribute? : string
-    attributes? : AttributeDescriptorMap
-    collection? : object
-    Collection? : typeof Transactional
-}
-
-export interface AttributeDescriptorMap {
-    [ name : string ] : AttributeDescriptor
-}
-
-
-export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | string;
-export type Transform = ( next : any, options : TransactionOptions, prev : any, record : Record ) => any;
-export type ChangeHandler = ( next : any, prev : any, record : Record ) => void;
-
-export interface AttributesSpec {
-    [ key : string ] : Attribute
-}
-
-export interface Attribute extends AttributeUpdatePipeline, AttributeSerialization {
-    clone( value : any, record : Record ) : any
-    create() : any
-    dispose( record : Record, value : any ) : void
-    validate( record : Record, value : any, key : string )
-}
-
-export interface AttributeUpdatePipeline{
-    canBeUpdated( prev : any, next : any, options : TransactionOptions ) : any
-    transform : Transform
-    isChanged( a : any, b : any ) : boolean
-    handleChange : ChangeHandler
-    propagateChanges : boolean
-}
-
-export interface AttributeSerialization {
-    toJSON : AttributeToJSON
-    parse : AttributeParse
-}
 
 /*******************************************************
  * Record core implementation
@@ -70,6 +27,16 @@ export interface ConstructorOptions extends TransactionOptions{
 
 // Client unique id counter
 let _cidCounter : number = 0;
+
+/***************************************************************
+ * Record Definition as accepted by Record.define( definition )
+ */
+export interface RecordDefinition extends TransactionalDefinition {
+    idAttribute? : string
+    attributes? : AttributesValues
+    collection? : object
+    Collection? : typeof Transactional
+}
 
 @define({
     // Default client id prefix 
@@ -100,11 +67,11 @@ export class Record extends Transactional implements AttributesContainer {
 
     static from : ( collectionReference : any ) => any;
     
-    static defaults( attrs : AttributeDescriptorMap ) : typeof Record {
+    static defaults( attrs : AttributesValues ) : typeof Record {
         return <any>this.extend({ attributes : attrs });
     }
     
-    static attributes( attrs : AttributeDescriptorMap ) : typeof Record {
+    static attributes( attrs : AttributesValues ) : typeof Record {
         return <any>this.extend({ attributes : attrs });
     }
 
@@ -228,18 +195,17 @@ export class Record extends Transactional implements AttributesContainer {
      */
 
     // Attributes specifications 
-    _attributes : AttributesSpec
+    _attributes : { [ key : string ] : AnyType }
 
     // Attribute keys
     _keys : string[]
 
     // Attributes object copy constructor
-    // Attributes : CloneAttributesCtor
-    Attributes( x : AttributesValues ) { this.id = x.id; }
+    Attributes : CloneAttributesCtor
 
     // forEach function for traversing through attributes, with protective default implementation
     // Overriden by dynamically compiled loop unrolled function in define.ts
-    forEachAttr( attrs : {}, iteratee : ( value : any, key? : string, spec? : Attribute ) => void ) : void {
+    forEachAttr( attrs : {}, iteratee : ( value : any, key? : string, spec? : AnyType ) => void ) : void {
         const { _attributes } = this;
         let unknown : string[];
 
@@ -353,7 +319,7 @@ export class Record extends Transactional implements AttributesContainer {
             ...
         }
         */
-        this.forEachAttr( attributes, ( value : any, key : string, attr : AttributeUpdatePipeline ) => {
+        this.forEachAttr( attributes, ( value, key, attr ) => {
             const next = attributes[ key ] = attr.transform( value, options, void 0, this );
                   attr.handleChange( next, void 0, this );
         });
@@ -409,7 +375,7 @@ export class Record extends Transactional implements AttributesContainer {
     toJSON() : Object {
         const json = {};
 
-        this.forEachAttr( this.attributes, ( value, key : string, { toJSON } : AttributeSerialization ) =>{
+        this.forEachAttr( this.attributes, ( value, key : string, { toJSON } ) =>{
             // If attribute serialization is not disabled, and its value is not undefined...
             if( value !== void 0 ){
                 // ...serialize it according to its spec.
@@ -498,7 +464,7 @@ export class Record extends Transactional implements AttributesContainer {
               values = options.parse ? this.parse( a_values, options ) : a_values;
 
         if( values && values.constructor === Object ){
-            this.forEachAttr( values, ( value, key : string, attr : AttributeUpdatePipeline ) => {
+            this.forEachAttr( values, ( value, key, attr ) => {
                 const prev = attributes[ key ];
                 let update;
 
@@ -595,7 +561,7 @@ export class Record extends Transactional implements AttributesContainer {
 function cloneAttributes( record : Record, a_attributes : AttributesValues ) : AttributesValues {
     const attributes = new record.Attributes( a_attributes );
 
-    record.forEachAttr( attributes, function( value, name, attr : Attribute ){
+    record.forEachAttr( attributes, function( value, name, attr ){
         attributes[ name ] = attr.clone( value, record );
     } );
 
@@ -630,3 +596,17 @@ class RecordTransaction implements Transaction {
         this.isRoot && commit( object, initiator );
     }
 }
+
+class Attributes {
+    id : string | number
+
+    constructor( x : AttributesValues ) {
+        this.id = x.id;
+    }
+}
+
+Record.prototype.Attributes = Attributes;
+
+Record.prototype._attributes = { id : AnyType.create({ value : void 0 }, 'id' )};
+Record.prototype.defaults = function( attrs : { id? : string } = {} ){ return { id : attrs.id } };
+Record._attribute = AggregatedType;

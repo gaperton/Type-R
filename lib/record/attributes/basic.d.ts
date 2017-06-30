@@ -1,4 +1,4 @@
-import { AnyType } from './generic';
+import { AnyType } from './any';
 export declare class PrimitiveType extends AnyType {
     type: NumberConstructor | StringConstructor | BooleanConstructor;
     dispose(): void;

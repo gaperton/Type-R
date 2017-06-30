@@ -1,4 +1,5 @@
-import { AnyType, AttributesContainer } from './generic'
+import { AnyType } from './any'
+import { AttributesContainer } from './updates'
 import { ItemsBehavior, Owner, transactionApi, Transactional, TransactionOptions } from '../../transactions' 
 import { tools, eventsApi } from '../../object-plus'
 

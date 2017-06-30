@@ -1,4 +1,4 @@
-import { AnyType } from './generic'
+import { AnyType } from './any'
 import { tools } from '../../object-plus'
 
 // Default attribute type for all constructor functions...

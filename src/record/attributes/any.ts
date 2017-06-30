@@ -215,9 +215,6 @@ export class AnyType implements AttributeUpdatePipeline {
     get : ( value, key : string ) => any
 }
 
-Record.prototype._attributes = { id : AnyType.create({ value : void 0 }, 'id' )};
-Record.prototype.defaults = function( attrs : { id? : string } = {} ){ return { id : attrs.id } };
-
 /** @private */
 function chainChangeHandlers( prevHandler : ChangeHandler, nextHandler : ChangeHandler ) : ChangeHandler {
     return function( next, prev, model ) {
