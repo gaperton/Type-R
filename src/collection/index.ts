@@ -70,7 +70,7 @@ export class Collection extends Transactional implements CollectionCore {
             Ctor.call( this, a, b, ItemsBehavior.share | ( listen ? ItemsBehavior.listen : 0 ) );
         }
 
-        Collection.mixins.populate( RefsCollection );
+        Mixable.mixins.populate( RefsCollection );
         
         RefsCollection.prototype = this.prototype;
         RefsCollection._attribute = CollectionRefsType;
