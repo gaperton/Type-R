@@ -51,6 +51,7 @@ export declare type Mixin = {
 export interface MixinRulesDecorator {
     (rules: MixinMergeRules): ClassDecorator;
     value(a: object, b: object): object;
+    protoValue(a: object, b: object): object;
     merge(a: object, b: object): object;
     pipe(a: Function, b: Function): Function;
     defaults(a: Function, b: Function): Function;

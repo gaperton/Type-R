@@ -54,13 +54,11 @@ export interface RecordDefinition extends TransactionalDefinition {
     attributes : mixinRules.merge,
     collection : mixinRules.merge,
     Collection : mixinRules.value,
-    idAttribute : mixinRules.value
+    idAttribute : mixinRules.protoValue
 })
 export class Record extends Transactional implements AttributesContainer {
     // Hack
-    static onDefine( definition, BaseClass ){
-        tools.assignToClassProto( this, definition, 'idAttribute' );
-    }
+    static onDefine( definition, BaseClass ){}
 
     static Collection : typeof Collection
     static DefaultCollection : typeof Collection

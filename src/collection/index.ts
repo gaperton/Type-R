@@ -42,7 +42,7 @@ const slice = Array.prototype.slice;
 })
 @definitions({
     comparator : mixinRules.value,
-    model : mixinRules.value,
+    model : mixinRules.protoValue,
     itemEvents : mixinRules.merge
 })
 export class Collection extends Transactional implements CollectionCore {
@@ -88,7 +88,7 @@ export class Collection extends Transactional implements CollectionCore {
             this.prototype._itemEvents = eventsMap;
         }
 
-        assignToClassProto( this, definition, 'model', 'comparator' );
+        if( definition.comparator ) this.prototype.comparator = definition.comparator;
 
         Transactional.onDefine.call( this, definition );
     }

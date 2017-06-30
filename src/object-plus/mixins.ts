@@ -221,13 +221,14 @@ export class MixinsState {
 
     mergeObject( dest : object, source : object, unshift? : boolean ) {
         forEachOwnProp( source, name => {
-            const sourceProp = Object.getOwnPropertyDescriptor( source, name ),
-                definitionRule = this.definitionRules[ name ];
+            const sourceProp = Object.getOwnPropertyDescriptor( source, name );
+            let rule : MixinMergeRule;
 
-            if( definitionRule  ){
-                assignProperty( this.definitions, name, sourceProp, definitionRule, unshift );
+            if( rule = this.definitionRules[ name ] ){
+                assignProperty( this.definitions, name, sourceProp, rule, unshift );
             }
-            else{
+
+            if( !rule || rule === mixinRules.protoValue  ){
                 assignProperty( dest, name, sourceProp, this.mergeRules[ name ], unshift );
             }
         });
@@ -283,6 +284,7 @@ export type Mixin = { [ key : string ] : any } | Function
 export interface MixinRulesDecorator {
     ( rules : MixinMergeRules ) : ClassDecorator
     value( a : object, b : object) : object;
+    protoValue( a : object, b : object) : object;
     merge( a : object, b : object ) : object;
     pipe( a: Function, b : Function ) : Function;
     defaults( a: Function, b : Function ) : Function;
@@ -307,6 +309,8 @@ export const mixinRules = ( ( rules : MixinMergeRules ) => (
 // Pre-defined mixin merge rules
 
 mixinRules.value = ( a, b ) => a;
+
+mixinRules.protoValue = ( a, b ) => a;
 
 // Recursively merge members
 mixinRules.merge = ( a, b ) => defaults( {}, a, b );
