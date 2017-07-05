@@ -15,9 +15,9 @@
   },
   "scripts": {
     "prepublish": "node_modules/.bin/webpack -p",
-    "test": "tests/nestedtypes/node_modules/.bin/mocha tests/nestedtypes/functionality",
-    "test:ts": "tests/nestedtypes/node_modules/.bin/mocha --opts tests/typescript/mocha.opts",
-    "build": "node_modules/.bin/tsc --project tsconfig.prod.json && npm run prepublish",
+    "test": "node_modules/.bin/mocha tests/nestedtypes/functionality && npm run test:ts",
+    "test:ts": "node_modules/.bin/mocha --opts tests/typescript/mocha.opts",
+    "build": "node_modules/.bin/tsc && npm run prepublish",
     "docs": "node docs/build.js"
   },
   "repository": {
@@ -49,7 +49,7 @@
     "source-map-loader": "*",
     "ts-loader": "*",
     "ts-node": "^3.0.6",
-    "typescript": "<2.4.0",
+    "typescript": "*",
     "webpack": "*"
   }
 }

@@ -1,4 +1,4 @@
---require ts-node/register 
+--require tests/typescript/tshook 
 --reporter dot
 --watch-extensions tsx,ts 
-./src/**/*.test.ts
+tests/typescript/*.ts

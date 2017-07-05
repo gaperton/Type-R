@@ -33,6 +33,10 @@ export interface CollectionDefinition extends TransactionalDefinition {
 
 const slice = Array.prototype.slice;
 
+class CollectionRefsType extends SharedType {
+    static defaultValue = [];
+}
+
 @define({
     // Default client id prefix 
     cidPrefix : 'c',
@@ -496,10 +500,6 @@ export type ElementsArg = Object | Record | Object[] | Record[];
 function toElements( collection : Collection, elements : ElementsArg, options : CollectionOptions ) : Elements {
     const parsed = options.parse ? collection.parse( elements, options ) : elements; 
     return Array.isArray( parsed ) ? parsed : [ parsed ];
-}
-
-class CollectionRefsType extends SharedType {
-    static defaultValue = [];
 }
 
 createSharedTypeSpec( Collection, SharedType );
