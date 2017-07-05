@@ -4,7 +4,7 @@
  */
 import { Transactional } from '../../transactions'
 import { ChangeAttrHandler, AttributeOptions } from './any'
-import { AttributesContainer } from './updates'
+import {  AttributesContainer } from './updates'
 import { EventMap, EventsDefinition, tools } from '../../object-plus'
 
 const { assign } = tools;

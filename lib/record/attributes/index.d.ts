@@ -4,11 +4,11 @@ export * from './date';
 export * from './basic';
 export * from './shared';
 export * from './updates';
-export * from './definition';
+export * from './attrDef';
 import { AnyType } from './any';
 export declare function createSharedTypeSpec(Constructor: Function, Attribute: typeof AnyType): void;
 export declare function createAttribute(spec: any, name: string): AnyType;
-import { ChainableAttributeSpec } from './definition';
+import { ChainableAttributeSpec } from './attrDef';
 declare global  {
     interface DateConstructor {
         microsoft: ChainableAttributeSpec;

@@ -4,7 +4,7 @@ export * from './date'
 export * from './basic'
 export * from './shared'
 export * from './updates'
-export * from './definition'
+export * from './attrDef'
 
 import { AnyType } from './any'
 
@@ -23,7 +23,7 @@ export function createSharedTypeSpec( Constructor : Function, Attribute : typeof
 }
 
 // Create attribute from the type spec.
-import { toAttributeOptions } from './definition'
+import { toAttributeOptions } from './attrDef'
 
 export function createAttribute( spec : any, name : string ) : AnyType {
     return AnyType.create( toAttributeOptions( spec ), name );
@@ -32,7 +32,7 @@ export function createAttribute( spec : any, name : string ) : AnyType {
 /**
  * Add date attribute subtypes
  */
-import { ChainableAttributeSpec } from './definition'
+import { ChainableAttributeSpec } from './attrDef'
 import { TimestampType, MSDateType } from './date'
 
 declare global {
