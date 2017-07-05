@@ -55,12 +55,11 @@ export declare class Record extends Transactional implements AttributesContainer
     toJSON(): Object;
     parse(data: any, options?: TransactionOptions): any;
     deepSet(name: string, value: any, options?: any): this;
-    transaction(fun: (self: this) => void, options?: TransactionOptions): void;
-    _createTransaction(a_values: {}, options?: TransactionOptions): Transaction;
-    _onChildrenChange(child: Transactional, options: TransactionOptions): void;
-    forceAttributeChange(key: string, options?: TransactionOptions): void;
     readonly collection: any;
     dispose(): void;
     _log(level: string, text: string, value: any): void;
     getClassName(): string;
+    _createTransaction(values: object, options: TransactionOptions): Transaction;
+    forceAttributeChange: (key: string, options: TransactionOptions) => void;
+    _onChildrenChange: (child: Transactional, options: TransactionOptions) => void;
 }

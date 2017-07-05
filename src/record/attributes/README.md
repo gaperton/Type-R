@@ -1,5 +1,5 @@
-Everything which relates to individual attributes
+Attributes run-time metadata, record update pipleline, and attribute definitions.
 
 - `any.ts` - `AnyType` is the base class for the typeless attribute descriptor.
-- `updates.ts` - `setAttribute` function implementation.
-- `definition.ts` - chainable attribute spec definition.
+- `updates.ts` - transactional updates.
+- `attrDef.ts` - chainable attribute spec definition.

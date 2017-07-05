@@ -1,4 +1,4 @@
-import { Transactional, TransactionOptions, Owner, transactionApi } from "../../transactions"
+import { Transactional, Transaction, TransactionOptions, Owner, transactionApi } from "../../transactions"
 const { begin : _begin, markAsDirty : _markAsDirty, commit } = transactionApi;
 
 import { eventsApi } from '../../object-plus'
@@ -11,6 +11,7 @@ export interface AttributesContainer extends Transactional, Owner {
     attributes : AttributesValues
     _previousAttributes : AttributesValues
     _changedAttributes : AttributesValues
+    forEachAttr( attrs : object, iteratee : ( value : any, key? : string, spec? : AttributeUpdatePipeline ) => void ) : void
 }
 
 export type CloneAttributesCtor = new ( x : AttributesValues ) => AttributesValues
@@ -76,7 +77,7 @@ export function setAttribute( record : AttributesContainer, name : string, value
     isRoot && commit( record );
 }
 
-export function begin( record : AttributesContainer ){
+function begin( record : AttributesContainer ){
     if( _begin( record ) ){
         record._previousAttributes = new record.Attributes( record.attributes );
         record._changedAttributes = null;
@@ -86,11 +87,121 @@ export function begin( record : AttributesContainer ){
     return false;
 }
 
-export function markAsDirty( record : AttributesContainer, options : TransactionOptions ){
+function markAsDirty( record : AttributesContainer, options : TransactionOptions ){
     // Need to recalculate changed attributes, when we have nested set in change:attr handler
     if( record._changedAttributes ){
         record._changedAttributes = null;
     }
 
     return _markAsDirty( record, options );
+}
+
+export const UpdateRecordMixin = {
+// Need to override it here, since begin/end transaction brackets are overriden. 
+    transaction( this : AttributesContainer, fun : ( self : AttributesContainer ) => void, options : TransactionOptions = {} ) : void{
+        const isRoot = begin( this );
+        fun.call( this, this );
+        isRoot && commit( this );
+    },
+            
+    // Handle nested changes. TODO: propagateChanges == false, same in transaction.
+    _onChildrenChange( child : Transactional, options : TransactionOptions ) : void {
+        const { _ownerKey } = child,
+              attribute = this._attributes[ _ownerKey ];
+
+        if( !attribute /* TODO: Must be an opposite, likely the bug */ || attribute.propagateChanges ) this.forceAttributeChange( _ownerKey, options );
+    },
+
+    // Simulate attribute change 
+    forceAttributeChange( key : string, options : TransactionOptions = {} ){
+        // Touch an attribute in bounds of transaction
+        const isRoot = begin( this );
+
+        if( markAsDirty( this, options ) ){
+            trigger3( this, 'change:' + key, this, this.attributes[ key ], options );
+        }
+        
+        isRoot && commit( this );
+    },
+
+    _createTransaction( this : AttributesContainer, a_values : {}, options : TransactionOptions = {} ) : Transaction {
+        const isRoot = begin( this ),
+                changes : string[] = [],
+                nested : RecordTransaction[]= [],
+                { attributes } = this,
+                values = options.parse ? this.parse( a_values, options ) : a_values;
+
+        if( values && values.constructor === Object ){
+            this.forEachAttr( values, ( value, key, attr ) => {
+                const prev = attributes[ key ];
+                let update;
+
+                // handle deep update...
+                if( update = attr.canBeUpdated( prev, value, options ) ) { // todo - skip empty updates.
+                    const nestedTransaction = prev._createTransaction( update, options );
+                    if( nestedTransaction ){
+                        nested.push( nestedTransaction );
+                        
+                        if( attr.propagateChanges ) changes.push( key );
+                    }
+
+                    return;
+                }
+
+                // cast and hook...
+                const next = attr.transform( value, options, prev, this );
+                attributes[ key ] = next;
+
+                if( attr.isChanged( next, prev ) ) {    
+                    changes.push( key );
+
+                    // Do the rest of the job after assignment
+                    attr.handleChange( next, prev, this );
+                }
+            } );
+        }
+        else{
+            this._log( 'error', 'incompatible argument type', values );
+        }
+
+        if( changes.length && markAsDirty( this, options ) ){
+            return new RecordTransaction( this, isRoot, nested, changes );
+        }
+        
+        // No changes, but there might be silent attributes with open transactions.
+        for( let pendingTransaction of nested ){
+            pendingTransaction.commit( this );
+        }
+
+        isRoot && commit( this );
+    }
+};
+
+// Transaction class. Implements two-phase transactions on object's tree. 
+// Transaction must be created if there are actual changes and when markIsDirty returns true. 
+class RecordTransaction implements Transaction {
+    // open transaction
+    constructor( public object : AttributesContainer,
+                 public isRoot : boolean,
+                 public nested : Transaction[],
+                 public changes : string[] ){}
+
+    // commit transaction
+    commit( initiator? : AttributesContainer ) : void {
+        const { nested, object, changes } = this;
+
+        // Commit all pending nested transactions...
+        for( let transaction of nested ){ 
+            transaction.commit( object );
+        }
+
+        // Notify listeners on attribute changes...
+        // Transaction is never created when silent option is set, so just send events out.
+        const { attributes, _isDirty } = object;
+        for( let key of changes ){
+            trigger3( object, 'change:' + key, object, attributes[ key ], _isDirty );
+        }
+
+        this.isRoot && commit( object, initiator );
+    }
 }

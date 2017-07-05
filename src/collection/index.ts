@@ -53,7 +53,7 @@ export class Collection extends Transactional implements CollectionCore {
     static Refs : typeof Collection
     static _SubsetOf : typeof Collection
     
-    createSubset( models, options ){
+    createSubset( models : ElementsArg, options ){
         const SubsetOf = (<any>this.constructor).subsetOf( this ).options.type,
             subset   = new SubsetOf( models, options );
             
@@ -427,19 +427,19 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     // Add a model to the end of the collection.
-    push(model, options) {
+    push(model : ElementsArg, options : CollectionOptions ) {
       return this.add(model, assign({at: this.length}, options));
     }
 
     // Remove a model from the end of the collection.
-    pop(options) {
+    pop( options : CollectionOptions ) {
       var model = this.at(this.length - 1);
       this.remove(model, options);
       return model;
     }
 
     // Add a model to the beginning of the collection.
-    unshift(model, options) {
+    unshift(model : ElementsArg, options : CollectionOptions ) {
       return this.add(model, assign({at: 0}, options));
     }
 
@@ -510,7 +510,7 @@ function bindContext( fun : Function, context? : any ){
     return context !== void 0 ? ( v, k ) => fun.call( context, v, k ) : fun;
 }
 
-function toPredicateFunction( iteratee : Predicate, context ){
+function toPredicateFunction( iteratee : Predicate, context : any ){
     if( typeof iteratee === 'object' ){
         // Wrap object to the predicate...
         return x => {
