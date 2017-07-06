@@ -143,6 +143,25 @@ describe( '@mixins', () =>{
         expect( x.a ).to.eql( 2 );
         expect( x.b ).to.eql( 1 );
     });
+
+    it( 'merge methods from mixin if they are not locally defined', () => {
+        @define class Base {
+            first(){}
+        }
+
+        const Mix = {
+            first(){},
+            second(){}
+        }
+
+        @define @mixins( Mix ) class Y extends Base {
+            second(){}
+        }
+
+        expect( Y.prototype.second ).to.not.eql( Mix.second );
+        expect( Y.prototype.first ).to.eql( Mix.first );
+
+    });
 } );
 
 describe( 'mixin rules', () => {
