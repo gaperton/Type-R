@@ -1,23 +1,125 @@
-# Mixins
+# Class definitions and mixins
 
-Type-R mechanics is based on class transformations at the moment of module load.
+## Class Definitions
 
-## Class Definition
+Type-R mechanic is based on class transformations at the moment of module load. These transformations are controlled by _definitions_ in static class members.
+
+### `decorator` @definitions({ propName : `rule`, ... })
+
+Treat specified static class members as _definitions_. When `@define` decorator is being called, definitions are extracted from static class members and mixins and passed as an argument to the `Class.onDefine( definition )`.
+
+Class definitions are intended to use in the abstract base classes and they are inherited by subclasses. You don't need to add any new definitions to existing Type-R classes unless you want to extend the library, which you're welcome to do.
+
+### `rule` mixinRules.value
+
+Merge rule used to mark class definitions. The same rule is also applied to all mixin members if other rule is not specified.
+
+```javascript
+@define
+@definitions({
+    urlRoot : mixinRules.value
+})
+class X {
+    static urlRoot = '/api';
+
+    static onDefine( definition ){
+        this.prototype.urlRoot = definition.urlRoot;
+    }
+}
+```
+
+### `rule` mixinRules.protoValue
+
+Same as `mixinRules.value`, but the value is being assigned to the class prototype.
+
+```javascript
+@define
+@definitions({
+    urlRoot : mixinRules.protoValue
+})
+class X {
+    static urlRoot = '/api';
+}
+
+assert( X.prototype.urlRoot === '/api' );
+```
+
+### `rule` mixinRules.merge
+
+Assume the property to be the key-value hash. Properties with the same name from mixins are merged.
+
+```javascript
+const M = {
+    attributes : {
+        b : 1
+    }
+};
+
+@define
+@mixins( M )
+@definitions({
+    attributes : mixinRules.merge
+})
+class X {
+    static attributes = {
+        a : 1
+    };
+
+    onDefine( definitions ){
+        const { attributes } = definitions;
+        assert( attributes.a === attributes.b === 1 );
+    }
+}
+```
 
 ### `decorator` @define
 
+Extract class definitions, call class definition hooks, and apply mixin merge rules to inherited class members.
+
+1. Call static `onExtend( BaseClass )` hook.
+2. Extract definitions from static class members and all the mixins applied, and pass them to `onDefine( definitions, BaseClass )` hook.
+4. Apply _merge rules_ for overriden class methods.
+
 All Type-R class definitions must be precedeed with the `@define` (or `@predefine`) decorator.
 
-1. It calls static `onExtend( BaseClass )` function if it's defined.
-2. It extracts the definitions from the static class members and all the mixins applied to the particular class.
-3. It calls static `onDefine( definitions, BaseClass )` functions if it's defined.
-4. It applies _merge rules_ for overriden class methods.
+```javascript
+@define
+@definitions({
+    attributes : mixinRules.merge
+})
+class Record {
+    static onDefine( definitions, BaseClass ){
+        definitions.attributes && console.log( JSON.stringify( definitions.attributes ) );
+    }
+}
 
-### `decorator` @define( definitions )
+// Will print "{ "a" : 1 }"
+@define class A extends Record {
+    static attributes = {
+        a : 1
+    }
+}
 
-When called with an argument, `@define` decorator applies the given `definitions` mixin as if it would be the first mixin applied.
+// Will print "{ "b" : 1 }"
+@define class B extends Record {
+    static attributes = {
+        b : 1
+    }
+}
+```
 
+### `decorator` @define( mixin )
+
+When called with an argument, `@define` decorator applies the given mixin as if it would be the first mixin applied.
 In other aspects, it behaves the same as the `@default` decorator without argument.
+
+### `static` Class.onExtend( BaseClass )
+
+Called from the `@predefine` or as the first action of the `@define`. Takes base class constructor as an argument.
+
+### `static` Class.onDefine( definition, BaseClass )
+
+Called from the `@define` or `Class.define()` method. Takes class definition (see the `@definitions` decorator) as the first argument.
 
 ### `decorator` @predefine
 
@@ -29,13 +131,9 @@ It calls static `onExtend( BaseClass )` function if it's defined. It assumes tha
 
 Finalized the class definition started with `@predefine` decorator. Has the same effect as the `@define` decorator excepts it assumes that `Class.onExtend()` static function was called already.
 
-### `static` Class.onExtend( BaseClass )
+## Mixins
 
-Called from the `@predefine` or as the first action of the `@define`. Takes base class constructor as an argument.
 
-### `static` Class.onDefine( definition, BaseClass )
-
-Called from the `@define` or `Class.define()` method. Takes class definition as the first argument.
 
 ### `decorator` @mixins( mixinA, mixinB, ... ) class X ...
 
@@ -54,13 +152,17 @@ Merge specified mixins to the class definition. Both plain JS object and class c
 
 ### `static` Class.mixins
 
-Class member holding the state of the mixins. Experimental (API may change in future).
+Class member holding the state of the class mixins.
+
+<aside class="warning">
+This is an experimental API which may change in future.
+</aside>
 
 ## Merge rules
 
 ### `decorator` @mixinRules({ propName : `rule`, ... }) 
 
-The `rule` is the reducer function which is applied when there are several values for the particular class members are defined in different mixins or the class, or if the class member is overriden in the subclass.
+The `rule` is the reducer function which is applied when there are several values for the particular class members are defined in different mixins or the class, or if the class member is overriden by the subclass.
 
 <aside class="warning">
 This is an experimental feature to support React-style mixins. Should be used with an extreme care.
@@ -72,6 +174,37 @@ Assume the property to be the function. Call functions from mixins in sequence: 
 
 ### `rule` mixinRules.classLast
 Same as sequence, but functions are called in the reverse sequence.
+
+```javascript
+@define
+@mixinRules({
+    componentWillMount : mixinRules.classLast
+})
+class Component {
+    componentWillMount(){
+        console.log( 1 );
+    }
+}
+
+const M = {
+    componentWillMount(){
+        console.log( 2 );
+    }
+}
+
+@define
+@mixins( M )
+class X extends Component {
+    componentWillMount(){
+        console.log( 3 );
+    }
+}
+
+const x = new X();
+x.componentWillMount();
+// Will print 1, 2, 3
+
+```
 
 ### `rule` mixinRules.pipe
 
@@ -88,23 +221,3 @@ Assume property to be the function returning boolean. Return `true` if all funct
 ### `rule` mixinRules.some
 
 Same as `every`, but return true when at least one function from mixins returns true.
-
-## Definitions
-
-### `decorator` @definition({ propName : `rule` })
-
-Treat specified properties from mixins and static class members as _definitions_. When `@define` decorator is being called, definitions are extracted and passed to the `Class.onDefine( definition )` method.
-
-### `rule` mixinRules.value
-
-The value defined in the class overrides the value in the mixins.
-
-The default merge rule. When no rules are defined for the class member it's being merged with `value` rule.
-
-### `rule` mixinRules.protoValue
-
-Same as `mixinRules.value`, but the value is being assigned to the class prototype.
-
-### `rule` mixinRules.merge
-
-Assume the property to be an object. Merge objects from mixins.
