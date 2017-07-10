@@ -5,13 +5,13 @@
  * This is the singleton avaliable globally through `Object.log` or 
  * exported [[log]] variable.
  */
-export type Level = 'none' | 'error' | 'warn' | 'info' | 'debug';
+export type LogLevel = 'none' | 'error' | 'warn' | 'info' | 'debug' | 'log';
 
 const levelToNumber = {
-    none : 0, error : 1, warn : 2, info : 3, debug : 4
+    none : 0, error : 1, warn : 2, info : 3, log : 4, debug : 5
 }
 
-export type Logger = ( level : Level, error : string, props : object ) => void;
+export type Logger = ( level : LogLevel, error : string, props : object ) => void;
 
 export interface Log extends Logger {
     level : number
@@ -20,8 +20,19 @@ export interface Log extends Logger {
     _console : Logger
 }
 
-export const log : Log = <any>function( level : Level, msg : string, props : object ){
-    const levelAsNumber = levelToNumber[ level ];
+export const log : Log = <any>function( a_level : LogLevel, a_msg : string, a_props : object ){
+    let levelAsNumber = levelToNumber[ a_level ], msg, props, level;
+
+    if( levelAsNumber === void 0 && !a_props ){
+        levelAsNumber = 4;
+        msg = a_level;
+        props = a_msg;
+        level = 'log';
+    }
+    else{
+        msg = a_msg, level = a_level, props = a_props;
+    }
+
     if( levelAsNumber <= log.level ){
         if( levelAsNumber <= log.throw || !log._console ){
             const error = new Error( msg );
@@ -43,7 +54,7 @@ log.throw = 0;
 log.stop = 0;
 
 if( typeof console !== 'undefined' ) {
-    log._console = function _console( level : Level, error : string, props : object ){
+    log._console = function _console( level : LogLevel, error : string, props : object ){
         const args = [ error ];
         for( let name in props ){
             args.push( `\n\t${name}:`, props[ name ] );

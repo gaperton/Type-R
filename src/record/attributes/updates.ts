@@ -131,38 +131,33 @@ export const UpdateRecordMixin = {
                 { attributes } = this,
                 values = options.parse ? this.parse( a_values, options ) : a_values;
 
-        if( values && values.constructor === Object ){
-            this.forEachAttr( values, ( value, key, attr ) => {
-                const prev = attributes[ key ];
-                let update;
+        guardedEachAttr( this, values, ( value, key, attr ) => {
+            const prev = attributes[ key ];
+            let update;
 
-                // handle deep update...
-                if( update = attr.canBeUpdated( prev, value, options ) ) { // todo - skip empty updates.
-                    const nestedTransaction = prev._createTransaction( update, options );
-                    if( nestedTransaction ){
-                        nested.push( nestedTransaction );
-                        
-                        if( attr.propagateChanges ) changes.push( key );
-                    }
-
-                    return;
+            // handle deep update...
+            if( update = attr.canBeUpdated( prev, value, options ) ) { // todo - skip empty updates.
+                const nestedTransaction = prev._createTransaction( update, options );
+                if( nestedTransaction ){
+                    nested.push( nestedTransaction );
+                    
+                    if( attr.propagateChanges ) changes.push( key );
                 }
 
-                // cast and hook...
-                const next = attr.transform( value, options, prev, this );
-                attributes[ key ] = next;
+                return;
+            }
 
-                if( attr.isChanged( next, prev ) ) {    
-                    changes.push( key );
+            // cast and hook...
+            const next = attr.transform( value, options, prev, this );
+            attributes[ key ] = next;
 
-                    // Do the rest of the job after assignment
-                    attr.handleChange( next, prev, this );
-                }
-            } );
-        }
-        else{
-            this._log( 'error', 'incompatible argument type', values );
-        }
+            if( attr.isChanged( next, prev ) ) {    
+                changes.push( key );
+
+                // Do the rest of the job after assignment
+                attr.handleChange( next, prev, this );
+            }
+        } );
 
         if( changes.length && markAsDirty( this, options ) ){
             return new RecordTransaction( this, isRoot, nested, changes );
@@ -177,6 +172,35 @@ export const UpdateRecordMixin = {
     }
 };
 
+export function shouldBeAnObject( record : AttributesContainer, values : object ){
+    if( values && values.constructor === Object ) return true;
+
+    record._log( 'warn', 'update with non-object is ignored!', values );
+    return false;
+}
+
+function guardedEachAttr( record : AttributesContainer, attrs : {}, iteratee : ( value : any, key? : string, spec? : AttributeUpdatePipeline ) => void ) : void {
+    const { _attributes } = record;
+    let unknown : string[];
+
+    if( shouldBeAnObject( record, attrs ) ){
+        for( let name in attrs ){
+            const spec = _attributes[ name ];
+
+            if( spec ){
+                iteratee( attrs[ name ], name, spec );
+            }
+            else{
+                unknown || ( unknown = [] );
+                unknown.push( `'${ name }'` );
+            }
+        }
+
+        if( unknown ){
+            record._log( 'warn', `Undefined attributes ${ unknown.join(', ')} are ignored!`, attrs );
+        }
+    }
+}
 // Transaction class. Implements two-phase transactions on object's tree. 
 // Transaction must be created if there are actual changes and when markIsDirty returns true. 
 class RecordTransaction implements Transaction {

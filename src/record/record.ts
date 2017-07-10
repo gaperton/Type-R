@@ -217,7 +217,9 @@ export class Record extends Transactional implements AttributesContainer {
         }
 
         if( unknown ){
-            this._log( 'warn', `attributes ${ unknown.join(', ')} are not defined`, attrs );
+            this._log( 'warn', `attributes ${ unknown.join(', ')} are not defined`,{
+                attributes : attrs
+            } );
         }
 
         // TODO: try this versus object traversal.
@@ -277,6 +279,23 @@ export class Record extends Transactional implements AttributesContainer {
     // Create record default values, optionally augmenting given values.
     defaults( values? : {} ){ return {}; }
 
+    _typeCheck( values : object ){
+        if( !values || values.constructor !== Object ){
+            //
+        }
+
+        const { _attributes } = this;
+        let unknown = [];
+
+        for( let key in values ){
+            if( ! _attributes[ key ] ){
+                unknown || ( unknown = [] );
+                unknown.push( key );
+            }
+        }
+        
+        return unknown;
+    }
     /***************************************************
      * Record construction
      */
@@ -459,12 +478,16 @@ export class Record extends Transactional implements AttributesContainer {
         super.dispose();
     }
 
-    _log( level : string, text : string, value ) : void {
-        tools.log[ level ]( `[Model Update] ${ this.getClassName() }: ` + text, value, 'Attributes spec:', this._attributes );
+    _log( level : tools.LogLevel, text : string, props : object ) : void {
+        tools.log( level, '[Record] ' + text, {
+            'Record' : this,
+            'Attributes definition:' : this._attributes,
+            ...props
+        });
     }
 
     getClassName() : string {
-        return super.getClassName() || 'Model';
+        return super.getClassName() || 'Record';
     }
 
     // Dummies to 
