@@ -1,4 +1,4 @@
-import { setAttribute, AttributesContainer, AttributeUpdatePipeline, Transform, ChangeHandler } from './updates'
+import { setAttribute, AttributesContainer, AttributeUpdatePipeline, RecordTransaction } from './updates'
 import { tools } from '../../object-plus'
 import { Owner, Transactional, TransactionOptions } from '../../transactions'
 
@@ -9,6 +9,9 @@ declare global {
         _attribute : typeof AnyType
     }
 }
+
+export type Transform = ( next : any, options : TransactionOptions, prev : any, record : AttributesContainer ) => any;
+export type ChangeHandler = ( next : any, prev : any, record : AttributesContainer ) => void;
 
 export interface AttributeOptions {
     _attribute? : typeof AnyType
@@ -142,7 +145,7 @@ export class AnyType implements AttributeUpdatePipeline {
         return x;
     }
 
-    doUpdate( value, options, record, nested? : Transaction[] ){
+    doUpdate( record : AttributesContainer, value, options, nested? : RecordTransaction[] ){
         const { name } = this,
             { attributes } = record,
               prev = attributes[ name ];

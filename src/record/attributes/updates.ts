@@ -4,14 +4,22 @@ const { begin : _begin, markAsDirty : _markAsDirty, commit } = transactionApi;
 import { eventsApi } from '../../object-plus'
 const { trigger3 } = eventsApi;
 
+
 export interface AttributesContainer extends Transactional, Owner {
-    getClassName() : string
+    // Attributes copy constructor.
     Attributes : CloneAttributesCtor
+    
+    // Attribute descriptors.
     _attributes : AttributesDescriptors
+
+    // Attribute values.
     attributes : AttributesValues
+
+    // Previous attribute values.
     _previousAttributes : AttributesValues
+
+    // Changed attributes cache. 
     _changedAttributes : AttributesValues
-    forEachAttr( attrs : object, iteratee : ( value : any, key? : string, spec? : AttributeUpdatePipeline ) => void ) : void
 }
 
 export type CloneAttributesCtor = new ( x : AttributesValues ) => AttributesValues
@@ -25,70 +33,24 @@ export interface AttributesDescriptors {
 }
 
 export interface AttributeUpdatePipeline{
-    canBeUpdated( prev : any, next : any, options : TransactionOptions ) : any
-    transform : Transform
-    isChanged( a : any, b : any ) : boolean
-    handleChange : ChangeHandler
-    propagateChanges : boolean
+    doUpdate( record : AttributesContainer, value, options : TransactionOptions, nested? : Transaction[] ) : boolean
 }
-
-export type Transform = ( next : any, options : TransactionOptions, prev : any, record : AttributesContainer ) => any;
-export type ChangeHandler = ( next : any, prev : any, record : AttributesContainer ) => void;
 
  // Optimized single attribute transactional update. To be called from attributes setters
  // options.silent === false, parse === false. 
 export function setAttribute( record : AttributesContainer, name : string, value : any ) : void {
+    // Open the transaction.
     const isRoot  = begin( record ),
-          options = {},
-        { attributes } = record,
-          spec = record._attributes[ name ],
-          prev = attributes[ name ];
+          options = {};
 
-    // handle deep update...
-    const update = spec.canBeUpdated( prev, value, options );
-
-    if( update ) {
-        //TODO: Why not just forward the transaction, without telling that it's nested?
-        const nestedTransaction = ( prev as Transactional )._createTransaction( update, options );
-        if( nestedTransaction ){
-            nestedTransaction.commit( record ); // <- null here, and no need to handle changes. Work with shared and aggregated.
-
-            if( spec.propagateChanges ){
-                markAsDirty( record, options );
-                trigger3( record, 'change:' + name, record, prev, options );
-            }
-        }
-    }
-    else {
-        // cast and hook...
-        const next = spec.transform( value, options, prev, record );
-
-        attributes[ name ] = next;
-
-        if( spec.isChanged( next, prev ) ) {
-            // Do the rest of the job after assignment
-            spec.handleChange( next, prev, record );
-
-            markAsDirty( record, options );
-            trigger3( record, 'change:' + name, record, next, options );
-        }
-    }
-
-    isRoot && commit( record );
-}
-
-export function setAttribute1( record : AttributesContainer, name : string, value : any ) : void {
-    const isRoot  = begin( record ),
-          options = {},
-        { attributes } = record,
-          spec = record._attributes[ name ],
-          prev = attributes[ name ];
-
-    if( spec.update() ){
+    // Update attribute.      
+    if( record._attributes[ name ].doUpdate( record, value, options ) ){
+        // Notify listeners on changes.
         markAsDirty( record, options );
-        trigger3( record, 'change:' + name, record, prev, options );
+        trigger3( record, 'change:' + name, record, record.attributes[ name ], options );
     }
 
+    // Close the transaction.
     isRoot && commit( record );
 }
 
@@ -155,54 +117,7 @@ export const UpdateRecordMixin = {
         const isRoot = begin( this ),
                 changes : string[] = [],
                 nested : RecordTransaction[]= [],
-                { attributes } = this,
-                values = options.parse ? this.parse( a_values, options ) : a_values;
-
-        guardedEachAttr( this, values, ( value, key, attr ) => {
-            const prev = attributes[ key ];
-            let update;
-
-            // handle deep update...
-            if( update = attr.canBeUpdated( prev, value, options ) ) { // todo - skip empty updates.
-                const nestedTransaction = prev._createTransaction( update, options );
-                if( nestedTransaction ){
-                    nested.push( nestedTransaction );
-                    
-                    if( attr.propagateChanges ) changes.push( key );
-                }
-
-                return;
-            }
-
-            // cast and hook...
-            const next = attr.transform( value, options, prev, this );
-            attributes[ key ] = next;
-
-            if( attr.isChanged( next, prev ) ) {
-                changes.push( key );
-
-                // Do the rest of the job after assignment
-                attr.handleChange( next, prev, this );
-            }
-        } );
-
-        if( changes.length && markAsDirty( this, options ) ){
-            return new RecordTransaction( this, isRoot, nested, changes );
-        }
-        
-        // No changes, but there might be silent attributes with open transactions.
-        for( let pendingTransaction of nested ){
-            pendingTransaction.commit( this );
-        }
-
-        isRoot && commit( this );
-    },
-
-    _createTransaction1( this : AttributesContainer, a_values : {}, options : TransactionOptions = {} ) : Transaction {
-        const isRoot = begin( this ),
-                changes : string[] = [],
-                nested : RecordTransaction[]= [],
-                { attributes, _attributes } = this,
+                { _attributes } = this,
                 values = options.parse ? this.parse( a_values, options ) : a_values;
 
         let unknown;
@@ -212,7 +127,7 @@ export const UpdateRecordMixin = {
                 const spec = _attributes[ name ];
 
                 if( spec ){
-                    if( spec.processUpdate( this, values[ name ], options, nested ) ){
+                    if( spec.doUpdate( this, values[ name ], options, nested ) ){
                         changes.push( name );
                     }
                 }
@@ -247,31 +162,9 @@ export function shouldBeAnObject( record : AttributesContainer, values : object 
     return false;
 }
 
-function guardedEachAttr( record : AttributesContainer, attrs : {}, iteratee : ( value : any, key? : string, spec? : AttributeUpdatePipeline ) => void ) : void {
-    const { _attributes } = record;
-    let unknown : string[];
-
-    if( shouldBeAnObject( record, attrs ) ){
-        for( let name in attrs ){
-            const spec = _attributes[ name ];
-
-            if( spec ){
-                iteratee( attrs[ name ], name, spec );
-            }
-            else{
-                unknown || ( unknown = [] );
-                unknown.push( `'${ name }'` );
-            }
-        }
-
-        if( unknown ){
-            record._log( 'warn', `Undefined attributes ${ unknown.join(', ')} are ignored!`, attrs );
-        }
-    }
-}
 // Transaction class. Implements two-phase transactions on object's tree. 
 // Transaction must be created if there are actual changes and when markIsDirty returns true. 
-class RecordTransaction implements Transaction {
+export class RecordTransaction implements Transaction {
     // open transaction
     constructor( public object : AttributesContainer,
                  public isRoot : boolean,
