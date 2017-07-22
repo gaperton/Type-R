@@ -127,41 +127,7 @@ export function createCloneCtor( attrSpecs : AttributesSpec ) : CloneAttributesC
 // Create optimized model.defaults( attrs, options ) function
 /** @private */
 function createDefaults( attrSpecs : AttributesSpec ) : Defaults {
-    let assign_f = ['var v;'], create_f = [];
-
-    function appendExpr( name, expr ){
-        assign_f.push( `this.${name} = ( v = a.${name} ) === void 0 ? ${expr} : v;` );
-        create_f.push( `this.${name} = ${expr};` );
-    }
-
-    // Compile optimized constructor function for efficient deep copy of JSON literals in defaults.
-    for( let name in attrSpecs ){
-        const attrSpec = attrSpecs[ name ],
-              { value, type } = attrSpec;
-
-        if( value === void 0 && type ){
-            // if type with no value is given, create an empty object
-            appendExpr( name, `i.${name}.create()` );//TODO: consider adding owner reference
-        }
-        else{
-            // If value is given, type casting logic will do the job later, converting value to the proper type.
-            if( isValidJSON( value ) ){
-                // JSON literals must be deep copied.
-                appendExpr( name, JSON.stringify( value ) );
-            }
-            else if( value === void 0 ){
-                // handle undefined value separately. Usual case for model ids.
-                appendExpr( name, 'void 0' );
-            }
-            else{
-                // otherwise, copy value by reference.
-                appendExpr( name, `i.${name}.value` );
-            }
-        }
-    }
-
-    const CreateDefaults : any = new Function( 'i', create_f.join( '' ) ),
-          AssignDefaults : any = new Function( 'a', 'i', assign_f.join( '' ) );
+    const C
 
     CreateDefaults.prototype = AssignDefaults.prototype = Object.prototype;
 
@@ -170,6 +136,21 @@ function createDefaults( attrSpecs : AttributesSpec ) : Defaults {
     return function( attrs? : {} ){ //TODO: Consider removing of the CreateDefaults. Currently is not used. May be used in Record costructor, though.
         return attrs ? new AssignDefaults( attrs, this._attributes ) : new CreateDefaults( this._attributes );
     }
+}
+
+function createAttributesCtor( attrDesccriptors ){
+    const keys = Object.keys( attrDesccriptors ),
+        Attributes = new Function( 'r', 'v', 'o', `
+            var _attrs = r._attributes;
+
+            ${ keys.map( key =>`
+                this.${ key } = _attrs.${ key }.initAttribute( r, v.${ key }, o );
+            `) }
+        `);
+
+    Attributes.prototype = Object.prototype;
+
+    return Attributes;
 }
 
 /** @private */

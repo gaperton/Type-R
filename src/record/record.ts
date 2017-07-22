@@ -277,25 +277,18 @@ export class Record extends Transactional implements AttributesContainer {
     _parse( data ){ return data; }
 
     // Create record default values, optionally augmenting given values.
-    defaults( values? : {} ){ return {}; }
+    defaults( values? : {} ){
+        const defaults = {},
+            { _attributes } = this;
 
-    _typeCheck( values : object ){
-        if( !values || values.constructor !== Object ){
-            //
+        for( let key in _attributes ){
+            const value = values[ key ];
+            defaults[ key ] = value === void 0 ? _attributes[ key ].defaultValue() : value;
         }
 
-        const { _attributes } = this;
-        let unknown = [];
-
-        for( let key in values ){
-            if( ! _attributes[ key ] ){
-                unknown || ( unknown = [] );
-                unknown.push( key );
-            }
-        }
-        
-        return unknown;
+        return defaults;
     }
+
     /***************************************************
      * Record construction
      */
@@ -307,38 +300,9 @@ export class Record extends Transactional implements AttributesContainer {
         const options = a_options || {},
               values = ( options.parse ? this.parse( a_values, options ) :  a_values ) || {};
 
-        // TODO: type error for wrong object.
+        if( log.level > 1 ) typeCheck( this, values );
 
-        // TODO: We may use the same AssignDefaults constructor with transform function for cloning Attributes,
-        // passing an empty object and different transform function. options.clone check will be moved inside of the loop.
-        // So, we need the constructor with the "defaults" logic calling the transformation function.
-        const attributes = options.clone ? cloneAttributes( this, values ) : this.defaults( values ); 
-
-        // TODO: Here we have the loop for all attributes.
-        // There's the safe way to make it way faster by moving this transformation to the unrolled loop we have in 'defaults'.
-        // It should substantially improve loading time for collections.
-        // Or
-        // Think of creating the multimode constructor packing all the stuff inside. Measure the gain.
-        /*
-        function Attributes( values, record, options ){
-            var clone = options.clone,
-                _attributes = record._attributes,
-                _a, v;
-
-            _a = _attributes.${ key };
-            v = values.${ key };
-            if( clone ) v = _a.clone( v ) else if( v === void 0 ) v = ${ expr };
-            v = this.${ key } = _a.transform( v, options, void 0, record );
-            _a.handleChange( v, void 0, record );
-            ...
-        }
-        */
-        this.forEachAttr( attributes, ( value, key, attr ) => {
-            const next = attributes[ key ] = attr.transform( value, options, void 0, this );
-                  attr.handleChange( next, void 0, this );
-        });
-
-        this.attributes = this._previousAttributes = attributes;
+        this.attributes = this._previousAttributes = new this._Attributes( this, values, options );
 
         this.initialize( a_values, a_options );
 
@@ -503,17 +467,6 @@ assign( Record.prototype, UpdateRecordMixin );
  * Helper functions
  */
 
-// Deeply clone record attributes
-function cloneAttributes( record : Record, a_attributes : AttributesValues ) : AttributesValues {
-    const attributes = new record.Attributes( a_attributes );
-
-    record.forEachAttr( attributes, function( value, name, attr ){
-        attributes[ name ] = attr.clone( value, record );
-    } );
-
-    return attributes;
-}
-
 class BaseRecordAttributes {
     id : string | number
 
@@ -527,3 +480,21 @@ Record.prototype.Attributes = BaseRecordAttributes;
 Record.prototype._attributes = { id : AnyType.create({ value : void 0 }, 'id' )};
 Record.prototype.defaults = function( attrs : { id? : string } = {} ){ return { id : attrs.id } };
 Record._attribute = AggregatedType;
+
+function typeCheck( record : Record, values : object ){
+    if( shouldBeAnObject( record, values ) ){
+        const { _attributes } = this;
+        let unknown : string[];
+
+        for( let name in values ){
+            if( _attributes[ name ] ){
+                unknown || ( unknown = [] );
+                unknown.push( `'${ name }'` );
+            }
+        }
+
+        if( unknown ){
+            this._log( 'warn', `undefined attributes ${ unknown.join(', ')} are ignored.`, values );
+        }
+    }
+}

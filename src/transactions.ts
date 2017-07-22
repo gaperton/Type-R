@@ -145,7 +145,8 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     // Execute given function in the scope of ad-hoc transaction.
     transaction( fun : ( self : this ) => void, options : TransactionOptions = {} ) : void{
         const isRoot = transactionApi.begin( this );
-        fun.call( this, this );
+        const update = fun.call( this, this );
+        update && this.set( update );
         isRoot && transactionApi.commit( this );
     }
 

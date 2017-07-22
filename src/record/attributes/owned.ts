@@ -15,6 +15,16 @@ export class AggregatedType extends AnyType {
 
     toJSON( x ){ return x && x.toJSON(); }
 
+    initAttribute( record : AttributesContainer, value, options : TransactionOptions ){
+        const v = options.clone ? this.clone( value, record ) : ( // TODO: move it 
+            value === void 0 ? this.defaultValue() : value
+        );
+
+        const x = this.transform( v, options, void 0, record );
+        this.handleChange( x, void 0, record );
+        return x;
+    }
+
     canBeUpdated( prev : Transactional, next : any, options : TransactionOptions ) : any {
         // If an object already exists, and new value is of incompatible type, let object handle the update.
         if( prev && next != null ){

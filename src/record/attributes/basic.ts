@@ -1,25 +1,43 @@
+/**
+ * Built-in JSON types attributes: Object, Array, Number, String, Boolean, and immutable class.
+ * 
+ * Adds type assertions, default validation, and optimized update pipeline.
+ */
+
 import { AnyType } from './any'
 import { tools } from '../../object-plus'
 
-// Default attribute type for all constructor functions...
-/** @private */
-class ConstructorType extends AnyType {
+/**
+ * Custom class must be immutable class which implements toJSON() method
+ * with a constructor taking json.
+ */
+class ImmutableClassType extends AnyType {
     type : new ( value : any ) => {}
 
-    convert( value ) {
+    convert( value : any ) : any {
         return value == null || value instanceof this.type ? value : new this.type( value );
     }
 
+    toJSON( value ){
+        return value && value.toJSON ? value.toJSON() : value;
+    }
+
     clone( value ) {
-        // delegate to clone function or deep clone through serialization
-        return value && value.clone ? value.clone() : this.convert( JSON.parse( JSON.stringify( value ) ) );
+        return new this.type( this.toJSON( value ) );
+    }
+
+    isChanged( a, b ){
+        return a !== b;
     }
 }
 
-Function.prototype._attribute = ConstructorType;
+Function.prototype._attribute = ImmutableClassType;
 
-// Primitive Types.
-/** @private */
+/**
+ * Optimized attribute of primitive type.
+ * 
+ * Primitives has specialized simplified pipeline.
+ */
 export class PrimitiveType extends AnyType {
     type : NumberConstructor | StringConstructor | BooleanConstructor
 
@@ -33,6 +51,24 @@ export class PrimitiveType extends AnyType {
     isChanged( a, b ) { return a !== b; }
 
     clone( value ) { return value; }
+
+    doInit( record : AttributesContainer, value, options : TransactionOptions ){
+        return this.transform( value === void 0 ? this.value : value, options, void 0, record );
+    }
+
+    doUpdate( record, value, options, nested ){
+        const   { name } = this,
+                { attributes } = record,
+                prev = attributes[ name ];
+        
+        return prev !== ( attributes[ name ] = this.transform( value, options, prev, record ) );
+    }
+
+    initialize(){
+        if( this.value === void 0 ){
+            this.value = this.type();
+        }
+    }
 }
 
 Boolean._attribute = String._attribute = PrimitiveType;
@@ -42,8 +78,12 @@ Boolean._attribute = String._attribute = PrimitiveType;
 export class NumericType extends PrimitiveType {
     type : NumberConstructor
 
+    create(){
+        return 0;
+    }
+
     convert( value, a?, b?, record? ) {
-        const num = value == null ? value : this.type( value );        
+        const num = value == null ? value : Number( value );
 
         if( num !== num ){
             this._log( 'warn', 'assigned with Invalid Number', value, record );
@@ -69,20 +109,43 @@ Number._attribute = NumericType;
 export class ArrayType extends AnyType {
     toJSON( value ) { return value; }
     dispose(){}
+    create(){ return []; }
 
     convert( value, a?, b?, record? ) {
         // Fix incompatible constructor behaviour of Array...
         if( value == null || Array.isArray( value ) ) return value;
 
-        this._log( 'warn', 'assigned with non-array', value, record );
+        this._log( 'warn', 'non-array assignment is ignored', value, record );
 
         return [];
     }
 
-    clone( value ){ return value && value.slice(); }
+    clone( value ){
+        return value && value.slice();
+    }
 }
 
 Array._attribute = ArrayType;
+
+export class ObjectType extends AnyType {
+    toJSON( value ) { return value; }
+    dispose(){}
+    create(){ return {}; }
+
+    convert( value, a?, b?, record? ) {
+        if( value == null || value.constructor === Object ) return value;
+
+        this._log( 'warn', 'non-object assignment is ignored', value, record );
+
+        return {};
+    }
+
+    clone( value ){
+        return value && tools.assign( {}, value );
+    }
+}
+
+Object._attribute = ObjectType;
 
 export function doNothing(){}
 
@@ -99,8 +162,6 @@ export class FunctionType extends AnyType {
 
         return doNothing;
     }
-
-    isChanged( a, b ) { return a !== b; }
 
     // Functions are not cloned.
     clone( value ){ return value; }

@@ -77,6 +77,21 @@ export function setAttribute( record : AttributesContainer, name : string, value
     isRoot && commit( record );
 }
 
+export function setAttribute1( record : AttributesContainer, name : string, value : any ) : void {
+    const isRoot  = begin( record ),
+          options = {},
+        { attributes } = record,
+          spec = record._attributes[ name ],
+          prev = attributes[ name ];
+
+    if( spec.update() ){
+        markAsDirty( record, options );
+        trigger3( record, 'change:' + name, record, prev, options );
+    }
+
+    isRoot && commit( record );
+}
+
 function begin( record : AttributesContainer ){
     if( _begin( record ) ){
         record._previousAttributes = new record.Attributes( record.attributes );
@@ -95,6 +110,18 @@ function markAsDirty( record : AttributesContainer, options : TransactionOptions
 
     return _markAsDirty( record, options );
 }
+
+/**
+ * TODO: There's an opportunity to create an optimized pipeline for primitive types and Date, which makes the majority
+ * of attributes. It might create the major speedup.
+ * 
+ * Create the dedicated pipeline for owned and shared attributes as well.
+ * 
+ * Three elements of the pipeline:
+ * - from constructor
+ * - from assignment
+ * - from `set`
+ */
 
 export const UpdateRecordMixin = {
 // Need to override it here, since begin/end transaction brackets are overriden. 
@@ -151,7 +178,7 @@ export const UpdateRecordMixin = {
             const next = attr.transform( value, options, prev, this );
             attributes[ key ] = next;
 
-            if( attr.isChanged( next, prev ) ) {    
+            if( attr.isChanged( next, prev ) ) {
                 changes.push( key );
 
                 // Do the rest of the job after assignment
@@ -159,6 +186,47 @@ export const UpdateRecordMixin = {
             }
         } );
 
+        if( changes.length && markAsDirty( this, options ) ){
+            return new RecordTransaction( this, isRoot, nested, changes );
+        }
+        
+        // No changes, but there might be silent attributes with open transactions.
+        for( let pendingTransaction of nested ){
+            pendingTransaction.commit( this );
+        }
+
+        isRoot && commit( this );
+    },
+
+    _createTransaction1( this : AttributesContainer, a_values : {}, options : TransactionOptions = {} ) : Transaction {
+        const isRoot = begin( this ),
+                changes : string[] = [],
+                nested : RecordTransaction[]= [],
+                { attributes, _attributes } = this,
+                values = options.parse ? this.parse( a_values, options ) : a_values;
+
+        let unknown;
+
+        if( shouldBeAnObject( this, values ) ){
+            for( let name in values ){
+                const spec = _attributes[ name ];
+
+                if( spec ){
+                    if( spec.processUpdate( this, values[ name ], options, nested ) ){
+                        changes.push( name );
+                    }
+                }
+                else{
+                    unknown || ( unknown = [] );
+                    unknown.push( `'${ name }'` );
+                }
+            }
+
+            if( unknown ){
+                this._log( 'warn', `Undefined attributes ${ unknown.join(', ')} are ignored!`, values );
+            }
+        }
+        
         if( changes.length && markAsDirty( this, options ) ){
             return new RecordTransaction( this, isRoot, nested, changes );
         }

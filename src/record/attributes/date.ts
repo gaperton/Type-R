@@ -1,3 +1,9 @@
+/**
+ * Date attribute type.
+ * 
+ * Implements validation, cross-browser compatibility fixes, variety of Date serialization formats,
+ * and optimized update pipeline.
+ */
 import { AnyType } from './any'
 import { tools } from '../../object-plus'
 
@@ -6,6 +12,10 @@ const DateProto = Date.prototype;
 // Date Attribute
 /** @private */
 export class DateType extends AnyType {
+    create(){
+        return new Date();
+    }
+    
     convert( value : any, a?, b?, record? ){
         if( value == null || value instanceof Date ) return value;
 
@@ -29,6 +39,20 @@ export class DateType extends AnyType {
     toJSON( value ) { return value && value.toISOString(); }
 
     isChanged( a, b ) { return ( a && a.getTime() ) !== ( b && b.getTime() ); }
+
+    doInit( record : AttributesContainer, value, options : TransactionOptions ){
+        // Date don't have handleChanges step.
+        return this.transform( value === void 0 ? this.defaultValue() : value, options, void 0, record );
+    }
+
+    doUpdate( record, value, options, nested ){
+        const   { name } = this,
+                { attributes } = record,
+                prev = attributes[ name ];
+        
+        // Date don't have handleChanges step.
+        return this.isChanged( prev , attributes[ name ] = this.transform( value, options, prev, record ) );
+    }
 
     clone( value ) { return value && new Date( value.getTime() ); }
     dispose(){}

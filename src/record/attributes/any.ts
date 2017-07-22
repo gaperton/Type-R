@@ -35,7 +35,10 @@ export type AttributeParse = ( value : any, key : string ) => any
 export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | string;
 
 // TODO: interface differs from options, do something obout it
-/** @private */
+
+/**
+ * Typeless attribute. Is the base class for all other attributes.
+ */
 export class AnyType implements AttributeUpdatePipeline {
     // Factory method to create attribute from options 
     static create( options : AttributeOptions, name : string ) : AnyType {
@@ -51,7 +54,7 @@ export class AnyType implements AttributeUpdatePipeline {
      * Stage 0. canBeUpdated( value )
      * - presence of this function implies attribute's ability to update in place.
      */
-     canBeUpdated( prev, next, options : TransactionOptions ) : any {}
+    canBeUpdated( prev, next, options : TransactionOptions ) : any {}
 
     /**
      * Stage 1. Transform stage
@@ -78,23 +81,11 @@ export class AnyType implements AttributeUpdatePipeline {
      */
 
     // create empty object passing backbone options to constructor...
-    create() { return new ( <any>this.type )(); }
+    create() { return void 0; }
 
     // generic clone function for typeless attributes
     // Must be overriden in sublass
     clone( value : any, record : AttributesContainer ) {
-        if( value && typeof value === 'object' ) {
-            // delegate to object's clone(), if it exist...
-            if( value.clone ) return value.clone();
-
-            const proto = Object.getPrototypeOf( value );
-
-            // attempt to deep copy raw objects, assuming they are JSON 
-            if( proto === Object.prototype || proto === Array.prototype ){
-                return JSON.parse( JSON.stringify( value ) ); // FIXME! This cloning will not work for Dates.
-            }
-        }
-
         return value;
     }
 
@@ -115,24 +106,24 @@ export class AnyType implements AttributeUpdatePipeline {
             return {
                 // call to optimized set function for single argument.
                 set( value ){
-                    setAttribute( <any>this, name, value );
+                    setAttribute( this, name, value );
                 },
 
-                // attach get hook to the getter function, if present
-                get : getHook ?
-                      function() {
-                          return getHook.call( this, this.attributes[ name ], name );
-                      } :
-                      function() {
-                          return this.attributes[ name ];
-                      }
+                // attach get hook to the getter function, if it present
+                get : (
+                    getHook ?
+                        function() {
+                            return getHook.call( this, this.attributes[ name ], name );
+                        } :
+                        function() { return this.attributes[ name ]; }
+                )
             }
         }
     }
 
     value : any
 
-    // Used as global default value for the given metatype  
+    // Used as global default value for the given metatype
     static defaultValue : any;
 
     type : Function
@@ -143,6 +134,77 @@ export class AnyType implements AttributeUpdatePipeline {
 
     options : AttributeOptions
 
+    doInit( record : AttributesContainer, value, options : TransactionOptions ){
+        const v = value === void 0 ? this.defaultValue() : value,
+            x = this.transform( v, options, void 0, record );
+            
+        this.handleChange( x, void 0, record );
+        return x;
+    }
+
+    doUpdate( value, options, record, nested? : Transaction[] ){
+        const { name } = this,
+            { attributes } = record,
+              prev = attributes[ name ];
+
+        const next = this.transform( value, options, prev, record );
+        attributes[ name ] = next;
+
+        if( this.isChanged( next, prev ) ) {
+            // Do the rest of the job after assignment
+            this.handleChange( next, prev, record );
+            return true;
+        }
+
+        return false;
+    }
+
+    initAttribute( record : AttributesContainer, value, options : TransactionOptions ){
+        const v = options.clone ? this.clone( value, record ) : ( // TODO: move it 
+            value === void 0 ? this.defaultValue() : value
+        );
+
+        const x = this.transform( v, options, void 0, record );
+        this.handleChange( x, void 0, record );
+        return x;
+    }
+
+    updateAttribute( value, options, record, nested : any[] ){ // Last to things can be wrapped to an object, either transaction or ad-hoc
+        const key = this.name, { attributes } = record; 
+        const prev = attributes[ key ];
+        let update;
+
+        // This can be moved to transactional attribute. And chained with the rest.
+        if( update = this.canBeUpdated( prev, value, options ) ) { // todo - skip empty updates.
+            const nestedTransaction = prev._createTransaction( update, options );
+            if( nestedTransaction ){
+                if( nested ){
+                    nested.push( nestedTransaction );
+                }
+                else{
+                    nestedTransaction.commit( record );
+                }
+
+                if( this.propagateChanges ) return true;
+            }
+
+            return false;
+        }
+
+        // This can be placed to Any...
+        const next = this.transform( value, options, prev, record );
+        attributes[ key ] = next;
+
+        if( this.isChanged( next, prev ) ) { // Primitives and nested comparison can be inlined.
+            // Do the rest of the job after assignment
+            this.handleChange( next, prev, record );
+
+            return true;
+        }
+
+        return false;
+    }
+
     propagateChanges : boolean
 
     _log( level : string, text : string, value, record : AttributesContainer ){
@@ -152,6 +214,10 @@ export class AnyType implements AttributeUpdatePipeline {
             'Prev. value' : record.attributes[ this.name ],
             'New value' : value
         });
+    }
+
+    defaultValue(){
+        return this.value;
     }
 
     constructor( public name : string, a_options : AttributeOptions ) {        
@@ -169,8 +235,21 @@ export class AnyType implements AttributeUpdatePipeline {
                   validate, getHooks, transforms, changeHandlers
               } = options;
 
+        // Initialize default value...
         this.value = value;
         this.type  = type;
+
+        // TODO: An opportunity to optimize for attribute subtype.
+        if( value === void 0 && type ){
+            this.defaultValue = this.create;
+        }
+        else if( tools.isValidJSON( value ) ){ 
+            // JSON literals must be deep copied.
+            this.defaultValue = new Function( `return ${ JSON.stringify( value ) };` ) as any;
+        }
+        else{
+            this.defaultValue = this.defaultValue;
+        }
 
         // Changes must be bubbled when they are not disabled for an attribute and transactional object.
         this.propagateChanges = changeEvents !== false;

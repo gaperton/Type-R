@@ -89,6 +89,8 @@ export abstract class Messenger implements Mixable, EventSource {
     constructor(){
         this.cid = uniqueId();
         this.initialize.apply( this, arguments );
+
+        // TODO: local events subscribe?
     }
 
     /** Method is called at the end of the constructor */
