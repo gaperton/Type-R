@@ -30,6 +30,28 @@ describe( 'Memory management', function(){
         expect( y._disposed ).to.be.true;
     } );
 
+    it( 'Aggregated value is disposed when overwritten', function(){
+        var m = new M();
+        m.agg = {};
+
+        var y = m.agg;
+
+        m.agg = null;
+
+        expect( y._disposed ).to.be.true;        
+    });
+
+    it( 'Aggregated collection item is disposed when removed from collection', function(){
+        var m = new M();
+        m.col.add( {} );
+
+        var y = m.col.first();
+
+        m.col = [];
+
+        expect( y._disposed ).to.be.true;        
+    });
+
     it( 'Shared refs do not create a leak', function(){
         var m = new M();
         m.ref = singleton;
