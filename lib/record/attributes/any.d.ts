@@ -1,4 +1,5 @@
 import { AttributesContainer, AttributeUpdatePipeline, RecordTransaction } from './updates';
+import { tools } from '../../object-plus';
 import { TransactionOptions } from '../../transactions';
 declare global  {
     interface Function {
@@ -50,7 +51,7 @@ export declare class AnyType implements AttributeUpdatePipeline {
     initAttribute(record: AttributesContainer, value: any, options: TransactionOptions): any;
     updateAttribute(value: any, options: any, record: any, nested: any[]): boolean;
     propagateChanges: boolean;
-    _log(level: string, text: string, value: any, record: AttributesContainer): void;
+    _log(level: tools.LogLevel, text: string, value: any, record: AttributesContainer): void;
     defaultValue(): any;
     constructor(name: string, a_options: AttributeOptions);
     getHook: (value, key: string) => any;
