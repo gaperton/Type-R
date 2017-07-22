@@ -31,3 +31,4 @@ export declare const UpdateRecordMixin: {
     forceAttributeChange(key: string, options?: TransactionOptions): void;
     _createTransaction(this: AttributesContainer, a_values: {}, options?: TransactionOptions): Transaction;
 };
+export declare function shouldBeAnObject(record: AttributesContainer, values: object): boolean;

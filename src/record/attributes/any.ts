@@ -145,8 +145,8 @@ export class AnyType implements AttributeUpdatePipeline {
 
     propagateChanges : boolean
 
-    _log( level : string, text : string, value, record : AttributesContainer ){
-        tools.log[ level ]( `[Attribute Update Error] ${ record.getClassName() }.${ this.name }: ` + text, {
+    _log( level : tools.LogLevel, text : string, value, record : AttributesContainer ){
+        tools.log( level, `[Attribute Update Error] ${ record.getClassName() }.${ this.name }: ` + text, {
             'Record' : record,
             'Attribute definition' : this,
             'Prev. value' : record.attributes[ this.name ],

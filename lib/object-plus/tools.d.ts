@@ -1,37 +1,12 @@
-export declare class Log {
+export declare type LogLevel = 'none' | 'error' | 'warn' | 'info' | 'debug' | 'log';
+export declare type Logger = (level: LogLevel, error: string, props: object) => void;
+export interface Log extends Logger {
     level: number;
-    stops: LogOptions;
-    throws: LogOptions;
-    counts: {
-        error: number;
-        warn: number;
-        info: number;
-        debug: number;
-    };
-    logger: Logger;
-    private doLogging(type, args);
-    reset(): this;
-    developer(trueDeveloper?: boolean): this;
-    constructor();
-    error(...args: any[]): void;
-    warn(...args: any[]): void;
-    info(...args: any[]): void;
-    debug(...args: any[]): void;
-    readonly state: string;
+    throw: number;
+    stop: number;
+    _console: Logger;
 }
-export interface Logger {
-    error(...args: any[]): void;
-    warn(...args: any[]): void;
-    info(...args: any[]): void;
-    debug(...args: any[]): void;
-}
-export interface LogOptions {
-    error?: boolean;
-    warn?: boolean;
-    info?: boolean;
-    debug?: boolean;
-}
-export declare let log: Log;
+export declare const log: Log;
 export declare function isValidJSON(value: any): boolean;
 export declare function getBaseClass(Class: Function): any;
 export declare function assignToClassProto<T, K extends keyof T>(Class: any, definition: T, ...names: K[]): void;
