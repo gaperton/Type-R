@@ -1,3 +1,4 @@
+import { tools } from '../object-plus';
 import { CloneOptions, Transactional, TransactionalDefinition, Transaction, TransactionOptions, Owner } from '../transactions';
 import { ChildrenErrors } from '../validation';
 import { Collection } from '../collection';
@@ -57,7 +58,7 @@ export declare class Record extends Transactional implements AttributesContainer
     deepSet(name: string, value: any, options?: any): this;
     readonly collection: any;
     dispose(): void;
-    _log(level: string, text: string, value: any): void;
+    _log(level: tools.LogLevel, text: string, props: object): void;
     getClassName(): string;
     _createTransaction(values: object, options: TransactionOptions): Transaction;
     forceAttributeChange: (key: string, options: TransactionOptions) => void;

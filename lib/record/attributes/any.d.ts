@@ -1,10 +1,12 @@
-import { AttributesContainer, AttributeUpdatePipeline, Transform, ChangeHandler } from './updates';
+import { AttributesContainer, AttributeUpdatePipeline, RecordTransaction } from './updates';
 import { TransactionOptions } from '../../transactions';
 declare global  {
     interface Function {
         _attribute: typeof AnyType;
     }
 }
+export declare type Transform = (next: any, options: TransactionOptions, prev: any, record: AttributesContainer) => any;
+export declare type ChangeHandler = (next: any, prev: any, record: AttributesContainer) => void;
 export interface AttributeOptions {
     _attribute?: typeof AnyType;
     validate?: (record: AttributesContainer, value: any, key: string) => any;
@@ -43,8 +45,13 @@ export declare class AnyType implements AttributeUpdatePipeline {
     parse: (value, key: string) => any;
     initialize(name: string, options: any): void;
     options: AttributeOptions;
+    doInit(record: AttributesContainer, value: any, options: TransactionOptions): any;
+    doUpdate(record: AttributesContainer, value: any, options: any, nested?: RecordTransaction[]): boolean;
+    initAttribute(record: AttributesContainer, value: any, options: TransactionOptions): any;
+    updateAttribute(value: any, options: any, record: any, nested: any[]): boolean;
     propagateChanges: boolean;
     _log(level: string, text: string, value: any, record: AttributesContainer): void;
+    defaultValue(): any;
     constructor(name: string, a_options: AttributeOptions);
     getHook: (value, key: string) => any;
     get: (value, key: string) => any;

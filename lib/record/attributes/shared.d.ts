@@ -6,6 +6,7 @@ export declare class SharedType extends AnyType {
     clone(value: Transactional, record: AttributesContainer): Transactional;
     toJSON(): void;
     canBeUpdated(prev: Transactional, next: any, options: TransactionOptions): any;
+    updateAttribute(): void;
     convert(value: any, options: TransactionOptions, prev: any, record: AttributesContainer): Transactional;
     validate(model: any, value: any, name: any): void;
     create(): Transactional;
