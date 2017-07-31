@@ -442,6 +442,14 @@ export class Collection extends Transactional implements CollectionCore {
       return model;
     }
 
+    // Remove and return given model.
+    // TODO: do not dispose the model for aggregated collection.
+    unset( modelOrId : Record | string, options? ) : Record {
+        const value = this.get( modelOrId );
+        this.remove( modelOrId, { unset : true, ...options } );
+        return value;
+    }
+
     // Add a model to the beginning of the collection.
     unshift(model : ElementsArg, options : CollectionOptions ) {
       return this.add(model, assign({at: 0}, options));

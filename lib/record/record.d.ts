@@ -30,7 +30,7 @@ export declare class Record extends Transactional implements AttributesContainer
     previous(key: string): any;
     isNew(): boolean;
     has(key: string): boolean;
-    unset(key: any, options?: any): this;
+    unset(key: string, options?: any): any;
     clear(options?: any): this;
     getOwner(): Owner;
     idAttribute: string;
