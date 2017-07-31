@@ -81,6 +81,7 @@ export function free( owner : CollectionCore, child : Record ) : void {
     }
     else{
         _free( owner, child );
+        child.dispose();
     }
 
     const { _itemEvents } = owner;
