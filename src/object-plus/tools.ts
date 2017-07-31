@@ -5,19 +5,21 @@
  * This is the singleton avaliable globally through `Object.log` or 
  * exported [[log]] variable.
  */
+
+// Logger is the function.
+export type Logger = ( level : LogLevel, error : string, props? : object ) => void;
+
 export type LogLevel = 'none' | 'error' | 'warn' | 'info' | 'debug' | 'log';
 
 const levelToNumber = {
     none : 0, error : 1, warn : 2, info : 3, log : 4, debug : 5
 }
 
-export type Logger = ( level : LogLevel, error : string, props : object ) => void;
-
 export interface Log extends Logger {
     level : number
     throw : number
     stop : number
-    _console : Logger
+    logger : Logger
 }
 
 export const log : Log = <any>function( a_level : LogLevel, a_msg : string, a_props : object ){
@@ -34,13 +36,13 @@ export const log : Log = <any>function( a_level : LogLevel, a_msg : string, a_pr
     }
 
     if( levelAsNumber <= log.level ){
-        if( levelAsNumber <= log.throw || !log._console ){
+        if( levelAsNumber <= log.throw || !log.logger ){
             const error = new Error( msg );
             (error as any).props = props;
             throw error;
         }
         else{
-            log._console( level, msg, props );
+            log.logger( level, msg, props );
             
             if( levelAsNumber <= log.stop ){
                 debugger;
@@ -49,12 +51,12 @@ export const log : Log = <any>function( a_level : LogLevel, a_msg : string, a_pr
     }
 }
 
-log.level = typeof process !== void 0 && process.env && process.env.NODE_ENV === 'production' ? 1 : 2;
+log.level = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production' ? 1 : 2;
 log.throw = 0;
 log.stop = 0;
 
 if( typeof console !== 'undefined' ) {
-    log._console = function _console( level : LogLevel, error : string, props : object ){
+    log.logger = function _console( level : LogLevel, error : string, props : object ){
         const args = [ error ];
         for( let name in props ){
             args.push( `\n\t${name}:`, props[ name ] );
@@ -63,8 +65,6 @@ if( typeof console !== 'undefined' ) {
         console[ level ].apply( console, args );
     }
 }
-    
-Object.log = log;
 
 /** Check if value is raw JSON */
 export function isValidJSON( value : any ) : boolean {
