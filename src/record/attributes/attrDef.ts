@@ -54,7 +54,7 @@ export class ChainableAttributeSpec {
     parse( fun : ( value : any, key : string ) => any ) : ChainableAttributeSpec {
         return this.metadata({
             parse( next, options, prev, model ){
-                return options.parse ? fun( next, this.name ) : next;
+                return options.parse && next && !( next instanceof this.type ) ? fun( next, this.name ) : next;
             }
         });
     }

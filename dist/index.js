@@ -1780,7 +1780,7 @@ var ChainableAttributeSpec = (function () {
     ChainableAttributeSpec.prototype.parse = function (fun) {
         return this.metadata({
             parse: function (next, options, prev, model) {
-                return options.parse ? fun(next, this.name) : next;
+                return options.parse && next && !(next instanceof this.type) ? fun(next, this.name) : next;
             }
         });
     };
