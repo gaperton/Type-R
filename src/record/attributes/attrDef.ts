@@ -54,6 +54,10 @@ export class ChainableAttributeSpec {
     parse( fun : ( value : any, key : string ) => any ) : ChainableAttributeSpec {
         return this.metadata({
             parse( next, options, prev, model ){
+                // TODO: Not good. Try to solve it differently.
+                // Problem here is that it is called always, even if there is the default value taken.
+                // Now, default value should be converted and goes through the update pipeline.
+                // Should not be so. This code won't work for primitives.
                 return options.parse && next && !( next instanceof this.type ) ? fun( next, this.name ) : next;
             }
         });
