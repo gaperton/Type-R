@@ -14,7 +14,11 @@ import { TransactionOptions } from '../../transactions'
  * with a constructor taking json.
  */
 class ImmutableClassType extends AnyType {
-    type : new ( value : any ) => {}
+    type : new ( value? : any ) => {}
+
+    create(){
+        return new this.type();
+    }
 
     convert( value : any ) : any {
         return value == null || value instanceof this.type ? value : new this.type( value );
@@ -85,7 +89,7 @@ export class NumericType extends PrimitiveType {
     }
 
     convert( value, a?, b?, record? ) {
-        const num = value == null ? value : Number( value );
+        const num = value == null ? value : this.type( value );
 
         if( num !== num ){
             this._log( 'warn', 'assigned with Invalid Number', value, record );
@@ -117,8 +121,12 @@ declare global {
     }
 }
 
-Number.integer = function( x ){ return x ? Math.round( x ) : 0; }
-Number.integer._attribute = NumericType;
+function Integer( x ){
+    return x ? Math.round( x ) : 0;
+}
+Integer._attribute = NumericType;
+Number.integer = Integer;
+
 
 if( typeof window !== 'undefined' ){
     window.Integer = Number.integer;

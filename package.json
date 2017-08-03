@@ -14,7 +14,7 @@
     "test": "tests"
   },
   "scripts": {
-    "prepublish": "node_modules/.bin/webpack -p",
+    "prepublish": "node_modules/.bin/webpack",
     "test": "node_modules/.bin/mocha tests/nestedtypes/functionality && npm run test:ts",
     "test:ts": "node_modules/.bin/mocha --opts tests/typescript/mocha.opts",
     "build": "node_modules/.bin/tsc && npm run prepublish",

@@ -1,5 +1,5 @@
 import { AnyType } from './any'
-import { AttributesContainer } from './updates'
+import { AttributesContainer, ConstructorOptions } from './updates'
 import { ItemsBehavior, Owner, transactionApi, Transactional, TransactionOptions } from '../../transactions' 
 import { tools, eventsApi } from '../../object-plus'
 
@@ -19,6 +19,51 @@ const shareAndListen = ItemsBehavior.listen | ItemsBehavior.share;
 /** @private */
 export class SharedType extends AnyType {
     type : typeof Transactional
+
+     doInit( record : AttributesContainer, value, options : ConstructorOptions ){
+        const v = options.clone ? this.clone( value, record ) : (
+            value === void 0 ? this.defaultValue() : value
+        );
+
+        const x = this.transform( v, options, void 0, record );
+        this.handleChange( x, void 0, record );
+        return x;
+    }
+
+    doUpdate( record, value, options, nested : any[] ){ // Last to things can be wrapped to an object, either transaction or ad-hoc
+        const key = this.name, { attributes } = record; 
+        const prev = attributes[ key ];
+        let update;
+
+        // This can be moved to transactional attribute. And chained with the rest.
+        if( update = this.canBeUpdated( prev, value, options ) ) { // todo - skip empty updates.
+            const nestedTransaction = prev._createTransaction( update, options );
+            if( nestedTransaction ){
+                if( nested ){
+                    nested.push( nestedTransaction );
+                }
+                else{
+                    nestedTransaction.commit( record );
+                }
+
+                if( this.propagateChanges ) return true;
+            }
+
+            return false;
+        }
+
+        const next = this.transform( value, options, prev, record );
+        attributes[ key ] = next;
+
+        if( this.isChanged( next, prev ) ) { // Primitives and nested comparison can be inlined.
+            // Do the rest of the job after assignment
+            this.handleChange( next, prev, record );
+
+            return true;
+        }
+
+        return false;
+    }
 
     clone( value : Transactional, record : AttributesContainer ) : Transactional {
         // References are not cloned.
