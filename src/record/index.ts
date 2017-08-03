@@ -1,6 +1,6 @@
 import { Record, RecordDefinition } from './record'
 import { Mixable, tools, predefine, define } from '../object-plus'
-import { compile, AttributesSpec } from './define'
+import compile from './attributes'
 import { Transactional } from '../transactions'
 
 import { ChainableAttributeSpec, createSharedTypeSpec, AggregatedType, MSDateType, TimestampType, NumericType, SharedType } from './attributes'
@@ -36,7 +36,7 @@ Record.onDefine = function( definition : RecordDefinition, BaseClass : typeof Re
     const baseProto : Record = BaseClass.prototype;
 
     // Compile attributes spec, creating definition mixin.
-    const { properties, _localEvents, ...dynamicMixin } = compile( this.attributes = getAttributes( definition ), <AttributesSpec> baseProto._attributes );
+    const { properties, _localEvents, ...dynamicMixin } = compile( this.attributes = getAttributes( definition ), baseProto._attributes );
     assign( this.prototype, dynamicMixin );
     
     definition.properties = defaults( definition.properties || {}, properties );

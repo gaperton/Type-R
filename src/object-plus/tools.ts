@@ -49,6 +49,10 @@ export const log : Log = <any>function( a_level : LogLevel, a_msg : string, a_pr
     }
 }
 
+declare global {
+    const process : any;
+}
+
 log.level = typeof process !== void 0 && process.env && process.env.NODE_ENV === 'production' ? 1 : 2;
 log.throw = 0;
 log.stop = 0;

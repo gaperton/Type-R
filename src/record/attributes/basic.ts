@@ -6,6 +6,8 @@
 
 import { AnyType } from './any'
 import { tools } from '../../object-plus'
+import { AttributesContainer } from './updates'
+import { TransactionOptions } from '../../transactions'
 
 /**
  * Custom class must be immutable class which implements toJSON() method
@@ -101,6 +103,26 @@ export class NumericType extends PrimitiveType {
 }
 
 Number._attribute = NumericType;
+
+/**
+ * Add Number.integer attrubute type
+ */
+declare global {
+    interface NumberConstructor {
+        integer : Function
+    }
+
+    interface Window {
+        Integer : Function;
+    }
+}
+
+Number.integer = function( x ){ return x ? Math.round( x ) : 0; }
+Number.integer._attribute = NumericType;
+
+if( typeof window !== 'undefined' ){
+    window.Integer = Number.integer;
+}
 
 /**
  * Compatibility wrapper for Array type.

@@ -2,7 +2,7 @@ import { tools } from '../object-plus';
 import { CloneOptions, Transactional, TransactionalDefinition, Transaction, TransactionOptions, Owner } from '../transactions';
 import { ChildrenErrors } from '../validation';
 import { Collection } from '../collection';
-import { AnyType, AttributesValues, AttributesContainer, CloneAttributesCtor } from './attributes';
+import { AnyType, AttributesValues, AttributesContainer, AttributesConstructor, AttributesCopyConstructor } from './attributes';
 export interface ConstructorOptions extends TransactionOptions {
     clone?: boolean;
 }
@@ -39,7 +39,8 @@ export declare class Record extends Transactional implements AttributesContainer
         [key: string]: AnyType;
     };
     _keys: string[];
-    Attributes: CloneAttributesCtor;
+    Attributes: AttributesConstructor;
+    AttributesCopy: AttributesCopyConstructor;
     forEachAttr(attrs: {}, iteratee: (value: any, key?: string, spec?: AnyType) => void): void;
     each(iteratee: (value?: any, key?: string) => void, context?: any): void;
     keys(): string[];

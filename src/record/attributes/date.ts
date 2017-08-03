@@ -6,6 +6,9 @@
  */
 import { AnyType } from './any'
 import { tools } from '../../object-plus'
+import { AttributesContainer } from './updates'
+import { TransactionOptions } from '../../transactions'
+import { ChainableAttributeSpec } from './attrDef'
 
 const DateProto = Date.prototype;
 
@@ -80,6 +83,33 @@ export class MSDateType extends DateType {
 export class TimestampType extends DateType {
     toJSON( value ) { return value.getTime(); }
 }
+
+declare global {
+    interface DateConstructor {
+        microsoft : ChainableAttributeSpec
+        timestamp :  ChainableAttributeSpec
+    }
+}
+
+Object.defineProperties( Date, {
+    microsoft : {
+        get(){
+            return new ChainableAttributeSpec({
+                type : Date,
+                _attribute : MSDateType
+            })
+        }
+    },
+
+    timestamp : {
+        get(){
+            return new ChainableAttributeSpec({
+                type : Date,
+                _attribute : TimestampType
+            })
+        }
+    }
+});
 
 // If ISO date is not supported by date constructor (such as in Safari), polyfill it.
 function supportsDate( date ){

@@ -10,7 +10,7 @@ export declare class ChainableAttributeSpec {
     check(check: AttributeCheck, error: any): ChainableAttributeSpec;
     readonly isRequired: ChainableAttributeSpec;
     watcher(ref: string | ((value: any, key: string) => void)): ChainableAttributeSpec;
-    parse(fun: any): ChainableAttributeSpec;
+    parse(fun: (value: any, key: string) => any): ChainableAttributeSpec;
     toJSON(fun: any): ChainableAttributeSpec;
     get(fun: any): ChainableAttributeSpec;
     set(fun: any): ChainableAttributeSpec;

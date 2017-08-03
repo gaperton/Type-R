@@ -22,7 +22,7 @@ export interface AttributeOptions {
     type? : Function
     value? : any
 
-    parse? : AttributeParse
+    parse? : Transform
     toJSON? : AttributeToJSON
    
     getHooks? : GetHook[]
@@ -131,8 +131,6 @@ export class AnyType implements AttributeUpdatePipeline {
 
     type : Function
 
-    parse : ( value, key : string ) => any
-
     initialize( name : string, options ){}
 
     options : AttributeOptions
@@ -156,52 +154,6 @@ export class AnyType implements AttributeUpdatePipeline {
         if( this.isChanged( next, prev ) ) {
             // Do the rest of the job after assignment
             this.handleChange( next, prev, record );
-            return true;
-        }
-
-        return false;
-    }
-
-    initAttribute( record : AttributesContainer, value, options : TransactionOptions ){
-        const v = options.clone ? this.clone( value, record ) : ( // TODO: move it 
-            value === void 0 ? this.defaultValue() : value
-        );
-
-        const x = this.transform( v, options, void 0, record );
-        this.handleChange( x, void 0, record );
-        return x;
-    }
-
-    updateAttribute( value, options, record, nested : any[] ){ // Last to things can be wrapped to an object, either transaction or ad-hoc
-        const key = this.name, { attributes } = record; 
-        const prev = attributes[ key ];
-        let update;
-
-        // This can be moved to transactional attribute. And chained with the rest.
-        if( update = this.canBeUpdated( prev, value, options ) ) { // todo - skip empty updates.
-            const nestedTransaction = prev._createTransaction( update, options );
-            if( nestedTransaction ){
-                if( nested ){
-                    nested.push( nestedTransaction );
-                }
-                else{
-                    nestedTransaction.commit( record );
-                }
-
-                if( this.propagateChanges ) return true;
-            }
-
-            return false;
-        }
-
-        // This can be placed to Any...
-        const next = this.transform( value, options, prev, record );
-        attributes[ key ] = next;
-
-        if( this.isChanged( next, prev ) ) { // Primitives and nested comparison can be inlined.
-            // Do the rest of the job after assignment
-            this.handleChange( next, prev, record );
-
             return true;
         }
 
@@ -257,7 +209,6 @@ export class AnyType implements AttributeUpdatePipeline {
         // Changes must be bubbled when they are not disabled for an attribute and transactional object.
         this.propagateChanges = changeEvents !== false;
 
-        this.parse  = parse;
         this.toJSON = toJSON === void 0 ? this.toJSON : toJSON;
 
         this.validate = validate || this.validate;
@@ -272,6 +223,9 @@ export class AnyType implements AttributeUpdatePipeline {
 
         // `convert` is default transform, which is always present...
         transforms.unshift( this.convert );
+
+        // Attribute-level parse transform must always go first...
+        if( parse ) transforms.unshift( parse );
 
         // Get hook from the attribute will be used first...
         if( this.get ) getHooks.unshift( this.get );

@@ -7,6 +7,9 @@ export interface Log extends Logger {
     _console: Logger;
 }
 export declare const log: Log;
+declare global  {
+    const process: any;
+}
 export declare function isValidJSON(value: any): boolean;
 export declare function getBaseClass(Class: Function): any;
 export declare function assignToClassProto<T, K extends keyof T>(Class: any, definition: T, ...names: K[]): void;

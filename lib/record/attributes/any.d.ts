@@ -15,7 +15,7 @@ export interface AttributeOptions {
     changeEvents?: boolean;
     type?: Function;
     value?: any;
-    parse?: AttributeParse;
+    parse?: Transform;
     toJSON?: AttributeToJSON;
     getHooks?: GetHook[];
     transforms?: Transform[];
@@ -43,13 +43,10 @@ export declare class AnyType implements AttributeUpdatePipeline {
     value: any;
     static defaultValue: any;
     type: Function;
-    parse: (value, key: string) => any;
     initialize(name: string, options: any): void;
     options: AttributeOptions;
     doInit(record: AttributesContainer, value: any, options: TransactionOptions): any;
     doUpdate(record: AttributesContainer, value: any, options: any, nested?: RecordTransaction[]): boolean;
-    initAttribute(record: AttributesContainer, value: any, options: TransactionOptions): any;
-    updateAttribute(value: any, options: any, record: any, nested: any[]): boolean;
     propagateChanges: boolean;
     _log(level: tools.LogLevel, text: string, value: any, record: AttributesContainer): void;
     defaultValue(): any;

@@ -50,8 +50,13 @@ export class ChainableAttributeSpec {
         return this.metadata({ _onChange : ref });
     }
 
-    parse( fun ) : ChainableAttributeSpec {
-        return this.metadata({ parse : fun });
+    // Attribute-specific parse transform
+    parse( fun : ( value : any, key : string ) => any ) : ChainableAttributeSpec {
+        return this.metadata({
+            parse( next, options, prev, model ){
+                return options.parse ? fun( next, this.name ) : next;
+            }
+        });
     }
 
     toJSON( fun ) : ChainableAttributeSpec {

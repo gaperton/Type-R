@@ -1,3 +1,5 @@
+import { tools as _, eventsApi } from '../../object-plus'
+
 export * from './any'
 export * from './owned'
 export * from './date'
@@ -7,6 +9,66 @@ export * from './updates'
 export * from './attrDef'
 
 import { AnyType } from './any'
+import { ConstructorsMixin, constructorsMixin } from './updates'
+import { toAttributeOptions, ChainableAttributeSpec } from './attrDef'
+import { CompiledReference } from '../../traversable'
+
+export interface RecordAttributesMixin extends ConstructorsMixin {
+    // Attributes descriptors
+    _attributes : AttributeDescriptors
+    _attributesArray : AnyType[]
+    
+    // Attribute's property descriptors
+    properties : PropertyDescriptorMap
+
+    // Attributes serialization
+    _toJSON() : any
+
+    // Event map for record's local events.
+    _localEvents? : eventsApi.EventMap
+}
+
+export interface AttributeDescriptors {
+    [ name : string ] : AnyType
+}
+
+// Create record mixin from the given record's attributes definition
+export default function( attributesDefinition : object, baseClassAttributes : AttributeDescriptors ) : RecordAttributesMixin {
+    const myAttributes = _.transform( {} as AttributeDescriptors, attributesDefinition, createAttribute ),
+          allAttributes = _.defaults( {} as AttributeDescriptors, myAttributes, baseClassAttributes );
+
+    const ConstructorsMixin = constructorsMixin( allAttributes );
+
+    return {
+        ...ConstructorsMixin,
+        _attributes : new ConstructorsMixin.AttributesCopy( allAttributes ),
+        _attributesArray : Object.keys( allAttributes ).map( key => allAttributes[ key ] ),
+        properties : _.transform( <PropertyDescriptorMap>{}, myAttributes, x => x.createPropertyDescriptor() ),
+        _toJSON : createToJSON( allAttributes ),
+        ...localEventsMixin( myAttributes )
+    }            
+}
+
+// Create attribute from the type spec.
+export function createAttribute( spec : any, name : string ) : AnyType {
+    return AnyType.create( toAttributeOptions( spec ), name );
+}
+
+function createToJSON( attributes : AttributeDescriptors ) : () => void {
+    return new Function(`
+        var json = {},
+            v = this.attributes,
+            a = this._attributes;
+
+        ${ Object.keys( attributes ).map( key => {
+            if( attributes[ key ].toJSON ){
+                return `json.${key} = a.${key}.toJSON.call( this, v.${ key }, '${key}' );`;
+            }
+        } ).join( '\n' ) }
+
+        return json;
+    `) as any;
+}
 
 export function createSharedTypeSpec( Constructor : Function, Attribute : typeof AnyType ){
     if( !Constructor.hasOwnProperty( 'shared' ) ){
@@ -22,64 +84,43 @@ export function createSharedTypeSpec( Constructor : Function, Attribute : typeof
     }
 }
 
-// Create attribute from the type spec.
-import { toAttributeOptions } from './attrDef'
-
-export function createAttribute( spec : any, name : string ) : AnyType {
-    return AnyType.create( toAttributeOptions( spec ), name );
+interface LocalEventsMixin {
+    _localEvents? : eventsApi.EventMap
 }
 
-/**
- * Add date attribute subtypes
- */
-import { ChainableAttributeSpec } from './attrDef'
-import { TimestampType, MSDateType } from './date'
+function localEventsMixin( attrSpecs : AttributeDescriptors ) : LocalEventsMixin {
+    let _localEvents : eventsApi.EventMap;
 
-declare global {
-    interface DateConstructor {
-        microsoft : ChainableAttributeSpec
-        timestamp :  ChainableAttributeSpec
-    }
-}
+    for( var key in attrSpecs ){
+        const attribute = attrSpecs[ key ],
+            { _onChange } = attribute.options; 
 
-Object.defineProperties( Date, {
-    microsoft : {
-        get(){
-            return new ChainableAttributeSpec({
-                type : Date,
-                _attribute : MSDateType
-            })
-        }
-    },
+        if( _onChange ){
+            _localEvents || ( _localEvents = new eventsApi.EventMap() );
 
-    timestamp : {
-        get(){
-            return new ChainableAttributeSpec({
-                type : Date,
-                _attribute : TimestampType
-            })
+            _localEvents.addEvent( 'change:' + key,
+                typeof _onChange === 'string' ?
+                    createWatcherFromRef( _onChange, key ) : 
+                    wrapWatcher( _onChange, key ) );
         }
     }
-});
 
-/**
- * Add Number.integer attrubute type
- */
-import { NumericType } from './basic'
-
-declare global {
-    interface NumberConstructor {
-        integer : Function
-    }
-
-    interface Window {
-        Integer : Function;
-    }
+    return _localEvents ? { _localEvents } : {};
 }
 
-Number.integer = function( x ){ return x ? Math.round( x ) : 0; }
-Number.integer._attribute = NumericType;
+function wrapWatcher( watcher, key ){
+    return function( record, value ){
+        watcher.call( record, value, key );
+    } 
+}
 
-if( typeof window !== 'undefined' ){
-    window.Integer = Number.integer;
+function createWatcherFromRef( ref : string, key : string ){
+    const { local, resolve, tail } = new CompiledReference( ref, true );
+    return local ?
+        function( record, value ){
+            record[ tail ]( value, key );
+        } :
+        function( record, value ){
+            resolve( record )[ tail ]( value, key );
+        }
 }

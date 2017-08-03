@@ -10,7 +10,9 @@ import { ChildrenErrors } from '../validation'
 
 import { Collection } from '../collection'
 
-import { AnyType, AggregatedType, setAttribute, UpdateRecordMixin, AttributesValues, AttributesContainer, CloneAttributesCtor } from './attributes'
+import { AnyType, AggregatedType, setAttribute, UpdateRecordMixin, 
+    AttributesValues, AttributesContainer,
+    ConstructorsMixin, AttributesConstructor, AttributesCopyConstructor } from './attributes'
 
 const { assign, isEmpty, log } = tools;
 
@@ -76,7 +78,7 @@ export class Record extends Transactional implements AttributesContainer {
     // Previous attributes
     _previousAttributes : {}
 
-    previousAttributes(){ return new this.Attributes( this._previousAttributes ); } 
+    previousAttributes(){ return new this.AttributesCopy( this._previousAttributes ); } 
 
     // Current attributes    
     attributes : AttributesValues
@@ -196,7 +198,8 @@ export class Record extends Transactional implements AttributesContainer {
     _keys : string[]
 
     // Attributes object copy constructor
-    Attributes : CloneAttributesCtor
+    Attributes : AttributesConstructor
+    AttributesCopy : AttributesCopyConstructor
 
     // forEach function for traversing through attributes, with protective default implementation
     // Overriden by dynamically compiled loop unrolled function in define.ts
@@ -302,7 +305,7 @@ export class Record extends Transactional implements AttributesContainer {
 
         if( log.level > 1 ) typeCheck( this, values );
 
-        this.attributes = this._previousAttributes = new this._Attributes( this, values, options );
+        this.attributes = this._previousAttributes = new this.Attributes( this, values, options );
 
         this.initialize( a_values, a_options );
 
@@ -481,9 +484,11 @@ Record.prototype._attributes = { id : AnyType.create({ value : void 0 }, 'id' )}
 Record.prototype.defaults = function( attrs : { id? : string } = {} ){ return { id : attrs.id } };
 Record._attribute = AggregatedType;
 
+import { shouldBeAnObject } from './attributes'
+
 function typeCheck( record : Record, values : object ){
     if( shouldBeAnObject( record, values ) ){
-        const { _attributes } = this;
+        const { _attributes } = record;
         let unknown : string[];
 
         for( let name in values ){
@@ -494,7 +499,7 @@ function typeCheck( record : Record, values : object ){
         }
 
         if( unknown ){
-            this._log( 'warn', `undefined attributes ${ unknown.join(', ')} are ignored.`, values );
+            record._log( 'warn', `undefined attributes ${ unknown.join(', ')} are ignored.`, values );
         }
     }
 }

@@ -1,7 +1,7 @@
 import { AnyType } from './any'
 import { Owner, transactionApi, Transactional, ItemsBehavior, TransactionOptions } from '../../transactions'
 import { tools } from '../../object-plus'
-import { AttributesContainer } from './updates'
+import { AttributesContainer, ConstructorOptions } from './updates'
 import { ValidationError } from '../../validation'
 
 const { free, aquire } = transactionApi;
@@ -15,8 +15,8 @@ export class AggregatedType extends AnyType {
 
     toJSON( x ){ return x && x.toJSON(); }
 
-    doInit( record : AttributesContainer, value, options : TransactionOptions ){
-        const v = options.clone ? this.clone( value, record ) : ( // TODO: move it 
+    doInit( record : AttributesContainer, value, options : ConstructorOptions ){
+        const v = options.clone ? this.clone( value ) : (
             value === void 0 ? this.defaultValue() : value
         );
 
@@ -59,7 +59,6 @@ export class AggregatedType extends AnyType {
 
         return false;
     }
-
 
     canBeUpdated( prev : Transactional, next : any, options : TransactionOptions ) : any {
         // If an object already exists, and new value is of incompatible type, let object handle the update.

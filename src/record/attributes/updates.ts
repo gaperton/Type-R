@@ -4,11 +4,19 @@ const { begin : _begin, markAsDirty : _markAsDirty, commit } = transactionApi;
 import { eventsApi } from '../../object-plus'
 const { trigger3 } = eventsApi;
 
+export interface ConstructorsMixin {
+    Attributes : AttributesConstructor
+    AttributesCopy : AttributesCopyConstructor
+}
 
-export interface AttributesContainer extends Transactional, Owner {
-    // Attributes copy constructor.
-    Attributes : CloneAttributesCtor
-    
+export interface ConstructorOptions extends TransactionOptions{
+    clone? : boolean
+}
+
+export type AttributesConstructor = new ( record : AttributesContainer, values : object, options : TransactionOptions ) => AttributesValues;
+export type AttributesCopyConstructor = new ( values : object ) => AttributesValues;
+
+export interface AttributesContainer extends Transactional, Owner, ConstructorsMixin {
     // Attribute descriptors.
     _attributes : AttributesDescriptors
 
@@ -21,8 +29,6 @@ export interface AttributesContainer extends Transactional, Owner {
     // Changed attributes cache. 
     _changedAttributes : AttributesValues
 }
-
-export type CloneAttributesCtor = new ( x : AttributesValues ) => AttributesValues
 
 export interface AttributesValues {
     [ name : string ] : any
@@ -56,7 +62,7 @@ export function setAttribute( record : AttributesContainer, name : string, value
 
 function begin( record : AttributesContainer ){
     if( _begin( record ) ){
-        record._previousAttributes = new record.Attributes( record.attributes );
+        record._previousAttributes = new record.AttributesCopy( record.attributes );
         record._changedAttributes = null;
         return true;
     }
@@ -154,6 +160,34 @@ export const UpdateRecordMixin = {
         isRoot && commit( this );
     }
 };
+
+// One of the main performance tricks of Type-R.
+// Create loop unrolled constructors for internal attribute hash,
+// so the hidden class JIT optimization will be engaged and they will become static structs.
+// It dramatically improves record performance.
+export function constructorsMixin( attrDefs : AttributesDescriptors ) : ConstructorsMixin {
+    const attrs = Object.keys( attrDefs );
+
+    const AttributesCopy : AttributesCopyConstructor = new Function( 'values', `
+        ${ attrs.map( attr =>`
+            this.${ attr } = values.${ attr };
+        `).join( '\n' ) }
+    `) as any;
+
+    AttributesCopy.prototype = Object.prototype;
+
+    const Attributes : AttributesConstructor = new Function( 'record', 'values', 'options', `
+        var _attrs = record._attributes;
+
+        ${ attrs.map( attr =>`
+            this.${ attr } = _attrs.${ attr }.doInit( record, values.${ attr }, options );
+        `).join( '\n' ) }
+    `) as any;
+
+    Attributes.prototype = Object.prototype;
+
+    return { Attributes, AttributesCopy };
+}
 
 export function shouldBeAnObject( record : AttributesContainer, values : object ){
     if( values && values.constructor === Object ) return true;

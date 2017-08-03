@@ -40,10 +40,6 @@ export class SharedType extends AnyType {
         }
     }
 
-    updateAttribute( ){
-        
-    }
-
     convert( value : any, options : TransactionOptions, prev : any, record : AttributesContainer ) : Transactional {
         if( value == null || value instanceof this.type ) return value;
 
