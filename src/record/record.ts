@@ -153,10 +153,15 @@ export class Record extends Transactional implements AttributesContainer {
         return this[ key ] != void 0;
     }
 
-    unset( key, options? ) : this {
-        return this.set({ [ key ] : void 0 }, options );
+    // Return attribute value, setting an attribute to undefined.
+    // TODO: If attribute was aggregated, don't dispose it.
+    unset( key : string, options? ) : any {
+        const value = this[ key ];
+        this.set({ [ key ] : void 0 }, options );
+        return value;
     }
 
+    // Undocumented. Move to NestedTypes?
     clear( options? ) : this {
         const nullify = options && options.nullify;
 

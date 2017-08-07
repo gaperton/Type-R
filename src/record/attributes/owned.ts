@@ -94,7 +94,6 @@ export class AggregatedType extends AnyType {
         if( value ){
             // WTF????! Must it be disposed as the part of the handleChange?
             this.handleChange( void 0, value, record );
-            value.dispose();
         }
     }
 
@@ -112,7 +111,10 @@ export class AggregatedType extends AnyType {
     }
 
     _handleChange( next : Transactional, prev : Transactional, record : AttributesContainer ){
-        prev && free( record, prev );
+        if( prev ){
+            free( record, prev );
+            prev.dispose();
+        } 
         
         if( next && !aquire( record, next, this.name ) ){
             this._log( 'error', 'aggregated attribute assigned with object already having an owner', next, record );

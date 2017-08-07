@@ -1,10 +1,10 @@
+export declare type Logger = (level: LogLevel, error: string, props?: object) => void;
 export declare type LogLevel = 'none' | 'error' | 'warn' | 'info' | 'debug' | 'log';
-export declare type Logger = (level: LogLevel, error: string, props: object) => void;
 export interface Log extends Logger {
     level: number;
     throw: number;
     stop: number;
-    _console: Logger;
+    logger: Logger;
 }
 export declare const log: Log;
 declare global  {

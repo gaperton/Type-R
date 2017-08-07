@@ -61,6 +61,7 @@ export declare class Collection extends Transactional implements CollectionCore 
     sort(options?: TransactionOptions): this;
     push(model: ElementsArg, options: CollectionOptions): Record[];
     pop(options: CollectionOptions): Record;
+    unset(modelOrId: Record | string, options?: any): Record;
     unshift(model: ElementsArg, options: CollectionOptions): Record[];
     shift(options?: CollectionOptions): Record;
     slice(): Record[];

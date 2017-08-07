@@ -92,6 +92,7 @@ export interface TransactionOptions {
     merge?: boolean;
     remove?: boolean;
     reset?: boolean;
+    unset?: boolean;
     validate?: boolean;
 }
 export declare const transactionApi: {

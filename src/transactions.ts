@@ -347,6 +347,9 @@ export interface TransactionOptions {
     // Always replace enclosed objects with new instances
     reset? : boolean // = false
 
+    // Do not dispose aggregated members
+    unset? : boolean
+
     validate? : boolean
 }
 

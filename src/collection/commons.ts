@@ -73,7 +73,7 @@ export function convertAndAquire( collection : CollectionCore, attrs : {} | Reco
 }
 
 /** @private */
-export function free( owner : CollectionCore, child : Record ) : void {
+export function free( owner : CollectionCore, child : Record, unset? : boolean ) : void {
     if( owner._shared ){
         if( owner._shared & ItemsBehavior.listen ){
             off( child, child._changeEventName, owner._onChildrenChange, owner );
@@ -81,6 +81,7 @@ export function free( owner : CollectionCore, child : Record ) : void {
     }
     else{
         _free( owner, child );
+        unset || child.dispose();
     }
 
     const { _itemEvents } = owner;

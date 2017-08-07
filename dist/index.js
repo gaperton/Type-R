@@ -715,24 +715,24 @@ var log = function (a_level, a_msg, a_props) {
         msg = a_msg, level = a_level, props = a_props;
     }
     if (levelAsNumber <= log.level) {
-        if (levelAsNumber <= log.throw || !log._console) {
+        if (levelAsNumber <= log.throw || !log.logger) {
             var error = new Error(msg);
             error.props = props;
             throw error;
         }
         else {
-            log._console(level, msg, props);
+            log.logger(level, msg, props);
             if (levelAsNumber <= log.stop) {
                 debugger;
             }
         }
     }
 };
-log.level = typeof process !== void 0 && process.env && process.env.NODE_ENV === 'production' ? 1 : 2;
+log.level = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production' ? 1 : 2;
 log.throw = 0;
 log.stop = 0;
 if (typeof console !== 'undefined') {
-    log._console = function _console(level, error, props) {
+    log.logger = function _console(level, error, props) {
         var args = [error];
         for (var name_1 in props) {
             args.push("\n\t" + name_1 + ":", props[name_1]);
@@ -740,7 +740,6 @@ if (typeof console !== 'undefined') {
         console[level].apply(console, args);
     };
 }
-Object.log = log;
 function isValidJSON(value) {
     if (value === null) {
         return true;
@@ -985,7 +984,7 @@ function convertAndAquire(collection, attrs, options) {
     _itemEvents && _itemEvents.subscribe(collection, record);
     return record;
 }
-function free(owner, child) {
+function free(owner, child, unset) {
     if (owner._shared) {
         if (owner._shared & __WEBPACK_IMPORTED_MODULE_0__transactions__["a" /* ItemsBehavior */].listen) {
             off(child, child._changeEventName, owner._onChildrenChange, owner);
@@ -993,6 +992,7 @@ function free(owner, child) {
     }
     else {
         _free(owner, child);
+        unset || child.dispose();
     }
     var _itemEvents = owner._itemEvents;
     _itemEvents && _itemEvents.unsubscribe(owner, child);
@@ -1909,6 +1909,14 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -2219,6 +2227,11 @@ var Collection = (function (_super) {
         var model = this.at(this.length - 1);
         this.remove(model, options);
         return model;
+    };
+    Collection.prototype.unset = function (modelOrId, options) {
+        var value = this.get(modelOrId);
+        this.remove(modelOrId, __assign({ unset: true }, options));
+        return value;
     };
     Collection.prototype.unshift = function (model, options) {
         return this.add(model, assign({ at: 0 }, options));
@@ -2931,7 +2944,9 @@ var Record = (function (_super) {
         return this[key] != void 0;
     };
     Record.prototype.unset = function (key, options) {
-        return this.set((_a = {}, _a[key] = void 0, _a), options);
+        var value = this[key];
+        this.set((_a = {}, _a[key] = void 0, _a), options);
+        return value;
         var _a;
     };
     Record.prototype.clear = function (options) {
@@ -3236,7 +3251,6 @@ var AggregatedType = (function (_super) {
     AggregatedType.prototype.dispose = function (record, value) {
         if (value) {
             this.handleChange(void 0, value, record);
-            value.dispose();
         }
     };
     AggregatedType.prototype.validate = function (record, value) {
@@ -3251,7 +3265,10 @@ var AggregatedType = (function (_super) {
         options.changeHandlers.unshift(this._handleChange);
     };
     AggregatedType.prototype._handleChange = function (next, prev, record) {
-        prev && free(record, prev);
+        if (prev) {
+            free(record, prev);
+            prev.dispose();
+        }
         if (next && !aquire(record, next, this.name)) {
             this._log('error', 'aggregated attribute assigned with object already having an owner', next, record);
         }
@@ -3665,6 +3682,7 @@ var SharedType = (function (_super) {
         if (prev) {
             if (prev._owner === record) {
                 free(record, prev);
+                prev.dispose();
             }
             else {
                 off(prev, prev._changeEventName, this._onChange, record);
@@ -3678,9 +3696,7 @@ var SharedType = (function (_super) {
     };
     SharedType.prototype.dispose = function (record, value) {
         if (value) {
-            var owned = value._owner === record;
             this.handleChange(void 0, value, record);
-            owned && value.dispose();
         }
     };
     SharedType.prototype.initialize = function (options) {
@@ -3899,7 +3915,7 @@ function removeOne(collection, el, options) {
             trigger3(model, 'remove', model, collection, options);
             trigger3(collection, 'remove', model, collection, options);
         }
-        Object(__WEBPACK_IMPORTED_MODULE_0__commons__["e" /* free */])(collection, model);
+        Object(__WEBPACK_IMPORTED_MODULE_0__commons__["e" /* free */])(collection, model, options.unset);
         notify && trigger2(collection, 'update', collection, options);
         isRoot && commit(collection);
         return model;
