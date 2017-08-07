@@ -144,7 +144,7 @@ export const UpdateRecordMixin = {
             }
 
             if( unknown ){
-                this._log( 'warn', `Undefined attributes ${ unknown.join(', ')} are ignored!`, values );
+                // this._log( 'warn', `Undefined attributes ${ unknown.join(', ')} are ignored!`, values );
             }
         }
         
@@ -171,7 +171,7 @@ export function constructorsMixin( attrDefs : AttributesDescriptors ) : Construc
     const AttributesCopy : AttributesCopyConstructor = new Function( 'values', `
         ${ attrs.map( attr =>`
             this.${ attr } = values.${ attr };
-        `).join( '\n' ) }
+        `).join( '' ) }
     `) as any;
 
     AttributesCopy.prototype = Object.prototype;
@@ -181,7 +181,7 @@ export function constructorsMixin( attrDefs : AttributesDescriptors ) : Construc
 
         ${ attrs.map( attr =>`
             this.${ attr } = _attrs.${ attr }.doInit( values.${ attr }, record, options );
-        `).join( '\n' ) }
+        `).join( '' ) }
     `) as any;
 
     Attributes.prototype = Object.prototype;

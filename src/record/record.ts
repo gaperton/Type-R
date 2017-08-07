@@ -478,12 +478,23 @@ assign( Record.prototype, UpdateRecordMixin );
 class BaseRecordAttributes {
     id : string | number
 
-    constructor( x : AttributesValues ) {
+    constructor( record : Record, x : AttributesValues, options : TransactionOptions ) {
         this.id = x.id;
     }
 }
 
 Record.prototype.Attributes = BaseRecordAttributes;
+
+class BaseRecordAttributesCopy {
+    id : string | number
+
+    constructor( x : AttributesValues ) {
+        this.id = x.id;
+    }
+}
+
+Record.prototype.AttributesCopy = BaseRecordAttributesCopy;
+
 
 Record.prototype._attributes = { id : AnyType.create({ value : void 0 }, 'id' )};
 Record.prototype.defaults = function( attrs : { id? : string } = {} ){ return { id : attrs.id } };

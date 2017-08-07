@@ -1685,7 +1685,6 @@ var UpdateRecordMixin = {
                 }
             }
             if (unknown) {
-                this._log('warn', "Undefined attributes " + unknown.join(', ') + " are ignored!", values);
             }
         }
         if (changes.length && markAsDirty(this, options)) {
@@ -1700,9 +1699,9 @@ var UpdateRecordMixin = {
 };
 function constructorsMixin(attrDefs) {
     var attrs = Object.keys(attrDefs);
-    var AttributesCopy = new Function('values', "\n        " + attrs.map(function (attr) { return "\n            this." + attr + " = values." + attr + ";\n        "; }).join('\n') + "\n    ");
+    var AttributesCopy = new Function('values', "\n        " + attrs.map(function (attr) { return "\n            this." + attr + " = values." + attr + ";\n        "; }).join('') + "\n    ");
     AttributesCopy.prototype = Object.prototype;
-    var Attributes = new Function('record', 'values', 'options', "\n        var _attrs = record._attributes;\n\n        " + attrs.map(function (attr) { return "\n            this." + attr + " = _attrs." + attr + ".doInit( values." + attr + ", record, options );\n        "; }).join('\n') + "\n    ");
+    var Attributes = new Function('record', 'values', 'options', "\n        var _attrs = record._attributes;\n\n        " + attrs.map(function (attr) { return "\n            this." + attr + " = _attrs." + attr + ".doInit( values." + attr + ", record, options );\n        "; }).join('') + "\n    ");
     Attributes.prototype = Object.prototype;
     return { Attributes: Attributes, AttributesCopy: AttributesCopy };
 }
@@ -3132,12 +3131,19 @@ var Record = (function (_super) {
 ;
 assign(Record.prototype, __WEBPACK_IMPORTED_MODULE_2__attributes__["n" /* UpdateRecordMixin */]);
 var BaseRecordAttributes = (function () {
-    function BaseRecordAttributes(x) {
+    function BaseRecordAttributes(record, x, options) {
         this.id = x.id;
     }
     return BaseRecordAttributes;
 }());
 Record.prototype.Attributes = BaseRecordAttributes;
+var BaseRecordAttributesCopy = (function () {
+    function BaseRecordAttributesCopy(x) {
+        this.id = x.id;
+    }
+    return BaseRecordAttributesCopy;
+}());
+Record.prototype.AttributesCopy = BaseRecordAttributesCopy;
 Record.prototype._attributes = { id: __WEBPACK_IMPORTED_MODULE_2__attributes__["b" /* AnyType */].create({ value: void 0 }, 'id') };
 Record.prototype.defaults = function (attrs) {
     if (attrs === void 0) { attrs = {}; }
