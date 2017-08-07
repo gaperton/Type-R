@@ -45,6 +45,7 @@ export default function( attributesDefinition : object, baseClassAttributes : At
         _attributesArray : Object.keys( allAttributes ).map( key => allAttributes[ key ] ),
         properties : _.transform( <PropertyDescriptorMap>{}, myAttributes, x => x.createPropertyDescriptor() ),
         _toJSON : createToJSON( allAttributes ),
+        ...parseMixin( allAttributes ),
         ...localEventsMixin( myAttributes )
     }            
 }
@@ -52,6 +53,22 @@ export default function( attributesDefinition : object, baseClassAttributes : At
 // Create attribute from the type spec.
 export function createAttribute( spec : any, name : string ) : AnyType {
     return AnyType.create( toAttributeOptions( spec ), name );
+}
+
+function parseMixin( attributes : AttributeDescriptors ){
+    const attrsWithParse = Object.keys( attributes ).filter( name => attributes[ name ].parse );
+
+    return attrsWithParse.length ? {
+        _parse : new Function( 'json', `
+            var _attrs = this._attributes;
+
+            ${ attrsWithParse.map( name => `                
+                json.${ name } === void 0 || ( json.${ name } = _attrs.${ name }.parse.call( this, json.${ name }, "${ name }" ) );
+            ` ).join('')}
+
+            return json;
+        ` )
+    } : {};
 }
 
 function createToJSON( attributes : AttributeDescriptors ) : () => void {

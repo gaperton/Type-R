@@ -456,8 +456,7 @@ var AnyType = (function () {
             this.validate = wrapIsRequired(this.validate);
         }
         transforms.unshift(this.convert);
-        if (parse)
-            transforms.unshift(parse);
+        this.parse = parse || this.parse;
         if (this.get)
             getHooks.unshift(this.get);
         this.initialize.call(this, options);
@@ -468,12 +467,8 @@ var AnyType = (function () {
                 return validate_1.call(this, record, getHook_1.call(record, value, key), key);
             };
         }
-        if (transforms.length) {
-            this.transform = transforms.reduce(chainTransforms);
-        }
-        if (changeHandlers.length) {
-            this.handleChange = changeHandlers.reduce(chainChangeHandlers);
-        }
+        this.transform = transforms.length ? transforms.reduce(chainTransforms) : this.transform;
+        this.handleChange = changeHandlers.length ? changeHandlers.reduce(chainChangeHandlers) : this.handleChange;
     }
     AnyType.create = function (options, name) {
         var type = options.type, AttributeCtor = options._attribute || (type ? type._attribute : AnyType);
@@ -623,10 +618,16 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 /* harmony default export */ __webpack_exports__["r"] = (function (attributesDefinition, baseClassAttributes) {
     var myAttributes = __WEBPACK_IMPORTED_MODULE_0__object_plus__["l" /* tools */].transform({}, attributesDefinition, createAttribute), allAttributes = __WEBPACK_IMPORTED_MODULE_0__object_plus__["l" /* tools */].defaults({}, myAttributes, baseClassAttributes);
     var ConstructorsMixin = Object(__WEBPACK_IMPORTED_MODULE_6__updates__["c" /* constructorsMixin */])(allAttributes);
-    return __assign({}, ConstructorsMixin, { _attributes: new ConstructorsMixin.AttributesCopy(allAttributes), _attributesArray: Object.keys(allAttributes).map(function (key) { return allAttributes[key]; }), properties: __WEBPACK_IMPORTED_MODULE_0__object_plus__["l" /* tools */].transform({}, myAttributes, function (x) { return x.createPropertyDescriptor(); }), _toJSON: createToJSON(allAttributes) }, localEventsMixin(myAttributes));
+    return __assign({}, ConstructorsMixin, { _attributes: new ConstructorsMixin.AttributesCopy(allAttributes), _attributesArray: Object.keys(allAttributes).map(function (key) { return allAttributes[key]; }), properties: __WEBPACK_IMPORTED_MODULE_0__object_plus__["l" /* tools */].transform({}, myAttributes, function (x) { return x.createPropertyDescriptor(); }), _toJSON: createToJSON(allAttributes) }, parseMixin(allAttributes), localEventsMixin(myAttributes));
 });
 function createAttribute(spec, name) {
     return __WEBPACK_IMPORTED_MODULE_1__any__["a" /* AnyType */].create(Object(__WEBPACK_IMPORTED_MODULE_7__attrDef__["b" /* toAttributeOptions */])(spec), name);
+}
+function parseMixin(attributes) {
+    var attrsWithParse = Object.keys(attributes).filter(function (name) { return attributes[name].parse; });
+    return attrsWithParse.length ? {
+        _parse: new Function('json', "\n            var _attrs = this._attributes;\n\n            " + attrsWithParse.map(function (name) { return "                \n                json." + name + " === void 0 || ( json." + name + " = _attrs." + name + ".parse.call( this, json." + name + ", \"" + name + "\" ) );\n            "; }).join('') + "\n\n            return json;\n        ")
+    } : {};
 }
 function createToJSON(attributes) {
     return new Function("\n        var json = {},\n            v = this.attributes,\n            a = this._attributes;\n\n        " + Object.keys(attributes).map(function (key) {
@@ -1779,11 +1780,7 @@ var ChainableAttributeSpec = (function () {
         return this.metadata({ _onChange: ref });
     };
     ChainableAttributeSpec.prototype.parse = function (fun) {
-        return this.metadata({
-            parse: function (next, prev, model, options) {
-                return options.parse && next && !(next instanceof this.type) ? fun(next, this.name) : next;
-            }
-        });
+        return this.metadata({ parse: fun });
     };
     ChainableAttributeSpec.prototype.toJSON = function (fun) {
         return this.metadata({
@@ -3153,13 +3150,13 @@ function typeCheck(record, values) {
         var _attributes = record._attributes;
         var unknown = void 0;
         for (var name_2 in values) {
-            if (_attributes[name_2]) {
+            if (!_attributes[name_2]) {
                 unknown || (unknown = []);
                 unknown.push("'" + name_2 + "'");
             }
         }
         if (unknown) {
-            record._log('warn', "undefined attributes " + unknown.join(', ') + " are ignored.", values);
+            record._log('warn', "undefined attributes " + unknown.join(', ') + " are ignored.", { values: values });
         }
     }
 }

@@ -1,4 +1,4 @@
-import { AttributeOptions } from './any';
+import { AttributeOptions, Parse } from './any';
 import { EventsDefinition } from '../../object-plus';
 export interface AttributeCheck {
     (value: any, key: string): boolean;
@@ -10,7 +10,7 @@ export declare class ChainableAttributeSpec {
     check(check: AttributeCheck, error: any): ChainableAttributeSpec;
     readonly isRequired: ChainableAttributeSpec;
     watcher(ref: string | ((value: any, key: string) => void)): ChainableAttributeSpec;
-    parse(fun: (value: any, key: string) => any): ChainableAttributeSpec;
+    parse(fun: Parse): ChainableAttributeSpec;
     toJSON(fun: any): ChainableAttributeSpec;
     get(fun: any): ChainableAttributeSpec;
     set(fun: any): ChainableAttributeSpec;

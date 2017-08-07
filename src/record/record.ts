@@ -497,14 +497,14 @@ function typeCheck( record : Record, values : object ){
         let unknown : string[];
 
         for( let name in values ){
-            if( _attributes[ name ] ){
+            if( !_attributes[ name ] ){
                 unknown || ( unknown = [] );
                 unknown.push( `'${ name }'` );
             }
         }
 
         if( unknown ){
-            record._log( 'warn', `undefined attributes ${ unknown.join(', ')} are ignored.`, values );
+            record._log( 'warn', `undefined attributes ${ unknown.join(', ')} are ignored.`, { values } );
         }
     }
 }

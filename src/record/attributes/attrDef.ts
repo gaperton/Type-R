@@ -3,7 +3,7 @@
  * and returns object with spec.
  */
 import { Transactional } from '../../transactions'
-import { ChangeAttrHandler, AttributeOptions } from './any'
+import { ChangeAttrHandler, AttributeOptions, Parse } from './any'
 import {  AttributesContainer } from './updates'
 import { EventMap, EventsDefinition, tools } from '../../object-plus'
 
@@ -51,16 +51,8 @@ export class ChainableAttributeSpec {
     }
 
     // Attribute-specific parse transform
-    parse( fun : ( value : any, key : string ) => any ) : ChainableAttributeSpec {
-        return this.metadata({
-            parse( next, prev, model, options ){
-                // TODO: Not good. Try to solve it differently.
-                // Problem here is that it is called always, even if there is the default value taken.
-                // Now, default value should be converted and goes through the update pipeline.
-                // Should not be so. This code won't work for primitives.
-                return options.parse && next && !( next instanceof this.type ) ? fun( next, this.name ) : next;
-            }
-        });
+    parse( fun : Parse ) : ChainableAttributeSpec {
+        return this.metadata({ parse : fun });
     }
 
     toJSON( fun ) : ChainableAttributeSpec {

@@ -22,7 +22,7 @@ export interface AttributeOptions {
     type? : Function
     value? : any
 
-    parse? : Transform
+    parse? : Parse
     toJSON? : AttributeToJSON
    
     getHooks? : GetHook[]
@@ -32,6 +32,7 @@ export interface AttributeOptions {
     _onChange? : ChangeAttrHandler
 }
 
+export type Parse = ( value : any, key : string ) => any;
 export type GetHook = ( value : any, key : string ) => any;
 export type AttributeToJSON = ( value : any, key : string ) => any
 export type AttributeParse = ( value : any, key : string ) => any
@@ -176,6 +177,8 @@ export class AnyType implements AttributeUpdatePipeline {
         return this.value;
     }
 
+    parse : Parse
+
     constructor( public name : string, a_options : AttributeOptions ) {        
         // Save original options...
         this.options = a_options;
@@ -226,7 +229,7 @@ export class AnyType implements AttributeUpdatePipeline {
         transforms.unshift( this.convert );
 
         // Attribute-level parse transform must always go first...
-        if( parse ) transforms.unshift( parse );
+        this.parse = parse || this.parse;
 
         // Get hook from the attribute will be used first...
         if( this.get ) getHooks.unshift( this.get );
@@ -244,13 +247,9 @@ export class AnyType implements AttributeUpdatePipeline {
             }
         }
         
-        if( transforms.length ){
-            this.transform = transforms.reduce( chainTransforms );
-        }
+        this.transform = transforms.length ? transforms.reduce( chainTransforms ) : this.transform;
         
-        if( changeHandlers.length ){
-            this.handleChange = changeHandlers.reduce( chainChangeHandlers );
-        }
+        this.handleChange = changeHandlers.length ? changeHandlers.reduce( chainChangeHandlers ) : this.handleChange;
     }
 
     getHook : ( value, key : string ) => any = null
