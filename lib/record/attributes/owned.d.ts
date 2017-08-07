@@ -6,10 +6,10 @@ export declare class AggregatedType extends AnyType {
     type: typeof Transactional;
     clone(value: Transactional): Transactional;
     toJSON(x: any): any;
-    doInit(record: AttributesContainer, value: any, options: ConstructorOptions): any;
-    doUpdate(record: any, value: any, options: any, nested: any[]): boolean;
+    doInit(value: any, record: AttributesContainer, options: ConstructorOptions): any;
+    doUpdate(value: any, record: any, options: any, nested: any[]): boolean;
     canBeUpdated(prev: Transactional, next: any, options: TransactionOptions): any;
-    convert(value: any, options: TransactionOptions, prev: any, record: AttributesContainer): Transactional;
+    convert(next: any, prev: any, record: AttributesContainer, options: TransactionOptions): Transactional;
     dispose(record: AttributesContainer, value: Transactional): void;
     validate(record: AttributesContainer, value: Transactional): ValidationError;
     create(): Transactional;

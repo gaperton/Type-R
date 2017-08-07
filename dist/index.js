@@ -427,6 +427,7 @@ function getAttributes(_a) {
 
 
 var notEqual = __WEBPACK_IMPORTED_MODULE_1__object_plus__["l" /* tools */].notEqual, assign = __WEBPACK_IMPORTED_MODULE_1__object_plus__["l" /* tools */].assign;
+var emptyOptions = {};
 var AnyType = (function () {
     function AnyType(name, a_options) {
         this.name = name;
@@ -479,18 +480,18 @@ var AnyType = (function () {
         return new AttributeCtor(name, options);
     };
     AnyType.prototype.canBeUpdated = function (prev, next, options) { };
-    AnyType.prototype.transform = function (value, options, prev, model) { return value; };
-    AnyType.prototype.convert = function (value, options, prev, model) { return value; };
+    AnyType.prototype.transform = function (next, prev, model, options) { return next; };
+    AnyType.prototype.convert = function (next, prev, model, options) { return next; };
     AnyType.prototype.isChanged = function (a, b) {
         return notEqual(a, b);
     };
-    AnyType.prototype.handleChange = function (next, prev, model) { };
+    AnyType.prototype.handleChange = function (next, prev, model, options) { };
     AnyType.prototype.create = function () { return void 0; };
     AnyType.prototype.clone = function (value, record) {
         return value;
     };
     AnyType.prototype.dispose = function (record, value) {
-        this.handleChange(void 0, value, record);
+        this.handleChange(void 0, value, record, emptyOptions);
     };
     AnyType.prototype.validate = function (record, value, key) { };
     AnyType.prototype.toJSON = function (value, key) {
@@ -512,17 +513,17 @@ var AnyType = (function () {
         }
     };
     AnyType.prototype.initialize = function (name, options) { };
-    AnyType.prototype.doInit = function (record, value, options) {
-        var v = value === void 0 ? this.defaultValue() : value, x = this.transform(v, options, void 0, record);
-        this.handleChange(x, void 0, record);
+    AnyType.prototype.doInit = function (value, record, options) {
+        var v = value === void 0 ? this.defaultValue() : value, x = this.transform(v, void 0, record, options);
+        this.handleChange(x, void 0, record, options);
         return x;
     };
-    AnyType.prototype.doUpdate = function (record, value, options, nested) {
+    AnyType.prototype.doUpdate = function (value, record, options, nested) {
         var name = this.name, attributes = record.attributes, prev = attributes[name];
-        var next = this.transform(value, options, prev, record);
+        var next = this.transform(value, prev, record, options);
         attributes[name] = next;
         if (this.isChanged(next, prev)) {
-            this.handleChange(next, prev, record);
+            this.handleChange(next, prev, record, options);
             return true;
         }
         return false;
@@ -541,20 +542,20 @@ var AnyType = (function () {
     return AnyType;
 }());
 
-function chainChangeHandlers(prevHandler, nextHandler) {
-    return function (next, prev, model) {
-        prevHandler.call(this, next, prev, model);
-        nextHandler.call(this, next, prev, model);
-    };
-}
 function chainGetHooks(prevHook, nextHook) {
     return function (value, name) {
         return nextHook.call(this, prevHook.call(this, value, name), name);
     };
 }
 function chainTransforms(prevTransform, nextTransform) {
-    return function (value, options, prev, model) {
-        return nextTransform.call(this, prevTransform.call(this, value, options, prev, model), options, prev, model);
+    return function (next, prev, record, options) {
+        return nextTransform.call(this, prevTransform.call(this, next, prev, record, options), prev, record, options);
+    };
+}
+function chainChangeHandlers(prevHandler, nextHandler) {
+    return function (next, prev, record, options) {
+        prevHandler.call(this, next, prev, record, options);
+        nextHandler.call(this, next, prev, record, options);
     };
 }
 function wrapIsRequired(validate) {
@@ -1625,7 +1626,7 @@ var _begin = __WEBPACK_IMPORTED_MODULE_0__transactions__["c" /* transactionApi *
 var trigger3 = __WEBPACK_IMPORTED_MODULE_1__object_plus__["h" /* eventsApi */].trigger3;
 function setAttribute(record, name, value) {
     var isRoot = begin(record), options = {};
-    if (record._attributes[name].doUpdate(record, value, options)) {
+    if (record._attributes[name].doUpdate(value, record, options)) {
         markAsDirty(record, options);
         trigger3(record, 'change:' + name, record, record.attributes[name], options);
     }
@@ -1673,7 +1674,7 @@ var UpdateRecordMixin = {
             for (var name_1 in values) {
                 var spec = _attributes[name_1];
                 if (spec) {
-                    if (spec.doUpdate(this, values[name_1], options, nested)) {
+                    if (spec.doUpdate(values[name_1], this, options, nested)) {
                         changes.push(name_1);
                     }
                 }
@@ -1700,7 +1701,7 @@ function constructorsMixin(attrDefs) {
     var attrs = Object.keys(attrDefs);
     var AttributesCopy = new Function('values', "\n        " + attrs.map(function (attr) { return "\n            this." + attr + " = values." + attr + ";\n        "; }).join('\n') + "\n    ");
     AttributesCopy.prototype = Object.prototype;
-    var Attributes = new Function('record', 'values', 'options', "\n        var _attrs = record._attributes;\n\n        " + attrs.map(function (attr) { return "\n            this." + attr + " = _attrs." + attr + ".doInit( record, values." + attr + ", options );\n        "; }).join('\n') + "\n    ");
+    var Attributes = new Function('record', 'values', 'options', "\n        var _attrs = record._attributes;\n\n        " + attrs.map(function (attr) { return "\n            this." + attr + " = _attrs." + attr + ".doInit( values." + attr + ", record, options );\n        "; }).join('\n') + "\n    ");
     Attributes.prototype = Object.prototype;
     return { Attributes: Attributes, AttributesCopy: AttributesCopy };
 }
@@ -1779,7 +1780,7 @@ var ChainableAttributeSpec = (function () {
     };
     ChainableAttributeSpec.prototype.parse = function (fun) {
         return this.metadata({
-            parse: function (next, options, prev, model) {
+            parse: function (next, prev, model, options) {
                 return options.parse && next && !(next instanceof this.type) ? fun(next, this.name) : next;
             }
         });
@@ -1795,10 +1796,10 @@ var ChainableAttributeSpec = (function () {
         });
     };
     ChainableAttributeSpec.prototype.set = function (fun) {
-        function handleSetHook(next, options, prev, model) {
+        function handleSetHook(next, prev, record, options) {
             if (this.isChanged(next, prev)) {
-                var changed = fun.call(model, next, this.name);
-                return changed === void 0 ? prev : this.convert(changed, options, prev, model);
+                var changed = fun.call(record, next, this.name);
+                return changed === void 0 ? prev : this.convert(changed, prev, record, options);
             }
             return prev;
         }
@@ -3194,13 +3195,13 @@ var AggregatedType = (function (_super) {
         return value ? value.clone() : value;
     };
     AggregatedType.prototype.toJSON = function (x) { return x && x.toJSON(); };
-    AggregatedType.prototype.doInit = function (record, value, options) {
+    AggregatedType.prototype.doInit = function (value, record, options) {
         var v = options.clone ? this.clone(value) : (value === void 0 ? this.defaultValue() : value);
-        var x = this.transform(v, options, void 0, record);
-        this.handleChange(x, void 0, record);
+        var x = this.transform(v, void 0, record, options);
+        this.handleChange(x, void 0, record, options);
         return x;
     };
-    AggregatedType.prototype.doUpdate = function (record, value, options, nested) {
+    AggregatedType.prototype.doUpdate = function (value, record, options, nested) {
         var key = this.name, attributes = record.attributes;
         var prev = attributes[key];
         var update;
@@ -3218,10 +3219,10 @@ var AggregatedType = (function (_super) {
             }
             return false;
         }
-        var next = this.transform(value, options, prev, record);
+        var next = this.transform(value, prev, record, options);
         attributes[key] = next;
         if (this.isChanged(next, prev)) {
-            this.handleChange(next, prev, record);
+            this.handleChange(next, prev, record, options);
             return true;
         }
         return false;
@@ -3237,20 +3238,20 @@ var AggregatedType = (function (_super) {
             }
         }
     };
-    AggregatedType.prototype.convert = function (value, options, prev, record) {
-        if (value == null)
-            return value;
-        if (value instanceof this.type) {
-            if (value._shared && !(value._shared & __WEBPACK_IMPORTED_MODULE_1__transactions__["a" /* ItemsBehavior */].persistent)) {
-                this._log('error', 'aggregated collection attribute is assigned with shared collection', value, record);
+    AggregatedType.prototype.convert = function (next, prev, record, options) {
+        if (next == null)
+            return next;
+        if (next instanceof this.type) {
+            if (next._shared && !(next._shared & __WEBPACK_IMPORTED_MODULE_1__transactions__["a" /* ItemsBehavior */].persistent)) {
+                this._log('error', 'aggregated collection attribute is assigned with shared collection', next, record);
             }
-            return options.merge ? value.clone() : value;
+            return options.merge ? next.clone() : next;
         }
-        return this.type.create(value, options);
+        return this.type.create(next, options);
     };
     AggregatedType.prototype.dispose = function (record, value) {
         if (value) {
-            this.handleChange(void 0, value, record);
+            this.handleChange(void 0, value, record, {});
         }
     };
     AggregatedType.prototype.validate = function (record, value) {
@@ -3309,12 +3310,12 @@ var DateType = (function (_super) {
     DateType.prototype.create = function () {
         return new Date();
     };
-    DateType.prototype.convert = function (value, a, b, record) {
-        if (value == null || value instanceof Date)
-            return value;
-        var date = new Date(value), timestamp = date.getTime();
+    DateType.prototype.convert = function (next, a, record) {
+        if (next == null || next instanceof Date)
+            return next;
+        var date = new Date(next), timestamp = date.getTime();
         if (timestamp !== timestamp) {
-            this._log('warn', 'assigned with Invalid Date', value, record);
+            this._log('warn', 'assigned with Invalid Date', next, record);
         }
         return date;
     };
@@ -3327,12 +3328,12 @@ var DateType = (function (_super) {
     };
     DateType.prototype.toJSON = function (value) { return value && value.toISOString(); };
     DateType.prototype.isChanged = function (a, b) { return (a && a.getTime()) !== (b && b.getTime()); };
-    DateType.prototype.doInit = function (record, value, options) {
-        return this.transform(value === void 0 ? this.defaultValue() : value, options, void 0, record);
+    DateType.prototype.doInit = function (value, record, options) {
+        return this.transform(value === void 0 ? this.defaultValue() : value, void 0, record, options);
     };
-    DateType.prototype.doUpdate = function (record, value, options, nested) {
+    DateType.prototype.doUpdate = function (value, record, options, nested) {
         var name = this.name, attributes = record.attributes, prev = attributes[name];
-        return this.isChanged(prev, attributes[name] = this.transform(value, options, prev, record));
+        return this.isChanged(prev, attributes[name] = this.transform(value, prev, record, options));
     };
     DateType.prototype.clone = function (value) { return value && new Date(value.getTime()); };
     DateType.prototype.dispose = function () { };
@@ -3346,9 +3347,9 @@ var MSDateType = (function (_super) {
     function MSDateType() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    MSDateType.prototype.convert = function (value) {
-        if (typeof value === 'string') {
-            var msDate = msDatePattern.exec(value);
+    MSDateType.prototype.convert = function (next) {
+        if (typeof next === 'string') {
+            var msDate = msDatePattern.exec(next);
             if (msDate) {
                 return new Date(Number(msDate[1]));
             }
@@ -3456,8 +3457,8 @@ var ImmutableClassType = (function (_super) {
     ImmutableClassType.prototype.create = function () {
         return new this.type();
     };
-    ImmutableClassType.prototype.convert = function (value) {
-        return value == null || value instanceof this.type ? value : new this.type(value);
+    ImmutableClassType.prototype.convert = function (next) {
+        return next == null || next instanceof this.type ? next : new this.type(next);
     };
     ImmutableClassType.prototype.toJSON = function (value) {
         return value && value.toJSON ? value.toJSON() : value;
@@ -3479,15 +3480,15 @@ var PrimitiveType = (function (_super) {
     PrimitiveType.prototype.dispose = function () { };
     PrimitiveType.prototype.create = function () { return this.type(); };
     PrimitiveType.prototype.toJSON = function (value) { return value; };
-    PrimitiveType.prototype.convert = function (value) { return value == null ? value : this.type(value); };
+    PrimitiveType.prototype.convert = function (next) { return next == null ? next : this.type(next); };
     PrimitiveType.prototype.isChanged = function (a, b) { return a !== b; };
     PrimitiveType.prototype.clone = function (value) { return value; };
-    PrimitiveType.prototype.doInit = function (record, value, options) {
-        return this.transform(value === void 0 ? this.value : value, options, void 0, record);
+    PrimitiveType.prototype.doInit = function (value, record, options) {
+        return this.transform(value === void 0 ? this.value : value, void 0, record, options);
     };
-    PrimitiveType.prototype.doUpdate = function (record, value, options, nested) {
+    PrimitiveType.prototype.doUpdate = function (value, record, options, nested) {
         var name = this.name, attributes = record.attributes, prev = attributes[name];
-        return prev !== (attributes[name] = this.transform(value, options, prev, record));
+        return prev !== (attributes[name] = this.transform(value, prev, record, options));
     };
     PrimitiveType.prototype.initialize = function () {
         if (this.value === void 0) {
@@ -3506,10 +3507,10 @@ var NumericType = (function (_super) {
     NumericType.prototype.create = function () {
         return 0;
     };
-    NumericType.prototype.convert = function (value, a, b, record) {
-        var num = value == null ? value : this.type(value);
+    NumericType.prototype.convert = function (next, prev, record) {
+        var num = next == null ? next : this.type(next);
         if (num !== num) {
-            this._log('warn', 'assigned with Invalid Number', value, record);
+            this._log('warn', 'assigned with Invalid Number', next, record);
         }
         return num;
     };
@@ -3538,10 +3539,10 @@ var ArrayType = (function (_super) {
     ArrayType.prototype.toJSON = function (value) { return value; };
     ArrayType.prototype.dispose = function () { };
     ArrayType.prototype.create = function () { return []; };
-    ArrayType.prototype.convert = function (value, a, b, record) {
-        if (value == null || Array.isArray(value))
-            return value;
-        this._log('warn', 'non-array assignment is ignored', value, record);
+    ArrayType.prototype.convert = function (next, prev, record) {
+        if (next == null || Array.isArray(next))
+            return next;
+        this._log('warn', 'non-array assignment is ignored', next, record);
         return [];
     };
     ArrayType.prototype.clone = function (value) {
@@ -3559,10 +3560,10 @@ var ObjectType = (function (_super) {
     ObjectType.prototype.toJSON = function (value) { return value; };
     ObjectType.prototype.dispose = function () { };
     ObjectType.prototype.create = function () { return {}; };
-    ObjectType.prototype.convert = function (value, a, b, record) {
-        if (value == null || value.constructor === Object)
-            return value;
-        this._log('warn', 'non-object assignment is ignored', value, record);
+    ObjectType.prototype.convert = function (next, prev, record) {
+        if (next == null || next.constructor === Object)
+            return next;
+        this._log('warn', 'non-object assignment is ignored', next, record);
         return {};
     };
     ObjectType.prototype.clone = function (value) {
@@ -3580,10 +3581,10 @@ var FunctionType = (function (_super) {
     }
     FunctionType.prototype.toJSON = function (value) { return void 0; };
     FunctionType.prototype.create = function () { return doNothing; };
-    FunctionType.prototype.convert = function (value, a, b, record) {
-        if (value == null || typeof value === 'function')
-            return value;
-        this._log('warn', 'assigned with non-function', value, record);
+    FunctionType.prototype.convert = function (next, prev, record) {
+        if (next == null || typeof next === 'function')
+            return next;
+        this._log('warn', 'assigned with non-function', next, record);
         return doNothing;
     };
     FunctionType.prototype.clone = function (value) { return value; };
@@ -3622,13 +3623,13 @@ var SharedType = (function (_super) {
     function SharedType() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    SharedType.prototype.doInit = function (record, value, options) {
+    SharedType.prototype.doInit = function (value, record, options) {
         var v = options.clone ? this.clone(value, record) : (value === void 0 ? this.defaultValue() : value);
-        var x = this.transform(v, options, void 0, record);
-        this.handleChange(x, void 0, record);
+        var x = this.transform(v, void 0, record, options);
+        this.handleChange(x, void 0, record, options);
         return x;
     };
-    SharedType.prototype.doUpdate = function (record, value, options, nested) {
+    SharedType.prototype.doUpdate = function (value, record, options, nested) {
         var key = this.name, attributes = record.attributes;
         var prev = attributes[key];
         var update;
@@ -3646,10 +3647,10 @@ var SharedType = (function (_super) {
             }
             return false;
         }
-        var next = this.transform(value, options, prev, record);
+        var next = this.transform(value, prev, record, options);
         attributes[key] = next;
         if (this.isChanged(next, prev)) {
-            this.handleChange(next, prev, record);
+            this.handleChange(next, prev, record, options);
             return true;
         }
         return false;
@@ -3667,10 +3668,10 @@ var SharedType = (function (_super) {
             return next;
         }
     };
-    SharedType.prototype.convert = function (value, options, prev, record) {
-        if (value == null || value instanceof this.type)
-            return value;
-        var implicitObject = new this.type(value, options, shareAndListen);
+    SharedType.prototype.convert = function (next, prev, record, options) {
+        if (next == null || next instanceof this.type)
+            return next;
+        var implicitObject = new this.type(next, options, shareAndListen);
         aquire(record, implicitObject, this.name);
         return implicitObject;
     };
@@ -3696,7 +3697,7 @@ var SharedType = (function (_super) {
     };
     SharedType.prototype.dispose = function (record, value) {
         if (value) {
-            this.handleChange(void 0, value, record);
+            this.handleChange(void 0, value, record, {});
         }
     };
     SharedType.prototype.initialize = function (options) {
@@ -4031,7 +4032,7 @@ __WEBPACK_IMPORTED_MODULE_0__record__["k" /* Record */].from = function from(mas
         if (collection && collection.length) {
             record = collection.get(objOrId) || null;
             this.attributes[name] = record;
-            record && this._attributes[name].handleChange(record, null, this);
+            record && this._attributes[name].handleChange(record, null, this, {});
         }
         return record;
     });

@@ -64,7 +64,7 @@ Record.from = function from( masterCollection : CollectionReference ) : Chainabl
                 this.attributes[ name ] = record;
 
                 // Subscribe for events manually. delegateEvents won't be invoked.
-                record && this._attributes[ name ].handleChange( record, null, this );
+                record && this._attributes[ name ].handleChange( record, null, this, {} );
             }
 
             return record;

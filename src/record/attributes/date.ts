@@ -19,14 +19,14 @@ export class DateType extends AnyType {
         return new Date();
     }
     
-    convert( value : any, a?, b?, record? ){
-        if( value == null || value instanceof Date ) return value;
+    convert( next : any, a, record ){
+        if( next == null || next instanceof Date ) return next;
 
-        const date = new Date( value ),
+        const date = new Date( next ),
               timestamp = date.getTime();
 
         if( timestamp !== timestamp ){
-            this._log( 'warn', 'assigned with Invalid Date', value, record );
+            this._log( 'warn', 'assigned with Invalid Date', next, record );
         }
 
         return date;
@@ -43,18 +43,18 @@ export class DateType extends AnyType {
 
     isChanged( a, b ) { return ( a && a.getTime() ) !== ( b && b.getTime() ); }
 
-    doInit( record : AttributesContainer, value, options : TransactionOptions ){
+    doInit( value, record : AttributesContainer, options : TransactionOptions ){
         // Date don't have handleChanges step.
-        return this.transform( value === void 0 ? this.defaultValue() : value, options, void 0, record );
+        return this.transform( value === void 0 ? this.defaultValue() : value, void 0, record, options );
     }
 
-    doUpdate( record, value, options, nested ){
+    doUpdate( value, record, options, nested ){
         const   { name } = this,
                 { attributes } = record,
                 prev = attributes[ name ];
         
         // Date don't have handleChanges step.
-        return this.isChanged( prev , attributes[ name ] = this.transform( value, options, prev, record ) );
+        return this.isChanged( prev , attributes[ name ] = this.transform( value, prev, record, options ) );
     }
 
     clone( value ) { return value && new Date( value.getTime() ); }
@@ -66,9 +66,9 @@ Date._attribute = DateType;
 const msDatePattern  = /\/Date\(([0-9]+)\)\//;
 
 export class MSDateType extends DateType {
-    convert( value ) {
-        if( typeof value === 'string' ){
-            const msDate = msDatePattern.exec( value );
+    convert( next ) {
+        if( typeof next === 'string' ){
+            const msDate = msDatePattern.exec( next );
             if( msDate ){
                 return new Date( Number( msDate[ 1 ] ) );
             }

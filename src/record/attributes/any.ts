@@ -10,8 +10,8 @@ declare global {
     }
 }
 
-export type Transform = ( next : any, options : TransactionOptions, prev : any, record : AttributesContainer ) => any;
-export type ChangeHandler = ( next : any, prev : any, record : AttributesContainer ) => void;
+export type Transform = ( this : AnyType, next : any, prev : any, record : AttributesContainer, options : TransactionOptions ) => any;
+export type ChangeHandler = ( this : AnyType, next : any, prev : any, record : AttributesContainer, options : TransactionOptions ) => void;
 
 export interface AttributeOptions {
     _attribute? : typeof AnyType
@@ -38,6 +38,7 @@ export type AttributeParse = ( value : any, key : string ) => any
 export type ChangeAttrHandler = ( ( value : any, attr : string ) => void ) | string;
 
 // TODO: interface differs from options, do something obout it
+const emptyOptions : TransactionOptions = {};
 
 /**
  * Typeless attribute. Is the base class for all other attributes.
@@ -62,22 +63,22 @@ export class AnyType implements AttributeUpdatePipeline {
     /**
      * Stage 1. Transform stage
      */
-    transform( value, options : TransactionOptions, prev, model : AttributesContainer ) { return value; }
+    transform( next : any, prev : any, model : AttributesContainer, options : TransactionOptions ) : any { return next; }
 
     // convert attribute type to `this.type`.
-    convert( value, options : TransactionOptions, prev, model : AttributesContainer ) { return value; }
+    convert( next : any, prev : any, model : AttributesContainer, options : TransactionOptions ) : any { return next; }
 
     /**
      * Stage 2. Check if attr value is changed
      */
-    isChanged( a, b ) {
+    isChanged( a : any, b : any ) : boolean {
         return notEqual( a, b );
     }
 
     /**
      * Stage 3. Handle attribute change
      */
-    handleChange( next, prev, model : AttributesContainer ) {}
+    handleChange( next : any, prev : any, model : AttributesContainer, options : TransactionOptions ) {}
 
     /**
      * End update pipeline definitions.
@@ -93,7 +94,7 @@ export class AnyType implements AttributeUpdatePipeline {
     }
 
     dispose( record : AttributesContainer, value : any ) : void {
-        this.handleChange( void 0, value, record );
+        this.handleChange( void 0, value, record, emptyOptions );
     }
 
     validate( record : AttributesContainer, value : any, key : string ){}
@@ -131,29 +132,29 @@ export class AnyType implements AttributeUpdatePipeline {
 
     type : Function
 
-    initialize( name : string, options ){}
+    initialize( name : string, options : TransactionOptions ){}
 
     options : AttributeOptions
 
-    doInit( record : AttributesContainer, value, options : TransactionOptions ){
+    doInit( value, record : AttributesContainer, options : TransactionOptions ){
         const v = value === void 0 ? this.defaultValue() : value,
-            x = this.transform( v, options, void 0, record );
+            x = this.transform( v, void 0, record, options );
             
-        this.handleChange( x, void 0, record );
+        this.handleChange( x, void 0, record, options );
         return x;
     }
 
-    doUpdate( record : AttributesContainer, value, options, nested? : RecordTransaction[] ){
+    doUpdate( value, record : AttributesContainer, options : TransactionOptions, nested? : RecordTransaction[] ){
         const { name } = this,
             { attributes } = record,
               prev = attributes[ name ];
 
-        const next = this.transform( value, options, prev, record );
+        const next = this.transform( value, prev, record, options );
         attributes[ name ] = next;
 
         if( this.isChanged( next, prev ) ) {
             // Do the rest of the job after assignment
-            this.handleChange( next, prev, record );
+            this.handleChange( next, prev, record, options );
             return true;
         }
 
@@ -256,25 +257,23 @@ export class AnyType implements AttributeUpdatePipeline {
     get : ( value, key : string ) => any
 }
 
-/** @private */
-function chainChangeHandlers( prevHandler : ChangeHandler, nextHandler : ChangeHandler ) : ChangeHandler {
-    return function( next, prev, model ) {
-        prevHandler.call( this, next, prev, model );
-        nextHandler.call( this, next, prev, model );
-    }
-}
 
-/** @private */
 function chainGetHooks( prevHook : GetHook, nextHook : GetHook ) : GetHook {
     return function( value, name ) {
         return nextHook.call( this, prevHook.call( this, value, name ), name );
     }
 }
 
-/** @private */
 function chainTransforms( prevTransform : Transform, nextTransform : Transform ) : Transform {
-    return function( value, options, prev, model ) {
-        return nextTransform.call( this, prevTransform.call( this, value, options, prev, model ), options, prev, model );
+    return function( next, prev, record, options ) {
+        return nextTransform.call( this, prevTransform.call( this, next, prev, record, options ), prev, record, options );
+    }
+}
+
+function chainChangeHandlers( prevHandler : ChangeHandler, nextHandler : ChangeHandler ) : ChangeHandler {
+    return function( next, prev, record, options ) {
+        prevHandler.call( this, next, prev, record, options );
+        nextHandler.call( this, next, prev, record, options );
     }
 }
 

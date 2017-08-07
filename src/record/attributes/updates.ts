@@ -39,7 +39,7 @@ export interface AttributesDescriptors {
 }
 
 export interface AttributeUpdatePipeline{
-    doUpdate( record : AttributesContainer, value, options : TransactionOptions, nested? : Transaction[] ) : boolean
+    doUpdate( value, record : AttributesContainer, options : TransactionOptions, nested? : Transaction[] ) : boolean
 }
 
  // Optimized single attribute transactional update. To be called from attributes setters
@@ -50,7 +50,7 @@ export function setAttribute( record : AttributesContainer, name : string, value
           options = {};
 
     // Update attribute.      
-    if( record._attributes[ name ].doUpdate( record, value, options ) ){
+    if( record._attributes[ name ].doUpdate( value, record, options ) ){
         // Notify listeners on changes.
         markAsDirty( record, options );
         trigger3( record, 'change:' + name, record, record.attributes[ name ], options );
@@ -133,7 +133,7 @@ export const UpdateRecordMixin = {
                 const spec = _attributes[ name ];
 
                 if( spec ){
-                    if( spec.doUpdate( this, values[ name ], options, nested ) ){
+                    if( spec.doUpdate( values[ name ], this, options, nested ) ){
                         changes.push( name );
                     }
                 }
@@ -180,7 +180,7 @@ export function constructorsMixin( attrDefs : AttributesDescriptors ) : Construc
         var _attrs = record._attributes;
 
         ${ attrs.map( attr =>`
-            this.${ attr } = _attrs.${ attr }.doInit( record, values.${ attr }, options );
+            this.${ attr } = _attrs.${ attr }.doInit( values.${ attr }, record, options );
         `).join( '\n' ) }
     `) as any;
 

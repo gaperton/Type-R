@@ -53,7 +53,7 @@ export class ChainableAttributeSpec {
     // Attribute-specific parse transform
     parse( fun : ( value : any, key : string ) => any ) : ChainableAttributeSpec {
         return this.metadata({
-            parse( next, options, prev, model ){
+            parse( next, prev, model, options ){
                 // TODO: Not good. Try to solve it differently.
                 // Problem here is that it is called always, even if there is the default value taken.
                 // Now, default value should be converted and goes through the update pipeline.
@@ -78,10 +78,10 @@ export class ChainableAttributeSpec {
 
     // Attribute set hook.
     set( fun ) : ChainableAttributeSpec {
-        function handleSetHook( next, options, prev, model ) {
+        function handleSetHook( next, prev, record : AttributesContainer, options ) {
             if( this.isChanged( next, prev ) ) {
-                var changed = fun.call( model, next, this.name );
-                return changed === void 0 ? prev : this.convert( changed, options, prev, model );
+                const changed = fun.call( record, next, this.name );
+                return changed === void 0 ? prev : this.convert( changed, prev, record, options );
             }
 
             return prev;

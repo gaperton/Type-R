@@ -20,17 +20,17 @@ const shareAndListen = ItemsBehavior.listen | ItemsBehavior.share;
 export class SharedType extends AnyType {
     type : typeof Transactional
 
-     doInit( record : AttributesContainer, value, options : ConstructorOptions ){
+     doInit( value, record : AttributesContainer, options : ConstructorOptions ){
         const v = options.clone ? this.clone( value, record ) : (
             value === void 0 ? this.defaultValue() : value
         );
 
-        const x = this.transform( v, options, void 0, record );
-        this.handleChange( x, void 0, record );
+        const x = this.transform( v, void 0, record, options );
+        this.handleChange( x, void 0, record, options );
         return x;
     }
 
-    doUpdate( record, value, options, nested : any[] ){ // Last to things can be wrapped to an object, either transaction or ad-hoc
+    doUpdate( value, record, options, nested : any[] ){ // Last to things can be wrapped to an object, either transaction or ad-hoc
         const key = this.name, { attributes } = record; 
         const prev = attributes[ key ];
         let update;
@@ -52,12 +52,12 @@ export class SharedType extends AnyType {
             return false;
         }
 
-        const next = this.transform( value, options, prev, record );
+        const next = this.transform( value, prev, record, options );
         attributes[ key ] = next;
 
         if( this.isChanged( next, prev ) ) { // Primitives and nested comparison can be inlined.
             // Do the rest of the job after assignment
-            this.handleChange( next, prev, record );
+            this.handleChange( next, prev, record, options );
 
             return true;
         }
@@ -85,11 +85,11 @@ export class SharedType extends AnyType {
         }
     }
 
-    convert( value : any, options : TransactionOptions, prev : any, record : AttributesContainer ) : Transactional {
-        if( value == null || value instanceof this.type ) return value;
+    convert( next : any, prev : any, record : AttributesContainer, options : TransactionOptions ) : Transactional {
+        if( next == null || next instanceof this.type ) return next;
 
         // Convert type using implicitly created rtransactional object.
-        const implicitObject = new ( this.type as any )( value, options, shareAndListen );
+        const implicitObject = new ( this.type as any )( next, options, shareAndListen );
 
         // To prevent a leak, we need to take an ownership on it.
         aquire( record, implicitObject, this.name );
@@ -128,7 +128,7 @@ export class SharedType extends AnyType {
 
     dispose( record : AttributesContainer, value : Transactional ){
         if( value ){
-            this.handleChange( void 0, value, record );
+            this.handleChange( void 0, value, record, {} );
         }
     }
 

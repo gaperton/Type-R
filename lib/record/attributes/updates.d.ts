@@ -21,7 +21,7 @@ export interface AttributesDescriptors {
     [name: string]: AttributeUpdatePipeline;
 }
 export interface AttributeUpdatePipeline {
-    doUpdate(record: AttributesContainer, value: any, options: TransactionOptions, nested?: Transaction[]): boolean;
+    doUpdate(value: any, record: AttributesContainer, options: TransactionOptions, nested?: Transaction[]): boolean;
 }
 export declare function setAttribute(record: AttributesContainer, name: string, value: any): void;
 export declare const UpdateRecordMixin: {

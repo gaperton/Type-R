@@ -20,8 +20,8 @@ class ImmutableClassType extends AnyType {
         return new this.type();
     }
 
-    convert( value : any ) : any {
-        return value == null || value instanceof this.type ? value : new this.type( value );
+    convert( next : any ) : any {
+        return next == null || next instanceof this.type ? next : new this.type( next );
     }
 
     toJSON( value ){
@@ -52,22 +52,22 @@ export class PrimitiveType extends AnyType {
 
     toJSON( value ) { return value; }
 
-    convert( value ) { return value == null ? value : this.type( value ); }
+    convert( next ) { return next == null ? next : this.type( next ); }
 
     isChanged( a, b ) { return a !== b; }
 
     clone( value ) { return value; }
 
-    doInit( record : AttributesContainer, value, options : TransactionOptions ){
-        return this.transform( value === void 0 ? this.value : value, options, void 0, record );
+    doInit( value, record : AttributesContainer, options : TransactionOptions ){
+        return this.transform( value === void 0 ? this.value : value, void 0, record, options );
     }
 
-    doUpdate( record, value, options, nested ){
+    doUpdate( value, record, options, nested ){
         const   { name } = this,
                 { attributes } = record,
                 prev = attributes[ name ];
         
-        return prev !== ( attributes[ name ] = this.transform( value, options, prev, record ) );
+        return prev !== ( attributes[ name ] = this.transform( value, prev, record, options ) );
     }
 
     initialize(){
@@ -88,11 +88,11 @@ export class NumericType extends PrimitiveType {
         return 0;
     }
 
-    convert( value, a?, b?, record? ) {
-        const num = value == null ? value : this.type( value );
+    convert( next, prev?, record? ) {
+        const num = next == null ? next : this.type( next );
 
         if( num !== num ){
-            this._log( 'warn', 'assigned with Invalid Number', value, record );
+            this._log( 'warn', 'assigned with Invalid Number', next, record );
         }
         
         return num;
@@ -141,11 +141,11 @@ export class ArrayType extends AnyType {
     dispose(){}
     create(){ return []; }
 
-    convert( value, a?, b?, record? ) {
+    convert( next, prev, record ) {
         // Fix incompatible constructor behaviour of Array...
-        if( value == null || Array.isArray( value ) ) return value;
+        if( next == null || Array.isArray( next ) ) return next;
 
-        this._log( 'warn', 'non-array assignment is ignored', value, record );
+        this._log( 'warn', 'non-array assignment is ignored', next, record );
 
         return [];
     }
@@ -162,10 +162,10 @@ export class ObjectType extends AnyType {
     dispose(){}
     create(){ return {}; }
 
-    convert( value, a?, b?, record? ) {
-        if( value == null || value.constructor === Object ) return value;
+    convert( next, prev, record ) {
+        if( next == null || next.constructor === Object ) return next;
 
-        this._log( 'warn', 'non-object assignment is ignored', value, record );
+        this._log( 'warn', 'non-object assignment is ignored', next, record );
 
         return {};
     }
@@ -184,11 +184,11 @@ export class FunctionType extends AnyType {
     toJSON( value ) { return void 0; }
     create(){ return doNothing; }
 
-    convert( value, a?, b?, record? ) {
+    convert( next, prev, record ) {
         // Fix incompatible constructor behaviour of Array...
-        if( value == null || typeof value === 'function' ) return value;
+        if( next == null || typeof next === 'function' ) return next;
 
-        this._log( 'warn', 'assigned with non-function', value, record );
+        this._log( 'warn', 'assigned with non-function', next, record );
 
         return doNothing;
     }

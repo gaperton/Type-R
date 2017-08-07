@@ -15,17 +15,17 @@ export class AggregatedType extends AnyType {
 
     toJSON( x ){ return x && x.toJSON(); }
 
-    doInit( record : AttributesContainer, value, options : ConstructorOptions ){
+    doInit( value, record : AttributesContainer, options : ConstructorOptions ){
         const v = options.clone ? this.clone( value ) : (
             value === void 0 ? this.defaultValue() : value
         );
 
-        const x = this.transform( v, options, void 0, record );
-        this.handleChange( x, void 0, record );
+        const x = this.transform( v, void 0, record, options );
+        this.handleChange( x, void 0, record, options );
         return x;
     }
 
-    doUpdate( record, value, options, nested : any[] ){ // Last to things can be wrapped to an object, either transaction or ad-hoc
+    doUpdate( value, record, options, nested : any[] ){ // Last to things can be wrapped to an object, either transaction or ad-hoc
         const key = this.name, { attributes } = record; 
         const prev = attributes[ key ];
         let update;
@@ -47,12 +47,12 @@ export class AggregatedType extends AnyType {
             return false;
         }
 
-        const next = this.transform( value, options, prev, record );
+        const next = this.transform( value, prev, record, options );
         attributes[ key ] = next;
 
         if( this.isChanged( next, prev ) ) { // Primitives and nested comparison can be inlined.
             // Do the rest of the job after assignment
-            this.handleChange( next, prev, record );
+            this.handleChange( next, prev, record, options );
 
             return true;
         }
@@ -73,27 +73,26 @@ export class AggregatedType extends AnyType {
         }
     }
 
-    convert( value : any, options : TransactionOptions, prev : any, record : AttributesContainer ) : Transactional {
+    convert( next : any, prev : any, record : AttributesContainer, options : TransactionOptions ) : Transactional {
         // Invoke class factory to handle abstract classes
-        if( value == null ) return value;
+        if( next == null ) return next;
         
-        if( value instanceof this.type ){
-            if( value._shared && !( value._shared & ItemsBehavior.persistent ) ) { // TODO: think more about shared types assignment compatibility. 
-                this._log( 'error', 'aggregated collection attribute is assigned with shared collection', value, record );
+        if( next instanceof this.type ){
+            if( next._shared && !( next._shared & ItemsBehavior.persistent ) ) { // TODO: think more about shared types assignment compatibility. 
+                this._log( 'error', 'aggregated collection attribute is assigned with shared collection', next, record );
             }
 
             // With explicit 'merge' option we need to clone an object if its previous value was 'null'.
             // This is an only case we could be here when merge === true.
-            return options.merge ? value.clone() : value;
+            return options.merge ? next.clone() : next;
         }
 
-        return <any>this.type.create( value, options );
+        return <any>this.type.create( next, options );
     }
 
     dispose ( record : AttributesContainer, value : Transactional ){
         if( value ){
-            // WTF????! Must it be disposed as the part of the handleChange?
-            this.handleChange( void 0, value, record );
+            this.handleChange( void 0, value, record, {} );
         }
     }
 

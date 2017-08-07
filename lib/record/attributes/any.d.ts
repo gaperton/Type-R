@@ -6,8 +6,8 @@ declare global  {
         _attribute: typeof AnyType;
     }
 }
-export declare type Transform = (next: any, options: TransactionOptions, prev: any, record: AttributesContainer) => any;
-export declare type ChangeHandler = (next: any, prev: any, record: AttributesContainer) => void;
+export declare type Transform = (this: AnyType, next: any, prev: any, record: AttributesContainer, options: TransactionOptions) => any;
+export declare type ChangeHandler = (this: AnyType, next: any, prev: any, record: AttributesContainer, options: TransactionOptions) => void;
 export interface AttributeOptions {
     _attribute?: typeof AnyType;
     validate?: (record: AttributesContainer, value: any, key: string) => any;
@@ -30,10 +30,10 @@ export declare class AnyType implements AttributeUpdatePipeline {
     name: string;
     static create(options: AttributeOptions, name: string): AnyType;
     canBeUpdated(prev: any, next: any, options: TransactionOptions): any;
-    transform(value: any, options: TransactionOptions, prev: any, model: AttributesContainer): any;
-    convert(value: any, options: TransactionOptions, prev: any, model: AttributesContainer): any;
+    transform(next: any, prev: any, model: AttributesContainer, options: TransactionOptions): any;
+    convert(next: any, prev: any, model: AttributesContainer, options: TransactionOptions): any;
     isChanged(a: any, b: any): boolean;
-    handleChange(next: any, prev: any, model: AttributesContainer): void;
+    handleChange(next: any, prev: any, model: AttributesContainer, options: TransactionOptions): void;
     create(): any;
     clone(value: any, record: AttributesContainer): any;
     dispose(record: AttributesContainer, value: any): void;
@@ -43,10 +43,10 @@ export declare class AnyType implements AttributeUpdatePipeline {
     value: any;
     static defaultValue: any;
     type: Function;
-    initialize(name: string, options: any): void;
+    initialize(name: string, options: TransactionOptions): void;
     options: AttributeOptions;
-    doInit(record: AttributesContainer, value: any, options: TransactionOptions): any;
-    doUpdate(record: AttributesContainer, value: any, options: any, nested?: RecordTransaction[]): boolean;
+    doInit(value: any, record: AttributesContainer, options: TransactionOptions): any;
+    doUpdate(value: any, record: AttributesContainer, options: TransactionOptions, nested?: RecordTransaction[]): boolean;
     propagateChanges: boolean;
     _log(level: tools.LogLevel, text: string, value: any, record: AttributesContainer): void;
     defaultValue(): any;
