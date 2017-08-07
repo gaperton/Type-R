@@ -45,8 +45,7 @@ export interface RecordDefinition extends TransactionalDefinition {
     _changeEventName : 'change',
 
     // Default id attribute name
-    idAttribute : 'id',
-    _keys : [ 'id' ]
+    idAttribute : 'id'
 })
 @definitions({
     defaults : mixinRules.merge,
@@ -98,10 +97,11 @@ export class Record extends Transactional implements AttributesContainer {
 
             const { _attributes, attributes } = this;
 
-            for( let key of this._keys ){
-                const value = attributes[ key ];
+            for( let attr of this._attributesArray ){
+                const key = attr.name,
+                    value = attributes[ key ];
 
-                if( _attributes[ key ].isChanged( value, prev[ key ] ) ){
+                if( attr.isChanged( value, prev[ key ] ) ){
                     changed[ key ] = value;
                 }
             }
@@ -198,9 +198,7 @@ export class Record extends Transactional implements AttributesContainer {
 
     // Attributes specifications 
     _attributes : { [ key : string ] : AnyType }
-
-    // Attribute keys
-    _keys : string[]
+    _attributesArray : AnyType[]
 
     // Attributes object copy constructor
     Attributes : AttributesConstructor
@@ -229,33 +227,13 @@ export class Record extends Transactional implements AttributesContainer {
                 attributes : attrs
             } );
         }
-
-        // TODO: try this versus object traversal.
-        /*
-        const { _attributes, _keys } = this;
-        
-        for( let name of _keys ){
-            const spec = _attributes[ name ],
-                  value = attrs[ name ];
-
-            value && iteratee( value, name, spec );
-        }
-        
-        // TODO: Try using list of specs instead of _keys.
-        // Try to inline this code to the hot spots.
-        for( let spec = this._head; spec; spec = spec.next ){
-            const value = attrs[ name ];
-            value && iteratee( value, name, spec );
-        }
-        
-        */
     }
 
     each( iteratee : ( value? : any, key? : string ) => void, context? : any ){
         const fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee,
             { attributes } = this;
 
-        for( const key of this._keys ){
+        for( const key in this.attributes ){
             const value = attributes[ key ];
             if( value !== void 0 ) fun( value, key );
         }
@@ -263,12 +241,9 @@ export class Record extends Transactional implements AttributesContainer {
 
     // Get array of attribute keys (Record) or record ids (Collection) 
     keys() : string[] {
-        const keys = [],
-            { attributes } = this;
+        const keys = [];
 
-        for( let key of this._keys ){
-            attributes[ key ] === void 0 || keys.push( key );
-        }
+        this.each( ( key, value ) => value === void 0 || keys.push( key ) );
 
         return keys;
     }
@@ -495,8 +470,9 @@ class BaseRecordAttributesCopy {
 
 Record.prototype.AttributesCopy = BaseRecordAttributesCopy;
 
-
-Record.prototype._attributes = { id : AnyType.create({ value : void 0 }, 'id' )};
+const IdAttribute = AnyType.create({ value : void 0 }, 'id' );
+Record.prototype._attributes = { id : IdAttribute };
+Record.prototype._attributesArray = [ IdAttribute ];
 Record.prototype.defaults = function( attrs : { id? : string } = {} ){ return { id : attrs.id } };
 Record._attribute = AggregatedType;
 

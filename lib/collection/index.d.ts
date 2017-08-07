@@ -1,4 +1,4 @@
-import { EventMap, EventsDefinition } from '../object-plus';
+import { tools, EventMap, EventsDefinition } from '../object-plus';
 import { Transactional, CloneOptions, TransactionOptions, TransactionalDefinition } from '../transactions';
 import { Record, AggregatedType } from '../record';
 import { IdIndex, CollectionCore, CollectionTransaction } from './commons';
@@ -68,7 +68,7 @@ export declare class Collection extends Transactional implements CollectionCore 
     indexOf(modelOrId: any): number;
     modelId(attrs: {}): any;
     toggle(model: Record, a_next?: boolean): boolean;
-    _log(level: string, text: string, value: any): void;
+    _log(level: tools.LogLevel, text: string, value: any): void;
     getClassName(): string;
 }
 export declare type ElementsArg = Object | Record | Object[] | Record[];

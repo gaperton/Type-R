@@ -38,7 +38,7 @@ export declare class Record extends Transactional implements AttributesContainer
     _attributes: {
         [key: string]: AnyType;
     };
-    _keys: string[];
+    _attributesArray: AnyType[];
     Attributes: AttributesConstructor;
     AttributesCopy: AttributesCopyConstructor;
     forEachAttr(attrs: {}, iteratee: (value: any, key?: string, spec?: AnyType) => void): void;

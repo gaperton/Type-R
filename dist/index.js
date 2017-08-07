@@ -2261,7 +2261,10 @@ var Collection = (function (_super) {
         return next;
     };
     Collection.prototype._log = function (level, text, value) {
-        __WEBPACK_IMPORTED_MODULE_0__object_plus__["l" /* tools */].log[level]("[Collection Update] " + this.model.prototype.getClassName() + "." + this.getClassName() + ": " + text, value, 'Attributes spec:', this.model.prototype._attributes);
+        __WEBPACK_IMPORTED_MODULE_0__object_plus__["l" /* tools */].log(level, "[Collection Update] " + this.model.prototype.getClassName() + "." + this.getClassName() + ": " + text, {
+            Argument: value,
+            'Attributes spec:': this.model.prototype._attributes
+        });
     };
     Collection.prototype.getClassName = function () {
         return _super.prototype.getClassName.call(this) || 'Collection';
@@ -2893,10 +2896,10 @@ var Record = (function (_super) {
                 var prev = this._previousAttributes;
                 changed = {};
                 var _a = this, _attributes = _a._attributes, attributes = _a.attributes;
-                for (var _i = 0, _b = this._keys; _i < _b.length; _i++) {
-                    var key = _b[_i];
-                    var value = attributes[key];
-                    if (_attributes[key].isChanged(value, prev[key])) {
+                for (var _i = 0, _b = this._attributesArray; _i < _b.length; _i++) {
+                    var attr = _b[_i];
+                    var key = attr.name, value = attributes[key];
+                    if (attr.isChanged(value, prev[key])) {
                         changed[key] = value;
                     }
                 }
@@ -2985,19 +2988,15 @@ var Record = (function (_super) {
     };
     Record.prototype.each = function (iteratee, context) {
         var fun = context !== void 0 ? function (v, k) { return iteratee.call(context, v, k); } : iteratee, attributes = this.attributes;
-        for (var _i = 0, _a = this._keys; _i < _a.length; _i++) {
-            var key = _a[_i];
+        for (var key in this.attributes) {
             var value = attributes[key];
             if (value !== void 0)
                 fun(value, key);
         }
     };
     Record.prototype.keys = function () {
-        var keys = [], attributes = this.attributes;
-        for (var _i = 0, _a = this._keys; _i < _a.length; _i++) {
-            var key = _a[_i];
-            attributes[key] === void 0 || keys.push(key);
-        }
+        var keys = [];
+        this.each(function (key, value) { return value === void 0 || keys.push(key); });
         return keys;
     };
     Record.prototype.values = function () {
@@ -3113,8 +3112,7 @@ var Record = (function (_super) {
         Object(__WEBPACK_IMPORTED_MODULE_0__object_plus__["f" /* define */])({
             cidPrefix: 'm',
             _changeEventName: 'change',
-            idAttribute: 'id',
-            _keys: ['id']
+            idAttribute: 'id'
         }),
         Object(__WEBPACK_IMPORTED_MODULE_0__object_plus__["g" /* definitions */])({
             defaults: __WEBPACK_IMPORTED_MODULE_0__object_plus__["i" /* mixinRules */].merge,
@@ -3144,7 +3142,9 @@ var BaseRecordAttributesCopy = (function () {
     return BaseRecordAttributesCopy;
 }());
 Record.prototype.AttributesCopy = BaseRecordAttributesCopy;
-Record.prototype._attributes = { id: __WEBPACK_IMPORTED_MODULE_2__attributes__["b" /* AnyType */].create({ value: void 0 }, 'id') };
+var IdAttribute = __WEBPACK_IMPORTED_MODULE_2__attributes__["b" /* AnyType */].create({ value: void 0 }, 'id');
+Record.prototype._attributes = { id: IdAttribute };
+Record.prototype._attributesArray = [IdAttribute];
 Record.prototype.defaults = function (attrs) {
     if (attrs === void 0) { attrs = {}; }
     return { id: attrs.id };
