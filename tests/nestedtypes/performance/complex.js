@@ -328,7 +328,7 @@ define( function( require, exports, module ){
         function createList( n ){
             var list = {};
 
-            for( var i = 0, l = list; i < 1000; i++, l = l.next ){
+            for( var i = 0, l = list; i < n; i++, l = l.next ){
                 l.next = { next : null, value : i };
             }
 
@@ -338,11 +338,11 @@ define( function( require, exports, module ){
         var treeData, listData;
 
         treeJSON = JSON.stringify( createTree( 6 ) );
-        listJSON = JSON.stringify( createList( 1000 ) );
+        listJSON = JSON.stringify( createList( 500 ) );
 
         var _tree, _list;
 
-        describe( '1000 elements linked list, 1000 times + parse time', function(){
+        describe( '500 elements linked list, 1000 times + parse time', function(){
             var list;
 
             it( 'Create from JSON', function(){
