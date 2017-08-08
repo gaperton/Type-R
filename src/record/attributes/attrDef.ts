@@ -2,10 +2,10 @@
  * Type spec engine. Declare attributes using chainable syntax,
  * and returns object with spec.
  */
-import { Transactional } from '../transactions'
-import { ChangeAttrHandler, AttributeDescriptor } from './attributes'
-import { Record } from './transaction'
-import { EventMap, EventsDefinition, Constructor, tools } from '../object-plus'
+import { Transactional } from '../../transactions'
+import { ChangeAttrHandler, AttributeOptions, Parse } from './any'
+import {  AttributesContainer } from './updates'
+import { EventMap, EventsDefinition, tools } from '../../object-plus'
 
 const { assign } = tools;
 
@@ -15,9 +15,9 @@ export interface AttributeCheck {
 }
 
 export class ChainableAttributeSpec {
-    options : AttributeDescriptor;
+    options : AttributeOptions;
 
-    constructor( options : AttributeDescriptor ) {
+    constructor( options : AttributeOptions ) {
         // Shallow copy options, fill it with defaults.
         this.options = { getHooks : [], transforms : [], changeHandlers : []};
         if( options ) assign( this.options, options );
@@ -50,7 +50,8 @@ export class ChainableAttributeSpec {
         return this.metadata({ _onChange : ref });
     }
 
-    parse( fun ) : ChainableAttributeSpec {
+    // Attribute-specific parse transform
+    parse( fun : Parse ) : ChainableAttributeSpec {
         return this.metadata({ parse : fun });
     }
 
@@ -69,10 +70,10 @@ export class ChainableAttributeSpec {
 
     // Attribute set hook.
     set( fun ) : ChainableAttributeSpec {
-        function handleSetHook( next, options, prev, model ) {
+        function handleSetHook( next, prev, record : AttributesContainer, options ) {
             if( this.isChanged( next, prev ) ) {
-                var changed = fun.call( model, next, this.name );
-                return changed === void 0 ? prev : this.convert( changed, options, prev, model );
+                const changed = fun.call( record, next, this.name );
+                return changed === void 0 ? prev : this.convert( changed, prev, record, options );
             }
 
             return prev;
@@ -91,7 +92,7 @@ export class ChainableAttributeSpec {
     events( map : EventsDefinition ) : ChainableAttributeSpec {
         const eventMap = new EventMap( map );
 
-        function handleEventsSubscribtion( next, prev, record : Record ){
+        function handleEventsSubscribtion( next, prev, record : AttributesContainer ){
             prev && prev.trigger && eventMap.unsubscribe( record, prev );
 
             next && next.trigger && eventMap.subscribe( record, next );
@@ -107,7 +108,7 @@ export class ChainableAttributeSpec {
         return this;
     }
 
-    metadata( options : AttributeDescriptor ) : ChainableAttributeSpec {
+    metadata( options : AttributeOptions ) : ChainableAttributeSpec {
         const cloned = new ChainableAttributeSpec( this.options );
         assign( cloned.options, options );
         return cloned;
@@ -146,7 +147,7 @@ Object.defineProperty( Function.prototype, 'has', {
     set( value ) { this._has = value; }
 } );
 
-export function toAttributeDescriptor( spec : any ) : AttributeDescriptor {
+export function toAttributeOptions( spec : any ) : AttributeOptions {
     let attrSpec : ChainableAttributeSpec;
 
     if( typeof spec === 'function' ) {
@@ -172,7 +173,7 @@ export function toAttributeDescriptor( spec : any ) : AttributeDescriptor {
     return attrSpec.options;
 }
 
-function inferType( value : {} ) : Constructor<any> {
+function inferType( value : {} ) : Function {
     switch( typeof value ) {
         case 'number' :
             return Number;
