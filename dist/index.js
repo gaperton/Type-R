@@ -1708,7 +1708,7 @@ function constructorsMixin(attrDefs) {
 function shouldBeAnObject(record, values) {
     if (values && values.constructor === Object)
         return true;
-    record._log('warn', 'update with non-object is ignored!', values);
+    record._log('warn', 'update with non-object is ignored!', { values: values });
     return false;
 }
 var RecordTransaction = (function () {

@@ -271,7 +271,7 @@
     QUnit.test( "add model to multiple collections", function( assert ){
         assert.expect( 10 );
         var counter = 0;
-        var e       = new Backbone.Model( { id : 10, label : 'e' } );
+        var e       = new ( Backbone.attributes( { id : 10, label : 'e' } ) );
         e.on( 'add', function( model, collection ){
             counter++;
             assert.equal( e, model );
@@ -470,9 +470,11 @@
             id    : 5,
             title : 'Othello'
         };
+
+        var M = Backbone.attributes( modelData );
         var passed    = false;
-        var e         = new Backbone.Model( modelData );
-        var f         = new Backbone.Model( modelData );
+        var e         = new M( modelData );
+        var f         = new M( modelData );
         f.on( 'remove', function(){
             passed = true;
         } );
@@ -568,7 +570,7 @@
         assert.equal( col.length, 0 );
         assert.equal( resetCount, 4 );
 
-        var f = new Backbone.Model( { id : 20, label : 'f' } );
+        var f = new M( { id : 20, label : 'f' } );
         col.reset( [ undefined, f ] );
         assert.equal( col.length, 2 );
         assert.equal( resetCount, 5 );
@@ -594,6 +596,11 @@
     QUnit.test( "reset passes caller options", function( assert ){
         assert.expect( 3 );
         var Model = Backbone.Model.extend( {
+            attributes : {
+                astring : '',
+                anumber : 0 
+            },
+
             initialize : function( attrs, options ){
                 this.model_parameter = options.model_parameter;
             }
@@ -949,7 +956,7 @@
 
             initialize : function( attrs, options ){
                 if( attrs.child ){
-                    this.set( 'child', new Model( attrs.child, options ), options );
+                    this.set( { 'child' : new Model( attrs.child, options ) }, options );
                 }
             }
         } );
@@ -983,6 +990,10 @@
     QUnit.test( "`set` data is only parsed once", function( assert ){
         var collection   = new Backbone.Collection();
         collection.model = Backbone.Model.extend( {
+            attributes : {
+                parsed : Boolean
+            },
+
             parse : function( data ){
                 assert.equal( data.parsed, void 0 );
                 data.parsed = true;
@@ -1033,13 +1044,13 @@
             model : Backbone.Model.extend( {
                 idAttribute : '_id',
                 defaults : {
-                    a : 1
+                    a : 0
                 }
             } )
         } );
         var collection = new Collection( { _id : 1 } );
-        collection.set( [ { _id : 1, a : 1 } ], { add : false } );
-        assert.equal( collection.first().get( 'a' ), 1 );
+        collection.set( [ { _id : 1, a : 1 } ], { merge : false } );
+        assert.equal( collection.first().get( 'a' ), 0 );
     } );
 
     QUnit.test( "#1894 - `sort` can optionally be turned off", function( assert ){
@@ -1336,7 +1347,8 @@
 
     QUnit.test( "#3039: index is not sent when at is not specified", function( assert ){
         assert.expect( 2 );
-        var col = new Backbone.Collection( [ { at : 0 } ] );
+        var M = Backbone.attributes({ at : 0 });
+        var col = new M.Collection( [ { at : 0 } ] );
         col.on( 'add', function( model, col, options ){
             assert.equal( undefined, options.index );
         } );
