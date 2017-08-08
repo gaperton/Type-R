@@ -28,12 +28,8 @@
         }
     } );
 
-    require( [ 'require', 'sinon', 'chai', 'sinon-chai', 'mocha' ],
-            function( require, sinon, chai, sinonChai ){
-                // Chai
-                chai.should();
-                chai.use( sinonChai );
-
+    require( [ 'require', 'mocha' ],
+            function( require ){
                 /*globals mocha */
                 mocha.setup( 'bdd' );
 

@@ -256,6 +256,8 @@ const dontMix = {
     function : {
         length : true,
         prototype : true,
+        caller : true,
+        arguments : true,
         name : true,
         __super__ : true
     },
