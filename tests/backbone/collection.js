@@ -489,8 +489,11 @@
 
     QUnit.test( "remove same model in multiple collection", function( assert ){
         assert.expect( 16 );
+
+        var M = Backbone.attributes({ id : 5, title : 'Othello' });
+
         var counter = 0;
-        var e       = new Backbone.Model( { id : 5, title : 'Othello' } );
+        var e       = new M();
         e.on( 'remove', function( model, collection ){
             counter++;
             assert.equal( e, model );
@@ -501,12 +504,12 @@
                 assert.equal( collection, colF );
             }
         } );
-        var colE = new Backbone.Collection( [ e ] );
+        var colE = new M.Collection( [ e ] );
         colE.on( 'remove', function( model, collection ){
             assert.equal( e, model );
             assert.equal( colE, collection );
         } );
-        var colF = new Backbone.Collection( [ e ] );
+        var colF = new M.Collection.Refs( [ e ] );
         colF.on( 'remove', function( model, collection ){
             assert.equal( e, model );
             assert.equal( colF, collection );
@@ -1241,7 +1244,7 @@
             assert.equal( collection._byId[ model.id ], void 0 );
             assert.equal( collection._byId[ model.cid ], void 0 );
             assert.equal( model.collection, void 0 );
-            assert.deepEqual( model._events, { dummy : void 0 });
+            assert.deepEqual( model._events, void 0 );
         });
 
         var model      = collection.add( { id : 1 } );
