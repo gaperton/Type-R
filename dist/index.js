@@ -2263,7 +2263,7 @@ var Collection = (function (_super) {
     Collection.prototype._log = function (level, text, value) {
         __WEBPACK_IMPORTED_MODULE_0__object_plus__["l" /* tools */].log(level, "[Collection Update] " + this.model.prototype.getClassName() + "." + this.getClassName() + ": " + text, {
             Argument: value,
-            'Attributes spec:': this.model.prototype._attributes
+            'Attributes spec': this.model.prototype._attributes
         });
     };
     Collection.prototype.getClassName = function () {

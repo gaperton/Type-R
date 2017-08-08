@@ -166,6 +166,8 @@
     } );
 
     QUnit.test( "add", function( assert ){
+        otherCol = new M.Collection.Refs();
+
         assert.expect( 13 );
         var added, opts, secondAdded;
         added = opts = secondAdded = null;
@@ -189,7 +191,7 @@
         var f     = new M( { id : 20, label : 'f' } );
         var g     = new M( { id : 21, label : 'g' } );
         var h     = new M( { id : 22, label : 'h' } );
-        var atCol = new M.Collection( [ f, g, h ] );
+        var atCol = new M.Collection.Refs( [ f, g, h ] );
         assert.equal( atCol.length, 3 );
         atCol.add( e, { at : 1 } );
         assert.equal( atCol.length, 4 );
@@ -285,7 +287,7 @@
             assert.equal( e, model );
             assert.equal( colE, collection );
         } );
-        var colF = new Backbone.Collection( [] );
+        var colF = new Backbone.Collection.Refs( [] );
         colF.on( 'add', function( model, collection ){
             assert.equal( e, model );
             assert.equal( colF, collection );
@@ -522,6 +524,7 @@
         assert.equal( colE, e.collection );
         colE.remove( e );
         assert.equal( null, e.collection );
+        
         assert.ok( colE.length === 0 );
         assert.equal( counter, 2 );
     } );

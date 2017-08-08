@@ -496,7 +496,7 @@ export class Collection extends Transactional implements CollectionCore {
     _log( level : tools.LogLevel, text : string, value ) : void {
         tools.log( level, `[Collection Update] ${ this.model.prototype.getClassName() }.${ this.getClassName() }: ` + text, {
             Argument : value,
-            'Attributes spec:' : this.model.prototype._attributes
+            'Attributes spec' : this.model.prototype._attributes
         });
     }
 
