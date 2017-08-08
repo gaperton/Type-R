@@ -372,7 +372,7 @@
   });
 
   QUnit.test("defaults", function(assert) {
-    assert.expect(4);
+    assert.expect(2);
     var Defaulted = Backbone.Model.extend({
       defaults: {
         "one": 1,
@@ -382,6 +382,8 @@
     var model = new Defaulted({two: undefined});
     assert.equal(model.get('one'), 1);
     assert.equal(model.get('two'), 2);
+    /* defaults as function is deprecated.
+    
     Defaulted = Backbone.Model.extend({
       defaults: function() {
         return {
@@ -392,7 +394,7 @@
     });
     model = new Defaulted({two: undefined});
     assert.equal(model.get('one'), 3);
-    assert.equal(model.get('two'), 4);
+    assert.equal(model.get('two'), 4);*/
   });
 
   QUnit.test("change, hasChanged, changedAttributes, previous, previousAttributes", function(assert) {
