@@ -37,6 +37,7 @@ export declare class Collection extends Transactional implements CollectionCore 
     each(iteratee: (val: Record, key: number) => void, context?: any): void;
     every(iteratee: Predicate, context?: any): boolean;
     filter(iteratee: Predicate, context?: any): Record[];
+    find(iteratee: Predicate, context?: any): Record;
     some(iteratee: Predicate, context?: any): boolean;
     map<T>(iteratee: (val: Record, key: number) => T, context?: any): T[];
     _validateNested(errors: {}): number;

@@ -211,15 +211,19 @@ export class Collection extends Transactional implements CollectionCore {
         return this.map( ( x, i ) => fun( x, i ) ? x : void 0 );
     }
 
-    some( iteratee : Predicate, context? : any ) : boolean {
+    find( iteratee : Predicate, context? : any ) : Record {
         const fun = toPredicateFunction( iteratee, context ),
-            { models } = this;
+        { models } = this;
 
         for( let i = 0; i < models.length; i++ ){
-            if( fun( models[ i ], i ) ) return true;
+            if( fun( models[ i ], i ) ) return models[ i ];
         }
 
-        return false;
+        return null;
+    }
+
+    some( iteratee : Predicate, context? : any ) : boolean {
+        return Boolean( this.find( iteratee, context ) );
     }
 
     map< T >( iteratee : ( val : Record, key : number ) => T, context? : any ) : T[]{
