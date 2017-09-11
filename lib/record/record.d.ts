@@ -18,7 +18,7 @@ export declare class Record extends Transactional implements AttributesContainer
     static DefaultCollection: typeof Collection;
     static from: (collectionReference: any) => any;
     static defaults(attrs: AttributesValues): typeof Record;
-    static attributes(attrs: AttributesValues): typeof Record;
+    static attributes: AttributesValues;
     _previousAttributes: {};
     previousAttributes(): AttributesValues;
     attributes: AttributesValues;

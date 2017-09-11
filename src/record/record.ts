@@ -67,9 +67,7 @@ export class Record extends Transactional implements AttributesContainer {
         return <any>this.extend({ attributes : attrs });
     }
     
-    static attributes( attrs : AttributesValues ) : typeof Record {
-        return <any>this.extend({ attributes : attrs });
-    }
+    static attributes : AttributesValues
 
     /***********************************
      * Core Members
