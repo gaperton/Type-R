@@ -1,5 +1,5 @@
 import { Record, RecordDefinition } from './record'
-import { Mixable, tools, predefine, define } from '../object-plus'
+import { Mixable, tools, predefine, define, MixinsState } from '../object-plus'
 import compile from './attributes'
 import { Transactional } from '../transactions'
 
@@ -66,3 +66,14 @@ function getAttributes({ defaults, attributes, idAttribute } : RecordDefinition 
     return definition;
 }
 
+export function attr( attrSpec ) : PropertyDecorator {
+    return function( proto : Record, attrName: string | symbol){
+        MixinsState
+            .get( proto.constructor )
+            .mergeObject( proto, {
+                attributes : {
+                    [ attrName ] : attrSpec
+                }
+            });
+    }
+}

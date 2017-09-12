@@ -1,4 +1,4 @@
-import { predefine, define, Record, Collection } from '../../src'
+import { predefine, define, attr, Record, Collection } from '../../src'
 import { expect } from 'chai'
 
 describe( 'Record', () =>{
@@ -21,23 +21,13 @@ describe( 'Record', () =>{
 
     describe( "Attribute spec", () =>{
         describe( '...as constructors', () =>{
-            @define( {
-                attributes : {
-                    s : String,
-                    n : Number,
-                    b : Boolean,
-                    o : Object,
-                    a : Array,
-                    d : Date
-                }
-            } )
-            class M extends Record {
-                s : string
-                n : number
-                b : boolean
-                o : object
-                a : Array< any >
-                d : Date
+            @define class M extends Record {
+                @attr( String ) s
+                @attr( Number ) n
+                @attr( Boolean ) b
+                @attr( Object ) o
+                @attr( Array ) a
+                @attr( Date ) d
             }
 
             it( "invokes constructor to create defaults", () =>{
