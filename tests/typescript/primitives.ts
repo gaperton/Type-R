@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { predefine, define, attr, Record, Collection } from '../../src'
 import { expect } from 'chai'
 
@@ -27,7 +28,7 @@ describe( 'Record', () =>{
                 @attr( Boolean ) b
                 @attr( Object ) o
                 @attr( Array ) a
-                @attr( Date ) d
+                @attr d : Date
             }
 
             it( "invokes constructor to create defaults", () =>{

@@ -8,7 +8,8 @@
     "outDir": "./lib",
     "noImplicitAny": false,
     "removeComments":true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "files":[
     "*.ts"

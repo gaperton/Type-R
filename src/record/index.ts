@@ -66,14 +66,32 @@ function getAttributes({ defaults, attributes, idAttribute } : RecordDefinition 
     return definition;
 }
 
-export function attr( attrSpec ) : PropertyDecorator {
-    return function( proto : Record, attrName: string | symbol){
-        MixinsState
-            .get( proto.constructor )
-            .mergeObject( proto, {
-                attributes : {
-                    [ attrName ] : attrSpec
-                }
-            });
+declare var Reflect;
+
+export function attr( proto, attrName? ) : any {
+    if( attrName ){
+        // Called without the spec. Extract the type.
+        if( typeof Reflect !== 'undefined' && Reflect.getMetadata ){
+            const attrSpec = Reflect.getMetadata( "design:type", proto, attrName );
+            console.log( '!!!!!', attrSpec );
+            injectAttribute( proto, attrName, attrSpec );
+        }
+        else{
+            proto._log( 'error', 'Add import "reflect-metadata"; as the first line of your app.' );
+        }
     }
+    else{
+        const attrSpec = proto;
+        return ( proto, attrName ) => injectAttribute( proto, attrName, attrSpec );
+    }
+}
+
+function injectAttribute( proto, attrName, attrSpec ){
+    MixinsState
+        .get( proto.constructor )
+        .mergeObject( proto, {
+            attributes : {
+                [ attrName ] : attrSpec
+            }
+        });
 }
