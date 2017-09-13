@@ -73,7 +73,6 @@ export function attr( proto, attrName? ) : any {
         // Called without the spec. Extract the type.
         if( typeof Reflect !== 'undefined' && Reflect.getMetadata ){
             const attrSpec = Reflect.getMetadata( "design:type", proto, attrName );
-            console.log( '!!!!!', attrSpec );
             injectAttribute( proto, attrName, attrSpec );
         }
         else{

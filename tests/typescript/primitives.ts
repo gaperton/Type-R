@@ -98,23 +98,13 @@ describe( 'Record', () =>{
             } );
         } );
         describe( '...as default values', () =>{
-            @define( {
-                attributes : {
-                    s : 'b',
-                    n : 1,
-                    b : true,
-                    o : {},
-                    a : [],
-                    d : new Date()
-                }
-            } )
-            class M extends Record {
-                    s : string
-                    n : number
-                    b : boolean
-                    o : object
-                    a : any[]
-                    d : Date
+            @define class M extends Record {
+                @attr s : string = 'b'
+                @attr n : number = 1
+                @attr b : boolean = true
+                @attr o : object = {}
+                @attr a : any[] = []
+                @attr d : Date
             }
 
             it( "accepts values as type spec", () =>{
