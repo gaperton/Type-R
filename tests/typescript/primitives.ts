@@ -246,6 +246,20 @@ describe( 'Record', () =>{
         } );
     } );
 
+    describe( 'Attribute types', () =>{
+        @define class Test extends Record {
+            @attr( Function.value( null ) ) fun : Function
+        }
+
+        it( 'Supports function type', ()=>{
+            const t = new Test();
+            const t2 = t.clone();
+
+            console.log( '!!!', t._attributes );
+            expect( t.fun ).to.eql( t2.fun );
+        } );
+    });
+
     describe( 'Record pre-definition', ()=>{
         @define
         class M1 extends Record {
