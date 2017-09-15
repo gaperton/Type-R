@@ -69,7 +69,7 @@ export declare abstract class Transactional implements Messenger, Validatable, T
     deepValidationError(reference: string): any;
     eachValidationError(iteratee: (error: any, key: string, object: Transactional) => void): void;
     isValid(key: string): boolean;
-    valueOf(): string;
+    valueOf(): Object;
     toString(): string;
     getClassName(): string;
     abstract _log(level: string, text: string, value: any): void;
