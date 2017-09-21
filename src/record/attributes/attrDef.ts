@@ -5,7 +5,7 @@
 import { Transactional } from '../../transactions'
 import { ChangeAttrHandler, AttributeOptions, Parse } from './any'
 import {  AttributesContainer } from './updates'
-import { EventMap, EventsDefinition, MixinsState, tools } from '../../object-plus'
+import { EventMap, EventsDefinition, definitionDecorator, tools } from '../../object-plus'
 
 const { assign } = tools;
 
@@ -43,15 +43,7 @@ export class ChainableAttributeSpec {
     }
 
     get asProp(){
-        const spec = this;
-
-        return ( proto, name ) => {
-            MixinsState
-                .get( proto.constructor )
-                .mergeObject( proto, {
-                    attributes : { [ name ] : spec }
-                });
-        }
+        return definitionDecorator( 'attributes', this );
     }
 
     get isRequired() : ChainableAttributeSpec {

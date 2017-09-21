@@ -8,7 +8,7 @@ export declare class ChainableAttributeSpec {
     options: AttributeOptions;
     constructor(options: AttributeOptions);
     check(check: AttributeCheck, error: any): ChainableAttributeSpec;
-    readonly asProp: (proto: any, name: any) => void;
+    readonly asProp: (proto: object, name: string) => void;
     readonly isRequired: ChainableAttributeSpec;
     watcher(ref: string | ((value: any, key: string) => void)): ChainableAttributeSpec;
     parse(fun: Parse): ChainableAttributeSpec;

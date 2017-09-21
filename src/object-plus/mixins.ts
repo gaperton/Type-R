@@ -134,6 +134,18 @@ export function definitions( rules : MixinMergeRules ) : ClassDecorator {
     }
 }
 
+export function definitionDecorator( definitionKey, value ){
+    return ( proto : object, name : string ) => {
+        MixinsState
+            .get( proto.constructor )
+            .mergeObject( proto, {
+                [ definitionKey ] : {
+                    [ name ] : value
+                }
+            });
+    }
+}
+
 export class MixinsState {
     mergeRules : MixinMergeRules;
     definitionRules : MixinMergeRules;
