@@ -5,7 +5,7 @@
 import { Transactional } from '../../transactions'
 import { ChangeAttrHandler, AttributeOptions, Parse } from './any'
 import {  AttributesContainer } from './updates'
-import { EventMap, EventsDefinition, tools } from '../../object-plus'
+import { EventMap, EventsDefinition, MixinsState, tools } from '../../object-plus'
 
 const { assign } = tools;
 
@@ -40,6 +40,18 @@ export class ChainableAttributeSpec {
                             }
                        ) : validate
         });
+    }
+
+    get asProp(){
+        const spec = this;
+
+        return ( proto, name ) => {
+            MixinsState
+                .get( proto.constructor )
+                .mergeObject( proto, {
+                    attributes : { [ name ] : spec }
+                });
+        }
     }
 
     get isRequired() : ChainableAttributeSpec {
@@ -125,6 +137,7 @@ declare global {
     interface Function{
         value : ( x : any ) => ChainableAttributeSpec;
         isRequired : ChainableAttributeSpec;
+        asProp : PropertyDecorator
         has : ChainableAttributeSpec;
     }
 }
@@ -136,6 +149,10 @@ Function.prototype.value = function( x ) {
 Object.defineProperty( Function.prototype, 'isRequired', {
     get() { return this._isRequired || this.has.isRequired; },
     set( x ){ this._isRequired = x; }
+});
+
+Object.defineProperty( Function.prototype, 'asProp', {
+    get() { return this.has.asProp; },
 });
 
 Object.defineProperty( Function.prototype, 'has', {

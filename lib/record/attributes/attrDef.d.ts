@@ -8,6 +8,7 @@ export declare class ChainableAttributeSpec {
     options: AttributeOptions;
     constructor(options: AttributeOptions);
     check(check: AttributeCheck, error: any): ChainableAttributeSpec;
+    readonly asProp: (proto: any, name: any) => void;
     readonly isRequired: ChainableAttributeSpec;
     watcher(ref: string | ((value: any, key: string) => void)): ChainableAttributeSpec;
     parse(fun: Parse): ChainableAttributeSpec;
@@ -24,6 +25,7 @@ declare global  {
     interface Function {
         value: (x: any) => ChainableAttributeSpec;
         isRequired: ChainableAttributeSpec;
+        asProp: PropertyDecorator;
         has: ChainableAttributeSpec;
     }
 }

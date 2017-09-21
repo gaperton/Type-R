@@ -72,25 +72,19 @@ export function attr( proto, attrName? ) : any {
     if( attrName ){
         // Called without the spec. Extract the type.
         if( typeof Reflect !== 'undefined' && Reflect.getMetadata ){
-            const attrSpec = Reflect.getMetadata( "design:type", proto, attrName );
-            injectAttribute( proto, attrName, attrSpec );
+            Reflect
+                .getMetadata( "design:type", proto, attrName )
+                .asProp( proto, attrName );
         }
         else{
             proto._log( 'error', 'Add import "reflect-metadata"; as the first line of your app.' );
         }
     }
     else{
-        const attrSpec = proto;
-        return ( proto, attrName ) => injectAttribute( proto, attrName, attrSpec );
+        return proto.asProp;
     }
 }
 
-function injectAttribute( proto, attrName, attrSpec ){
-    MixinsState
-        .get( proto.constructor )
-        .mergeObject( proto, {
-            attributes : {
-                [ attrName ] : attrSpec
-            }
-        });
+export function prop( spec ) : any {
+    return spec.asProp;
 }
