@@ -49,7 +49,7 @@ class CollectionRefsType extends SharedType {
     model : mixinRules.protoValue,
     itemEvents : mixinRules.merge
 })
-export class Collection extends Transactional implements CollectionCore {
+export class Collection< R extends Record = Record> extends Transactional implements CollectionCore {
     _shared : number
     _aggregationError : Record[]
 
@@ -105,13 +105,13 @@ export class Collection extends Transactional implements CollectionCore {
      * Core Members
      */
     // Array of the records
-    models : Record[]
+    models : R[]
 
     // Polymorphic accessor for aggregated attribute's canBeUpdated().
     get __inner_state__(){ return this.models; }
 
     // Index by id and cid
-    _byId : IdIndex
+    _byId : { [ id : string ] : R }
 
     set comparator( x : GenericComparator ){
         let compare;
@@ -150,9 +150,9 @@ export class Collection extends Transactional implements CollectionCore {
     _store : Transactional
 
     get comparator(){ return this._comparator; }
-    _comparator : ( a : Record, b : Record ) => number
+    _comparator : ( a : R, b : R ) => number
 
-    _onChildrenChange( record : Record, options : TransactionOptions = {}, initiator? : Transactional ){
+    _onChildrenChange( record : R, options : TransactionOptions = {}, initiator? : Transactional ){
         // Ignore updates from nested transactions.
         if( initiator === this ) return;
 
@@ -172,7 +172,7 @@ export class Collection extends Transactional implements CollectionCore {
         isRoot && commit( this );
     }
 
-    get( objOrId : string | Record | Object ) : Record {
+    get( objOrId : string | R | Object ) : R {
         if( objOrId == null ) return;
 
         if( typeof objOrId === 'object' ){
@@ -184,7 +184,7 @@ export class Collection extends Transactional implements CollectionCore {
         }        
     }
 
-    each( iteratee : ( val : Record, key : number ) => void, context? : any ){
+    each( iteratee : ( val : R, key : number ) => void, context? : any ){
         const fun = bindContext( iteratee, context ),
             { models } = this;
 
@@ -226,7 +226,7 @@ export class Collection extends Transactional implements CollectionCore {
         return Boolean( this.find( iteratee, context ) );
     }
 
-    map< T >( iteratee : ( val : Record, key : number ) => T, context? : any ) : T[]{
+    map< T >( iteratee : ( val : R, key : number ) => T, context? : any ) : T[]{
         const fun = bindContext( iteratee, context ),
             { models } = this,
             mapped = Array( models.length );
@@ -301,9 +301,9 @@ export class Collection extends Transactional implements CollectionCore {
     initialize(){}
 
     get length() : number { return this.models.length; }
-    first() : Record { return this.models[ 0 ]; }
-    last() : Record { return this.models[ this.models.length - 1 ]; }
-    at( a_index : number ) : Record {
+    first() : R { return this.models[ 0 ]; }
+    last() : R { return this.models[ this.models.length - 1 ]; }
+    at( a_index : number ) : R {
         const index = a_index < 0 ? a_index + this.models.length : a_index;    
         return this.models[ index ];
     }
@@ -354,7 +354,7 @@ export class Collection extends Transactional implements CollectionCore {
         super.dispose();
     }
 
-    reset( a_elements? : ElementsArg, options : TransactionOptions = {} ) : Record[] {
+    reset( a_elements? : ElementsArg, options : TransactionOptions = {} ) : R[] {
         const isRoot = begin( this ),
               previousModels = dispose( this );
 
@@ -385,11 +385,11 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     // Remove elements. 
-    remove( recordsOrIds : any, options : TransactionOptions = {} ) : Record[] | Record {
+    remove( recordsOrIds : any, options : TransactionOptions = {} ) : R[] | R {
         if( recordsOrIds ){
             return Array.isArray( recordsOrIds ) ?
-                        removeMany( this, recordsOrIds, options ) :
-                        removeOne( this, recordsOrIds, options );
+                        removeMany( this, recordsOrIds, options ) as R[]:
+                        removeOne( this, recordsOrIds, options ) as R;
         }
 
         return [];
@@ -416,7 +416,7 @@ export class Collection extends Transactional implements CollectionCore {
      * Collection manipulation methods
      */
 
-    pluck( key : string ) : any[] {
+    pluck( key : keyof R ) : any[] {
         return this.models.map( model => model[ key ] );
     }
 
@@ -440,7 +440,7 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     // Remove a model from the end of the collection.
-    pop( options : CollectionOptions ) {
+    pop( options : CollectionOptions ) : R {
       var model = this.at(this.length - 1);
       this.remove(model, options);
       return model;
@@ -448,7 +448,7 @@ export class Collection extends Transactional implements CollectionCore {
 
     // Remove and return given model.
     // TODO: do not dispose the model for aggregated collection.
-    unset( modelOrId : Record | string, options? ) : Record {
+    unset( modelOrId : R | string, options? ) : R {
         const value = this.get( modelOrId );
         this.remove( modelOrId, { unset : true, ...options } );
         return value;
@@ -460,14 +460,14 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     // Remove a model from the beginning of the collection.
-    shift( options? : CollectionOptions ) : Record {
+    shift( options? : CollectionOptions ) : R {
       var model = this.at(0);
       this.remove( model, options );
       return model;
     }
 
     // Slice out a sub-array of models from the collection.
-    slice() : Record[] {
+    slice() : R[] {
       return slice.apply(this.models, arguments);
     }
 
@@ -481,7 +481,7 @@ export class Collection extends Transactional implements CollectionCore {
     }
 
     // Toggle model in collection.
-    toggle( model : Record, a_next? : boolean ) : boolean {
+    toggle( model : R, a_next? : boolean ) : boolean {
         var prev = Boolean( this.get( model ) ),
             next = a_next === void 0 ? !prev : Boolean( a_next );
 
