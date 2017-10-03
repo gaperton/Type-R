@@ -204,14 +204,14 @@ export class Collection< R extends Record = Record> extends Transactional implem
         return true;
     }
 
-    filter( iteratee : Predicate<R>, context? : any ) : Record[] {
+    filter( iteratee : Predicate<R>, context? : any ) : R[] {
         const fun = toPredicateFunction( iteratee, context ),
             { models } = this;
 
         return this.map( ( x, i ) => fun( x, i ) ? x : void 0 );
     }
 
-    find( iteratee : Predicate<R>, context? : any ) : Record {
+    find( iteratee : Predicate<R>, context? : any ) : R {
         const fun = toPredicateFunction( iteratee, context ),
         { models } = this;
 
