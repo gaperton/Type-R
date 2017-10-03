@@ -58,8 +58,8 @@ export class Record extends Transactional implements AttributesContainer {
     // Hack
     static onDefine( definition, BaseClass ){}
 
-    static Collection : typeof Collection
-    static DefaultCollection : typeof Collection
+    static Collection : typeof Collection;
+    static DefaultCollection : typeof Collection;
 
     static from : ( collectionReference : any ) => any;
     

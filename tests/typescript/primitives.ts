@@ -103,7 +103,7 @@ describe( 'Record', () =>{
                 @attr n : number = 1
                 @attr b : boolean = true
                 @attr o : object = {}
-                @attr a : any[] = []
+                @attr a : string[] = []
                 @attr d : Date
             }
 
@@ -229,13 +229,13 @@ describe( 'Record', () =>{
             @define( {
                 a : 'a'
             } )
-            class C extends Collection {
+            class C extends Collection<M> {
                 a : string
             }
 
             @define
             class M extends Record {
-                static Collection = C;
+                static Collection = C as any; // Do something with it.
             }
 
             expect( M.Collection ).to.equal( C );

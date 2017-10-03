@@ -23,7 +23,7 @@ export interface CollectionOptions extends TransactionOptions {
     model? : typeof Record
 }
 
-export type Predicate = ( val : Record, key : number ) => boolean | object;
+export type Predicate<R> = ( val : R, key : number ) => boolean | object;
 
 export interface CollectionDefinition extends TransactionalDefinition {
     model? : typeof Record,
@@ -193,7 +193,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
         }
     }
 
-    every( iteratee : Predicate, context? : any ) : boolean {
+    every( iteratee : Predicate<R>, context? : any ) : boolean {
         const fun = toPredicateFunction( iteratee, context ),
             { models } = this;
 
@@ -204,14 +204,14 @@ export class Collection< R extends Record = Record> extends Transactional implem
         return true;
     }
 
-    filter( iteratee : Predicate, context? : any ) : Record[] {
+    filter( iteratee : Predicate<R>, context? : any ) : Record[] {
         const fun = toPredicateFunction( iteratee, context ),
             { models } = this;
 
         return this.map( ( x, i ) => fun( x, i ) ? x : void 0 );
     }
 
-    find( iteratee : Predicate, context? : any ) : Record {
+    find( iteratee : Predicate<R>, context? : any ) : Record {
         const fun = toPredicateFunction( iteratee, context ),
         { models } = this;
 
@@ -222,7 +222,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
         return null;
     }
 
-    some( iteratee : Predicate, context? : any ) : boolean {
+    some( iteratee : Predicate<R>, context? : any ) : boolean {
         return Boolean( this.find( iteratee, context ) );
     }
 
@@ -525,7 +525,7 @@ function bindContext( fun : Function, context? : any ){
     return context !== void 0 ? ( v, k ) => fun.call( context, v, k ) : fun;
 }
 
-function toPredicateFunction( iteratee : Predicate, context : any ){
+function toPredicateFunction<R>( iteratee : Predicate<R>, context : any ){
     if( typeof iteratee === 'object' ){
         // Wrap object to the predicate...
         return x => {

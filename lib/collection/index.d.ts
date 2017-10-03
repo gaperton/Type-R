@@ -8,7 +8,7 @@ export interface CollectionOptions extends TransactionOptions {
     comparator?: GenericComparator;
     model?: typeof Record;
 }
-export declare type Predicate = (val: Record, key: number) => boolean | object;
+export declare type Predicate<R> = (val: R, key: number) => boolean | object;
 export interface CollectionDefinition extends TransactionalDefinition {
     model?: typeof Record;
     itemEvents?: EventsDefinition;
@@ -37,10 +37,10 @@ export declare class Collection<R extends Record = Record> extends Transactional
     _onChildrenChange(record: R, options?: TransactionOptions, initiator?: Transactional): void;
     get(objOrId: string | R | Object): R;
     each(iteratee: (val: R, key: number) => void, context?: any): void;
-    every(iteratee: Predicate, context?: any): boolean;
-    filter(iteratee: Predicate, context?: any): Record[];
-    find(iteratee: Predicate, context?: any): Record;
-    some(iteratee: Predicate, context?: any): boolean;
+    every(iteratee: Predicate<R>, context?: any): boolean;
+    filter(iteratee: Predicate<R>, context?: any): Record[];
+    find(iteratee: Predicate<R>, context?: any): Record;
+    some(iteratee: Predicate<R>, context?: any): boolean;
     map<T>(iteratee: (val: R, key: number) => T, context?: any): T[];
     _validateNested(errors: {}): number;
     model: typeof Record;
