@@ -81,7 +81,7 @@ export class MSDateType extends DateType {
 }
 
 export class TimestampType extends DateType {
-    toJSON( value ) { return value.getTime(); }
+    toJSON( value ) { return value && value.getTime(); }
 }
 
 declare global {
