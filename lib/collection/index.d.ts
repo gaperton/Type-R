@@ -58,7 +58,7 @@ export declare class Collection<R extends Record = Record> extends Transactional
     reset(a_elements?: ElementsArg, options?: TransactionOptions): R[];
     add(a_elements: ElementsArg, options?: AddOptions): Record[];
     remove(recordsOrIds: any, options?: TransactionOptions): R[] | R;
-    _createTransaction(a_elements: ElementsArg, options?: TransactionOptions): CollectionTransaction;
+    _createTransaction(a_elements: ElementsArg, options?: TransactionOptions): CollectionTransaction | void;
     static _attribute: typeof AggregatedType;
     pluck(key: keyof R): any[];
     sort(options?: TransactionOptions): this;

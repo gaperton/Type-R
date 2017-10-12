@@ -381,7 +381,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
         if( transaction ){
             transaction.commit();
             return transaction.added;
-        } 
+        }
     }
 
     // Remove elements. 
@@ -397,7 +397,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
 
     // Apply bulk object update without any notifications, and return open transaction.
     // Used internally to implement two-phase commit.   
-    _createTransaction( a_elements : ElementsArg, options : TransactionOptions = {} ) : CollectionTransaction {
+    _createTransaction( a_elements : ElementsArg, options : TransactionOptions = {} ) : CollectionTransaction | void {
         const elements = toElements( this, a_elements, options );
 
         if( this.models.length ){

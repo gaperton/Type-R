@@ -177,7 +177,7 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     // Used internally to implement two-phase commit.
     // Returns null if there are no any changes.
     /** @private */  
-    abstract _createTransaction( values : any, options? : TransactionOptions ) : Transaction
+    abstract _createTransaction( values : any, options? : TransactionOptions ) : Transaction | void
     
     // Parse function applied when 'parse' option is set for transaction.
     parse( data : any, options? : TransactionOptions ) : any { return data }
