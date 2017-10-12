@@ -260,9 +260,7 @@
 
             var counter = 0;
             store1.on( 'change', () => counter++ );
-            store1.items.on( 'changes', () => { debugger; } );
-            store1.tests.on( 'changes', () => { debugger; } );
-
+            
             store1.assignFrom( store2 );
 
             expect( counter ).to.eql( 1 );
