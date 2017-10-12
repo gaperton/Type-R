@@ -61,6 +61,29 @@
                     var m = new A();
                     expect( m.a ).to.be.null;
                 });
+
+                it( 'can be initialized with void 0', function(){
+                    var A = Nested.Model.extend({
+                        defaults : {
+                            num : Number.value( void 0 ),
+                            str : String.value( void 0 ),
+                            bool : Boolean.value( void 0 ),
+                            date : Date.value( void 0 ),
+                            a : Ctor.value( void 0 ),
+                            d : Nested.Model.value( void 0 )
+                        }
+                    });
+    
+                    var m = new A();
+
+                    expect( m.d ).to.equal( void 0 );
+                    expect( m.a ).to.equal( void 0 );
+                    expect( m.date ).to.equal( void 0 );
+                    
+                    expect( m.str ).to.equal( void 0 );
+                    expect( m.num ).to.equal( void 0 );
+                    expect( m.bool ).to.equal( void 0 );
+                } );
             });
 
             describe( 'Attribute assignment', function(){

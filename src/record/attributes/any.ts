@@ -21,6 +21,7 @@ export interface AttributeOptions {
 
     type? : Function
     value? : any
+    hasCustomDefault? : boolean
 
     parse? : Parse
     toJSON? : AttributeToJSON
@@ -199,7 +200,7 @@ export class AnyType implements AttributeUpdatePipeline {
         this.type  = type;
 
         // TODO: An opportunity to optimize for attribute subtype.
-        if( value === void 0 && type ){
+        if( !options.hasCustomDefault && type ){
             this.defaultValue = this.create;
         }
         else if( tools.isValidJSON( value ) ){ 

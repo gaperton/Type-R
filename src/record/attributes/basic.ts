@@ -71,7 +71,7 @@ export class PrimitiveType extends AnyType {
     }
 
     initialize(){
-        if( this.value === void 0 ){
+        if( !this.options.hasCustomDefault ){
             this.value = this.type();
         }
     }

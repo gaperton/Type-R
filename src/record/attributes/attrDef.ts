@@ -119,7 +119,7 @@ export class ChainableAttributeSpec {
     }
 
     value( x ) : ChainableAttributeSpec {
-        return this.metadata({ value : x });
+        return this.metadata({ value : x, hasCustomDefault : true });
     }
 }
 
@@ -135,7 +135,7 @@ declare global {
 }
 
 Function.prototype.value = function( x ) {
-    return new ChainableAttributeSpec( { type : this, value : x } );
+    return new ChainableAttributeSpec( { type : this, value : x, hasCustomDefault : true } );
 };
 
 Object.defineProperty( Function.prototype, 'isRequired', {
@@ -150,7 +150,11 @@ Object.defineProperty( Function.prototype, 'asProp', {
 Object.defineProperty( Function.prototype, 'has', {
     get() {
         // workaround for sinon.js and other libraries overriding 'has'
-        return this._has || new ChainableAttributeSpec( { type : this, value : this._attribute.defaultValue } );
+        return this._has || new ChainableAttributeSpec( {
+            type : this,
+            value : this._attribute.defaultValue,
+            hasCustomDefault : this._attribute.defaultValue !== void 0
+        } );
     },
 
     set( value ) { this._has = value; }
@@ -175,7 +179,7 @@ export function toAttributeOptions( spec : any ) : AttributeOptions {
         }
         // All others will be created in regular way.
         else{
-            attrSpec = new ChainableAttributeSpec({ type : type, value : spec });
+            attrSpec = new ChainableAttributeSpec({ type : type, value : spec, hasCustomDefault : true });
         }
     }
  

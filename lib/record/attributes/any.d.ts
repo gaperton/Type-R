@@ -15,6 +15,7 @@ export interface AttributeOptions {
     changeEvents?: boolean;
     type?: Function;
     value?: any;
+    hasCustomDefault?: boolean;
     parse?: Parse;
     toJSON?: AttributeToJSON;
     getHooks?: GetHook[];
