@@ -145,7 +145,7 @@ export class ArrayType extends AnyType {
         // Fix incompatible constructor behaviour of Array...
         if( next == null || Array.isArray( next ) ) return next;
 
-        this._log( 'warn', 'non-array assignment is ignored', next, record );
+        this._log( 'warn', 'assignment of non-array to Array attribute is ignored', next, record );
 
         return [];
     }
@@ -165,7 +165,7 @@ export class ObjectType extends AnyType {
     convert( next, prev, record ) {
         if( next == null || next.constructor === Object ) return next;
 
-        this._log( 'warn', 'non-object assignment is ignored', next, record );
+        this._log( 'warn', 'assignment of non-plain object to Object attribute is ignored', next, record );
 
         return {};
     }
