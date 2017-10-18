@@ -158,20 +158,13 @@ export class ArrayType extends AnyType {
 Array._attribute = ArrayType;
 
 export class ObjectType extends AnyType {
-    toJSON( value ) { return value; }
-    dispose(){}
     create(){ return {}; }
 
     convert( next, prev, record ) {
-        if( next == null || next.constructor === Object ) return next;
-
-        this._log( 'warn', 'assignment of non-plain object to Object attribute is ignored', next, record );
-
+        if( next == null || typeof next === 'object' ) return next;
+                
+        this._log( 'warn', 'assignment of non-object to Object attribute is ignored', next, record );
         return {};
-    }
-
-    clone( value ){
-        return value && tools.assign( {}, value );
     }
 }
 
