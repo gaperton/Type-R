@@ -387,7 +387,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
     }
 
     // Remove elements. 
-    remove( recordsOrIds : any, options : TransactionOptions = {} ) : R[] | R {
+    remove( recordsOrIds : any, options : CollectionOptions = {} ) : R[] | R {
         if( recordsOrIds ){
             return Array.isArray( recordsOrIds ) ?
                         removeMany( this, recordsOrIds, options ) as R[]:
@@ -444,7 +444,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
     // Remove a model from the end of the collection.
     pop( options : CollectionOptions ) : R {
       var model = this.at(this.length - 1);
-      this.remove(model, options);
+      this.remove(model, { unset : true, ...options });
       return model;
     }
 
@@ -464,7 +464,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
     // Remove a model from the beginning of the collection.
     shift( options? : CollectionOptions ) : R {
       var model = this.at(0);
-      this.remove( model, options );
+      this.remove( model, { unset : true, ...options } );
       return model;
     }
 

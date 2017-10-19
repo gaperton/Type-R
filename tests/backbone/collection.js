@@ -16,8 +16,8 @@
             c        = new M( { id : 1, label : 'c' } );
             d        = new M( { id : 0, label : 'd' } );
             e        = null;
-            col      = new M.Collection( [ a, b, c, d ] );
-            otherCol = new M.Collection();
+            col      = new M.Collection.Refs( [ a, b, c, d ] );
+            otherCol = new M.Collection.Refs();
         }
 
     } );
@@ -419,11 +419,11 @@
         var result = col.add( { id : 6 } );
         assert.equal( result, undefined );
 
-        result = col.remove( { id : 6 } );
+        result = col.remove( { id : 6 }, { unset : true } );
         assert.equal( col.length, 3 );
         assert.equal( result.id, 6 );
 
-        list = col.remove( [ { id : 2 }, { id : 8 } ] );
+        list = col.remove( [ { id : 2 }, { id : 8 } ], { unset : true } );
         assert.equal( col.length, 2 );
         assert.equal( list[ 0 ].get( 'id' ), 2 );
         assert.equal( list[ 1 ], null );
@@ -452,7 +452,7 @@
         assert.expect( 3 );
         var counter = 0;
         var dj      = new M();
-        var emcees  = new M.Collection( [ dj ] );
+        var emcees  = new M.Collection.Refs( [ dj ], {}, true );
         emcees.on( 'change', function(){
             counter++;
         } );
@@ -478,8 +478,8 @@
         f.on( 'remove', function(){
             passed = true;
         } );
-        var colE = new Backbone.Collection( [ e ] );
-        var colF = new Backbone.Collection( [ f ] );
+        var colE = new Backbone.Collection.Refs( [ e ] );
+        var colF = new Backbone.Collection.Refs( [ f ] );
         assert.ok( e != f );
         assert.ok( colE.length === 1 );
         assert.ok( colF.length === 1 );
@@ -553,7 +553,7 @@
         var resetCount = 0;
         var models     = col.models;
         col.on( 'reset', function(){ resetCount += 1; } );
-        col.reset( [] );
+        col.reset( [] ); 
         assert.equal( resetCount, 1 );
         assert.equal( col.length, 0 );
         assert.equal( col.last(), null );
@@ -616,7 +616,7 @@
 
     QUnit.test( "reset does not alter options by reference", function( assert ){
         assert.expect( 2 );
-        var col      = new Backbone.Collection( [ { id : 1 } ] );
+        var col      = new Backbone.Collection.Refs( [ { id : 1 } ] );
         var origOpts = {};
         col.on( "reset", function( col, opts ){
             assert.equal( origOpts.previousModels, undefined );
@@ -898,7 +898,7 @@
         assert.expect( 3 );
         var m1 = new Backbone.Model;
         var m2 = new Backbone.Model;
-        var c  = new Backbone.Collection;
+        var c  = new Backbone.Collection.Refs;
         c.set( [ m1, m2 ] );
         assert.equal( c.length, 2 );
         c.set( [ m1 ] );
@@ -1007,7 +1007,7 @@
         var one        = new Backbone.Model( { id : 1 } );
         var two        = new Backbone.Model( { id : 2 } );
         var three      = new Backbone.Model( { id : 3 } );
-        var collection = new Backbone.Collection( [ one, two, three ] );
+        var collection = new Backbone.Collection.Refs( [ one, two, three ] );
         collection.set( [ { id : 3 }, { id : 2 }, { id : 1 } ] );
         assert.deepEqual( collection.models, [ three, two, one ] );
         collection.set( [ { id : 1 }, { id : 2 } ] );
@@ -1244,7 +1244,7 @@
 
         } );
 
-        var collection = new Collection();
+        var collection = new Collection.Refs();
 
         collection.on( 'add', function( model ){
             calls.add++;
@@ -1258,7 +1258,7 @@
             assert.equal( collection._byId[ model.id ], void 0 );
             assert.equal( collection._byId[ model.cid ], void 0 );
             assert.equal( model.collection, void 0 );
-            assert.deepEqual( model._events, void 0 );
+            assert.deepEqual( model._events.dummy, void 0 );
         });
 
         var model      = collection.add( { id : 1 } );

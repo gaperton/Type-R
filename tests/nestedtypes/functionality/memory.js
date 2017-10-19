@@ -63,6 +63,14 @@ describe( 'Memory management', function(){
         expect( y._disposed ).to.be.undefined;        
     });
 
+    it( 'Aggregated record attribute is not disposed when unset', function(){
+        var m = new M();
+
+        var y = m.unset( 'col' );
+
+        expect( y._disposed ).to.be.undefined;        
+    });
+
     it( 'Shared refs do not create a leak', function(){
         var m = new M();
         m.ref = singleton;
