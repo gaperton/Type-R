@@ -283,7 +283,8 @@ export class Record extends Transactional implements AttributesContainer {
 
         if( log.level > 1 ) typeCheck( this, values );
 
-        this.attributes = this._previousAttributes = new this.Attributes( this, values, options );
+        this.attributes = new this.Attributes( this, values, options );
+        this._previousAttributes = void 0;
 
         this.initialize( a_values, a_options );
 
