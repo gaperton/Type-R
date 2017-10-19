@@ -252,7 +252,7 @@ describe( 'Advanced functionality', function(){
 
     it( 'can filter aggregated collection', function(){
         const c = new M.Collection( { name : 'a' }, { name : 'b' } );
-        c.reset( c.last() );
+        c.set( c.last() );
         expect( c.first()._owner ).to.equal( c );
     });
 

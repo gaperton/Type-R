@@ -420,6 +420,8 @@ export class Record extends Transactional implements AttributesContainer {
             attribute.dispose( this, value );
         });
 
+        this.attributes = this._previousAttributes = this._validationError = void 0;
+
         super.dispose();
     }
 
