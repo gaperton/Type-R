@@ -13,10 +13,7 @@ const { trigger2, on, off } = eventsApi,
 
 let _count = 0;
 
-const silentOptions = { silent : true };
-
 export type GenericComparator = string | ( ( x : Record ) => number ) | ( ( a : Record, b : Record ) => number ); 
-
 
 export interface CollectionOptions extends TransactionOptions {
     comparator? : GenericComparator
