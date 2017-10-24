@@ -67,6 +67,26 @@
                 canHaveNativeProperties( Nested.Model );
             });
 
+            describe( 'Record.defaults', () =>{
+                var Test = Nested.Model.extend({
+                    attributes : {
+                        text : String
+                    }
+                });
+        
+                const t = new Test();
+        
+                it( 'has default attribute value', () =>{
+                    expect( t.text ).to.eql( "" );
+                });
+        
+                it( 'return default values', ()=>{
+                    console.log( t.defaults.toString() );
+                    const values = t.defaults();
+                    expect( values.text ).to.eql( "" );
+                });
+            });
+
             it( 'inherit default attributes from the base model', function(){
                 var B = M.extend({
                     defaults : {
