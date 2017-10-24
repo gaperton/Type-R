@@ -283,6 +283,5 @@ describe( 'Advanced functionality', function(){
             c.set( [ { id : 1, name : 'b' }, { id : 2, name : 'a' } ] );
             expect( c.first().name ).to.be.equal( 'a' );
         });
-
     });
 });
