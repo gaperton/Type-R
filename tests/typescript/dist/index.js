@@ -267,6 +267,12 @@ function arraysNotEqual(a, b) {
     }
     return false;
 }
+var HashProto = Object.create(null);
+HashProto.hasOwnProperty = ObjectProto.hasOwnProperty;
+function hashMap(obj) {
+    var hash = Object.create(HashProto);
+    return obj ? assign(hash, obj) : hash;
+}
 
 var Mixable = (function () {
     function Mixable() {
@@ -326,7 +332,7 @@ function define(ClassOrDefinition) {
 function definitions(rules) {
     return function (Class) {
         var mixins = MixinsState.get(Class);
-        mixins.definitionRules = defaults(rules, mixins.definitionRules);
+        mixins.definitionRules = defaults(hashMap(), rules, mixins.definitionRules);
     };
 }
 function definitionDecorator(definitionKey, value) {
@@ -346,8 +352,8 @@ var MixinsState = (function () {
         this.Class = Class;
         this.definitions = {};
         var mixins = getBaseClass(Class).mixins;
-        this.mergeRules = (mixins && mixins.mergeRules) || {};
-        this.definitionRules = (mixins && mixins.definitionRules) || {};
+        this.mergeRules = (mixins && mixins.mergeRules) || hashMap();
+        this.definitionRules = (mixins && mixins.definitionRules) || hashMap();
         this.appliedMixins = (mixins && mixins.appliedMixins) || [];
     }
     MixinsState.get = function (Class) {
@@ -356,7 +362,7 @@ var MixinsState = (function () {
             Class.mixins = new MixinsState(Class);
     };
     MixinsState.prototype.getStaticDefinitions = function (BaseClass) {
-        var definitions = {}, Class = this.Class;
+        var definitions = hashMap(), Class = this.Class;
         return transform(definitions, this.definitionRules, function (rule, name) {
             if (BaseClass[name] !== Class[name]) {
                 return Class[name];
@@ -380,8 +386,8 @@ var MixinsState = (function () {
                     this.mergeObject(this.Class, mixin);
                     var sourceMixins = mixin.mixins;
                     if (sourceMixins) {
-                        this.mergeRules = defaults({}, this.mergeRules, sourceMixins.mergeRules);
-                        this.definitionRules = defaults({}, this.definitionRules, sourceMixins.definitionRules);
+                        this.mergeRules = defaults(hashMap(), this.mergeRules, sourceMixins.mergeRules);
+                        this.definitionRules = defaults(hashMap(), this.definitionRules, sourceMixins.definitionRules);
                         this.appliedMixins = this.appliedMixins.concat(sourceMixins.appliedMixins);
                     }
                     this.mergeObject(proto, mixin.prototype);
@@ -430,19 +436,17 @@ var MixinsState = (function () {
     return MixinsState;
 }());
 var dontMix = {
-    function: {
+    function: hashMap({
         length: true,
         prototype: true,
         caller: true,
         arguments: true,
         name: true,
         __super__: true
-    },
-    object: {
-        constructor: true,
-        toString: false,
-        valueOf: false
-    }
+    }),
+    object: hashMap({
+        constructor: true
+    })
 };
 function forEachOwnProp(object, fun) {
     var ignore = dontMix[typeof object];
