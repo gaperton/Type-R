@@ -347,10 +347,9 @@ function arraysNotEqual( a, b ) {
 }
 
 /**
- * Create an object without prototype.
+ * Create an object without Object prototype members except hasOwnProperty.
  * @param obj - optional parameter to populate the hash map from.
  */
-
 const HashProto = Object.create( null );
 HashProto.hasOwnProperty = ObjectProto.hasOwnProperty;
 
