@@ -134,6 +134,21 @@ describe("@define decorator", function () {
         expect(sub.toString()).to.eql('sub');
         expect(sub.valueOf()).to.eql('sub');
     });
+    it('allows toString() and valueOf() override with .extend()', function () {
+        var Base = Mixable.extend({
+            toString: function () { return "base"; },
+            valueOf: function () { return 'base'; }
+        });
+        var Sub = Base.extend({
+            toString: function () { return "sub"; },
+            valueOf: function () { return 'sub'; }
+        });
+        var base = new Base(), sub = new Sub();
+        expect(base.toString()).to.eql('base');
+        expect(base.valueOf()).to.eql('base');
+        expect(sub.toString()).to.eql('sub');
+        expect(sub.valueOf()).to.eql('sub');
+    });
     it("gives priority to the class definition", function () {
         var X = (function (_super) {
             tslib_1.__extends(X, _super);

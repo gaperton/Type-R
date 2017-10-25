@@ -104,6 +104,26 @@ describe( "@define decorator", () =>{
         expect( sub.valueOf() ).to.eql( 'sub' );
     } );
 
+    it( 'allows toString() and valueOf() override with .extend()', () =>{
+        const Base = Mixable.extend({
+            toString(){ return "base"; },
+            valueOf(){ return 'base'; }
+        });
+
+        const Sub = Base.extend({
+            toString(){ return "sub"; },
+            valueOf(){ return 'sub'; }
+        })
+
+        const base = new Base(),
+            sub = new Sub();
+
+        expect( base.toString() ).to.eql( 'base' );
+        expect( base.valueOf() ).to.eql( 'base' );
+        expect( sub.toString() ).to.eql( 'sub' );
+        expect( sub.valueOf() ).to.eql( 'sub' );
+    } );
+
     it( "gives priority to the class definition", () =>{
         @define({
             undef : 1

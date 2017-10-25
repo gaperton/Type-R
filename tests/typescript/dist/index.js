@@ -14138,6 +14138,21 @@ describe("@define decorator", function () {
         chai_1(sub.toString()).to.eql('sub');
         chai_1(sub.valueOf()).to.eql('sub');
     });
+    it('allows toString() and valueOf() override with .extend()', function () {
+        var Base = Mixable.extend({
+            toString: function () { return "base"; },
+            valueOf: function () { return 'base'; }
+        });
+        var Sub = Base.extend({
+            toString: function () { return "sub"; },
+            valueOf: function () { return 'sub'; }
+        });
+        var base = new Base(), sub = new Sub();
+        chai_1(base.toString()).to.eql('base');
+        chai_1(base.valueOf()).to.eql('base');
+        chai_1(sub.toString()).to.eql('sub');
+        chai_1(sub.valueOf()).to.eql('sub');
+    });
     it("gives priority to the class definition", function () {
         var X = (function (_super) {
             __extends(X, _super);
