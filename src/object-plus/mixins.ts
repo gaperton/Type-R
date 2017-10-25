@@ -3,7 +3,7 @@
  *
  * Vlad Balin & Volicon, (c) 2016-2017
  */
-import { log, assign, omit, getPropertyDescriptor, getBaseClass, defaults, transform } from './tools'
+import { log, assign, omit, hashMap, getPropertyDescriptor, hasOwnProperty, getBaseClass, defaults, transform } from './tools'
 import { __extends } from 'tslib'
 
 export interface Subclass< T > extends MixableConstructor {
@@ -68,7 +68,7 @@ export class Mixable {
 
         // 1. Create the subclass (ES5 compatibility shim).
         // If constructor function is given...
-        if( spec && spec.hasOwnProperty( 'constructor' ) ){
+        if( spec && hasOwnProperty( spec, 'constructor' ) ){
             // ...we need to manually call internal TypeScript __extend function. Hack! Hack!
             TheSubclass = spec.constructor as any;
             __extends( TheSubclass, this );
@@ -127,7 +127,7 @@ export function define( ClassOrDefinition : object | MixableConstructor ){
 export function definitions( rules : MixinMergeRules ) : ClassDecorator {
     return ( Class : Function ) => {
         const mixins = MixinsState.get( Class );
-        mixins.definitionRules = defaults( rules, mixins.definitionRules );
+        mixins.definitionRules = defaults( hashMap(), rules, mixins.definitionRules );
     }
 }
 
@@ -160,13 +160,13 @@ export class MixinsState {
     constructor( public Class : MixableConstructor ){
         const { mixins } = getBaseClass( Class );
 
-        this.mergeRules = ( mixins && mixins.mergeRules ) || {};
-        this.definitionRules = ( mixins && mixins.definitionRules ) || {};
+        this.mergeRules = ( mixins && mixins.mergeRules ) || hashMap();
+        this.definitionRules = ( mixins && mixins.definitionRules ) || hashMap();
         this.appliedMixins = ( mixins && mixins.appliedMixins ) || [];
     }
 
     getStaticDefinitions( BaseClass : Function ){
-        const definitions = {},
+        const definitions = hashMap(),
             { Class } = this;
 
         return transform( definitions, this.definitionRules, ( rule, name ) =>{
@@ -206,8 +206,8 @@ export class MixinsState {
                     // merge definitionRules and mergeRules
                     const sourceMixins = ( mixin as any ).mixins;
                     if( sourceMixins ){
-                        this.mergeRules = defaults( {}, this.mergeRules, sourceMixins.mergeRules );
-                        this.definitionRules = defaults( {}, this.definitionRules, sourceMixins.definitionRules );
+                        this.mergeRules = defaults( hashMap(), this.mergeRules, sourceMixins.mergeRules );
+                        this.definitionRules = defaults( hashMap(), this.definitionRules, sourceMixins.definitionRules );
                         this.appliedMixins = this.appliedMixins.concat( sourceMixins.appliedMixins );
                     }
 
@@ -253,7 +253,7 @@ export class MixinsState {
             for( let name in mergeRules ) {
                 const rule = mergeRules[ name ];
 
-                if( proto.hasOwnProperty( name ) && name in baseProto ){
+                if( hasOwnProperty( proto, name ) && name in baseProto ){
                     proto[ name ] = resolveRule( proto[ name ], baseProto[ name ], rule );
                 }
             }
@@ -262,20 +262,18 @@ export class MixinsState {
 }
 
 const dontMix = {
-    function : {
+    function : hashMap({
         length : true,
         prototype : true,
         caller : true,
         arguments : true,
         name : true,
         __super__ : true
-    },
+    }),
     
-    object : {
-        constructor : true,
-        toString : false,
-        valueOf : false
-    }    
+    object : hashMap({
+        constructor : true
+    })    
 }
 
 function forEachOwnProp( object : object, fun : ( name : string ) => void ){
@@ -377,7 +375,7 @@ mixinRules.some = ( a : Function, b : Function ) =>(
 
 function assignProperty( dest : object, name : string, sourceProp : PropertyDescriptor, rule : MixinMergeRule, unshift? : boolean ){
 // Destination prop is defined, thus the merge rules must be applied.
-    if( dest.hasOwnProperty( name ) ){
+    if( hasOwnProperty( dest, name ) ){
         const destProp = Object.getOwnPropertyDescriptor( dest, name );
 
         if( destProp.configurable && 'value' in destProp ){

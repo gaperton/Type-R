@@ -110,7 +110,7 @@ export function assignToClassProto<T, K extends keyof T>( Class, definition : T,
 export function isEmpty( obj : {} ) : boolean {
     if( obj ){
         for( let key in obj ){
-            if( obj.hasOwnProperty( key ) ){
+            if( _hasOwnProperty.call( obj, key ) ){
                 return false;
             }
         }
@@ -137,7 +137,7 @@ function someObject( obj : {}, fun : Iteratee ) : any {
     let result;
 
     for( let key in obj ){
-        if( obj.hasOwnProperty( key ) ){
+        if( _hasOwnProperty.call( obj, key ) ){
             if( result = fun( obj[ key ], key ) ){
                 return result;
             }
@@ -181,7 +181,7 @@ export function omit( source ) : {} {
     }
 
     for( var name in source ) {
-        if( !discard.hasOwnProperty( name ) && source.hasOwnProperty( name ) ) {
+        if( !_hasOwnProperty.call( discard, name ) && _hasOwnProperty.call( source, name ) ) {
             dest[ name ] = source[ name ];
         }
     }
@@ -194,7 +194,7 @@ export function omit( source ) : {} {
  */
 export function transform< A, B >( dest : { [ key : string ] : A }, source : { [ key : string ] : B }, fun : ( value : B, key : string ) => A | void ) : { [ key : string ] : A } {
     for( var name in source ) {
-        if( source.hasOwnProperty( name ) ) {
+        if( _hasOwnProperty.call( source, name ) ) {
             var value = fun( source[ name ], name );
             value === void 0 || ( dest[ name ] = < A >value );
         }
@@ -227,7 +227,7 @@ export function fastDefaults< A >( dest : A, source : {} ) : A {
 export function assign< T >( dest : T, ...sources : Object[] ) : T
 export function assign< T >( dest : T, source : Object ) : T {
     for( var name in source ) {
-        if( source.hasOwnProperty( name ) ) {
+        if( _hasOwnProperty.call( source, name ) ) {
             dest[ name ] = source[ name ];
         }
     }
@@ -246,7 +246,7 @@ export function assign< T >( dest : T, source : Object ) : T {
 export function defaults< T >( dest : T, ...sources : Object[] ) : T
 export function defaults< T >( dest : T, source : Object ) : T {
     for( var name in source ) {
-        if( source.hasOwnProperty( name ) && !dest.hasOwnProperty( name ) ) {
+        if( _hasOwnProperty.call( source, name ) && !_hasOwnProperty.call( dest, name ) ) {
             dest[ name ] = source[ name ];
         }
     }
@@ -327,7 +327,7 @@ function objectsNotEqual( a, b ) {
     for( let i = 0; i < keysA.length; i++ ) {
         const key = keysA[ i ];
 
-        if( !b.hasOwnProperty( key ) || notEqual( a[ key ], b[ key ] ) ) {
+        if( !_hasOwnProperty.call( b, key ) || notEqual( a[ key ], b[ key ] ) ) {
             return true;
         }
     }
@@ -344,4 +344,24 @@ function arraysNotEqual( a, b ) {
     }
 
     return false;
+}
+
+const { hasOwnProperty : _hasOwnProperty } = Object.prototype;
+
+/**
+ * Safe version of object.hasOwnProperty which works on objects wo/prototype
+ * @param obj - any object
+ * @param name - property name
+ */
+export function hasOwnProperty( obj, name ){
+    return _hasOwnProperty.call( obj, name );
+}
+
+/**
+ * Create an object without prototype.
+ * @param obj - optional parameter to populate the hash map from.
+ */
+export function hashMap( obj? ){
+    const hash = Object.create( null );
+    return obj ? assign( hash, obj ) : hash;
 }

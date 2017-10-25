@@ -125,7 +125,7 @@ function getBaseClass(Class) {
 function isEmpty(obj) {
     if (obj) {
         for (var key in obj) {
-            if (obj.hasOwnProperty(key)) {
+            if (_hasOwnProperty.call(obj, key)) {
                 return false;
             }
         }
@@ -143,7 +143,7 @@ function someArray(arr, fun) {
 function someObject(obj, fun) {
     var result;
     for (var key in obj) {
-        if (obj.hasOwnProperty(key)) {
+        if (_hasOwnProperty.call(obj, key)) {
             if (result = fun(obj[key], key)) {
                 return result;
             }
@@ -168,7 +168,7 @@ function omit(source) {
         discard[arguments[i]] = true;
     }
     for (var name in source) {
-        if (!discard.hasOwnProperty(name) && source.hasOwnProperty(name)) {
+        if (!_hasOwnProperty.call(discard, name) && _hasOwnProperty.call(source, name)) {
             dest[name] = source[name];
         }
     }
@@ -176,7 +176,7 @@ function omit(source) {
 }
 function transform(dest, source, fun) {
     for (var name in source) {
-        if (source.hasOwnProperty(name)) {
+        if (_hasOwnProperty.call(source, name)) {
             var value = fun(source[name], name);
             value === void 0 || (dest[name] = value);
         }
@@ -187,7 +187,7 @@ function transform(dest, source, fun) {
 
 function assign(dest, source) {
     for (var name in source) {
-        if (source.hasOwnProperty(name)) {
+        if (_hasOwnProperty.call(source, name)) {
             dest[name] = source[name];
         }
     }
@@ -201,7 +201,7 @@ function assign(dest, source) {
 }
 function defaults(dest, source) {
     for (var name in source) {
-        if (source.hasOwnProperty(name) && !dest.hasOwnProperty(name)) {
+        if (_hasOwnProperty.call(source, name) && !_hasOwnProperty.call(dest, name)) {
             dest[name] = source[name];
         }
     }
@@ -252,7 +252,7 @@ function objectsNotEqual(a, b) {
         return true;
     for (var i = 0; i < keysA.length; i++) {
         var key = keysA[i];
-        if (!b.hasOwnProperty(key) || notEqual(a[key], b[key])) {
+        if (!_hasOwnProperty.call(b, key) || notEqual(a[key], b[key])) {
             return true;
         }
     }
@@ -266,6 +266,14 @@ function arraysNotEqual(a, b) {
             return true;
     }
     return false;
+}
+var _hasOwnProperty = Object.prototype.hasOwnProperty;
+function hasOwnProperty(obj, name) {
+    return _hasOwnProperty.call(obj, name);
+}
+function hashMap(obj) {
+    var hash = Object.create(null);
+    return obj ? assign(hash, obj) : hash;
 }
 
 var Mixable = (function () {
@@ -285,7 +293,7 @@ var Mixable = (function () {
     };
     Mixable.extend = function (spec, statics) {
         var TheSubclass;
-        if (spec && spec.hasOwnProperty('constructor')) {
+        if (spec && hasOwnProperty(spec, 'constructor')) {
             TheSubclass = spec.constructor;
             __extends(TheSubclass, this);
         }
@@ -326,7 +334,7 @@ function define(ClassOrDefinition) {
 function definitions(rules) {
     return function (Class) {
         var mixins = MixinsState.get(Class);
-        mixins.definitionRules = defaults(rules, mixins.definitionRules);
+        mixins.definitionRules = defaults(hashMap(), rules, mixins.definitionRules);
     };
 }
 function definitionDecorator(definitionKey, value) {
@@ -346,8 +354,8 @@ var MixinsState = (function () {
         this.Class = Class;
         this.definitions = {};
         var mixins = getBaseClass(Class).mixins;
-        this.mergeRules = (mixins && mixins.mergeRules) || {};
-        this.definitionRules = (mixins && mixins.definitionRules) || {};
+        this.mergeRules = (mixins && mixins.mergeRules) || hashMap();
+        this.definitionRules = (mixins && mixins.definitionRules) || hashMap();
         this.appliedMixins = (mixins && mixins.appliedMixins) || [];
     }
     MixinsState.get = function (Class) {
@@ -356,7 +364,7 @@ var MixinsState = (function () {
             Class.mixins = new MixinsState(Class);
     };
     MixinsState.prototype.getStaticDefinitions = function (BaseClass) {
-        var definitions = {}, Class = this.Class;
+        var definitions = hashMap(), Class = this.Class;
         return transform(definitions, this.definitionRules, function (rule, name) {
             if (BaseClass[name] !== Class[name]) {
                 return Class[name];
@@ -380,8 +388,8 @@ var MixinsState = (function () {
                     this.mergeObject(this.Class, mixin);
                     var sourceMixins = mixin.mixins;
                     if (sourceMixins) {
-                        this.mergeRules = defaults({}, this.mergeRules, sourceMixins.mergeRules);
-                        this.definitionRules = defaults({}, this.definitionRules, sourceMixins.definitionRules);
+                        this.mergeRules = defaults(hashMap(), this.mergeRules, sourceMixins.mergeRules);
+                        this.definitionRules = defaults(hashMap(), this.definitionRules, sourceMixins.definitionRules);
                         this.appliedMixins = this.appliedMixins.concat(sourceMixins.appliedMixins);
                     }
                     this.mergeObject(proto, mixin.prototype);
@@ -421,7 +429,7 @@ var MixinsState = (function () {
             var proto = Class.prototype, baseProto = BaseClass.prototype;
             for (var name_1 in mergeRules) {
                 var rule = mergeRules[name_1];
-                if (proto.hasOwnProperty(name_1) && name_1 in baseProto) {
+                if (hasOwnProperty(proto, name_1) && name_1 in baseProto) {
                     proto[name_1] = resolveRule(proto[name_1], baseProto[name_1], rule);
                 }
             }
@@ -430,19 +438,17 @@ var MixinsState = (function () {
     return MixinsState;
 }());
 var dontMix = {
-    function: {
+    function: hashMap({
         length: true,
         prototype: true,
         caller: true,
         arguments: true,
         name: true,
         __super__: true
-    },
-    object: {
-        constructor: true,
-        toString: false,
-        valueOf: false
-    }
+    }),
+    object: hashMap({
+        constructor: true
+    })
 };
 function forEachOwnProp(object, fun) {
     var ignore = dontMix[typeof object];
@@ -486,7 +492,7 @@ mixinRules.some = function (a, b) { return (function () {
     return a.apply(this, arguments) || b.apply(this, arguments);
 }); };
 function assignProperty(dest, name, sourceProp, rule, unshift) {
-    if (dest.hasOwnProperty(name)) {
+    if (hasOwnProperty(dest, name)) {
         var destProp = Object.getOwnPropertyDescriptor(dest, name);
         if (destProp.configurable && 'value' in destProp) {
             dest[name] = unshift ?
