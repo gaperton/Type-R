@@ -3,7 +3,7 @@
  *
  * Vlad Balin & Volicon, (c) 2016-2017
  */
-import { log, assign, omit, hashMap, getPropertyDescriptor, hasOwnProperty, getBaseClass, defaults, transform } from './tools'
+import { log, assign, omit, hashMap, getPropertyDescriptor, getBaseClass, defaults, transform } from './tools'
 import { __extends } from 'tslib'
 
 export interface Subclass< T > extends MixableConstructor {
@@ -68,7 +68,7 @@ export class Mixable {
 
         // 1. Create the subclass (ES5 compatibility shim).
         // If constructor function is given...
-        if( spec && hasOwnProperty( spec, 'constructor' ) ){
+        if( spec && spec.hasOwnProperty( 'constructor' ) ){
             // ...we need to manually call internal TypeScript __extend function. Hack! Hack!
             TheSubclass = spec.constructor as any;
             __extends( TheSubclass, this );
@@ -253,7 +253,7 @@ export class MixinsState {
             for( let name in mergeRules ) {
                 const rule = mergeRules[ name ];
 
-                if( hasOwnProperty( proto, name ) && name in baseProto ){
+                if( proto.hasOwnProperty( name ) && name in baseProto ){
                     proto[ name ] = resolveRule( proto[ name ], baseProto[ name ], rule );
                 }
             }
@@ -375,7 +375,7 @@ mixinRules.some = ( a : Function, b : Function ) =>(
 
 function assignProperty( dest : object, name : string, sourceProp : PropertyDescriptor, rule : MixinMergeRule, unshift? : boolean ){
 // Destination prop is defined, thus the merge rules must be applied.
-    if( hasOwnProperty( dest, name ) ){
+    if( dest.hasOwnProperty( name ) ){
         const destProp = Object.getOwnPropertyDescriptor( dest, name );
 
         if( destProp.configurable && 'value' in destProp ){

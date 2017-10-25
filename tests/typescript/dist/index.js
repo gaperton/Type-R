@@ -125,7 +125,7 @@ function getBaseClass(Class) {
 function isEmpty(obj) {
     if (obj) {
         for (var key in obj) {
-            if (_hasOwnProperty.call(obj, key)) {
+            if (obj.hasOwnProperty(key)) {
                 return false;
             }
         }
@@ -143,7 +143,7 @@ function someArray(arr, fun) {
 function someObject(obj, fun) {
     var result;
     for (var key in obj) {
-        if (_hasOwnProperty.call(obj, key)) {
+        if (obj.hasOwnProperty(key)) {
             if (result = fun(obj[key], key)) {
                 return result;
             }
@@ -168,7 +168,7 @@ function omit(source) {
         discard[arguments[i]] = true;
     }
     for (var name in source) {
-        if (!_hasOwnProperty.call(discard, name) && _hasOwnProperty.call(source, name)) {
+        if (!discard.hasOwnProperty(name) && source.hasOwnProperty(name)) {
             dest[name] = source[name];
         }
     }
@@ -176,7 +176,7 @@ function omit(source) {
 }
 function transform(dest, source, fun) {
     for (var name in source) {
-        if (_hasOwnProperty.call(source, name)) {
+        if (source.hasOwnProperty(name)) {
             var value = fun(source[name], name);
             value === void 0 || (dest[name] = value);
         }
@@ -187,7 +187,7 @@ function transform(dest, source, fun) {
 
 function assign(dest, source) {
     for (var name in source) {
-        if (_hasOwnProperty.call(source, name)) {
+        if (source.hasOwnProperty(name)) {
             dest[name] = source[name];
         }
     }
@@ -201,7 +201,7 @@ function assign(dest, source) {
 }
 function defaults(dest, source) {
     for (var name in source) {
-        if (_hasOwnProperty.call(source, name) && !_hasOwnProperty.call(dest, name)) {
+        if (source.hasOwnProperty(name) && !dest.hasOwnProperty(name)) {
             dest[name] = source[name];
         }
     }
@@ -252,7 +252,7 @@ function objectsNotEqual(a, b) {
         return true;
     for (var i = 0; i < keysA.length; i++) {
         var key = keysA[i];
-        if (!_hasOwnProperty.call(b, key) || notEqual(a[key], b[key])) {
+        if (!b.hasOwnProperty(key) || notEqual(a[key], b[key])) {
             return true;
         }
     }
@@ -267,12 +267,10 @@ function arraysNotEqual(a, b) {
     }
     return false;
 }
-var _hasOwnProperty = Object.prototype.hasOwnProperty;
-function hasOwnProperty(obj, name) {
-    return _hasOwnProperty.call(obj, name);
-}
+var HashProto = Object.create(null);
+HashProto.hasOwnProperty = ObjectProto.hasOwnProperty;
 function hashMap(obj) {
-    var hash = Object.create(null);
+    var hash = Object.create(HashProto);
     return obj ? assign(hash, obj) : hash;
 }
 
@@ -293,7 +291,7 @@ var Mixable = (function () {
     };
     Mixable.extend = function (spec, statics) {
         var TheSubclass;
-        if (spec && hasOwnProperty(spec, 'constructor')) {
+        if (spec && spec.hasOwnProperty('constructor')) {
             TheSubclass = spec.constructor;
             __extends(TheSubclass, this);
         }
@@ -429,7 +427,7 @@ var MixinsState = (function () {
             var proto = Class.prototype, baseProto = BaseClass.prototype;
             for (var name_1 in mergeRules) {
                 var rule = mergeRules[name_1];
-                if (hasOwnProperty(proto, name_1) && name_1 in baseProto) {
+                if (proto.hasOwnProperty(name_1) && name_1 in baseProto) {
                     proto[name_1] = resolveRule(proto[name_1], baseProto[name_1], rule);
                 }
             }
@@ -492,7 +490,7 @@ mixinRules.some = function (a, b) { return (function () {
     return a.apply(this, arguments) || b.apply(this, arguments);
 }); };
 function assignProperty(dest, name, sourceProp, rule, unshift) {
-    if (hasOwnProperty(dest, name)) {
+    if (dest.hasOwnProperty(name)) {
         var destProp = Object.getOwnPropertyDescriptor(dest, name);
         if (destProp.configurable && 'value' in destProp) {
             dest[name] = unshift ?
