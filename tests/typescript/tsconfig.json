@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es2015",
-    "module":"commonjs",
-    "inlineSources": true,
+    "target": "es5",
+    "module":"es6",
+    "importHelpers": true,
+    "sourceMap": true,
     "declaration": true,
     "moduleResolution": "node",
     "outDir": "./lib",
@@ -12,6 +13,6 @@
     "emitDecoratorMetadata": true
   },
   "files":[
-    "*.ts"
+    "src/index.ts"
   ]
 }

@@ -1,4 +1,4 @@
-import { Mixable, define, predefine, mixins, mixinRules, definitions, MixinMergeRules } from '../../src';
+import { Mixable, define, predefine, mixins, mixinRules, definitions, MixinMergeRules } from '../../../lib';
 import { expect } from 'chai'
 
 const M = {
