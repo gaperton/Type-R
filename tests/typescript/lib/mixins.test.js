@@ -103,6 +103,37 @@ describe("@define decorator", function () {
         expect(x.a).to.eql(5);
         expect(x).to.be.instanceof(Mixable);
     });
+    it('allows toString() and valueOf() override', function () {
+        var Base = (function (_super) {
+            tslib_1.__extends(Base, _super);
+            function Base() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            Base.prototype.toString = function () { return "base"; };
+            Base.prototype.valueOf = function () { return 'base'; };
+            Base = tslib_1.__decorate([
+                define
+            ], Base);
+            return Base;
+        }(Mixable));
+        var Sub = (function (_super) {
+            tslib_1.__extends(Sub, _super);
+            function Sub() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            Sub.prototype.toString = function () { return "sub"; };
+            Sub.prototype.valueOf = function () { return 'sub'; };
+            Sub = tslib_1.__decorate([
+                define
+            ], Sub);
+            return Sub;
+        }(Base));
+        var base = new Base(), sub = new Sub();
+        expect(base.toString()).to.eql('base');
+        expect(base.valueOf()).to.eql('base');
+        expect(sub.toString()).to.eql('sub');
+        expect(sub.valueOf()).to.eql('sub');
+    });
     it("gives priority to the class definition", function () {
         var X = (function (_super) {
             tslib_1.__extends(X, _super);

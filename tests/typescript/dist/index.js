@@ -14107,6 +14107,37 @@ describe("@define decorator", function () {
         chai_1(x.a).to.eql(5);
         chai_1(x).to.be.instanceof(Mixable);
     });
+    it('allows toString() and valueOf() override', function () {
+        var Base = (function (_super) {
+            __extends(Base, _super);
+            function Base() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            Base.prototype.toString = function () { return "base"; };
+            Base.prototype.valueOf = function () { return 'base'; };
+            Base = __decorate([
+                define
+            ], Base);
+            return Base;
+        }(Mixable));
+        var Sub = (function (_super) {
+            __extends(Sub, _super);
+            function Sub() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            Sub.prototype.toString = function () { return "sub"; };
+            Sub.prototype.valueOf = function () { return 'sub'; };
+            Sub = __decorate([
+                define
+            ], Sub);
+            return Sub;
+        }(Base));
+        var base = new Base(), sub = new Sub();
+        chai_1(base.toString()).to.eql('base');
+        chai_1(base.valueOf()).to.eql('base');
+        chai_1(sub.toString()).to.eql('sub');
+        chai_1(sub.valueOf()).to.eql('sub');
+    });
     it("gives priority to the class definition", function () {
         var X = (function (_super) {
             __extends(X, _super);
