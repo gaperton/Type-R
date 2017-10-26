@@ -154,5 +154,42 @@ describe('Bugs from Volicon Observer', function () {
             expect(p._validationError).not.to.be.undefined;
         });
     });
+    describe('assignFrom', function () {
+        it('copy the value if the target is null', function () {
+            var Inner = (function (_super) {
+                tslib_1.__extends(Inner, _super);
+                function Inner() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                tslib_1.__decorate([
+                    attr,
+                    tslib_1.__metadata("design:type", String)
+                ], Inner.prototype, "name", void 0);
+                Inner = tslib_1.__decorate([
+                    define
+                ], Inner);
+                return Inner;
+            }(Record));
+            var Test = (function (_super) {
+                tslib_1.__extends(Test, _super);
+                function Test() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                tslib_1.__decorate([
+                    attr(Inner.value(null)),
+                    tslib_1.__metadata("design:type", Inner)
+                ], Test.prototype, "inner", void 0);
+                Test = tslib_1.__decorate([
+                    define
+                ], Test);
+                return Test;
+            }(Record));
+            var target = new Test(), source = new Test({ inner: { name: "ron" } });
+            expect(target.inner).to.be.null;
+            target.assignFrom(source);
+            expect(target.inner !== source.inner).to.be.true;
+            console.log(target.inner.cid, source.inner.cid);
+        });
+    });
 });
 //# sourceMappingURL=reported-bugs.js.map

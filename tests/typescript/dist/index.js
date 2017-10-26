@@ -16126,6 +16126,43 @@ describe('Bugs from Volicon Observer', function () {
             chai_1(p._validationError).not.to.be.undefined;
         });
     });
+    describe('assignFrom', function () {
+        it('copy the value if the target is null', function () {
+            var Inner = (function (_super) {
+                __extends(Inner, _super);
+                function Inner() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                __decorate([
+                    attr,
+                    __metadata("design:type", String)
+                ], Inner.prototype, "name", void 0);
+                Inner = __decorate([
+                    define
+                ], Inner);
+                return Inner;
+            }(Record));
+            var Test = (function (_super) {
+                __extends(Test, _super);
+                function Test() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                __decorate([
+                    attr(Inner.value(null)),
+                    __metadata("design:type", Inner)
+                ], Test.prototype, "inner", void 0);
+                Test = __decorate([
+                    define
+                ], Test);
+                return Test;
+            }(Record));
+            var target = new Test(), source = new Test({ inner: { name: "ron" } });
+            chai_1(target.inner).to.be.null;
+            target.assignFrom(source);
+            chai_1(target.inner !== source.inner).to.be.true;
+            console.log(target.inner.cid, source.inner.cid);
+        });
+    });
 });
 
 })));

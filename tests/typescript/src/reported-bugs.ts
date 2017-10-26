@@ -159,4 +159,26 @@ describe( 'Bugs from Volicon Observer', () =>{
             expect( p._validationError ).not.to.be.undefined;
         } );
     });
+
+    describe( 'assignFrom', ()=>{
+        it( 'copy the value if the target is null', () =>{
+            @define class Inner extends Record {
+                @attr name : string
+            }
+    
+            @define class Test extends Record {
+                @attr( Inner.value( null ) ) inner : Inner;
+            }
+    
+            const target = new Test(),
+                source = new Test({ inner : { name : "ron" } } );
+    
+            expect( target.inner ).to.be.null;
+    
+            target.assignFrom( source );
+    
+            expect( target.inner !== source.inner ).to.be.true;
+            console.log( target.inner.cid, source.inner.cid );
+        });
+    });
 } );
