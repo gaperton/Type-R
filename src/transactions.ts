@@ -28,7 +28,7 @@ export abstract class Transactional implements Messenger, Validatable, Traversab
     static __super__ : object;
     static mixins : MixinsState;
     static define : ( definition? : TransactionalDefinition, statics? : object ) => typeof Transactional;
-    static extend : <T extends TransactionalDefinition>( definition? : T, statics? : object ) => Subclass<T>;
+    static extend : <T extends TransactionalDefinition>( definition? : T, statics? : object ) => any;
 
     static onDefine : ( definition : TransactionalDefinition, BaseClass : typeof Transactional ) => void;
 

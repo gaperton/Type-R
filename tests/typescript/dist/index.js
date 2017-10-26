@@ -15904,6 +15904,77 @@ describe('Record', function () {
     });
 });
 
+var SecondsInterval = Record.extend({
+    units: [
+        'seconds',
+        'minutes',
+        'hours',
+        'days',
+        'weeks',
+        'months',
+        'years'
+    ],
+    defaults: {
+        value: 1,
+        interval: String.value('months')
+    },
+    properties: {
+        seconds: function () { return this.getUnitValue(1); },
+        minutes: function () { return this.getUnitValue(60); },
+        hours: function () { return this.getUnitValue(3600); },
+        days: function () { return this.getUnitValue(86400); },
+        weeks: function () { return this.getUnitValue(604800); },
+        months: function () { return this.getUnitValue(2628000); },
+        years: function () { return this.getUnitValue(31536000); }
+    },
+    getUnitValue: function (value$$1) {
+        return value$$1;
+    },
+    parse: function (data) {
+        var res = {
+            value: 1,
+            interval: 'months'
+        };
+        data = typeof data === 'object' ? 0 : data;
+        for (var i = this.units.length; i > 0; i--) {
+            var l = this.units[i - 1];
+            if (data % this[l] == 0) {
+                res.value = Math.floor(data / this[l]);
+                res.interval = l;
+                return res;
+            }
+        }
+        return res;
+    },
+    toInteger: function () {
+        return this.value * this[this.interval];
+    },
+    toJSON: function () {
+        return this.toInteger();
+    },
+    getUnits: function () {
+        var _this = this;
+        var units = {};
+        Object.keys(this.units).forEach(function (name) {
+            units[name] = _this[name];
+        });
+        return units;
+    }
+});
+var MinutesInterval = SecondsInterval.extend({
+    units: [
+        'minutes',
+        'hours',
+        'days',
+        'weeks',
+        'months',
+        'years'
+    ],
+    getUnitValue: function (value$$1) {
+        return value$$1 / 60;
+    },
+});
+
 describe('Bugs from Volicon Observer', function () {
     describe('Attribute change watcher', function () {
         it('works in base class and subclass', function () {
@@ -15949,6 +16020,102 @@ describe('Bugs from Volicon Observer', function () {
             subclass.added = "b";
             subclass.overriden = "b";
             chai_1(calls).to.eql(['inherited', 'added', 'subclass', 'base']);
+        });
+    });
+    describe('Validation', function () {
+        it('performs validation if collection item is changed', function () {
+            var BitrateModel = Record.extend({
+                defaults: {
+                    bitrate: Number.value(512)
+                },
+                properties: {
+                    bitrates: function () {
+                        var available_bitrate = [128, 256, 384, 450, 512, 768, 896, 1000, 1500, 2000, 2500, 3000, 4500, 6000, 6500, 9000, 12000, 15000];
+                        if (available_bitrate.indexOf(this.bitrate) === -1) {
+                            available_bitrate.push(this.bitrate);
+                        }
+                        return available_bitrate.sort(function (a, b) {
+                            return a - b;
+                        });
+                    }
+                },
+                initialize: function (options) {
+                    Record.prototype.initialize.apply(this, arguments);
+                },
+                parse: function (data) {
+                    return { bitrate: data / 1000 };
+                },
+                toJSON: function () {
+                    var json = Record.prototype.toJSON.apply(this, arguments), bitrate = json.bitrate * 1000;
+                    return bitrate;
+                }
+            });
+            var SubEncoder = Record.extend({
+                defaults: {
+                    Bitrate: BitrateModel,
+                    HistoryDepth: MinutesInterval.has.value(43800),
+                    BitrateAsString: null,
+                    ResolutionHeight: Number,
+                    ResolutionWidth: Number,
+                    resolution: String.has.toJSON(false)
+                },
+                collection: {
+                    get: function (a) {
+                        return Collection.prototype.get.apply(this, arguments) || this.models[a];
+                    },
+                    comparator: function (model1, model2) {
+                        if (model1.Bitrate.bitrate > model2.Bitrate.bitrate) {
+                            return 1;
+                        }
+                        else if (model1.Bitrate.bitrate < model2.Bitrate.bitrate) {
+                            return -1;
+                        }
+                        else {
+                            if (model1.ResolutionWidth > model2.ResolutionWidth) {
+                                return 1;
+                            }
+                            else if (model1.ResolutionWidth < model2.ResolutionWidth) {
+                                return -1;
+                            }
+                            else {
+                                if (model1.ResolutionHeight > model2.ResolutionHeight) {
+                                    return 1;
+                                }
+                                else if (model1.ResolutionHeight < model2.ResolutionHeight) {
+                                    return -1;
+                                }
+                                else {
+                                    return 0;
+                                }
+                            }
+                        }
+                    },
+                    localEvents: {
+                        change: function () {
+                            this.sort();
+                        }
+                    }
+                }
+            });
+            var Placeholder = Record.extend({
+                attributes: {
+                    subEncoders: SubEncoder.Collection.has.check(function (x) {
+                        console.log('SubEncoders', this, x);
+                        return x.length > 0;
+                    }, 'ccccc')
+                }
+            });
+            var p = new Placeholder(), subEncoders = p.subEncoders;
+            chai_1(p.isValid()).to.be.false;
+            chai_1(subEncoders.isValid()).to.be.true;
+            subEncoders.add({});
+            chai_1(p._validationError).to.be.undefined;
+            chai_1(p.isValid()).to.be.true;
+            subEncoders.first().HistoryDepth.value = 2;
+            chai_1(p._validationError).to.be.undefined;
+            chai_1(p.isValid()).to.be.true;
+            chai_1(subEncoders.isValid()).to.be.true;
+            chai_1(p._validationError).not.to.be.undefined;
         });
     });
 });

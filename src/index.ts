@@ -6,6 +6,8 @@ export * from './collection'
 export * from './relations'
 export * from './record'
 
+export * from './transactions'
+
 // Exported module itself is the global event bus.
 import { Events } from './object-plus/'
 export const { on, off, trigger, once, listenTo, stopListening, listenToOnce } = <any>Events;
