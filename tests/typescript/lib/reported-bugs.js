@@ -17,6 +17,10 @@ describe('Bugs from Volicon Observer', function () {
                     tslib_1.__metadata("design:type", String)
                 ], Base.prototype, "inherited", void 0);
                 tslib_1.__decorate([
+                    attr(String.has.watcher('onNamedWatcher')),
+                    tslib_1.__metadata("design:type", String)
+                ], Base.prototype, "namedWatcher", void 0);
+                tslib_1.__decorate([
                     attr(String.has.watcher(function (x) { return calls.push('base'); })),
                     tslib_1.__metadata("design:type", String)
                 ], Base.prototype, "overriden", void 0);
@@ -30,6 +34,9 @@ describe('Bugs from Volicon Observer', function () {
                 function Subclass() {
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
+                Subclass.prototype.onNamedWatcher = function () {
+                    calls.push('named');
+                };
                 tslib_1.__decorate([
                     attr(String.has.watcher(function (x) { return calls.push('added'); })),
                     tslib_1.__metadata("design:type", String)
@@ -47,7 +54,8 @@ describe('Bugs from Volicon Observer', function () {
             subclass.inherited = "a";
             subclass.added = "b";
             subclass.overriden = "b";
-            expect(calls).to.eql(['inherited', 'added', 'subclass', 'base']);
+            subclass.namedWatcher = "t";
+            expect(calls).to.eql(['inherited', 'added', 'subclass', 'base', 'named']);
         });
     });
     describe('Validation', function () {

@@ -12,6 +12,9 @@ describe( 'Bugs from Volicon Observer', () =>{
                 @attr( String.has.watcher( x => calls.push( 'inherited' ) ) )
                 inherited : string;
 
+                @attr( String.has.watcher( 'onNamedWatcher' ) )
+                namedWatcher : string;
+
                 @attr( String.has.watcher( x => calls.push( 'base' ) ) )
                 overriden : string;
             }
@@ -22,14 +25,19 @@ describe( 'Bugs from Volicon Observer', () =>{
 
                 @attr( String.has.watcher( x => calls.push( 'subclass') ) )
                 overriden : string;
+
+                onNamedWatcher(){
+                    calls.push( 'named' );
+                }
             }
 
             const subclass = new Subclass();
             subclass.inherited = "a";
             subclass.added = "b";
             subclass.overriden = "b";
+            subclass.namedWatcher = "t";
 
-            expect( calls ).to.eql( [ 'inherited', 'added', 'subclass', 'base' ] );
+            expect( calls ).to.eql( [ 'inherited', 'added', 'subclass', 'base', 'named' ] );
         } );
 
     } );
