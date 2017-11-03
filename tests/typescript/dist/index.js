@@ -909,6 +909,51 @@ function resolveReference(root, reference, action) {
     return action(self, path[skip]);
 }
 
+function getOwnerEndpoint$1(self) {
+    var collection = self.collection;
+    if (collection) {
+        return getOwnerEndpoint$1(collection);
+    }
+    if (self._owner) {
+        var _endpoints = self._owner._endpoints;
+        return _endpoints && _endpoints[self._ownerKey];
+    }
+}
+
+function startIO(self, promise, options, thenDo) {
+    abortIO(self);
+    self._ioPromise = promise
+        .then(function (resp) {
+        self._ioPromise = null;
+        var result = thenDo ? thenDo(resp) : resp;
+        triggerAndBubble(self, 'sync', self, resp, options);
+        return result;
+    })
+        .catch(function (err) {
+        self._ioPromise = null;
+        console.error(err);
+        triggerAndBubble(self, 'error', self, err, options);
+        throw err;
+    });
+    self._ioPromise.abort = promise.abort;
+    return self._ioPromise;
+}
+function abortIO(self) {
+    if (self._ioPromise && self._ioPromise.abort) {
+        self._ioPromise.abort();
+        self._ioPromise = null;
+    }
+}
+function triggerAndBubble(eventSource) {
+    var args = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        args[_i - 1] = arguments[_i];
+    }
+    eventSource.trigger.apply(eventSource, args);
+    var collection = eventSource.collection;
+    collection && collection.trigger.apply(collection, args);
+}
+
 var trigger3$2 = trigger3$1;
 var on$4 = on$2;
 var off$4 = off$2;
@@ -930,6 +975,12 @@ var Transactional = (function () {
         this.cid = this.cidPrefix + cid;
     }
     Transactional_1 = Transactional;
+    Transactional.onDefine = function (definitions, BaseClass) {
+        if (definitions.endpoint)
+            this.prototype._endpoint = definitions.endpoint;
+        Messenger.onDefine.call(this, definitions, BaseClass);
+    };
+    
     Transactional.onExtend = function (BaseClass) {
         if (BaseClass.create === this.create) {
             this.create = Transactional_1.create;
@@ -941,6 +992,7 @@ var Transactional = (function () {
     Transactional.prototype.dispose = function () {
         if (this._disposed)
             return;
+        abortIO(this);
         this._owner = void 0;
         this._ownerKey = void 0;
         this.off();
@@ -999,6 +1051,10 @@ var Transactional = (function () {
         });
         return arr;
     };
+    Transactional.prototype.fetch = function (options) { throw new Error("Not implemented"); };
+    Transactional.prototype.getEndpoint = function () {
+        return getOwnerEndpoint(this) || this._endpoint;
+    };
     Transactional.prototype.mapObject = function (iteratee, context) {
         var obj = {};
         this.each(function (val, key) {
@@ -1040,6 +1096,9 @@ var Transactional = (function () {
     };
     Transactional = Transactional_1 = __decorate([
         define,
+        definitions({
+            endpoint: mixinRules.value
+        }),
         mixins(Messenger)
     ], Transactional);
     return Transactional;
@@ -1091,6 +1150,16 @@ var transactionApi = {
         }
     }
 };
+function getOwnerEndpoint(self) {
+    var collection = self.collection;
+    if (collection) {
+        return getOwnerEndpoint(collection);
+    }
+    if (self._owner) {
+        var _endpoints = self._owner._endpoints;
+        return _endpoints && _endpoints[self._ownerKey];
+    }
+}
 
 var _begin = transactionApi.begin;
 var _markAsDirty = transactionApi.markAsDirty;
@@ -1992,6 +2061,40 @@ function createWatcherFromRef(ref, key) {
         };
 }
 
+var IORecordMixin = {
+    getEndpoint: function () {
+        return getOwnerEndpoint$1(this) || this._endpoint;
+    },
+    save: function (options) {
+        var _this = this;
+        if (options === void 0) { options = {}; }
+        var endpoint = this.getEndpoint(), json = this.toJSON();
+        return startIO(this, this.isNew() ?
+            endpoint.create(json, options) :
+            endpoint.update(this.id, json, options), options, function (update) {
+            _this.set(update, __assign({ parse: true }, options));
+        });
+    },
+    fetch: function (options) {
+        var _this = this;
+        if (options === void 0) { options = {}; }
+        return startIO(this, this.getEndpoint().read(this.id, options), options, function (json) { return _this.set(json, __assign({ parse: true }, options)); });
+    },
+    destroy: function (options) {
+        var _this = this;
+        if (options === void 0) { options = {}; }
+        return startIO(this, this.getEndpoint().destroy(this.id, options), options, function () {
+            var collection = _this.collection;
+            if (collection) {
+                collection.remove(_this, options);
+            }
+            else {
+                _this.dispose();
+            }
+        });
+    }
+};
+
 var assign$4 = assign;
 var isEmpty$1 = isEmpty;
 var log$2 = log;
@@ -2248,9 +2351,11 @@ var Record = (function (_super) {
             _changeEventName: 'change',
             idAttribute: 'id'
         }),
+        mixins(IORecordMixin),
         definitions({
             defaults: mixinRules.merge,
             attributes: mixinRules.merge,
+            endpoints: mixinRules.merge,
             collection: mixinRules.merge,
             Collection: mixinRules.value,
             idAttribute: mixinRules.protoValue
@@ -2323,10 +2428,14 @@ Record.onDefine = function (definition, BaseClass) {
     assign$3(this.prototype, dynamicMixin);
     definition.properties = defaults$2(definition.properties || {}, properties);
     definition._localEvents = _localEvents;
+    if (definition.endpoints)
+        this.prototype._endpoints = definition.endpoints;
     Transactional.onDefine.call(this, definition, BaseClass);
     this.DefaultCollection.define(definition.collection || {});
     this.Collection = definition.Collection;
     this.Collection.prototype.model = this;
+    if (definition.endpoint)
+        this.Collection.prototype._endpoint = definition.endpoint;
 };
 Record._attribute = AggregatedType;
 createSharedTypeSpec(Record, SharedType);
@@ -2933,6 +3042,38 @@ var Collection = (function (_super) {
         }
         return this;
     };
+    Collection.prototype.liveUpdates = function (enabled) {
+        var _this = this;
+        if (enabled) {
+            this.liveUpdates(false);
+            var filter_1 = typeof enabled === 'function' ? enabled : function () { return true; };
+            this._liveUpdates = {
+                updated: function (json) {
+                    filter_1(json) && _this.add(json, { parse: true, merge: true });
+                },
+                removed: function (id) { return _this.remove(id); }
+            };
+            return this.getEndpoint().subscribe(this._liveUpdates);
+        }
+        else {
+            if (this._liveUpdates) {
+                this.getEndpoint().unsubscribe(this._liveUpdates);
+                this._liveUpdates = null;
+            }
+        }
+    };
+    Collection.prototype.fetch = function (a_options) {
+        var _this = this;
+        if (a_options === void 0) { a_options = {}; }
+        var options = __assign({ parse: true }, a_options), endpoint = this.getEndpoint();
+        return startIO(this, endpoint.list(options), options, function (json) {
+            var result = _this.set(json, __assign({ parse: true }, options));
+            if (options.liveUpdates) {
+                result = _this.liveUpdates(options.liveUpdates);
+            }
+            return result;
+        });
+    };
     Collection.prototype.dispose = function () {
         if (this._disposed)
             return;
@@ -2943,6 +3084,7 @@ var Collection = (function (_super) {
             if (aggregated)
                 record.dispose();
         }
+        this.liveUpdates(false);
         _super.prototype.dispose.call(this);
     };
     Collection.prototype.reset = function (a_elements, options) {

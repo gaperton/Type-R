@@ -3,7 +3,7 @@
  * The root of all definitions. 
  */
 
-import { tools, eventsApi, Mixable, definitions, mixinRules, define } from '../object-plus'
+import { tools, eventsApi, Mixable, definitions, mixins,  mixinRules, define } from '../object-plus'
 
 import { CloneOptions, Transactional, TransactionalDefinition, Transaction, TransactionOptions, Owner } from '../transactions'
 import { ChildrenErrors } from '../validation'
@@ -13,6 +13,9 @@ import { Collection } from '../collection'
 import { AnyType, AggregatedType, setAttribute, UpdateRecordMixin, 
     AttributesValues, AttributesContainer,
     ConstructorsMixin, AttributesConstructor, AttributesCopyConstructor } from './attributes'
+
+import { IORecord, IORecordMixin } from './io-mixin'
+import { IOPromise, IOEndpoint } from '../io-tools'
 
 const { assign, isEmpty, log } = tools;
 
@@ -33,6 +36,7 @@ let _cidCounter : number = 0;
 export interface RecordDefinition extends TransactionalDefinition {
     idAttribute? : string
     attributes? : AttributesValues
+    endpoints : { [ name : string ] : IOEndpoint }
     collection? : object
     Collection? : typeof Transactional
 }
@@ -47,14 +51,16 @@ export interface RecordDefinition extends TransactionalDefinition {
     // Default id attribute name
     idAttribute : 'id'
 })
+@mixins( IORecordMixin )
 @definitions({
     defaults : mixinRules.merge,
     attributes : mixinRules.merge,
+    endpoints : mixinRules.merge,
     collection : mixinRules.merge,
     Collection : mixinRules.value,
     idAttribute : mixinRules.protoValue
 })
-export class Record extends Transactional implements AttributesContainer {
+export class Record extends Transactional implements IORecord, AttributesContainer {
     // Hack
     static onDefine( definition, BaseClass ){}
 
@@ -68,6 +74,14 @@ export class Record extends Transactional implements AttributesContainer {
     }
     
     static attributes : AttributesValues
+
+    /********************
+     * IO Methods
+     */
+     _endpoints : { [ name : string ] : IOEndpoint }
+
+     save : ( options? : object ) => IOPromise<any>
+     destroy : ( options? : object ) => IOPromise<any>
 
     /***********************************
      * Core Members

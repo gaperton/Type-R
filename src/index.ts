@@ -8,6 +8,8 @@ export * from './record'
 
 export * from './transactions'
 
+export { IOEndpoint, IOPromise, createIOPromise } from './io-tools'
+
 // Exported module itself is the global event bus.
 import { Events } from './object-plus/'
 export const { on, off, trigger, once, listenTo, stopListening, listenToOnce } = <any>Events;
