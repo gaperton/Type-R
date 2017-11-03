@@ -7,10 +7,10 @@ export interface IOPromise<T> extends Promise<T> {
 }
 export interface IOEndpoint {
     list(options: object): IOPromise<any>;
-    create(json: any, options: any): IOPromise<any>;
-    update(id: any, json: any, options: any): IOPromise<any>;
-    read(id: any, options: any): IOPromise<any>;
-    destroy(id: any, options: any): IOPromise<any>;
+    create(json: any, options: object): IOPromise<any>;
+    update(id: string | number, json: any, options: object): IOPromise<any>;
+    read(id: string | number, options: object): IOPromise<any>;
+    destroy(id: string | number, options: object): IOPromise<any>;
     subscribe(events: IOEvents): IOPromise<any>;
     unsubscribe(events: IOEvents): void;
 }
