@@ -1,12 +1,14 @@
-import { IOEndpoint, IOPromise, createIOPromise } from '../../src/io-tools'
+import { IOEndpoint, IOPromise, createIOPromise } from '../io-tools'
 
 export type Index = number[];
 
 export function create( delay = 1000 ){
-    return new Endpoint( delay );
+    return new MemoryEndpoint( delay );
 }
 
-export class Endpoint implements IOEndpoint {
+export { create as memoryIO };
+
+export class MemoryEndpoint implements IOEndpoint {
     static create( delay = 1000 ){
         return new this( delay );
     }

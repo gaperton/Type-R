@@ -1,8 +1,12 @@
 import { IOEndpoint, IOPromise } from '../io-tools';
-import FakeEndpoint from './fakeEndpoint';
 export declare type Index = number[];
-export default function memoryIO(delay?: number): MemoryIOEndpoint;
-export declare class MemoryIOEndpoint extends FakeEndpoint implements IOEndpoint {
+export declare function create(delay?: number): MemoryEndpoint;
+export { create as memoryIO };
+export declare class MemoryEndpoint implements IOEndpoint {
+    delay: number;
+    static create(delay?: number): MemoryEndpoint;
+    resolve(value: any): IOPromise<any>;
+    reject(value: any): IOPromise<any>;
     constructor(delay: number);
     index: number[];
     items: {};

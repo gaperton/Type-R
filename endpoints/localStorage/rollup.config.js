@@ -3,12 +3,12 @@ import uglify from 'rollup-plugin-uglify';
 import sourcemaps from 'rollup-plugin-sourcemaps';
 
 export default {
-    input : 'lib/endpoints/localStorage.js',
+    input : 'lib/endpoints/memory.js',
 
     output : {
-        file   : 'endpoints/localStorage/index.js',
+        file   : 'endpoints/memory/index.js',
         format : 'umd',
-        name   : 'localStorageIO'
+        name   : 'memoryIO'
     },
     plugins: [
         resolve(), //for support of `import X from "directory"` rather than verbose `import X from "directory/index"`

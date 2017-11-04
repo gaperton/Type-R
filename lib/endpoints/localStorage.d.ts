@@ -1,10 +1,13 @@
 import { IOEndpoint, IOPromise } from '../io-tools';
-import FakeEndpoint from './fakeEndpoint';
 export declare type Index = number[];
-export default function localStorageIO(key: string, delay?: number): LocalStorageIOEndpoint;
-export declare class LocalStorageIOEndpoint extends FakeEndpoint implements IOEndpoint {
+export declare function create(key: string, delay?: number): LocalStorageEndpoint;
+export { create as localStorageIO };
+export declare class LocalStorageEndpoint implements IOEndpoint {
     key: string;
-    constructor(key: string, delay: any);
+    delay: number;
+    constructor(key: string, delay: number);
+    resolve(value: any): IOPromise<any>;
+    reject(value: any): IOPromise<any>;
     create(json: any, options: any): IOPromise<any>;
     set(json: any): void;
     get(id: any): any;

@@ -1,14 +1,10 @@
 {
-    "name": "memoryIO",
+    "name": "localStorageIO",
     "main": "./index.js",
-    "jsnext:main": "./lib/endpoints/memory/index.js",
-    "module": "./lib/endpoints/memory/index.js",
-    "types": "./lib/endpoints/memory/index.d.ts",
+    "jsnext:main": "../../lib/endpoints/localStorage.js",
+    "module": "../../lib/endpoints/localStorage.js",
+    "types": "../../lib/endpoints/localStorage.d.ts",
     "scripts": {
-      "build:lib": "npm run compile:lib && npm run bundle:lib",
-      "compile:lib": "../../node_modules/.bin/tsc",
-      "bundle:lib": "../../node_modules/.bin/rollup --config",
-      "build": "npm run build:lib"
     },
     "author": "Vlad Balin",
     "license": "MIT"

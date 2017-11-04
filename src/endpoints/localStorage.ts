@@ -1,15 +1,27 @@
 import { IOEndpoint, IOPromise, createIOPromise } from '../io-tools'
-import FakeEndpoint from './fakeEndpoint'
 
 export type Index = number[];
 
-export default function localStorageIO( key : string, delay = 1000 ){
-    return new LocalStorageIOEndpoint( key, delay );
+export function create( key : string, delay = 1000 ){
+    return new LocalStorageEndpoint( key, delay );
 }
 
-export class LocalStorageIOEndpoint extends FakeEndpoint implements IOEndpoint {
-    constructor( public key : string, delay ){
-        super( delay );
+export { create as localStorageIO }
+
+export class LocalStorageEndpoint implements IOEndpoint {
+    constructor( public key : string, public delay : number ){
+    }
+
+    resolve( value ){
+        return createIOPromise( ( resolve, reject ) => {
+            setTimeout( () => resolve( value ), this.delay );
+        });
+    }
+    
+    reject( value ){
+        return createIOPromise( ( resolve, reject ) => {
+            setTimeout( () => reject( value ), this.delay );
+        });
     }
 
     create( json, options ) {
