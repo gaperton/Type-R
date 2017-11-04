@@ -1,13 +1,12 @@
 import { IOEndpoint, IOPromise } from '../io-tools';
 export declare type Index = (number | string)[];
-export declare function create(delay?: number): MemoryEndpoint;
+export declare function create(init?: any[], delay?: number): MemoryEndpoint;
 export { create as memoryIO };
 export declare class MemoryEndpoint implements IOEndpoint {
     delay: number;
-    static create(delay?: number): MemoryEndpoint;
     resolve(value: any): IOPromise<any>;
     reject(value: any): IOPromise<any>;
-    constructor(delay: number);
+    constructor(init: object[], delay: number);
     index: Index;
     items: {};
     generateId(): string;

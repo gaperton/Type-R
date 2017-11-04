@@ -4,8 +4,12 @@ import { expect } from 'chai'
 import { memoryIO } from '../../../lib/endpoints/memory'
 
 describe( 'IO', () => {
+    const testData = [
+        { name : "John" }
+    ];
+
     @define class User extends Record {
-        static endpoint = memoryIO( 10 );
+        static endpoint = memoryIO( testData );
 
         @attr name : string
     }
@@ -13,13 +17,13 @@ describe( 'IO', () => {
     it( 'create', done =>{
         const x = new User({ name : "test" });
         x.save().then( () => {
-            expect( x.id ).to.eql( "0" );
+            expect( x.id ).to.eql( "1" );
             done();
         });
     });
 
     it( 'read', done => {
-        const x = new User({ id : "0" });
+        const x = new User({ id : "1" });
         x.fetch().then( () => {
             expect( x.name ).to.eql( "test" );
             done();
@@ -27,14 +31,14 @@ describe( 'IO', () => {
     });
 
     it( 'update', done => {
-        const x = new User({ id : "0" });
+        const x = new User({ id : "1" });
         x.fetch()
             .then( () => {
                 x.name = "Mike";
                 return x.save();
             })
             .then( () => {
-                const y = new User({ id : "0" });
+                const y = new User({ id : "1" });
                 return y.fetch();
             })
             .then( y => {
@@ -47,21 +51,21 @@ describe( 'IO', () => {
         const users = new User.Collection();
         users.fetch()
             .then( () =>{
-                expect( users.length ).to.eql( 1 );
-                expect( ( users.first() as any ).name ).to.eql( "Mike" );
+                expect( users.length ).to.eql( 2 );
+                expect( ( users.last() as any ).name ).to.eql( "Mike" );
                 done();
             });
     });
 
     it( "destroy", done => {
-        const x = new User({ id : "0" });
+        const x = new User({ id : "1" });
         x.destroy()
             .then( () => {
                 const users = new User.Collection();
                 return users.fetch();
             })
             .then( users => {
-                expect( users.length ).to.eql( 0 );
+                expect( users.length ).to.eql( 1 );
                 done();
             });
     });

@@ -2,17 +2,13 @@ import { IOEndpoint, IOPromise, createIOPromise } from '../io-tools'
 
 export type Index = ( number | string )[];
 
-export function create( delay = 1000 ){
-    return new MemoryEndpoint( delay );
+export function create( init = [], delay = 50 ){
+    return new MemoryEndpoint( init, delay );
 }
 
 export { create as memoryIO };
 
 export class MemoryEndpoint implements IOEndpoint {
-    static create( delay = 1000 ){
-        return new this( delay );
-    }
-
     resolve( value ){
         return createIOPromise( ( resolve, reject ) => {
             setTimeout( () => resolve( value ), this.delay );
@@ -25,7 +21,10 @@ export class MemoryEndpoint implements IOEndpoint {
         });
     }
 
-    constructor( public delay : number ){
+    constructor( init : object[], public delay : number ){
+        for( let obj of init ){
+            this.create( obj, {} );
+        }
     }
 
     index : Index = [ 0 ];

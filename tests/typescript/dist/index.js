@@ -16321,20 +16321,21 @@ describe('Bugs from Volicon Observer', function () {
     });
 });
 
-function create(delay) {
-    if (delay === void 0) { delay = 1000; }
-    return new MemoryEndpoint(delay);
+function create(init, delay) {
+    if (init === void 0) { init = []; }
+    if (delay === void 0) { delay = 50; }
+    return new MemoryEndpoint(init, delay);
 }
 var MemoryEndpoint = (function () {
-    function MemoryEndpoint(delay) {
+    function MemoryEndpoint(init, delay) {
         this.delay = delay;
         this.index = [0];
         this.items = {};
+        for (var _i = 0, init_1 = init; _i < init_1.length; _i++) {
+            var obj = init_1[_i];
+            this.create(obj, {});
+        }
     }
-    MemoryEndpoint.create = function (delay) {
-        if (delay === void 0) { delay = 1000; }
-        return new this(delay);
-    };
     MemoryEndpoint.prototype.resolve = function (value) {
         var _this = this;
         return createIOPromise(function (resolve, reject) {
@@ -16393,12 +16394,15 @@ var MemoryEndpoint = (function () {
 }());
 
 describe('IO', function () {
+    var testData = [
+        { name: "John" }
+    ];
     var User = (function (_super) {
         __extends(User, _super);
         function User() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
-        User.endpoint = create(10);
+        User.endpoint = create(testData);
         __decorate([
             attr,
             __metadata("design:type", String)
@@ -16411,26 +16415,26 @@ describe('IO', function () {
     it('create', function (done) {
         var x = new User({ name: "test" });
         x.save().then(function () {
-            chai_1(x.id).to.eql("0");
+            chai_1(x.id).to.eql("1");
             done();
         });
     });
     it('read', function (done) {
-        var x = new User({ id: "0" });
+        var x = new User({ id: "1" });
         x.fetch().then(function () {
             chai_1(x.name).to.eql("test");
             done();
         });
     });
     it('update', function (done) {
-        var x = new User({ id: "0" });
+        var x = new User({ id: "1" });
         x.fetch()
             .then(function () {
             x.name = "Mike";
             return x.save();
         })
             .then(function () {
-            var y = new User({ id: "0" });
+            var y = new User({ id: "1" });
             return y.fetch();
         })
             .then(function (y) {
@@ -16442,20 +16446,20 @@ describe('IO', function () {
         var users = new User.Collection();
         users.fetch()
             .then(function () {
-            chai_1(users.length).to.eql(1);
-            chai_1(users.first().name).to.eql("Mike");
+            chai_1(users.length).to.eql(2);
+            chai_1(users.last().name).to.eql("Mike");
             done();
         });
     });
     it("destroy", function (done) {
-        var x = new User({ id: "0" });
+        var x = new User({ id: "1" });
         x.destroy()
             .then(function () {
             var users = new User.Collection();
             return users.fetch();
         })
             .then(function (users) {
-            chai_1(users.length).to.eql(0);
+            chai_1(users.length).to.eql(1);
             done();
         });
     });
