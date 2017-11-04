@@ -1,15 +1,29 @@
-import { IOEndpoint, IOPromise, createIOPromise } from '../io-tools'
-import FakeEndpoint from './fakeEndpoint'
+import { IOEndpoint, IOPromise, createIOPromise } from '../../src/io-tools'
 
 export type Index = number[];
 
-export default function memoryIO( delay = 1000 ){
-    return new MemoryIOEndpoint( delay );
+export function create( delay = 1000 ){
+    return new Endpoint( delay );
 }
 
-export class MemoryIOEndpoint extends FakeEndpoint implements IOEndpoint {
-    constructor( delay : number ){
-        super( delay );
+export class Endpoint implements IOEndpoint {
+    static create( delay = 1000 ){
+        return new this( delay );
+    }
+
+    resolve( value ){
+        return createIOPromise( ( resolve, reject ) => {
+            setTimeout( () => resolve( value ), this.delay );
+        });
+    }
+    
+    reject( value ){
+        return createIOPromise( ( resolve, reject ) => {
+            setTimeout( () => reject( value ), this.delay );
+        });
+    }
+
+    constructor( public delay : number ){
     }
 
     index = [ 0 ];

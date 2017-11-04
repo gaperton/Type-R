@@ -9,7 +9,8 @@
   "files": [
     "dist",
     "lib",
-    "src"
+    "src",
+    "endpoints"
   ],
   "directories": {
     "test": "tests"
