@@ -919,7 +919,21 @@ function getOwnerEndpoint$1(self) {
         return _endpoints && _endpoints[self._ownerKey];
     }
 }
-
+function createIOPromise(initialize) {
+    var resolve, reject, onAbort;
+    function abort(fn) {
+        onAbort = fn;
+    }
+    var promise = new Promise(function (a_resolve, a_reject) {
+        reject = a_reject;
+        resolve = a_resolve;
+        initialize(resolve, reject, abort);
+    });
+    promise.abort = function () {
+        onAbort ? onAbort(resolve, reject) : reject(new Error("I/O Aborted"));
+    };
+    return promise;
+}
 function startIO(self, promise, options, thenDo) {
     abortIO(self);
     self._ioPromise = promise
@@ -16303,6 +16317,146 @@ describe('Bugs from Volicon Observer', function () {
             target.assignFrom(source);
             chai_1(target.inner !== source.inner).to.be.true;
             console.log(target.inner.cid, source.inner.cid);
+        });
+    });
+});
+
+function create(delay) {
+    if (delay === void 0) { delay = 1000; }
+    return new MemoryEndpoint(delay);
+}
+var MemoryEndpoint = (function () {
+    function MemoryEndpoint(delay) {
+        this.delay = delay;
+        this.index = [0];
+        this.items = {};
+    }
+    MemoryEndpoint.create = function (delay) {
+        if (delay === void 0) { delay = 1000; }
+        return new this(delay);
+    };
+    MemoryEndpoint.prototype.resolve = function (value) {
+        var _this = this;
+        return createIOPromise(function (resolve, reject) {
+            setTimeout(function () { return resolve(value); }, _this.delay);
+        });
+    };
+    MemoryEndpoint.prototype.reject = function (value) {
+        var _this = this;
+        return createIOPromise(function (resolve, reject) {
+            setTimeout(function () { return reject(value); }, _this.delay);
+        });
+    };
+    MemoryEndpoint.prototype.generateId = function () {
+        return String(this.index[0]++);
+    };
+    MemoryEndpoint.prototype.create = function (json, options) {
+        var id = json.id = this.generateId();
+        this.index.push(id);
+        this.items[id] = json;
+        return this.resolve({ id: id });
+    };
+    MemoryEndpoint.prototype.update = function (id, json, options) {
+        var existing = this.items[id];
+        if (existing) {
+            this.items[id] = json;
+            return this.resolve({});
+        }
+        else {
+            return this.reject("Not found");
+        }
+    };
+    MemoryEndpoint.prototype.read = function (id, options) {
+        var existing = this.items[id];
+        return existing ?
+            this.resolve(existing) :
+            this.reject("Not found");
+    };
+    MemoryEndpoint.prototype.destroy = function (id, options) {
+        var existing = this.items[id];
+        if (existing) {
+            delete this.items[id];
+            this.index = this.index.filter(function (x) { return x !== id; });
+            return this.resolve({});
+        }
+        else {
+            return this.reject("Not found");
+        }
+    };
+    MemoryEndpoint.prototype.list = function (options) {
+        var _this = this;
+        return this.resolve(this.index.slice(1).map(function (id) { return _this.items[id]; }));
+    };
+    MemoryEndpoint.prototype.subscribe = function (events) { };
+    MemoryEndpoint.prototype.unsubscribe = function (events) { };
+    return MemoryEndpoint;
+}());
+
+describe('IO', function () {
+    var User = (function (_super) {
+        __extends(User, _super);
+        function User() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        User.endpoint = create(10);
+        __decorate([
+            attr,
+            __metadata("design:type", String)
+        ], User.prototype, "name", void 0);
+        User = __decorate([
+            define
+        ], User);
+        return User;
+    }(Record));
+    it('create', function (done) {
+        var x = new User({ name: "test" });
+        x.save().then(function () {
+            chai_1(x.id).to.eql("0");
+            done();
+        });
+    });
+    it('read', function (done) {
+        var x = new User({ id: "0" });
+        x.fetch().then(function () {
+            chai_1(x.name).to.eql("test");
+            done();
+        });
+    });
+    it('update', function (done) {
+        var x = new User({ id: "0" });
+        x.fetch()
+            .then(function () {
+            x.name = "Mike";
+            return x.save();
+        })
+            .then(function () {
+            var y = new User({ id: "0" });
+            return y.fetch();
+        })
+            .then(function (y) {
+            chai_1(y.name).to.eql('Mike');
+            done();
+        });
+    });
+    it('list', function (done) {
+        var users = new User.Collection();
+        users.fetch()
+            .then(function () {
+            chai_1(users.length).to.eql(1);
+            chai_1(users.first().name).to.eql("Mike");
+            done();
+        });
+    });
+    it("destroy", function (done) {
+        var x = new User({ id: "0" });
+        x.destroy()
+            .then(function () {
+            var users = new User.Collection();
+            return users.fetch();
+        })
+            .then(function (users) {
+            chai_1(users.length).to.eql(0);
+            done();
         });
     });
 });

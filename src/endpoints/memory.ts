@@ -1,6 +1,6 @@
 import { IOEndpoint, IOPromise, createIOPromise } from '../io-tools'
 
-export type Index = number[];
+export type Index = ( number | string )[];
 
 export function create( delay = 1000 ){
     return new MemoryEndpoint( delay );
@@ -28,11 +28,11 @@ export class MemoryEndpoint implements IOEndpoint {
     constructor( public delay : number ){
     }
 
-    index = [ 0 ];
+    index : Index = [ 0 ];
     items = {};
 
     generateId(){
-        return this.index[ 0 ]++;
+        return String( ( this.index[ 0 ] as number ) ++ );
     }
 
     create( json, options ) {
@@ -73,7 +73,7 @@ export class MemoryEndpoint implements IOEndpoint {
     }
 
     list( options? : object ) {
-        return this.resolve( this.index );
+        return this.resolve( this.index.slice( 1 ).map( id => this.items[ id ]) );
     }
 
     subscribe( events ) : any {}
