@@ -15,19 +15,16 @@
     "test": "tests"
   },
   "scripts": {
-    "build:lib" : "npm run compile:lib && npm run bundle:lib",
+    "build:lib": "npm run compile:lib && npm run bundle:lib",
     "compile:lib": "node_modules/.bin/tsc",
     "bundle:lib": "node_modules/.bin/rollup --config",
-    
     "test": "npm run build:test && npm run run:test",
-    
     "build": "npm run build:lib && npm test",
     "docs": "node docs/build.js",
-
-    "run:test" : "node_modules/.bin/mocha tests/nestedtypes/functionality && node_modules/.bin/mocha tests/typescript/dist",
-    "build:test" : "npm run compile:test && npm run bundle:test",
-    "compile:test" : "cd tests/typescript && ../../node_modules/.bin/tsc",
-    "bundle:test" : "cd tests/typescript && ../../node_modules/.bin/rollup --config"
+    "run:test": "node_modules/.bin/mocha tests/nestedtypes/functionality && node_modules/.bin/mocha tests/typescript/dist",
+    "build:test": "npm run compile:test && npm run bundle:test",
+    "compile:test": "cd tests/typescript && ../../node_modules/.bin/tsc",
+    "bundle:test": "cd tests/typescript && ../../node_modules/.bin/rollup --config"
   },
   "repository": {
     "type": "git",
@@ -49,7 +46,7 @@
   "homepage": "https://github.com/gaperton/TransactionalJS#readme",
   "devDependencies": {
     "@types/chai": "^4.0.4",
-    "@types/mocha": "^2.2.43",
+    "@types/mocha": "^2.2.44",
     "@types/sinon-chai": "^2.7.29",
     "chai": "^4.1.2",
     "handlebars": "^4.0.11",
@@ -58,13 +55,13 @@
     "mocha": "^3.5.3",
     "reflect-metadata": "^0.1.10",
     "rollup": "^0.50.0",
-    "rollup-plugin-commonjs": "^8.2.4",
+    "rollup-plugin-commonjs": "^8.2.6",
     "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-plugin-sourcemaps": "^0.4.2",
     "rollup-plugin-uglify": "^2.0.1",
     "sinon-chai": "^2.14.0",
     "ts-node": "^3.3.0",
-    "typescript": "^2.5.3"
+    "typescript": "^2.6.1"
   },
   "dependencies": {
     "tslib": "^1.8.0"
