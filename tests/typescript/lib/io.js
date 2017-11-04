@@ -57,6 +57,7 @@ describe('IO', function () {
         users.fetch()
             .then(function () {
             expect(users.length).to.eql(2);
+            expect(users.first().name).to.eql("John");
             expect(users.last().name).to.eql("Mike");
             done();
         });

@@ -52,6 +52,7 @@ describe( 'IO', () => {
         users.fetch()
             .then( () =>{
                 expect( users.length ).to.eql( 2 );
+                expect( ( users.first() as any ).name ).to.eql( "John" );
                 expect( ( users.last() as any ).name ).to.eql( "Mike" );
                 done();
             });

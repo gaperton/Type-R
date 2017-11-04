@@ -16447,6 +16447,7 @@ describe('IO', function () {
         users.fetch()
             .then(function () {
             chai_1(users.length).to.eql(2);
+            chai_1(users.first().name).to.eql("John");
             chai_1(users.last().name).to.eql("Mike");
             done();
         });
