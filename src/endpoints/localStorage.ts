@@ -26,7 +26,7 @@ export class LocalStorageEndpoint implements IOEndpoint {
 
     create( json, options ) {
         const { index } = this;
-        index.push( json.id = index[ 0 ]++ );
+        index.push( json.id = String( ( index[ 0 ] as number )++ ) );
         this.index = index;
         this.set( json );
         return this.resolve({ id : json.id });
@@ -71,7 +71,7 @@ export class LocalStorageEndpoint implements IOEndpoint {
         }
     }
 
-    get index() : number[]{
+    get index() : ( string | number )[]{
         return JSON.parse( localStorage.getItem( this.key ) ) || [ 0 ];
     }
 
@@ -81,7 +81,7 @@ export class LocalStorageEndpoint implements IOEndpoint {
 
     list( options? : object ) {
         const { index } = this; 
-        return this.resolve( this.index.map( id => this.get( id ) ) );
+        return this.resolve( this.index.slice( 1 ).map( id => this.get( id ) ) );
     }
 
     subscribe( events ) : any {}
