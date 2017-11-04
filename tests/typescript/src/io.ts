@@ -13,6 +13,16 @@ describe( 'IO', () => {
 
         @attr name : string
     }
+
+    it( 'loads the test data', done => {
+        const users = new User.Collection();
+        users.fetch()
+            .then( () => {
+                expect( users.length ).to.eql( 1 );
+                expect( ( users.first() as any ).name ).to.eql( 'John' );
+                done();
+            });
+    });
     
     it( 'create', done =>{
         const x = new User({ name : "test" });

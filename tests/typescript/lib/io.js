@@ -22,6 +22,15 @@ describe('IO', function () {
         ], User);
         return User;
     }(Record));
+    it('loads the test data', function (done) {
+        var users = new User.Collection();
+        users.fetch()
+            .then(function () {
+            expect(users.length).to.eql(1);
+            expect(users.first().name).to.eql('John');
+            done();
+        });
+    });
     it('create', function (done) {
         var x = new User({ name: "test" });
         x.save().then(function () {
