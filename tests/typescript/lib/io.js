@@ -70,6 +70,7 @@ describe('IO', function () {
         })
             .then(function (users) {
             expect(users.length).to.eql(1);
+            expect(users.first().name).to.eql("John");
             done();
         });
     });

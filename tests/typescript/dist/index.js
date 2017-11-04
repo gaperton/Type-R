@@ -16460,6 +16460,7 @@ describe('IO', function () {
         })
             .then(function (users) {
             chai_1(users.length).to.eql(1);
+            chai_1(users.first().name).to.eql("John");
             done();
         });
     });

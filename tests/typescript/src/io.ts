@@ -66,6 +66,7 @@ describe( 'IO', () => {
             })
             .then( users => {
                 expect( users.length ).to.eql( 1 );
+                expect( users.first().name ).to.eql( "John" );
                 done();
             });
     });
