@@ -2,25 +2,27 @@ import { IOEndpoint, IOPromise, createIOPromise } from '../io-tools'
 
 export type Index = number[];
 
-export function create( key : string, delay = 1000 ){
-    return new LocalStorageEndpoint( key, delay );
+export function create( key : string ){
+    return new LocalStorageEndpoint( key );
 }
 
 export { create as localStorageIO }
 
 export class LocalStorageEndpoint implements IOEndpoint {
-    constructor( public key : string, public delay : number ){
+    constructor( public key : string ){
     }
 
     resolve( value ){
         return createIOPromise( ( resolve, reject ) => {
-            setTimeout( () => resolve( value ), this.delay );
+            setTimeout( () =>{
+                resolve( value )
+            }, 0 );
         });
     }
     
     reject( value ){
         return createIOPromise( ( resolve, reject ) => {
-            setTimeout( () => reject( value ), this.delay );
+            setTimeout( () => reject( value ), 0 );
         });
     }
 
@@ -62,7 +64,7 @@ export class LocalStorageEndpoint implements IOEndpoint {
     destroy( id, options ){
         const existing = this.get( id );
         if( existing ){
-            localStorage.removeItem( id );
+            localStorage.removeItem( this.key + '#' + id );
             this.index = this.index.filter( x => x !== id );
             return this.resolve( {} );
         }

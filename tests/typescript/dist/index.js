@@ -16393,88 +16393,243 @@ var MemoryEndpoint = (function () {
     return MemoryEndpoint;
 }());
 
-describe('IO', function () {
-    var testData = [
-        { name: "John" }
-    ];
-    var User = (function (_super) {
-        __extends(User, _super);
-        function User() {
-            return _super !== null && _super.apply(this, arguments) || this;
+function create$1(key) {
+    return new LocalStorageEndpoint(key);
+}
+var LocalStorageEndpoint = (function () {
+    function LocalStorageEndpoint(key) {
+        this.key = key;
+    }
+    LocalStorageEndpoint.prototype.resolve = function (value) {
+        return createIOPromise(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value);
+            }, 0);
+        });
+    };
+    LocalStorageEndpoint.prototype.reject = function (value) {
+        return createIOPromise(function (resolve, reject) {
+            setTimeout(function () { return reject(value); }, 0);
+        });
+    };
+    LocalStorageEndpoint.prototype.create = function (json, options) {
+        var index = this.index;
+        index.push(json.id = String(index[0]++));
+        this.index = index;
+        this.set(json);
+        return this.resolve({ id: json.id });
+    };
+    LocalStorageEndpoint.prototype.set = function (json) {
+        localStorage.setItem(this.key + '#' + json.id, JSON.stringify(json));
+    };
+    LocalStorageEndpoint.prototype.get = function (id) {
+        return JSON.parse(localStorage.getItem(this.key + '#' + id));
+    };
+    LocalStorageEndpoint.prototype.update = function (id, json, options) {
+        var existing = this.get(id);
+        if (existing) {
+            json.id = id;
+            this.set(json);
+            return this.resolve({});
         }
-        User.endpoint = create(testData);
-        __decorate([
-            attr,
-            __metadata("design:type", String)
-        ], User.prototype, "name", void 0);
-        User = __decorate([
-            define
-        ], User);
-        return User;
-    }(Record));
-    it('loads the test data', function (done) {
-        var users = new User.Collection();
-        users.fetch()
-            .then(function () {
-            chai_1(users.length).to.eql(1);
-            chai_1(users.first().name).to.eql('John');
-            done();
-        });
+        else {
+            return this.reject("Not found");
+        }
+    };
+    LocalStorageEndpoint.prototype.read = function (id, options) {
+        var existing = this.get(id);
+        return existing ?
+            this.resolve(existing) :
+            this.reject("Not found");
+    };
+    LocalStorageEndpoint.prototype.destroy = function (id, options) {
+        var existing = this.get(id);
+        if (existing) {
+            localStorage.removeItem(this.key + '#' + id);
+            this.index = this.index.filter(function (x) { return x !== id; });
+            return this.resolve({});
+        }
+        else {
+            return this.reject("Not found");
+        }
+    };
+    Object.defineProperty(LocalStorageEndpoint.prototype, "index", {
+        get: function () {
+            return JSON.parse(localStorage.getItem(this.key)) || [0];
+        },
+        set: function (x) {
+            localStorage.setItem(this.key, JSON.stringify(x));
+        },
+        enumerable: true,
+        configurable: true
     });
-    it('create', function (done) {
-        var x = new User({ name: "test" });
-        x.save().then(function () {
-            chai_1(x.id).to.eql("1");
-            done();
-        });
-    });
-    it('read', function (done) {
-        var x = new User({ id: "1" });
-        x.fetch().then(function () {
-            chai_1(x.name).to.eql("test");
-            done();
-        });
-    });
-    it('update', function (done) {
-        var x = new User({ id: "1" });
-        x.fetch()
-            .then(function () {
-            x.name = "Mike";
-            return x.save();
-        })
-            .then(function () {
-            var y = new User({ id: "1" });
-            return y.fetch();
-        })
-            .then(function (y) {
-            chai_1(y.name).to.eql('Mike');
-            done();
-        });
-    });
-    it('list', function (done) {
-        var users = new User.Collection();
-        users.fetch()
-            .then(function () {
-            chai_1(users.length).to.eql(2);
-            chai_1(users.first().name).to.eql("John");
-            chai_1(users.last().name).to.eql("Mike");
-            done();
-        });
-    });
-    it("destroy", function (done) {
-        var x = new User({ id: "1" });
-        x.destroy()
-            .then(function () {
+    LocalStorageEndpoint.prototype.list = function (options) {
+        var _this = this;
+        return this.resolve(this.index.slice(1).map(function (id) { return _this.get(id); }));
+    };
+    LocalStorageEndpoint.prototype.subscribe = function (events) { };
+    LocalStorageEndpoint.prototype.unsubscribe = function (events) { };
+    return LocalStorageEndpoint;
+}());
+
+describe('IO', function () {
+    describe('memory endpoint', function () {
+        var testData = [
+            { name: "John" }
+        ];
+        var User = (function (_super) {
+            __extends(User, _super);
+            function User() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            User.endpoint = create(testData);
+            __decorate([
+                attr,
+                __metadata("design:type", String)
+            ], User.prototype, "name", void 0);
+            User = __decorate([
+                define
+            ], User);
+            return User;
+        }(Record));
+        it('loads the test data', function (done) {
             var users = new User.Collection();
-            return users.fetch();
-        })
-            .then(function (users) {
-            chai_1(users.length).to.eql(1);
-            chai_1(users.first().name).to.eql("John");
-            done();
+            users.fetch()
+                .then(function () {
+                chai_1(users.length).to.eql(1);
+                chai_1(users.first().name).to.eql('John');
+                done();
+            });
+        });
+        it('create', function (done) {
+            var x = new User({ name: "test" });
+            x.save().then(function () {
+                chai_1(x.id).to.eql("1");
+                done();
+            });
+        });
+        it('read', function (done) {
+            var x = new User({ id: "1" });
+            x.fetch().then(function () {
+                chai_1(x.name).to.eql("test");
+                done();
+            });
+        });
+        it('update', function (done) {
+            var x = new User({ id: "1" });
+            x.fetch()
+                .then(function () {
+                x.name = "Mike";
+                return x.save();
+            })
+                .then(function () {
+                var y = new User({ id: "1" });
+                return y.fetch();
+            })
+                .then(function (y) {
+                chai_1(y.name).to.eql('Mike');
+                done();
+            });
+        });
+        it('list', function (done) {
+            var users = new User.Collection();
+            users.fetch()
+                .then(function () {
+                chai_1(users.length).to.eql(2);
+                chai_1(users.first().name).to.eql("John");
+                chai_1(users.last().name).to.eql("Mike");
+                done();
+            });
+        });
+        it("destroy", function (done) {
+            var x = new User({ id: "1" });
+            x.destroy()
+                .then(function () {
+                var users = new User.Collection();
+                return users.fetch();
+            })
+                .then(function (users) {
+                chai_1(users.length).to.eql(1);
+                chai_1(users.first().name).to.eql("John");
+                done();
+            });
         });
     });
+    if (typeof localStorage !== 'undefined')
+        describe('localStorage endpoint', testEndpoint(create$1("/test")));
 });
+function testEndpoint(endpoint) {
+    return function () {
+        var User = (function (_super) {
+            __extends(User, _super);
+            function User() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            User.endpoint = endpoint;
+            __decorate([
+                attr,
+                __metadata("design:type", String)
+            ], User.prototype, "name", void 0);
+            User = __decorate([
+                define
+            ], User);
+            return User;
+        }(Record));
+        var generatedId;
+        it('create', function (done) {
+            var x = new User({ name: "test" });
+            x.save().then(function () {
+                generatedId = x.id;
+                chai_1(x.id).to.be.not.empty;
+                done();
+            });
+        });
+        it('read', function (done) {
+            var x = new User({ id: generatedId });
+            x.fetch().then(function () {
+                chai_1(x.name).to.eql("test");
+                done();
+            });
+        });
+        it('update', function (done) {
+            var x = new User({ id: generatedId });
+            x.fetch()
+                .then(function () {
+                x.name = "Mike";
+                return x.save();
+            })
+                .then(function () {
+                var y = new User({ id: generatedId });
+                return y.fetch();
+            })
+                .then(function (y) {
+                chai_1(y.name).to.eql('Mike');
+                done();
+            });
+        });
+        it('list', function (done) {
+            var users = new User.Collection();
+            users.fetch()
+                .then(function () {
+                chai_1(users.length).to.eql(1);
+                chai_1(users.last().name).to.eql("Mike");
+                done();
+            });
+        });
+        it("destroy", function (done) {
+            var x = new User({ id: generatedId });
+            x.destroy()
+                .then(function () {
+                var users = new User.Collection();
+                return users.fetch();
+            })
+                .then(function (users) {
+                chai_1(users.length).to.eql(0);
+                done();
+            });
+        });
+    };
+}
 
 })));
 //# sourceMappingURL=index.js.map
