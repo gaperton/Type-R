@@ -1548,6 +1548,9 @@ var ChainableAttributeSpec = (function () {
         enumerable: true,
         configurable: true
     });
+    ChainableAttributeSpec.prototype.endpoint = function (endpoint) {
+        return this.metadata({ endpoint: endpoint });
+    };
     ChainableAttributeSpec.prototype.watcher = function (ref) {
         return this.metadata({ _onChange: ref });
     };
@@ -2016,7 +2019,7 @@ function ignore() { }
 var compile = function (attributesDefinition, baseClassAttributes) {
     var myAttributes = transform({}, attributesDefinition, createAttribute), allAttributes = defaults({}, myAttributes, baseClassAttributes);
     var ConstructorsMixin = constructorsMixin(allAttributes);
-    return __assign({}, ConstructorsMixin, { _attributes: new ConstructorsMixin.AttributesCopy(allAttributes), _attributesArray: Object.keys(allAttributes).map(function (key) { return allAttributes[key]; }), properties: transform({}, myAttributes, function (x) { return x.createPropertyDescriptor(); }), _toJSON: createToJSON(allAttributes) }, parseMixin(allAttributes), localEventsMixin(myAttributes));
+    return __assign({}, ConstructorsMixin, { _attributes: new ConstructorsMixin.AttributesCopy(allAttributes), _attributesArray: Object.keys(allAttributes).map(function (key) { return allAttributes[key]; }), properties: transform({}, myAttributes, function (x) { return x.createPropertyDescriptor(); }), _toJSON: createToJSON(allAttributes) }, parseMixin(allAttributes), localEventsMixin(myAttributes), { _endpoints: transform({}, allAttributes, function (attrDef) { return attrDef.options.endpoint; }) });
 };
 function createAttribute(spec, name) {
     return AnyType.create(toAttributeOptions(spec), name);
@@ -2370,7 +2373,6 @@ var Record = (function (_super) {
         definitions({
             defaults: mixinRules.merge,
             attributes: mixinRules.merge,
-            endpoints: mixinRules.merge,
             collection: mixinRules.merge,
             Collection: mixinRules.value,
             idAttribute: mixinRules.protoValue
@@ -2443,8 +2445,6 @@ Record.onDefine = function (definition, BaseClass) {
     assign$3(this.prototype, dynamicMixin);
     definition.properties = defaults$2(definition.properties || {}, properties);
     definition._localEvents = _localEvents;
-    if (definition.endpoints)
-        this.prototype._endpoints = definition.endpoints;
     Transactional.onDefine.call(this, definition, BaseClass);
     this.DefaultCollection.define(definition.collection || {});
     this.Collection = definition.Collection;

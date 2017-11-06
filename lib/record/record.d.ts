@@ -11,9 +11,6 @@ export interface ConstructorOptions extends TransactionOptions {
 export interface RecordDefinition extends TransactionalDefinition {
     idAttribute?: string;
     attributes?: AttributesValues;
-    endpoints: {
-        [name: string]: IOEndpoint;
-    };
     collection?: object;
     Collection?: typeof Transactional;
 }

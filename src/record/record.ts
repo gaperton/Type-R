@@ -36,7 +36,6 @@ let _cidCounter : number = 0;
 export interface RecordDefinition extends TransactionalDefinition {
     idAttribute? : string
     attributes? : AttributesValues
-    endpoints : { [ name : string ] : IOEndpoint }
     collection? : object
     Collection? : typeof Transactional
 }
@@ -55,7 +54,6 @@ export interface RecordDefinition extends TransactionalDefinition {
 @definitions({
     defaults : mixinRules.merge,
     attributes : mixinRules.merge,
-    endpoints : mixinRules.merge,
     collection : mixinRules.merge,
     Collection : mixinRules.value,
     idAttribute : mixinRules.protoValue

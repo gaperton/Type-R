@@ -41,8 +41,6 @@ Record.onDefine = function( definition : RecordDefinition, BaseClass : typeof Re
     
     definition.properties = defaults( definition.properties || {}, properties );
     definition._localEvents = _localEvents;
-
-    if( definition.endpoints ) this.prototype._endpoints = definition.endpoints;
     
     Transactional.onDefine.call( this, definition, BaseClass );
 
