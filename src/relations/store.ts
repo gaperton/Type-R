@@ -1,5 +1,6 @@
 import { Record } from '../record'
 import { Transactional } from '../transactions'
+import { startIO, IOPromise } from '../io-tools'
 
 let _store : Store = null;
 
@@ -29,3 +30,31 @@ export class Store extends Record {
 }
 
 Store.global = new Store();
+
+declare var Promise;
+
+export class IOGroupStore extends Store {
+    /**
+     * Fetch from all or specified endpoints
+     */ 
+    fetch( options = {} ){
+        // Select list of attributes with fetch...
+        const names = this.keys().filter( name => this[ name ].fetch ),
+              promises = names.map( name => this[ name ].fetch( options ) ),
+              promise = Promise.all( promises );
+
+        promise.abort = function(){
+            promises.forEach( x => x.abort && x.abort() );
+        }
+
+        return startIO( this, promise, options, x => x );
+    }
+}
+
+IOGroupStore.prototype.save = () => {
+    throw new ReferenceError( 'GroupStore does not support save() method' );
+}
+
+IOGroupStore.prototype.destroy = () => {
+    throw new ReferenceError( 'GroupStore does not support destroy() method' );
+}

@@ -1,5 +1,5 @@
 import "reflect-metadata"
-import { predefine, define, attr, prop, Record, Store, Collection } from '../../../lib'
+import { predefine, define, attr, prop, Record, Store, IOGroupStore, Collection } from '../../../lib'
 import { expect } from 'chai'
 import { memoryIO } from '../../../lib/endpoints/memory'
 import { localStorageIO } from '../../../lib/endpoints/localStorage'
@@ -82,6 +82,43 @@ describe( 'IO', function(){
                     expect( users.first().name ).to.eql( "John" );
                     done();
                 });
+        });
+    });
+
+    it( 'can override endpoint with .has.endpoint', done =>{
+        @define class NoEndpoint extends Record {
+            static attributes = {
+                type : 'no endpoint'
+            }
+        }
+
+        @define class HasEndpoint extends Record {
+            static endpoint = memoryIO([{ id : 666 }]);
+
+            static attributes = {
+                type : 'has endpoint'
+            }
+        }
+
+        @define class TestStore extends IOGroupStore {
+            static attributes = {
+                a : NoEndpoint.Collection.has.endpoint( memoryIO([{ id : "777" }]) ),
+                b : HasEndpoint.Collection,
+                c : HasEndpoint.Collection.has.endpoint( memoryIO([{ id : "555" }]) )
+            }
+
+            a;
+            b;
+            c;
+        }
+
+        const s = new TestStore();
+        s.fetch().then( () => {
+            expect( s.a.first().id ).to.eql( "777" );
+            expect( s.b.first().id ).to.eql( "666" );
+            expect( s.c.first().id ).to.eql( "555" );
+
+            done();
         });
     });
 

@@ -30,12 +30,18 @@ export class MemoryEndpoint implements IOEndpoint {
     index : Index = [ 0 ];
     items = {};
 
-    generateId(){
+    generateId( a_id ){
+        const id = Number( a_id );
+        if( !isNaN( id ) ){
+            this.index[ 0 ] = Math.max( this.index[ 0 ] as number, id );
+            return String( id );
+        }
+
         return String( ( this.index[ 0 ] as number ) ++ );
     }
 
     create( json, options ) {
-        const id = json.id = this.generateId();
+        const id = json.id = this.generateId( json.id );
         this.index.push( id );
         this.items[ id ] = json;
         return this.resolve({ id });

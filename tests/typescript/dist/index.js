@@ -3454,6 +3454,28 @@ var Store = (function (_super) {
     return Store;
 }(Record));
 Store.global = new Store();
+var IOGroupStore = (function (_super) {
+    __extends(IOGroupStore, _super);
+    function IOGroupStore() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    IOGroupStore.prototype.fetch = function (options) {
+        var _this = this;
+        if (options === void 0) { options = {}; }
+        var names = this.keys().filter(function (name) { return _this[name].fetch; }), promises = names.map(function (name) { return _this[name].fetch(options); }), promise = Promise.all(promises);
+        promise.abort = function () {
+            promises.forEach(function (x) { return x.abort && x.abort(); });
+        };
+        return startIO(this, promise, options, function (x) { return x; });
+    };
+    return IOGroupStore;
+}(Store));
+IOGroupStore.prototype.save = function () {
+    throw new ReferenceError('GroupStore does not support save() method');
+};
+IOGroupStore.prototype.destroy = function () {
+    throw new ReferenceError('GroupStore does not support destroy() method');
+};
 
 var on = (_a = Events, _a.on);
 
@@ -16349,11 +16371,16 @@ var MemoryEndpoint = (function () {
             setTimeout(function () { return reject(value); }, _this.delay);
         });
     };
-    MemoryEndpoint.prototype.generateId = function () {
+    MemoryEndpoint.prototype.generateId = function (a_id) {
+        var id = Number(a_id);
+        if (!isNaN(id)) {
+            this.index[0] = Math.max(this.index[0], id);
+            return String(id);
+        }
         return String(this.index[0]++);
     };
     MemoryEndpoint.prototype.create = function (json, options) {
-        var id = json.id = this.generateId();
+        var id = json.id = this.generateId(json.id);
         this.index.push(id);
         this.items[id] = json;
         return this.resolve({ id: id });
@@ -16554,6 +16581,57 @@ describe('IO', function () {
                 chai_1(users.first().name).to.eql("John");
                 done();
             });
+        });
+    });
+    it('can override endpoint with .has.endpoint', function (done) {
+        var NoEndpoint = (function (_super) {
+            __extends(NoEndpoint, _super);
+            function NoEndpoint() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            NoEndpoint.attributes = {
+                type: 'no endpoint'
+            };
+            NoEndpoint = __decorate([
+                define
+            ], NoEndpoint);
+            return NoEndpoint;
+        }(Record));
+        var HasEndpoint = (function (_super) {
+            __extends(HasEndpoint, _super);
+            function HasEndpoint() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            HasEndpoint.endpoint = create([{ id: 666 }]);
+            HasEndpoint.attributes = {
+                type: 'has endpoint'
+            };
+            HasEndpoint = __decorate([
+                define
+            ], HasEndpoint);
+            return HasEndpoint;
+        }(Record));
+        var TestStore = (function (_super) {
+            __extends(TestStore, _super);
+            function TestStore() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            TestStore.attributes = {
+                a: NoEndpoint.Collection.has.endpoint(create([{ id: "777" }])),
+                b: HasEndpoint.Collection,
+                c: HasEndpoint.Collection.has.endpoint(create([{ id: "555" }]))
+            };
+            TestStore = __decorate([
+                define
+            ], TestStore);
+            return TestStore;
+        }(IOGroupStore));
+        var s = new TestStore();
+        s.fetch().then(function () {
+            chai_1(s.a.first().id).to.eql("777");
+            chai_1(s.b.first().id).to.eql("666");
+            chai_1(s.c.first().id).to.eql("555");
+            done();
         });
     });
     if (typeof localStorage !== 'undefined')

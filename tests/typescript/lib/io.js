@@ -1,6 +1,6 @@
 import * as tslib_1 from "tslib";
 import "reflect-metadata";
-import { define, attr, Record } from '../../../lib';
+import { define, attr, Record, IOGroupStore } from '../../../lib';
 import { expect } from 'chai';
 import { memoryIO } from '../../../lib/endpoints/memory';
 import { localStorageIO } from '../../../lib/endpoints/localStorage';
@@ -85,6 +85,57 @@ describe('IO', function () {
                 expect(users.first().name).to.eql("John");
                 done();
             });
+        });
+    });
+    it('can override endpoint with .has.endpoint', function (done) {
+        var NoEndpoint = (function (_super) {
+            tslib_1.__extends(NoEndpoint, _super);
+            function NoEndpoint() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            NoEndpoint.attributes = {
+                type: 'no endpoint'
+            };
+            NoEndpoint = tslib_1.__decorate([
+                define
+            ], NoEndpoint);
+            return NoEndpoint;
+        }(Record));
+        var HasEndpoint = (function (_super) {
+            tslib_1.__extends(HasEndpoint, _super);
+            function HasEndpoint() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            HasEndpoint.endpoint = memoryIO([{ id: 666 }]);
+            HasEndpoint.attributes = {
+                type: 'has endpoint'
+            };
+            HasEndpoint = tslib_1.__decorate([
+                define
+            ], HasEndpoint);
+            return HasEndpoint;
+        }(Record));
+        var TestStore = (function (_super) {
+            tslib_1.__extends(TestStore, _super);
+            function TestStore() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            TestStore.attributes = {
+                a: NoEndpoint.Collection.has.endpoint(memoryIO([{ id: "777" }])),
+                b: HasEndpoint.Collection,
+                c: HasEndpoint.Collection.has.endpoint(memoryIO([{ id: "555" }]))
+            };
+            TestStore = tslib_1.__decorate([
+                define
+            ], TestStore);
+            return TestStore;
+        }(IOGroupStore));
+        var s = new TestStore();
+        s.fetch().then(function () {
+            expect(s.a.first().id).to.eql("777");
+            expect(s.b.first().id).to.eql("666");
+            expect(s.c.first().id).to.eql("555");
+            done();
         });
     });
     if (typeof localStorage !== 'undefined')
