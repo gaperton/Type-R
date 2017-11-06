@@ -6,6 +6,10 @@ export * from './collection'
 export * from './relations'
 export * from './record'
 
+export * from './transactions'
+
+export { IOEndpoint, IOPromise, createIOPromise } from './io-tools'
+
 // Exported module itself is the global event bus.
 import { Events } from './object-plus/'
 export const { on, off, trigger, once, listenTo, stopListening, listenToOnce } = <any>Events;
@@ -14,8 +18,16 @@ import { Collection } from './collection'
 
 // Define synonims for NestedTypes backward compatibility.
 import { Record as Model } from './record' 
-import { Mixable as Class } from './object-plus/'
-export { Model, Class }; 
+import { define, Mixable as Class } from './object-plus/'
+export { Model, Class };
+
+export function attributes( attrDefs ) : typeof Model {
+    @define class DefaultRecord extends Model {
+        static attributes = attrDefs;
+    }
+
+    return DefaultRecord;
+}
 
 import { ChainableAttributeSpec } from './record'
 

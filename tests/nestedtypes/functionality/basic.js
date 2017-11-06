@@ -67,19 +67,24 @@
                 canHaveNativeProperties( Nested.Model );
             });
 
-            it( 'may turn off native properties for model\'s attributes', function(){
-                var M = Nested.Model.extend({
+            describe( 'Record.defaults', () =>{
+                var Test = Nested.Model.extend({
                     attributes : {
-                        a : 'a'
-                    },
-
-                    properties : false
+                        text : String
+                    }
                 });
-
-                var m = new M();
-
-                expect( m.a ).to.be.an( 'undefined' );
-
+        
+                const t = new Test();
+        
+                it( 'has default attribute value', () =>{
+                    expect( t.text ).to.eql( "" );
+                });
+        
+                it( 'return default values', ()=>{
+                    console.log( t.defaults.toString() );
+                    const values = t.defaults();
+                    expect( values.text ).to.eql( "" );
+                });
             });
 
             it( 'inherit default attributes from the base model', function(){
@@ -125,25 +130,6 @@
 
                 expect( m.elements.first().elements.length ).to.be.zero;
 
-            });
-
-            it( 'can handle function in Model.defaults', function(){
-                var M = Nested.Model.extend({
-                    defaults : function(){
-                        return {
-                            num : 1,
-                            date : new Date()
-                        };
-                    }
-                });
-
-                var m = new M();
-
-                expect( m.num ).to.equal( 1 );
-                expect( m.date ).to.be.instanceOf( Date );
-
-                m.num = "2";
-                expect( m.num ).to.equal( 2 );
             });
         });
 
@@ -242,8 +228,8 @@
                 expect( c.abc ).to.be.true;
             });
 
-            it( 'can have explicitly defined native properties', function(){
-                canHaveNativeProperties( Nested.Class );
+            it( 'Messenger can have explicitly defined native properties', function(){
+                canHaveNativeProperties( Nested.Messenger );
             });
         });
     });

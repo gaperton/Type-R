@@ -252,7 +252,7 @@ describe( 'Advanced functionality', function(){
 
     it( 'can filter aggregated collection', function(){
         const c = new M.Collection( { name : 'a' }, { name : 'b' } );
-        c.reset( c.last() );
+        c.set( c.last() );
         expect( c.first()._owner ).to.equal( c );
     });
 
@@ -283,6 +283,5 @@ describe( 'Advanced functionality', function(){
             c.set( [ { id : 1, name : 'b' }, { id : 2, name : 'a' } ] );
             expect( c.first().name ).to.be.equal( 'a' );
         });
-
     });
 });

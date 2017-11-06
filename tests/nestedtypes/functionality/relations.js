@@ -3,6 +3,9 @@
         chai = require( 'chai'),
         as_promised = require("chai-as-promised");
 
+    var Record = Nested.Record,
+        Store = Nested.Store;
+
     chai.use( as_promised );
 
     expect = chai.expect;
@@ -208,4 +211,58 @@
             expect( store.users.first().roles.first().name ).to.eql( 'Administrators' );
         });
 
+    });
+
+    describe( 'model.assignFrom()', () => {
+        it( 'Sends change events when subsetOf attribute is changed', ()=>{
+            var Item = Record.extend({
+                attributes : {
+                    name : String
+                }                
+            });
+
+            var Test = Record.extend({
+                attributes : {
+                    items : Item.Collection.subsetOf( '~items' )
+                }
+            });
+
+            var TestStore = Store.extend({
+                attributes : {
+                    items : Item.Collection,
+                    tests : Test.Collection    
+                }
+            });
+
+            var store1 = new TestStore({
+                items : [
+                    { id : 1, name : "1" },
+                    { id : 2, name : 2 }
+                ],
+
+                tests : {
+                    id : 0,
+                    items : [ 1, 2 ]
+                }
+            });
+
+            var store2 = new TestStore({
+                items : [
+                    { id : 1, name : "1" },
+                    { id : 2, name : 2 }
+                ],
+
+                tests : {
+                    id : 0,
+                    items : [ 1 ]
+                }
+            });
+
+            var counter = 0;
+            store1.on( 'change', () => counter++ );
+            
+            store1.assignFrom( store2 );
+
+            expect( counter ).to.eql( 1 );
+        });
     });

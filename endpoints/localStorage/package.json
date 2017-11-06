@@ -1,0 +1,12 @@
+{
+    "name": "localStorageIO",
+    "main": "./index.js",
+    "jsnext:main": "../../lib/endpoints/localStorage.js",
+    "module": "../../lib/endpoints/localStorage.js",
+    "types": "../../lib/endpoints/localStorage.d.ts",
+    "scripts": {
+    },
+    "author": "Vlad Balin",
+    "license": "MIT"
+}
+  

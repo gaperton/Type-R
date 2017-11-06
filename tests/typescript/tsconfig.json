@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module":"es6",
+    "importHelpers": true,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "outDir": "./lib",
+    "noImplicitAny": false,
+    "removeComments":true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "files":[
+    "src/index.ts"
+  ]
+}

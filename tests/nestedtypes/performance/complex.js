@@ -395,7 +395,7 @@ define( function( require, exports, module ){
                 time : Date,
                 text : String,
                 author_id : Number,
-                replies : Comment.Collection,
+                replies : Comment.Collection
             }
         });
 
@@ -595,7 +595,7 @@ define( function( require, exports, module ){
                 active : 1,
                 created_at : "2015-11-18T16:57:10+00:00",
                 created_by : null,
-                default : 1,
+                'default' : 1,
                 domain_id : 0,
                 email : "observer-import-system@volicon.com",
                 fname : "api_import_user",

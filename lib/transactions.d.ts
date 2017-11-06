@@ -1,21 +1,23 @@
-import { Messenger, CallbacksByEvents, MessengersByCid, MixinRules, MessengerDefinition, eventsApi, Constructor, MixableConstructor } from './object-plus';
+import { Messenger, CallbacksByEvents, MessengersByCid, MixinsState, MessengerDefinition, eventsApi } from './object-plus';
 import { ValidationError, Validatable, ChildrenErrors } from './validation';
 import { Traversable } from './traversable';
-export declare type TransactionalConstructor = MixableConstructor<Transactional>;
-export declare type TransactionalDefinition = MessengerDefinition;
+import { IOEndpoint, IOPromise, IONode } from './io-tools';
+export interface TransactionalDefinition extends MessengerDefinition {
+    endpoint?: IOEndpoint;
+}
 export declare enum ItemsBehavior {
     share = 1,
     listen = 2,
     persistent = 4,
 }
-export declare abstract class Transactional implements Messenger, Validatable, Traversable {
-    static create: (a: any, b?: any, c?: any) => Transactional;
-    static mixins: (...mixins: (Constructor<any> | {})[]) => MixableConstructor<Transactional>;
-    static mixinRules: (mixinRules: MixinRules) => MixableConstructor<Transactional>;
-    static mixTo: (...args: Constructor<any>[]) => MixableConstructor<Transactional>;
-    static extend: (spec?: TransactionalDefinition, statics?: {}) => MixableConstructor<Transactional>;
-    static define: (spec?: TransactionalDefinition, statics?: {}) => MixableConstructor<Transactional>;
-    static predefine: () => typeof Messenger;
+export declare abstract class Transactional implements Messenger, IONode, Validatable, Traversable {
+    static __super__: object;
+    static mixins: MixinsState;
+    static define: (definition?: TransactionalDefinition, statics?: object) => typeof Transactional;
+    static extend: <T extends TransactionalDefinition>(definition?: T, statics?: object) => any;
+    static onDefine(definitions: TransactionalDefinition, BaseClass: typeof Transactional): void;
+    static onExtend(BaseClass: typeof Transactional): void;
+    static create(a: any, b?: any): Transactional;
     on: (events: string | CallbacksByEvents, callback, context?) => this;
     once: (events: string | CallbacksByEvents, callback, context?) => this;
     off: (events?: string | CallbacksByEvents, callback?, context?) => this;
@@ -46,10 +48,10 @@ export declare abstract class Transactional implements Messenger, Validatable, T
     constructor(cid: string | number);
     abstract clone(options?: CloneOptions): this;
     transaction(fun: (self: this) => void, options?: TransactionOptions): void;
-    updateEach(iteratee: (val: any, key: string) => void, options?: TransactionOptions): void;
+    updateEach(iteratee: (val: any, key: string | number) => void, options?: TransactionOptions): void;
     set(values: any, options?: TransactionOptions): this;
     assignFrom(source: Transactional | Object): this;
-    abstract _createTransaction(values: any, options?: TransactionOptions): Transaction;
+    abstract _createTransaction(values: any, options?: TransactionOptions): Transaction | void;
     parse(data: any, options?: TransactionOptions): any;
     abstract toJSON(): {};
     abstract get(key: string): any;
@@ -59,6 +61,10 @@ export declare abstract class Transactional implements Messenger, Validatable, T
     getStore(): Transactional;
     abstract each(iteratee: (val: any, key: string | number) => void, context?: any): any;
     map<T>(iteratee: (val: any, key: string | number) => T, context?: any): T[];
+    _endpoint: IOEndpoint;
+    _ioPromise: IOPromise<any>;
+    fetch(options?: object): IOPromise<any>;
+    getEndpoint(): IOEndpoint;
     mapObject<T>(iteratee: (val: any, key: string | number) => T, context?: any): {
         [key: string]: T;
     };
@@ -70,7 +76,7 @@ export declare abstract class Transactional implements Messenger, Validatable, T
     deepValidationError(reference: string): any;
     eachValidationError(iteratee: (error: any, key: string, object: Transactional) => void): void;
     isValid(key: string): boolean;
-    valueOf(): string;
+    valueOf(): Object;
     toString(): string;
     getClassName(): string;
     abstract _log(level: string, text: string, value: any): void;
@@ -93,6 +99,7 @@ export interface TransactionOptions {
     merge?: boolean;
     remove?: boolean;
     reset?: boolean;
+    unset?: boolean;
     validate?: boolean;
 }
 export declare const transactionApi: {
