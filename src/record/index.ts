@@ -41,6 +41,8 @@ Record.onDefine = function( definition : RecordDefinition, BaseClass : typeof Re
     
     definition.properties = defaults( definition.properties || {}, properties );
     definition._localEvents = _localEvents;
+
+    if( definition.endpoints ) this.prototype._endpoints = definition.endpoints;
     
     Transactional.onDefine.call( this, definition, BaseClass );
 
@@ -50,6 +52,8 @@ Record.onDefine = function( definition : RecordDefinition, BaseClass : typeof Re
     // assign collection from the definition.
     this.Collection = definition.Collection;
     this.Collection.prototype.model = this;
+
+    if( definition.endpoint ) this.Collection.prototype._endpoint = definition.endpoint;    
 }
 
 Record._attribute = AggregatedType;

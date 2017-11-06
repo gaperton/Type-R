@@ -1,18 +1,21 @@
 import { Messenger, CallbacksByEvents, MessengersByCid, MixinsState, MessengerDefinition, eventsApi } from './object-plus';
 import { ValidationError, Validatable, ChildrenErrors } from './validation';
 import { Traversable } from './traversable';
-export declare type TransactionalDefinition = MessengerDefinition;
+import { IOEndpoint, IOPromise, IONode } from './io-tools';
+export interface TransactionalDefinition extends MessengerDefinition {
+    endpoint?: IOEndpoint;
+}
 export declare enum ItemsBehavior {
     share = 1,
     listen = 2,
     persistent = 4,
 }
-export declare abstract class Transactional implements Messenger, Validatable, Traversable {
+export declare abstract class Transactional implements Messenger, IONode, Validatable, Traversable {
     static __super__: object;
     static mixins: MixinsState;
     static define: (definition?: TransactionalDefinition, statics?: object) => typeof Transactional;
     static extend: <T extends TransactionalDefinition>(definition?: T, statics?: object) => any;
-    static onDefine: (definition: TransactionalDefinition, BaseClass: typeof Transactional) => void;
+    static onDefine(definitions: TransactionalDefinition, BaseClass: typeof Transactional): void;
     static onExtend(BaseClass: typeof Transactional): void;
     static create(a: any, b?: any): Transactional;
     on: (events: string | CallbacksByEvents, callback, context?) => this;
@@ -58,6 +61,10 @@ export declare abstract class Transactional implements Messenger, Validatable, T
     getStore(): Transactional;
     abstract each(iteratee: (val: any, key: string | number) => void, context?: any): any;
     map<T>(iteratee: (val: any, key: string | number) => T, context?: any): T[];
+    _endpoint: IOEndpoint;
+    _ioPromise: IOPromise<any>;
+    fetch(options?: object): IOPromise<any>;
+    getEndpoint(): IOEndpoint;
     mapObject<T>(iteratee: (val: any, key: string | number) => T, context?: any): {
         [key: string]: T;
     };

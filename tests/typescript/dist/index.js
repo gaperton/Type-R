@@ -909,6 +909,65 @@ function resolveReference(root, reference, action) {
     return action(self, path[skip]);
 }
 
+function getOwnerEndpoint$1(self) {
+    var collection = self.collection;
+    if (collection) {
+        return getOwnerEndpoint$1(collection);
+    }
+    if (self._owner) {
+        var _endpoints = self._owner._endpoints;
+        return _endpoints && _endpoints[self._ownerKey];
+    }
+}
+function createIOPromise(initialize) {
+    var resolve, reject, onAbort;
+    function abort(fn) {
+        onAbort = fn;
+    }
+    var promise = new Promise(function (a_resolve, a_reject) {
+        reject = a_reject;
+        resolve = a_resolve;
+        initialize(resolve, reject, abort);
+    });
+    promise.abort = function () {
+        onAbort ? onAbort(resolve, reject) : reject(new Error("I/O Aborted"));
+    };
+    return promise;
+}
+function startIO(self, promise, options, thenDo) {
+    abortIO(self);
+    self._ioPromise = promise
+        .then(function (resp) {
+        self._ioPromise = null;
+        var result = thenDo ? thenDo(resp) : resp;
+        triggerAndBubble(self, 'sync', self, resp, options);
+        return result;
+    })
+        .catch(function (err) {
+        self._ioPromise = null;
+        console.error(err);
+        triggerAndBubble(self, 'error', self, err, options);
+        throw err;
+    });
+    self._ioPromise.abort = promise.abort;
+    return self._ioPromise;
+}
+function abortIO(self) {
+    if (self._ioPromise && self._ioPromise.abort) {
+        self._ioPromise.abort();
+        self._ioPromise = null;
+    }
+}
+function triggerAndBubble(eventSource) {
+    var args = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        args[_i - 1] = arguments[_i];
+    }
+    eventSource.trigger.apply(eventSource, args);
+    var collection = eventSource.collection;
+    collection && collection.trigger.apply(collection, args);
+}
+
 var trigger3$2 = trigger3$1;
 var on$4 = on$2;
 var off$4 = off$2;
@@ -930,6 +989,12 @@ var Transactional = (function () {
         this.cid = this.cidPrefix + cid;
     }
     Transactional_1 = Transactional;
+    Transactional.onDefine = function (definitions, BaseClass) {
+        if (definitions.endpoint)
+            this.prototype._endpoint = definitions.endpoint;
+        Messenger.onDefine.call(this, definitions, BaseClass);
+    };
+    
     Transactional.onExtend = function (BaseClass) {
         if (BaseClass.create === this.create) {
             this.create = Transactional_1.create;
@@ -941,6 +1006,7 @@ var Transactional = (function () {
     Transactional.prototype.dispose = function () {
         if (this._disposed)
             return;
+        abortIO(this);
         this._owner = void 0;
         this._ownerKey = void 0;
         this.off();
@@ -999,6 +1065,10 @@ var Transactional = (function () {
         });
         return arr;
     };
+    Transactional.prototype.fetch = function (options) { throw new Error("Not implemented"); };
+    Transactional.prototype.getEndpoint = function () {
+        return getOwnerEndpoint(this) || this._endpoint;
+    };
     Transactional.prototype.mapObject = function (iteratee, context) {
         var obj = {};
         this.each(function (val, key) {
@@ -1040,6 +1110,9 @@ var Transactional = (function () {
     };
     Transactional = Transactional_1 = __decorate([
         define,
+        definitions({
+            endpoint: mixinRules.value
+        }),
         mixins(Messenger)
     ], Transactional);
     return Transactional;
@@ -1091,6 +1164,16 @@ var transactionApi = {
         }
     }
 };
+function getOwnerEndpoint(self) {
+    var collection = self.collection;
+    if (collection) {
+        return getOwnerEndpoint(collection);
+    }
+    if (self._owner) {
+        var _endpoints = self._owner._endpoints;
+        return _endpoints && _endpoints[self._ownerKey];
+    }
+}
 
 var _begin = transactionApi.begin;
 var _markAsDirty = transactionApi.markAsDirty;
@@ -1992,6 +2075,40 @@ function createWatcherFromRef(ref, key) {
         };
 }
 
+var IORecordMixin = {
+    getEndpoint: function () {
+        return getOwnerEndpoint$1(this) || this._endpoint;
+    },
+    save: function (options) {
+        var _this = this;
+        if (options === void 0) { options = {}; }
+        var endpoint = this.getEndpoint(), json = this.toJSON();
+        return startIO(this, this.isNew() ?
+            endpoint.create(json, options) :
+            endpoint.update(this.id, json, options), options, function (update) {
+            _this.set(update, __assign({ parse: true }, options));
+        });
+    },
+    fetch: function (options) {
+        var _this = this;
+        if (options === void 0) { options = {}; }
+        return startIO(this, this.getEndpoint().read(this.id, options), options, function (json) { return _this.set(json, __assign({ parse: true }, options)); });
+    },
+    destroy: function (options) {
+        var _this = this;
+        if (options === void 0) { options = {}; }
+        return startIO(this, this.getEndpoint().destroy(this.id, options), options, function () {
+            var collection = _this.collection;
+            if (collection) {
+                collection.remove(_this, options);
+            }
+            else {
+                _this.dispose();
+            }
+        });
+    }
+};
+
 var assign$4 = assign;
 var isEmpty$1 = isEmpty;
 var log$2 = log;
@@ -2248,9 +2365,11 @@ var Record = (function (_super) {
             _changeEventName: 'change',
             idAttribute: 'id'
         }),
+        mixins(IORecordMixin),
         definitions({
             defaults: mixinRules.merge,
             attributes: mixinRules.merge,
+            endpoints: mixinRules.merge,
             collection: mixinRules.merge,
             Collection: mixinRules.value,
             idAttribute: mixinRules.protoValue
@@ -2323,10 +2442,14 @@ Record.onDefine = function (definition, BaseClass) {
     assign$3(this.prototype, dynamicMixin);
     definition.properties = defaults$2(definition.properties || {}, properties);
     definition._localEvents = _localEvents;
+    if (definition.endpoints)
+        this.prototype._endpoints = definition.endpoints;
     Transactional.onDefine.call(this, definition, BaseClass);
     this.DefaultCollection.define(definition.collection || {});
     this.Collection = definition.Collection;
     this.Collection.prototype.model = this;
+    if (definition.endpoint)
+        this.Collection.prototype._endpoint = definition.endpoint;
 };
 Record._attribute = AggregatedType;
 createSharedTypeSpec(Record, SharedType);
@@ -2933,6 +3056,38 @@ var Collection = (function (_super) {
         }
         return this;
     };
+    Collection.prototype.liveUpdates = function (enabled) {
+        var _this = this;
+        if (enabled) {
+            this.liveUpdates(false);
+            var filter_1 = typeof enabled === 'function' ? enabled : function () { return true; };
+            this._liveUpdates = {
+                updated: function (json) {
+                    filter_1(json) && _this.add(json, { parse: true, merge: true });
+                },
+                removed: function (id) { return _this.remove(id); }
+            };
+            return this.getEndpoint().subscribe(this._liveUpdates);
+        }
+        else {
+            if (this._liveUpdates) {
+                this.getEndpoint().unsubscribe(this._liveUpdates);
+                this._liveUpdates = null;
+            }
+        }
+    };
+    Collection.prototype.fetch = function (a_options) {
+        var _this = this;
+        if (a_options === void 0) { a_options = {}; }
+        var options = __assign({ parse: true }, a_options), endpoint = this.getEndpoint();
+        return startIO(this, endpoint.list(options), options, function (json) {
+            var result = _this.set(json, __assign({ parse: true }, options));
+            if (options.liveUpdates) {
+                result = _this.liveUpdates(options.liveUpdates);
+            }
+            return result;
+        });
+    };
     Collection.prototype.dispose = function () {
         if (this._disposed)
             return;
@@ -2943,6 +3098,7 @@ var Collection = (function (_super) {
             if (aggregated)
                 record.dispose();
         }
+        this.liveUpdates(false);
         _super.prototype.dispose.call(this);
     };
     Collection.prototype.reset = function (a_elements, options) {
@@ -16164,6 +16320,316 @@ describe('Bugs from Volicon Observer', function () {
         });
     });
 });
+
+function create(init, delay) {
+    if (init === void 0) { init = []; }
+    if (delay === void 0) { delay = 50; }
+    return new MemoryEndpoint(init, delay);
+}
+var MemoryEndpoint = (function () {
+    function MemoryEndpoint(init, delay) {
+        this.delay = delay;
+        this.index = [0];
+        this.items = {};
+        for (var _i = 0, init_1 = init; _i < init_1.length; _i++) {
+            var obj = init_1[_i];
+            this.create(obj, {});
+        }
+    }
+    MemoryEndpoint.prototype.resolve = function (value) {
+        var _this = this;
+        return createIOPromise(function (resolve, reject) {
+            setTimeout(function () { return resolve(value); }, _this.delay);
+        });
+    };
+    MemoryEndpoint.prototype.reject = function (value) {
+        var _this = this;
+        return createIOPromise(function (resolve, reject) {
+            setTimeout(function () { return reject(value); }, _this.delay);
+        });
+    };
+    MemoryEndpoint.prototype.generateId = function () {
+        return String(this.index[0]++);
+    };
+    MemoryEndpoint.prototype.create = function (json, options) {
+        var id = json.id = this.generateId();
+        this.index.push(id);
+        this.items[id] = json;
+        return this.resolve({ id: id });
+    };
+    MemoryEndpoint.prototype.update = function (id, json, options) {
+        var existing = this.items[id];
+        if (existing) {
+            this.items[id] = json;
+            return this.resolve({});
+        }
+        else {
+            return this.reject("Not found");
+        }
+    };
+    MemoryEndpoint.prototype.read = function (id, options) {
+        var existing = this.items[id];
+        return existing ?
+            this.resolve(existing) :
+            this.reject("Not found");
+    };
+    MemoryEndpoint.prototype.destroy = function (id, options) {
+        var existing = this.items[id];
+        if (existing) {
+            delete this.items[id];
+            this.index = this.index.filter(function (x) { return x !== id; });
+            return this.resolve({});
+        }
+        else {
+            return this.reject("Not found");
+        }
+    };
+    MemoryEndpoint.prototype.list = function (options) {
+        var _this = this;
+        return this.resolve(this.index.slice(1).map(function (id) { return _this.items[id]; }));
+    };
+    MemoryEndpoint.prototype.subscribe = function (events) { };
+    MemoryEndpoint.prototype.unsubscribe = function (events) { };
+    return MemoryEndpoint;
+}());
+
+function create$1(key) {
+    return new LocalStorageEndpoint(key);
+}
+var LocalStorageEndpoint = (function () {
+    function LocalStorageEndpoint(key) {
+        this.key = key;
+    }
+    LocalStorageEndpoint.prototype.resolve = function (value) {
+        return createIOPromise(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(value);
+            }, 0);
+        });
+    };
+    LocalStorageEndpoint.prototype.reject = function (value) {
+        return createIOPromise(function (resolve, reject) {
+            setTimeout(function () { return reject(value); }, 0);
+        });
+    };
+    LocalStorageEndpoint.prototype.create = function (json, options) {
+        var index = this.index;
+        index.push(json.id = String(index[0]++));
+        this.index = index;
+        this.set(json);
+        return this.resolve({ id: json.id });
+    };
+    LocalStorageEndpoint.prototype.set = function (json) {
+        localStorage.setItem(this.key + '#' + json.id, JSON.stringify(json));
+    };
+    LocalStorageEndpoint.prototype.get = function (id) {
+        return JSON.parse(localStorage.getItem(this.key + '#' + id));
+    };
+    LocalStorageEndpoint.prototype.update = function (id, json, options) {
+        var existing = this.get(id);
+        if (existing) {
+            json.id = id;
+            this.set(json);
+            return this.resolve({});
+        }
+        else {
+            return this.reject("Not found");
+        }
+    };
+    LocalStorageEndpoint.prototype.read = function (id, options) {
+        var existing = this.get(id);
+        return existing ?
+            this.resolve(existing) :
+            this.reject("Not found");
+    };
+    LocalStorageEndpoint.prototype.destroy = function (id, options) {
+        var existing = this.get(id);
+        if (existing) {
+            localStorage.removeItem(this.key + '#' + id);
+            this.index = this.index.filter(function (x) { return x !== id; });
+            return this.resolve({});
+        }
+        else {
+            return this.reject("Not found");
+        }
+    };
+    Object.defineProperty(LocalStorageEndpoint.prototype, "index", {
+        get: function () {
+            return JSON.parse(localStorage.getItem(this.key)) || [0];
+        },
+        set: function (x) {
+            localStorage.setItem(this.key, JSON.stringify(x));
+        },
+        enumerable: true,
+        configurable: true
+    });
+    LocalStorageEndpoint.prototype.list = function (options) {
+        var _this = this;
+        return this.resolve(this.index.slice(1).map(function (id) { return _this.get(id); }));
+    };
+    LocalStorageEndpoint.prototype.subscribe = function (events) { };
+    LocalStorageEndpoint.prototype.unsubscribe = function (events) { };
+    return LocalStorageEndpoint;
+}());
+
+describe('IO', function () {
+    describe('memory endpoint', function () {
+        var testData = [
+            { name: "John" }
+        ];
+        var User = (function (_super) {
+            __extends(User, _super);
+            function User() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            User.endpoint = create(testData);
+            __decorate([
+                attr,
+                __metadata("design:type", String)
+            ], User.prototype, "name", void 0);
+            User = __decorate([
+                define
+            ], User);
+            return User;
+        }(Record));
+        it('loads the test data', function (done) {
+            var users = new User.Collection();
+            users.fetch()
+                .then(function () {
+                chai_1(users.length).to.eql(1);
+                chai_1(users.first().name).to.eql('John');
+                done();
+            });
+        });
+        it('create', function (done) {
+            var x = new User({ name: "test" });
+            x.save().then(function () {
+                chai_1(x.id).to.eql("1");
+                done();
+            });
+        });
+        it('read', function (done) {
+            var x = new User({ id: "1" });
+            x.fetch().then(function () {
+                chai_1(x.name).to.eql("test");
+                done();
+            });
+        });
+        it('update', function (done) {
+            var x = new User({ id: "1" });
+            x.fetch()
+                .then(function () {
+                x.name = "Mike";
+                return x.save();
+            })
+                .then(function () {
+                var y = new User({ id: "1" });
+                return y.fetch();
+            })
+                .then(function (y) {
+                chai_1(y.name).to.eql('Mike');
+                done();
+            });
+        });
+        it('list', function (done) {
+            var users = new User.Collection();
+            users.fetch()
+                .then(function () {
+                chai_1(users.length).to.eql(2);
+                chai_1(users.first().name).to.eql("John");
+                chai_1(users.last().name).to.eql("Mike");
+                done();
+            });
+        });
+        it("destroy", function (done) {
+            var x = new User({ id: "1" });
+            x.destroy()
+                .then(function () {
+                var users = new User.Collection();
+                return users.fetch();
+            })
+                .then(function (users) {
+                chai_1(users.length).to.eql(1);
+                chai_1(users.first().name).to.eql("John");
+                done();
+            });
+        });
+    });
+    if (typeof localStorage !== 'undefined')
+        describe('localStorage endpoint', testEndpoint(create$1("/test")));
+});
+function testEndpoint(endpoint) {
+    return function () {
+        var User = (function (_super) {
+            __extends(User, _super);
+            function User() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            User.endpoint = endpoint;
+            __decorate([
+                attr,
+                __metadata("design:type", String)
+            ], User.prototype, "name", void 0);
+            User = __decorate([
+                define
+            ], User);
+            return User;
+        }(Record));
+        var generatedId;
+        it('create', function (done) {
+            var x = new User({ name: "test" });
+            x.save().then(function () {
+                generatedId = x.id;
+                chai_1(x.id).to.be.not.empty;
+                done();
+            });
+        });
+        it('read', function (done) {
+            var x = new User({ id: generatedId });
+            x.fetch().then(function () {
+                chai_1(x.name).to.eql("test");
+                done();
+            });
+        });
+        it('update', function (done) {
+            var x = new User({ id: generatedId });
+            x.fetch()
+                .then(function () {
+                x.name = "Mike";
+                return x.save();
+            })
+                .then(function () {
+                var y = new User({ id: generatedId });
+                return y.fetch();
+            })
+                .then(function (y) {
+                chai_1(y.name).to.eql('Mike');
+                done();
+            });
+        });
+        it('list', function (done) {
+            var users = new User.Collection();
+            users.fetch()
+                .then(function () {
+                chai_1(users.length).to.eql(1);
+                chai_1(users.last().name).to.eql("Mike");
+                done();
+            });
+        });
+        it("destroy", function (done) {
+            var x = new User({ id: generatedId });
+            x.destroy()
+                .then(function () {
+                var users = new User.Collection();
+                return users.fetch();
+            })
+                .then(function (users) {
+                chai_1(users.length).to.eql(0);
+                done();
+            });
+        });
+    };
+}
 
 })));
 //# sourceMappingURL=index.js.map
