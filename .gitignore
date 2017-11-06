@@ -5,6 +5,8 @@
 
 node_modules
 
+*.orig
+
 ## Directory-based project format:
 .idea/
 .vscode/
