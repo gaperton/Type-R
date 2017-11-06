@@ -12,6 +12,7 @@ includes:
   - collection
   - store
   - mixins
+  - releasenotes
 
 search: true
 ---
