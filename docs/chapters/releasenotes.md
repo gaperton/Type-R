@@ -31,10 +31,11 @@ user.save().then( () => {
 });
 ```
 
-There's an additional `record.fetchAttributes()` IO method to will fetch all of attributes independently and return the combined promise. This is the recommended way of fetching the data required by SPA page.
+There's the special `attributesIO()` endpoint to fetch all of attributes independently and return the combined promise. This is the recommended way of fetching the data required by SPA page.
 
 ```javascript
 @define class PageStore extends Store {
+    static endpoint = attributesIO();
     static attributes = {
         users : User.Collection,
         roles : UserRole.Collection,
@@ -43,7 +44,7 @@ There's an additional `record.fetchAttributes()` IO method to will fetch all of 
 }
 
 const store = new PageStore();
-store.fetchAttributes().then( () =>{
+store.fetch().then( () =>{
     // render your page
 });
 ```
@@ -52,6 +53,7 @@ It's possible to define or override the defined endpoint for the nested model or
 
 ```javascript
 @define class PageStore extends Store {
+    static endpoint = attributesIO();
     static attributes = {
         users : User.Collection.has.endpoint( restful( '/api/users' ) ),
         roles : UserRole.Collection.has.endpoint( restful( '/api/userroles' ) ),

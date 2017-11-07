@@ -1424,8 +1424,9 @@ user.save().then( <span class="hljs-function"><span class="hljs-params">()</span
     <span class="hljs-built_in">console</span>.log( <span class="hljs-string">`new user is added <span class="hljs-subst">${ user.id }</span>`</span> )
 });
 </code></pre>
-<p>There&#39;s an additional <code>record.fetchAttributes()</code> IO method to will fetch all of attributes independently and return the combined promise. This is the recommended way of fetching the data required by SPA page.</p>
+<p>There&#39;s the special <code>attributesIO()</code> endpoint to fetch all of attributes independently and return the combined promise. This is the recommended way of fetching the data required by SPA page.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PageStore</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Store</span> </span>{
+    <span class="hljs-keyword">static</span> endpoint = attributesIO();
     <span class="hljs-keyword">static</span> attributes = {
         <span class="hljs-attr">users</span> : User.Collection,
         <span class="hljs-attr">roles</span> : UserRole.Collection,
@@ -1434,12 +1435,13 @@ user.save().then( <span class="hljs-function"><span class="hljs-params">()</span
 }
 
 <span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> PageStore();
-store.fetchAttributes().then( <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span>{
+store.fetch().then( <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span>{
     <span class="hljs-comment">// render your page</span>
 });
 </code></pre>
 <p>It&#39;s possible to define or override the defined endpoint for the nested model or collection using <code>has.endpoint</code> type-R attribute annotation.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PageStore</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Store</span> </span>{
+    <span class="hljs-keyword">static</span> endpoint = attributesIO();
     <span class="hljs-keyword">static</span> attributes = {
         <span class="hljs-attr">users</span> : User.Collection.has.endpoint( restful( <span class="hljs-string">'/api/users'</span> ) ),
         <span class="hljs-attr">roles</span> : UserRole.Collection.has.endpoint( restful( <span class="hljs-string">'/api/userroles'</span> ) ),
