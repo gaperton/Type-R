@@ -81,9 +81,6 @@ export class Record extends Transactional implements IORecord, AttributesContain
      // Save record
      save : ( options? : object ) => IOPromise<any>
 
-     // Fetch all record's attributes
-     fetchAttributes : ( options? ) => IOPromise<any>
-
      // Destroy record
      destroy : ( options? : object ) => IOPromise<any>
 
