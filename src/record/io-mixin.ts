@@ -23,8 +23,8 @@ export const IORecordMixin = {
         return startIO(
             this,
             this.isNew() ?
-                endpoint.create( json, options ) :
-                endpoint.update( this.id, json, options ),
+                endpoint.create( json, options, this ) :
+                endpoint.update( this.id, json, options, this ),
             options,
 
             update => {
@@ -36,30 +36,17 @@ export const IORecordMixin = {
     fetch( options = {} ){
         return startIO(
             this,
-            this.getEndpoint().read( this.id, options ),
+            this.getEndpoint().read( this.id, options, this ),
             options,
 
             json => this.set( json, { parse : true, ...options } )
         );
     },
 
-    fetchAttributes( options = {} ){
-        // Select list of attributes with fetch...
-        const names = this.keys().filter( name => this[ name ] && this[ name ].fetch ),
-              promises = names.map( name => this[ name ].fetch( options ) ),
-              promise = Promise.all( promises );
-
-        promise.abort = function(){
-            promises.forEach( x => x.abort && x.abort() );
-        }
-
-        return startIO( this, promise, options, x => x );
-    },
-
     destroy( options = {} ){  
         return startIO(
             this,
-            this.getEndpoint().destroy( this.id, options ),
+            this.getEndpoint().destroy( this.id, options, this ),
             options,
 
             () => {
@@ -74,5 +61,3 @@ export const IORecordMixin = {
         )
     }
 }
-
-declare var Promise;

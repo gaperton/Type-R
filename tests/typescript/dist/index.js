@@ -2088,29 +2088,20 @@ var IORecordMixin = {
         if (options === void 0) { options = {}; }
         var endpoint = this.getEndpoint(), json = this.toJSON();
         return startIO(this, this.isNew() ?
-            endpoint.create(json, options) :
-            endpoint.update(this.id, json, options), options, function (update) {
+            endpoint.create(json, options, this) :
+            endpoint.update(this.id, json, options, this), options, function (update) {
             _this.set(update, __assign({ parse: true }, options));
         });
     },
     fetch: function (options) {
         var _this = this;
         if (options === void 0) { options = {}; }
-        return startIO(this, this.getEndpoint().read(this.id, options), options, function (json) { return _this.set(json, __assign({ parse: true }, options)); });
-    },
-    fetchAttributes: function (options) {
-        var _this = this;
-        if (options === void 0) { options = {}; }
-        var names = this.keys().filter(function (name) { return _this[name] && _this[name].fetch; }), promises = names.map(function (name) { return _this[name].fetch(options); }), promise = Promise.all(promises);
-        promise.abort = function () {
-            promises.forEach(function (x) { return x.abort && x.abort(); });
-        };
-        return startIO(this, promise, options, function (x) { return x; });
+        return startIO(this, this.getEndpoint().read(this.id, options, this), options, function (json) { return _this.set(json, __assign({ parse: true }, options)); });
     },
     destroy: function (options) {
         var _this = this;
         if (options === void 0) { options = {}; }
-        return startIO(this, this.getEndpoint().destroy(this.id, options), options, function () {
+        return startIO(this, this.getEndpoint().destroy(this.id, options, this), options, function () {
             var collection = _this.collection;
             if (collection) {
                 collection.remove(_this, options);
@@ -3077,11 +3068,11 @@ var Collection = (function (_super) {
                 },
                 removed: function (id) { return _this.remove(id); }
             };
-            return this.getEndpoint().subscribe(this._liveUpdates);
+            return this.getEndpoint().subscribe(this._liveUpdates, this);
         }
         else {
             if (this._liveUpdates) {
-                this.getEndpoint().unsubscribe(this._liveUpdates);
+                this.getEndpoint().unsubscribe(this._liveUpdates, this);
                 this._liveUpdates = null;
             }
         }
@@ -3090,7 +3081,7 @@ var Collection = (function (_super) {
         var _this = this;
         if (a_options === void 0) { a_options = {}; }
         var options = __assign({ parse: true }, a_options), endpoint = this.getEndpoint();
-        return startIO(this, endpoint.list(options), options, function (json) {
+        return startIO(this, endpoint.list(options, this), options, function (json) {
             var result = _this.set(json, __assign({ parse: true }, options));
             if (options.liveUpdates) {
                 result = _this.liveUpdates(options.liveUpdates);
@@ -16408,7 +16399,37 @@ var MemoryEndpoint = (function () {
     return MemoryEndpoint;
 }());
 
-function create$1(key) {
+function create$1() {
+    return new AttributesEndpoint();
+}
+var AttributesEndpoint = (function () {
+    function AttributesEndpoint() {
+    }
+    AttributesEndpoint.prototype.create = function (json, options) {
+        throw new Error('Method is not supported.');
+    };
+    AttributesEndpoint.prototype.update = function (id, json, options) {
+        throw new Error('Method is not supported.');
+    };
+    AttributesEndpoint.prototype.read = function (id, options, record) {
+        var names = record.keys().filter(function (name) { return record[name] && record[name].fetch; }), promises = names.map(function (name) { return record[name].fetch(options); }), promise = Promise.all(promises).then(function () { });
+        promise.abort = function () {
+            promises.forEach(function (x) { return x.abort && x.abort(); });
+        };
+        return promise;
+    };
+    AttributesEndpoint.prototype.destroy = function (id, options) {
+        throw new Error('Method is not supported.');
+    };
+    AttributesEndpoint.prototype.list = function (options) {
+        throw new Error('Method is not supported.');
+    };
+    AttributesEndpoint.prototype.subscribe = function (events) { };
+    AttributesEndpoint.prototype.unsubscribe = function (events) { };
+    return AttributesEndpoint;
+}());
+
+function create$2(key) {
     return new LocalStorageEndpoint(key);
 }
 var LocalStorageEndpoint = (function () {
@@ -16603,6 +16624,7 @@ describe('IO', function () {
             function TestStore() {
                 return _super !== null && _super.apply(this, arguments) || this;
             }
+            TestStore.endpoint = create$1();
             TestStore.attributes = {
                 a: NoEndpoint.Collection.has.endpoint(create([{ id: "777" }])),
                 b: HasEndpoint.Collection,
@@ -16614,7 +16636,7 @@ describe('IO', function () {
             return TestStore;
         }(Store));
         var s = new TestStore();
-        s.fetchAttributes().then(function () {
+        s.fetch().then(function () {
             chai_1(s.a.first().id).to.eql("777");
             chai_1(s.b.first().id).to.eql("666");
             chai_1(s.c.first().id).to.eql("555");
@@ -16622,7 +16644,7 @@ describe('IO', function () {
         });
     });
     if (typeof localStorage !== 'undefined')
-        describe('localStorage endpoint', testEndpoint(create$1("/test")));
+        describe('localStorage endpoint', testEndpoint(create$2("/test")));
 });
 function testEndpoint(endpoint) {
     return function () {

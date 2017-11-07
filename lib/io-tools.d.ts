@@ -3,16 +3,16 @@ export interface IONode {
     _ioPromise: IOPromise<any>;
 }
 export interface IOPromise<T> extends Promise<T> {
-    abort(): void;
+    abort?: () => void;
 }
 export interface IOEndpoint {
-    list(options: object): IOPromise<any>;
-    create(json: any, options: object): IOPromise<any>;
-    update(id: string | number, json: any, options: object): IOPromise<any>;
-    read(id: string | number, options: object): IOPromise<any>;
-    destroy(id: string | number, options: object): IOPromise<any>;
-    subscribe(events: IOEvents): IOPromise<any>;
-    unsubscribe(events: IOEvents): void;
+    list(options: object, collection?: any): IOPromise<any>;
+    create(json: any, options: object, record?: any): IOPromise<any>;
+    update(id: string | number, json: any, options: object, record?: any): IOPromise<any>;
+    read(id: string | number, options: object, record?: any): IOPromise<any>;
+    destroy(id: string | number, options: object, record?: any): IOPromise<any>;
+    subscribe(events: IOEvents, collection?: any): IOPromise<any>;
+    unsubscribe(events: IOEvents, collection?: any): void;
 }
 export interface IOEvents {
     updated?: (json: any) => void;

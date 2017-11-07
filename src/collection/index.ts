@@ -359,11 +359,11 @@ export class Collection< R extends Record = Record> extends Transactional implem
                 removed : id => this.remove( id )
             };
 
-            return this.getEndpoint().subscribe( this._liveUpdates );
+            return this.getEndpoint().subscribe( this._liveUpdates, this );
         }
         else{
             if( this._liveUpdates ){
-                this.getEndpoint().unsubscribe( this._liveUpdates );
+                this.getEndpoint().unsubscribe( this._liveUpdates, this );
                 this._liveUpdates = null;
             }
         }
@@ -377,7 +377,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
 
         return startIO(
             this,
-            endpoint.list( options ),
+            endpoint.list( options, this ),
             options,
 
             json => {

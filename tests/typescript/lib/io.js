@@ -3,6 +3,7 @@ import "reflect-metadata";
 import { define, attr, Record, Store } from '../../../lib';
 import { expect } from 'chai';
 import { memoryIO } from '../../../lib/endpoints/memory';
+import { attributesIO } from '../../../lib/endpoints/attributes';
 import { localStorageIO } from '../../../lib/endpoints/localStorage';
 describe('IO', function () {
     describe('memory endpoint', function () {
@@ -120,6 +121,7 @@ describe('IO', function () {
             function TestStore() {
                 return _super !== null && _super.apply(this, arguments) || this;
             }
+            TestStore.endpoint = attributesIO();
             TestStore.attributes = {
                 a: NoEndpoint.Collection.has.endpoint(memoryIO([{ id: "777" }])),
                 b: HasEndpoint.Collection,
@@ -131,7 +133,7 @@ describe('IO', function () {
             return TestStore;
         }(Store));
         var s = new TestStore();
-        s.fetchAttributes().then(function () {
+        s.fetch().then(function () {
             expect(s.a.first().id).to.eql("777");
             expect(s.b.first().id).to.eql("666");
             expect(s.c.first().id).to.eql("555");
