@@ -43,6 +43,19 @@ export const IORecordMixin = {
         );
     },
 
+    fetchAttributes( options = {} ){
+        // Select list of attributes with fetch...
+        const names = this.keys().filter( name => this[ name ] && this[ name ].fetch ),
+              promises = names.map( name => this[ name ].fetch( options ) ),
+              promise = Promise.all( promises );
+
+        promise.abort = function(){
+            promises.forEach( x => x.abort && x.abort() );
+        }
+
+        return startIO( this, promise, options, x => x );
+    },
+
     destroy( options = {} ){  
         return startIO(
             this,
@@ -61,3 +74,5 @@ export const IORecordMixin = {
         )
     }
 }
+
+declare var Promise;

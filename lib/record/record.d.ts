@@ -25,6 +25,7 @@ export declare class Record extends Transactional implements IORecord, Attribute
         [name: string]: IOEndpoint;
     };
     save: (options?: object) => IOPromise<any>;
+    fetchAttributes: (options?) => IOPromise<any>;
     destroy: (options?: object) => IOPromise<any>;
     _previousAttributes: {};
     previousAttributes(): AttributesValues;

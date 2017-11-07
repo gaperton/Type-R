@@ -1,5 +1,5 @@
 import "reflect-metadata"
-import { predefine, define, attr, prop, Record, Store, IOGroupStore, Collection } from '../../../lib'
+import { predefine, define, attr, prop, Record, Store, Collection } from '../../../lib'
 import { expect } from 'chai'
 import { memoryIO } from '../../../lib/endpoints/memory'
 import { localStorageIO } from '../../../lib/endpoints/localStorage'
@@ -100,7 +100,7 @@ describe( 'IO', function(){
             }
         }
 
-        @define class TestStore extends IOGroupStore {
+        @define class TestStore extends Store {
             static attributes = {
                 a : NoEndpoint.Collection.has.endpoint( memoryIO([{ id : "777" }]) ),
                 b : HasEndpoint.Collection,
@@ -113,7 +113,7 @@ describe( 'IO', function(){
         }
 
         const s = new TestStore();
-        s.fetch().then( () => {
+        s.fetchAttributes().then( () => {
             expect( s.a.first().id ).to.eql( "777" );
             expect( s.b.first().id ).to.eql( "666" );
             expect( s.c.first().id ).to.eql( "555" );

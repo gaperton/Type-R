@@ -13,5 +13,6 @@ export declare const IORecordMixin: {
     getEndpoint(this: IORecord): IOEndpoint;
     save(this: IORecord, options?: object): IOPromise<any>;
     fetch(options?: {}): IOPromise<any>;
+    fetchAttributes(options?: {}): IOPromise<any>;
     destroy(options?: {}): IOPromise<any>;
 };

@@ -2098,6 +2098,15 @@ var IORecordMixin = {
         if (options === void 0) { options = {}; }
         return startIO(this, this.getEndpoint().read(this.id, options), options, function (json) { return _this.set(json, __assign({ parse: true }, options)); });
     },
+    fetchAttributes: function (options) {
+        var _this = this;
+        if (options === void 0) { options = {}; }
+        var names = this.keys().filter(function (name) { return _this[name] && _this[name].fetch; }), promises = names.map(function (name) { return _this[name].fetch(options); }), promise = Promise.all(promises);
+        promise.abort = function () {
+            promises.forEach(function (x) { return x.abort && x.abort(); });
+        };
+        return startIO(this, promise, options, function (x) { return x; });
+    },
     destroy: function (options) {
         var _this = this;
         if (options === void 0) { options = {}; }
@@ -3454,28 +3463,6 @@ var Store = (function (_super) {
     return Store;
 }(Record));
 Store.global = new Store();
-var IOGroupStore = (function (_super) {
-    __extends(IOGroupStore, _super);
-    function IOGroupStore() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    IOGroupStore.prototype.fetch = function (options) {
-        var _this = this;
-        if (options === void 0) { options = {}; }
-        var names = this.keys().filter(function (name) { return _this[name].fetch; }), promises = names.map(function (name) { return _this[name].fetch(options); }), promise = Promise.all(promises);
-        promise.abort = function () {
-            promises.forEach(function (x) { return x.abort && x.abort(); });
-        };
-        return startIO(this, promise, options, function (x) { return x; });
-    };
-    return IOGroupStore;
-}(Store));
-IOGroupStore.prototype.save = function () {
-    throw new ReferenceError('GroupStore does not support save() method');
-};
-IOGroupStore.prototype.destroy = function () {
-    throw new ReferenceError('GroupStore does not support destroy() method');
-};
 
 var on = (_a = Events, _a.on);
 
@@ -16625,9 +16612,9 @@ describe('IO', function () {
                 define
             ], TestStore);
             return TestStore;
-        }(IOGroupStore));
+        }(Store));
         var s = new TestStore();
-        s.fetch().then(function () {
+        s.fetchAttributes().then(function () {
             chai_1(s.a.first().id).to.eql("777");
             chai_1(s.b.first().id).to.eql("666");
             chai_1(s.c.first().id).to.eql("555");

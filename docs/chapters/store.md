@@ -1,4 +1,4 @@
-# Store
+# Stores and id-references
 
 `Store` is the special kind of record which serves as a root for ~references.
 
@@ -79,6 +79,3 @@ Serializable collection of references to the records from the collection taken f
     }
 }
 ```
-
-
-

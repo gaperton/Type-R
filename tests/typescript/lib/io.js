@@ -1,6 +1,6 @@
 import * as tslib_1 from "tslib";
 import "reflect-metadata";
-import { define, attr, Record, IOGroupStore } from '../../../lib';
+import { define, attr, Record, Store } from '../../../lib';
 import { expect } from 'chai';
 import { memoryIO } from '../../../lib/endpoints/memory';
 import { localStorageIO } from '../../../lib/endpoints/localStorage';
@@ -129,9 +129,9 @@ describe('IO', function () {
                 define
             ], TestStore);
             return TestStore;
-        }(IOGroupStore));
+        }(Store));
         var s = new TestStore();
-        s.fetch().then(function () {
+        s.fetchAttributes().then(function () {
             expect(s.a.first().id).to.eql("777");
             expect(s.b.first().id).to.eql("666");
             expect(s.c.first().id).to.eql("555");
