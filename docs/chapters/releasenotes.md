@@ -31,10 +31,10 @@ user.save().then( () => {
 });
 ```
 
-There's new type of store called `GroupIOStore` with the single `fetch()` IO method which will fetch all of its members independently and will return the combined promise. This is the recommended way of fetching the data required by SPA page.
+There's an additional `record.fetchAttributes()` IO method to will fetch all of attributes independently and return the combined promise. This is the recommended way of fetching the data required by SPA page.
 
 ```javascript
-@define class PageStore extends GroupIOStore {
+@define class PageStore extends Store {
     static attributes = {
         users : User.Collection,
         roles : UserRole.Collection,
@@ -43,15 +43,15 @@ There's new type of store called `GroupIOStore` with the single `fetch()` IO met
 }
 
 const store = new PageStore();
-store.fetch().then( () =>{
+store.fetchAttributes().then( () =>{
     // render your page
 });
 ```
 
-There's a way to define or to override the defined endpoint for the nested model or collection using `has.endpoint` type-R attribute annotation. 
+It's possible to define or override the defined endpoint for the nested model or collection using `has.endpoint` type-R attribute annotation.
 
 ```javascript
-@define class PageStore extends GroupIOStore {
+@define class PageStore extends Store {
     static attributes = {
         users : User.Collection.has.endpoint( restful( '/api/users' ) ),
         roles : UserRole.Collection.has.endpoint( restful( '/api/userroles' ) ),
