@@ -1,0 +1,12 @@
+{
+    "name": "attributesIO",
+    "main": "./index.js",
+    "jsnext:main": "../../lib/endpoints/attributes.js",
+    "module": "../../lib/endpoints/attributes.js",
+    "types": "../../lib/endpoints/attributes.d.ts",
+    "scripts": {
+    },
+    "author": "Vlad Balin",
+    "license": "MIT"
+}
+  

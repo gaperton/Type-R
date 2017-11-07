@@ -18,7 +18,7 @@
   "scripts": {
     "build:lib": "npm run compile:lib && npm run bundle:lib",
     "compile:lib": "node_modules/.bin/tsc",
-    "bundle:lib": "node_modules/.bin/rollup --config && node_modules/.bin/rollup --config endpoints/memory/rollup.config.js && node_modules/.bin/rollup --config endpoints/localStorage/rollup.config.js",
+    "bundle:lib": "node_modules/.bin/rollup --config && node_modules/.bin/rollup --config endpoints/memory/rollup.config.js && node_modules/.bin/rollup --config endpoints/localStorage/rollup.config.js & node_modules/.bin/rollup --config endpoints/attributes/rollup.config.js",
     "test": "npm run build:test && npm run run:test",
     "build": "npm run build:lib && npm test",
     "docs": "node docs/build.js",
