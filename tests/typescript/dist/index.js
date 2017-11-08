@@ -3363,6 +3363,7 @@ function defineSubsetCollection(CollectionConstructor) {
             });
             if (this.resolvedWith) {
                 copy.resolvedWith = this.resolvedWith;
+                copy.refs = null;
                 copy.reset(this.models, { silent: true });
             }
             else {
