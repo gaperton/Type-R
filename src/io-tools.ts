@@ -8,13 +8,17 @@ export interface IOPromise<T> extends Promise<T> {
 }
 
 export interface IOEndpoint {
-    list( options : object, collection? ) : IOPromise<any>
-    create( json : any, options : object, record? ) : IOPromise<any>
-    update( id : string | number, json :any, options : object, record? ) : IOPromise<any>
-    read( id : string | number, options : object, record? ) : IOPromise<any>
-    destroy( id : string | number, options : object, record? ) : IOPromise<any>
+    list( options : IOOptions, collection? ) : IOPromise<any>
+    create( json : any, options : IOOptions, record? ) : IOPromise<any>
+    update( id : string | number, json :any, options : IOOptions, record? ) : IOPromise<any>
+    read( id : string | number, options : IOOptions, record? ) : IOPromise<any>
+    destroy( id : string | number, options : IOOptions, record? ) : IOPromise<any>
     subscribe( events : IOEvents, collection? ) : IOPromise<any>
     unsubscribe( events : IOEvents, collection? ) : void
+}
+
+export interface IOOptions {
+    ioUpdate? : boolean
 }
 
 export interface IOEvents {
@@ -66,10 +70,13 @@ export function createIOPromise( initialize : InitIOPromise ) : IOPromise<any>{
 
 export type InitIOPromise = ( resolve : ( x? : any ) => void, reject : ( x? : any ) => void, abort? : ( fn : Function ) => void ) => void;
 
-export function startIO( self : IONode, promise : IOPromise<any>, options : object, thenDo : ( json : any ) => any ) : IOPromise<any> {
+export function startIO( self : IONode, promise : IOPromise<any>, options : IOOptions, thenDo : ( json : any ) => any ) : IOPromise<any> {
     // Stop pending I/O first...
     abortIO( self );
-    
+
+    // Mark future update transaction as IO transaction.
+    options.ioUpdate = true;
+
     self._ioPromise = promise
         .then( resp => {
             self._ioPromise = null;

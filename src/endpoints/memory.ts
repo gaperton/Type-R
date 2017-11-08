@@ -48,14 +48,8 @@ export class MemoryEndpoint implements IOEndpoint {
     }
 
     update( id, json, options ) {
-        const existing = this.items[ id ];
-        if( existing ){
-            this.items[ id ] = json;
-            return this.resolve( {} );
-        }
-        else{
-            return this.reject( "Not found");
-        }
+        this.items[ id ] = json;
+        return this.resolve( {} );
     }
 
     read( id, options ){

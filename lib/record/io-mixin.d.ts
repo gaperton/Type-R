@@ -1,9 +1,9 @@
-import { IOEndpoint, IOPromise, IONode } from '../io-tools';
+import { IOOptions, IOEndpoint, IOPromise, IONode } from '../io-tools';
 export interface IORecord extends IONode {
     getEndpoint(): IOEndpoint;
-    save(options?: object): IOPromise<any>;
-    fetch(options?: object): IOPromise<any>;
-    destroy(options?: any): IOPromise<any>;
+    save(options?: IOOptions): IOPromise<any>;
+    fetch(options?: IOOptions): IOPromise<any>;
+    destroy(options?: IOOptions): IOPromise<any>;
     toJSON(): any;
     isNew(): boolean;
     id: string | number;
@@ -11,7 +11,7 @@ export interface IORecord extends IONode {
 }
 export declare const IORecordMixin: {
     getEndpoint(this: IORecord): IOEndpoint;
-    save(this: IORecord, options?: object): IOPromise<any>;
-    fetch(options?: {}): IOPromise<any>;
-    destroy(options?: {}): IOPromise<any>;
+    save(this: IORecord, options?: IOOptions): IOPromise<any>;
+    fetch(options?: IOOptions): IOPromise<any>;
+    destroy(options?: IOOptions): IOPromise<any>;
 };

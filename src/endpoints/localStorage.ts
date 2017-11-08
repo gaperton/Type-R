@@ -1,4 +1,4 @@
-import { IOEndpoint, IOPromise, createIOPromise } from '../io-tools'
+import { IOEndpoint, IOOptions, IOPromise, createIOPromise } from '../io-tools'
 
 export type Index = number[];
 
@@ -26,7 +26,7 @@ export class LocalStorageEndpoint implements IOEndpoint {
         });
     }
 
-    create( json, options ) {
+    create( json, options : IOOptions ) {
         const { index } = this;
         index.push( json.id = String( ( index[ 0 ] as number )++ ) );
         this.index = index;
@@ -42,26 +42,20 @@ export class LocalStorageEndpoint implements IOEndpoint {
         return JSON.parse( localStorage.getItem( this.key + '#' + id ) );
     }
 
-    update( id, json, options ) {
-        const existing = this.get( id );
-        if( existing ){
-            json.id = id;
-            this.set( json );
-            return this.resolve( {} );
-        }
-        else{
-            return this.reject( "Not found");
-        }
+    update( id, json, options : IOOptions ) {
+        json.id = id;
+        this.set( json );
+        return this.resolve( {} );
     }
 
-    read( id, options ){
+    read( id, options : IOOptions ){
         const existing = this.get( id );
         return existing ?
             this.resolve( existing ) : 
             this.reject( "Not found" );
     }
 
-    destroy( id, options ){
+    destroy( id, options : IOOptions ){
         const existing = this.get( id );
         if( existing ){
             localStorage.removeItem( this.key + '#' + id );
@@ -81,7 +75,7 @@ export class LocalStorageEndpoint implements IOEndpoint {
         localStorage.setItem( this.key, JSON.stringify( x ) );
     }
 
-    list( options? : object ) {
+    list( options? : IOOptions ) {
         const { index } = this; 
         return this.resolve( this.index.slice( 1 ).map( id => this.get( id ) ) );
     }

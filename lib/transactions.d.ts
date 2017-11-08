@@ -63,6 +63,7 @@ export declare abstract class Transactional implements Messenger, IONode, Valida
     map<T>(iteratee: (val: any, key: string | number) => T, context?: any): T[];
     _endpoint: IOEndpoint;
     _ioPromise: IOPromise<any>;
+    hasPendingIO(): IOPromise<any>;
     fetch(options?: object): IOPromise<any>;
     getEndpoint(): IOEndpoint;
     mapObject<T>(iteratee: (val: any, key: string | number) => T, context?: any): {
@@ -101,6 +102,8 @@ export interface TransactionOptions {
     reset?: boolean;
     unset?: boolean;
     validate?: boolean;
+    ioUpdate?: boolean;
+    upsert?: boolean;
 }
 export declare const transactionApi: {
     begin(object: Transactional): boolean;

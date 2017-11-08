@@ -936,6 +936,7 @@ function createIOPromise(initialize) {
 }
 function startIO(self, promise, options, thenDo) {
     abortIO(self);
+    options.ioUpdate = true;
     self._ioPromise = promise
         .then(function (resp) {
         self._ioPromise = null;
@@ -1065,6 +1066,7 @@ var Transactional = (function () {
         });
         return arr;
     };
+    Transactional.prototype.hasPendingIO = function () { return this._ioPromise; };
     Transactional.prototype.fetch = function (options) { throw new Error("Not implemented"); };
     Transactional.prototype.getEndpoint = function () {
         return getOwnerEndpoint(this) || this._endpoint;
@@ -16365,14 +16367,8 @@ var MemoryEndpoint = (function () {
         return this.resolve({ id: id });
     };
     MemoryEndpoint.prototype.update = function (id, json, options) {
-        var existing = this.items[id];
-        if (existing) {
-            this.items[id] = json;
-            return this.resolve({});
-        }
-        else {
-            return this.reject("Not found");
-        }
+        this.items[id] = json;
+        return this.resolve({});
     };
     MemoryEndpoint.prototype.read = function (id, options) {
         var existing = this.items[id];
@@ -16463,15 +16459,9 @@ var LocalStorageEndpoint = (function () {
         return JSON.parse(localStorage.getItem(this.key + '#' + id));
     };
     LocalStorageEndpoint.prototype.update = function (id, json, options) {
-        var existing = this.get(id);
-        if (existing) {
-            json.id = id;
-            this.set(json);
-            return this.resolve({});
-        }
-        else {
-            return this.reject("Not found");
-        }
+        json.id = id;
+        this.set(json);
+        return this.resolve({});
     };
     LocalStorageEndpoint.prototype.read = function (id, options) {
         var existing = this.get(id);

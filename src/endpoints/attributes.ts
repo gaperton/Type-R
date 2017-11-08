@@ -1,4 +1,4 @@
-import { IOEndpoint, IOPromise, createIOPromise } from '../io-tools'
+import { IOEndpoint, IOOptions, IOPromise, createIOPromise } from '../io-tools'
 
 export function create(){
     return new AttributesEndpoint();
@@ -7,15 +7,15 @@ export function create(){
 export { create as attributesIO };
 
 export class AttributesEndpoint implements IOEndpoint {
-    create( json, options ) : IOPromise<any> {
+    create( json, options : IOOptions ) : IOPromise<any> {
         throw new Error( 'Method is not supported.' );        
     }
 
-    update( id, json, options ) : IOPromise<any> {
+    update( id, json, options : IOOptions ) : IOPromise<any> {
         throw new Error( 'Method is not supported.' );        
     }
 
-    read( id, options, record ) : IOPromise<any> {
+    read( id, options : IOOptions, record ) : IOPromise<any> {
         const names = record.keys().filter( name => record[ name ] && record[ name ].fetch ),
             promises = names.map( name => record[ name ].fetch( options ) ),
             promise : IOPromise<any> = Promise.all( promises ).then( () => {} );
@@ -27,11 +27,11 @@ export class AttributesEndpoint implements IOEndpoint {
         return promise;
     }
 
-    destroy( id, options ) : IOPromise<any> {
+    destroy( id, options : IOOptions ) : IOPromise<any> {
         throw new Error( 'Method is not supported.' );        
     }
 
-    list( options? : object ) : IOPromise<any> {
+    list( options? : IOOptions ) : IOPromise<any> {
         throw new Error( 'Method is not supported.' );
     }
 

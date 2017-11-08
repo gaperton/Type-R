@@ -248,6 +248,8 @@ export abstract class Transactional implements Messenger, IONode, Validatable, T
     _endpoint : IOEndpoint
     _ioPromise : IOPromise<any>
 
+    hasPendingIO() : IOPromise<any> { return this._ioPromise; }
+
     fetch( options? : object ) : IOPromise<any> { throw new Error( "Not implemented" ); }
 
     getEndpoint() : IOEndpoint {
@@ -370,6 +372,13 @@ export interface TransactionOptions {
     unset? : boolean
 
     validate? : boolean
+
+    // `true` if the transaction is initiated as a result of IO operation
+    ioUpdate? : boolean
+
+    // The hint for IOEndpoint
+    // If `true`, `record.save()` will behave as "upsert" operation for the records having id.
+    upsert? : boolean
 }
 
 /**

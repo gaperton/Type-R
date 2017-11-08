@@ -1,10 +1,10 @@
-import { getOwnerEndpoint, startIO, IOEndpoint, IOPromise, IONode } from '../io-tools'
+import { getOwnerEndpoint, startIO, IOOptions, IOEndpoint, IOPromise, IONode } from '../io-tools'
 
 export interface IORecord extends IONode {
     getEndpoint() : IOEndpoint
-    save( options? : object ) : IOPromise<any>
-    fetch( options? : object ) : IOPromise<any>
-    destroy( options? ) : IOPromise<any>
+    save( options? : IOOptions ) : IOPromise<any>
+    fetch( options? : IOOptions ) : IOPromise<any>
+    destroy( options? : IOOptions ) : IOPromise<any>
     toJSON() : any
     isNew() : boolean
     id : string | number
@@ -16,7 +16,7 @@ export const IORecordMixin = {
         return getOwnerEndpoint( this ) || this._endpoint;
     },
 
-    save( this : IORecord, options : object = {} ){
+    save( this : IORecord, options : IOOptions = {} ){
         const endpoint = this.getEndpoint(),
               json = this.toJSON();
 
@@ -33,7 +33,7 @@ export const IORecordMixin = {
         );
     },
 
-    fetch( options = {} ){
+    fetch( options : IOOptions = {} ){
         return startIO(
             this,
             this.getEndpoint().read( this.id, options, this ),
@@ -43,7 +43,7 @@ export const IORecordMixin = {
         );
     },
 
-    destroy( options = {} ){  
+    destroy( options : IOOptions = {} ){  
         return startIO(
             this,
             this.getEndpoint().destroy( this.id, options, this ),
