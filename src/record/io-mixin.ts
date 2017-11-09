@@ -12,10 +12,6 @@ export interface IORecord extends IONode {
 }
 
 export const IORecordMixin = {
-    getEndpoint( this : IORecord ) : IOEndpoint {
-        return getOwnerEndpoint( this ) || this._endpoint;
-    },
-
     save( this : IORecord, options : IOOptions = {} ){
         const endpoint = this.getEndpoint(),
               json = this.toJSON();

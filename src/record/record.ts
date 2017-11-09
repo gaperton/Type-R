@@ -50,7 +50,6 @@ export interface RecordDefinition extends TransactionalDefinition {
     // Default id attribute name
     idAttribute : 'id'
 })
-@mixins( IORecordMixin )
 @definitions({
     defaults : mixinRules.merge,
     attributes : mixinRules.merge,
@@ -79,10 +78,10 @@ export class Record extends Transactional implements IORecord, AttributesContain
      _endpoints : { [ name : string ] : IOEndpoint }
 
      // Save record
-     save : ( options? : object ) => IOPromise<any>
+     save( options? : object ) : IOPromise<any> { throw new Error( 'Implemented by mixin' ); }
 
      // Destroy record
-     destroy : ( options? : object ) => IOPromise<any>
+     destroy( options? : object ) : IOPromise<any> { throw new Error( 'Implemented by mixin' ); }
 
     /***********************************
      * Core Members
@@ -459,7 +458,7 @@ export class Record extends Transactional implements IORecord, AttributesContain
     _onChildrenChange : ( child : Transactional, options : TransactionOptions ) => void
 };
 
-assign( Record.prototype, UpdateRecordMixin );
+assign( Record.prototype, UpdateRecordMixin, IORecordMixin );
 
 /***********************************************
  * Helper functions

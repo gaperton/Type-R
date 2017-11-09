@@ -10,7 +10,6 @@ export interface IORecord extends IONode {
     set(json: object, options: object): any;
 }
 export declare const IORecordMixin: {
-    getEndpoint(this: IORecord): IOEndpoint;
     save(this: IORecord, options?: IOOptions): IOPromise<any>;
     fetch(options?: IOOptions): IOPromise<any>;
     destroy(options?: IOOptions): IOPromise<any>;

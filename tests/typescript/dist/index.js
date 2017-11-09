@@ -909,16 +909,6 @@ function resolveReference(root, reference, action) {
     return action(self, path[skip]);
 }
 
-function getOwnerEndpoint$1(self) {
-    var collection = self.collection;
-    if (collection) {
-        return getOwnerEndpoint$1(collection);
-    }
-    if (self._owner) {
-        var _endpoints = self._owner._endpoints;
-        return _endpoints && _endpoints[self._ownerKey];
-    }
-}
 function createIOPromise(initialize) {
     var resolve, reject, onAbort;
     function abort(fn) {
@@ -2082,9 +2072,6 @@ function createWatcherFromRef(ref, key) {
 }
 
 var IORecordMixin = {
-    getEndpoint: function () {
-        return getOwnerEndpoint$1(this) || this._endpoint;
-    },
     save: function (options) {
         var _this = this;
         if (options === void 0) { options = {}; }
@@ -2138,6 +2125,8 @@ var Record = (function (_super) {
     Record.defaults = function (attrs) {
         return this.extend({ attributes: attrs });
     };
+    Record.prototype.save = function (options) { throw new Error('Implemented by mixin'); };
+    Record.prototype.destroy = function (options) { throw new Error('Implemented by mixin'); };
     Record.prototype.previousAttributes = function () { return new this.AttributesCopy(this._previousAttributes); };
     Object.defineProperty(Record.prototype, "__inner_state__", {
         get: function () { return this.attributes; },
@@ -2371,7 +2360,6 @@ var Record = (function (_super) {
             _changeEventName: 'change',
             idAttribute: 'id'
         }),
-        mixins(IORecordMixin),
         definitions({
             defaults: mixinRules.merge,
             attributes: mixinRules.merge,
@@ -2384,7 +2372,7 @@ var Record = (function (_super) {
     var Record_1;
 }(Transactional));
 
-assign$4(Record.prototype, UpdateRecordMixin);
+assign$4(Record.prototype, UpdateRecordMixin, IORecordMixin);
 var BaseRecordAttributes = (function () {
     function BaseRecordAttributes(record, x, options) {
         this.id = x.id;
