@@ -339,11 +339,9 @@ function definitionDecorator(definitionKey, value) {
     return function (proto, name) {
         MixinsState
             .get(proto.constructor)
-            .mergeObject(proto, (_a = {},
-            _a[definitionKey] = (_b = {},
+            .mergeObject(proto, (_a = {}, _a[definitionKey] = (_b = {},
                 _b[name] = value,
-                _b),
-            _a));
+                _b), _a));
         var _a, _b;
     };
 }
@@ -3445,12 +3443,6 @@ var Store = (function (_super) {
     return Store;
 }(Record));
 Store.global = new Store();
-
-var on = (_a = Events, _a.on);
-
-
-
-var _a;
 
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
