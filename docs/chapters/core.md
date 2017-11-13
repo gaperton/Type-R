@@ -1,61 +1,19 @@
-# Record
+# Core Data Structires
+## Overview
 
-Record is the serializable class with typed attributes, observable changes, and custom validation checks. It is the main building block for managing the application state; component local state, stores, and collection elements are all subclasses of the `Record`.
+## Aggregation Tree
 
-```javascript
-import { define, Record } from 'type-r'
+## Definitions
 
-// ⤹ required to make magic work  
-@define class User extends Record {
-    // ⤹ attribute's declaration
-    static attributes = {
-        firstName : '', // ⟵ String type is inferred from the default value
-        lastName  : String, // ⟵ Or you can just mention its constructor
-        email     : String.value( null ), //⟵ Or you can provide both
-        createdAt : Date, // ⟵ And it works for any constructor.
-        // And you can attach ⤹ metadata to fine-tune attribute's behavior
-        lastLogin : Date.value( null ).has.toJSON( false ) // ⟵ not serializable
-    }
-}
+Record definition must:
 
-const user = new User();
-console.log( user.createdAt ); // ⟵ this is an instance of Date created for you.
-
-const users = new User.Collection(); // ⟵ Collections are defined automatically.
-users.on( 'changes', () => updateUI( users ) ); // ⟵ listen to the changes.
-
-users.set( json, { parse : true } ); // ⟵ parse raw JSON from the server.
-users.updateEach( user => user.firstName = '' ); // ⟵ bulk update triggering 'changes' once
-```
-
-## Definition
-
-Record is defined as a regular ES6 class, except:
-
-- it *must* extend the `Record` base class;
-- it *must* be preceded with the `@define` decorator;
-- it *should* use `static attributes` to declare attributes.
-
-Attributes declaration is an object with attribute names mapped to their type annotation and/or default value.
-Once defined, attributes can be accessed as regular class members.
-
-The minimal record definition looks like this:
-
-```javascript
-@define class MyRecord extends Record {
-    static attributes = {
-        name : ''
-    }
-}
-```
-
-<aside class="warning">
-Unlike in the majority of the JS state management framework, Record is <b>not the key-value hash</b>. It needs to be explicitly defined for every data structure of different shape, in a similar way as it's done in statically typed languages.
-</aside>
+- be the class extending the `Record`;
+- be preceded with the `@define` decorator;
+- have `static attributes` definition.
 
 ### `decorator` @define
 
-_Must_ be placed before the class definition.
+_Must_ be placed before record class definition.
 
 ```javascript
 import { define, Record } from 'type-r'
@@ -174,7 +132,7 @@ May be explicitly assigned in record's definition with custom collection class.
 });
 ```
 
-## Create and dispose
+## Record
 
 Record behaves as regular ES6 class with attributes accessible as properties.
 
@@ -220,8 +178,6 @@ a constructor.
 Recursively dispose the record and its aggregated members. "Dispose" means that elements of the aggregation tree will unsubscribe from all event sources. It's crucial to prevent memory leaks in SPA.
 
 The whole aggregation tree will be recursively disposed, shared members won't.
-
-## Read and Update
 
 ### record.cid
 
@@ -305,7 +261,6 @@ Record triggers events after all changes are applied:
 ### record.assignFrom( otherRecord )
 
 Makes an existing `record` to be the full clone of `otherRecord`, recursively assigning all attributes.
-In contracts to `record.clone()`, the record is updated in place.
 
 ```javascript
 // Another way of doing the bestSeller.clone()
@@ -340,6 +295,8 @@ Attach get hook to the record's attribute. `hook` is the function of signature `
 Attach the set hook to the record's attribute. `hook` is the function of signature `( value, attr ) => value` which is used to transform the attribute's value _before it will be assigned_. Hook is executed in the context of the record.
 
 If set hook will return `undefined`, it will cancel attribute update.
+
+## Collection
 
 ## Nested records and collections
 

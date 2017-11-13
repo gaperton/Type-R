@@ -112,12 +112,6 @@ var tabs = new TabSet([tab1, tab2, tab3]);
 
 Create a non-aggregating non-serializable collection. The collection does not take ownership in its records. In all other aspects it behaves as the regular collection.
 
-### collection.createSubset( records?, options? )
-
-Create a non-aggregating serializable collection which is the subset of the given collection. Takes the same arguments as the collection's constructor.
-
-<aside class="notice">Records in the collection must have an `id` attribute populated to work properly with subsets.</aside>
-
 ### `callback` collection.initialize( records?, options? )
 
 Initialization function which is called at the end of the constructor.
@@ -265,19 +259,6 @@ Calling `collection.reset()` without passing any records as arguments will empty
 1. Trigger event `reset`( collection, options ).
 2. Trigger event `changes`( collection, options ).
 
-### collection.transaction( fun )
-
-Execute the sequence of updates in `fun` function in the scope of the transaction.
-
-All collection updates occurs in the scope of transactions. Transaction is the sequence of changes which results in a single `changes` event.
-
-Transaction can be opened either manually or implicitly with calling any of collection update methods.
-Any additional changes made to the collection or its items in event handlers will be executed in the scope of the original transaction, and won't trigger an additional `changes` events.
-
-### collection.updateEach( iteratee : ( val : Record, index ) => void, context? )
-
-Similar to the `collection.each`, but wraps an iteration in a transaction. The single `changes` event will be emitted for the group of changes to the records made in `updateEach`.
-
 ### collection.sort( options? )
 
 Force a collection to re-sort itself. You don't need to call this under normal circumstances, as a collection with a comparator will sort itself whenever a record is added. To disable sorting when adding a record, pass `{sort: false}` to add. Calling sort triggers a "sort" event on the collection.
@@ -295,141 +276,3 @@ Add a record at the beginning of a collection. Takes the same options as add.
 
 ### collection.shift( options? )
 Remove and return the first record from a collection. Takes the same options as remove.
-
-## Change events
-
-All changes in the records cause change events in the collections they are contained in.
-
-Subset collections is an exception; they don't observe changes of its elements by default.
-
-### Events mixin methods (7)
-
-Collection implements [Events](#events-mixin) mixin.
-
-### `static` itemEvents = { eventName : `handler`, ... }
-
-Subscribe for events from records. The `hander` is either the collection's method name, the handler function, or `true`.
-
-When `true` is passed as a handler, the corresponding event will be triggered on the collection.
-
-### `event` "changes" (collection, options)
-
-When collection has changed. Single event triggered when the collection has been changed.
-
-### `event` "reset" (collection, options)
-
-When the collection's entire contents have been reset (`reset()` method was called).
-
-### `event` "update" (collection, options)
-
-Single event triggered after any number of records have been added or removed from a collection.
-
-### `event` "sort" (collection, options)
-
-When the collection has been re-sorted.
-
-### `event` "add" (record, collection, options)
-
-When a record is added to a collection.
-
-### `event` "remove" (record, collection, options)
-
-When a record is removed from a collection.
-
-### `event` "change" (record, options)
-
-When a record inside of the collection is changed.
-
-## Serialization
-
-All kinds of collections except `Collection.Refs` are serializable.
-
-### collection.toJSON()
-
-Produces the JSON for the given collection:
-
-- `[ { record json }, ... ]` - array of objects for regular aggregating collection.
-- `[ id1, id2, ... ]` - array of record ids for the subset collection.
-
-<aside class="warning">Although the direct call to <code>toJSON()</code> will produce the correct JSON for the <code>Collection.Refs</code>, it cannot be restored from JSON properly. Therefore, records attributes of the <code>Collection.Refs</code> type are not serialized by default. </aside>
-
-May be overridden in the particular record or collection class to customize the JSON representation.
-
-```javascript
-@define class Comment extends Record {
-    static attributes = {
-        body : ''
-    }
-}
-
-@define class BlogPost extends Record {
-    static attributes = {
-        title : '',
-        body : '',
-        comments : Comment.Collection
-    }
-}
-
-const post = new BlogPost({
-    title: "Type-R is cool!",
-    comments : [ { body : "Agree" }]
-});
-
-const rawJSON = post.toJSON()
-// { title : "Type-R is cool!", body : "", comments : [{ body : "Agree" }] }
-```
-
-### `options` { parse : true }
-
-Parse raw JSON when passed as an option to the collection's constructor or update methods.
-
-### `callback` collection.parse( json )
-
-Invoked internally when `{ parse : true }` is passed. May be overridden to define custom JSON transformation. Should not be called explicitly.
-
-## Validation
-
-Validation happens transparently on the first access to any part of the validation API. Validation results are cached. Only the changed parts of aggregation tree will be validated again.
-
-### `callback` collection.validate()
-
-Override in the collection subclass to add collection-level validation. Whatever is returned from `validate()` is treated as an error message and triggers the validation error.
-
-<aside class="notice">Do not call this method directly, that's not the way how validation works.</aside>
-
-### collection.isValid()
-
-Returns `true` if the collection is valid. Similar to `!collection.validationError`.
-
-### collection.isValid( recordId )
-
-Returns `true` whenever the record from the collection is valid.
-
-### record.validationError
-
-`null` if the collection is valid, or the detailed information on validation errors.
-
-- Aggregating collection is valid whenever `collection.validate()` returns `undefined` _and_ all of its records are valid.
-- Non-aggregating collections are valid whenever `collection.validate()` returns `undefined`.
-
-```javascript
-// ValidationError object shape
-{
-    error : /* collection-level validation error msg as returned from collection.validate() */,
-
-    // Collection items validation errors
-    nested : {
-        // Contains nested ValidationError object for nested records...
-        /* record.cid */ : /* record.validationError */
-    }
-}
-```
-
-### collection.getValidationError( recordId )
-
-Return the validation error for the given collection's item.
-
-### collection.eachValidationError( iteratee : ( error, key, recordOrCollection ) => void )
-
-Recursively traverse aggregation tree errors. `key` is `null` for the record-level validation error (returned from `validate()`).
-`recordOrCollection` is the reference to the current object.

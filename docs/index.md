@@ -1,5 +1,5 @@
 ---
-title: Type-R 1.0 API Reference
+title: Type-R 2.0 API Reference
 
 toc_footers:
   - <a href="https://github.com/Volicon/Type-R">GitHub repository</a>
@@ -7,10 +7,11 @@ toc_footers:
   - <a href="http://www.volicon.com/">Supported by <img style="vertical-align: middle" src="images/volicon_verizon_dm.png"/></a>
 
 includes:
-  - events
   - record
   - collection
-  - store
+  - observable
+  - validation
+  - io
   - mixins
   - releasenotes
 
@@ -19,21 +20,29 @@ search: true
 
 # Getting started
 
-Type-R is the modern JS data framework allowing declaratively definitions of complex domain and UI application state. The state is defined as the superposition of JS classes extending `Record` and `Collection`, and has following features:
+Type-R is the modern JS state framework supporting observable changes, state validation, JSON serialization and promised I/O. It's designed to meet the requirements of the complex JS data layer on both front-end and back-end.
 
-- _It's mapped to JSON by default_. The mapping can handle sophisticated scenarios with nested JSON and relations by id, and can be easily customized for every particular attribute or class.
-- _All changes are observable_, happens in the scope of transactions, and there's the fine-grained change events system.
-- _Validation_ is performed on the first access to the validation error and never happens twice for unchanged data.
-- _Everything is typed at run-time_ and is protected from improper updates. The shape of generated JSON and data classes is guaranteed to match the definitions.
-- It still looks like regular JS classes and is freaking fast. Type-R data structures are about 10 times faster than Backbone models and collections.
+Features:
+
+- *Deeply observable changes*
+    - The series of updates can be grouped to transactions emitting the single change event.
+    - There are fine-grained change events allowing the cascade of reactions executed as a single transaction.
+- *Serialization and persistence*
+    - Type-R data structures are serializable to JSON by default.
+    - Support for both nested JSON and relationship by id.
+    - JSON mapping can be customized for every particular attribute or class.
+    - I/O endpoints abstract out the persistence protocol.
+- *Lazily evaluated validation*
+    - The validation is performed on the first access to the validation error field.
+    - Validation results are cached and never computed twice for unchanged data.
+- *Dynamic type safety*
+    - Types are asserted every 
+    - The shape of both data structures and generated JSON is guaranteed to match the definitions.
+- *Performance*
+    - Type-R data structures are designed to handle large collections (10K elements and more) with sub-second delays.
+    - Updates are about 10 times more efficient than BackboneJS models and collections.
 
 ![overview](images/overview.png)
-
-Data layer is defined as a superposition of three kinds of building blocks:
-
-- *Record* classes with typed attributes.
-- Ordered *collections* of records.
-- *Stores* are records with a set of collections in its attributes used to resolve id-references in JSON.
 
 Type-R is completely unopinionated on the client-server transport protocol and the view layer technology. It's your perfect M and VM in modern MVVM or MVC architecture.
 

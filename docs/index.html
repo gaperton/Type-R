@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>Type-R 1.0 API Reference</title>
+    <title>Type-R 2.0 API Reference</title>
 
     <link rel="icon" href="images/logo-dark.png" />
     <link href="lib/stylesheets/screen.css" rel="stylesheet" type="text/css" media="screen" />
@@ -51,7 +51,7 @@
       <div class="logo-section">
         <img src="images/logo.png" />
         <div class="logo-text">
-          <div class="logo-caption">Type-R 1.0</div>
+          <div class="logo-caption">Type-R 2.0</div>
           <div>universal state management</div>
         </div>
         
@@ -73,21 +73,38 @@
     <div class="page-wrapper">
         <div class="content">
           <h1 id="getting-started">Getting started</h1>
-<p>Type-R is the modern JS data framework allowing declaratively definitions of complex domain and UI application state. The state is defined as the superposition of JS classes extending <code>Record</code> and <code>Collection</code>, and has following features:</p>
+<p>Type-R is the modern JS state framework supporting observable changes, state validation, JSON serialization and promised I/O. It&#39;s designed to meet the requirements of the complex JS data layer on both front-end and back-end.</p>
+<p>Features:</p>
 <ul>
-<li><em>It&#39;s mapped to JSON by default</em>. The mapping can handle sophisticated scenarios with nested JSON and relations by id, and can be easily customized for every particular attribute or class.</li>
-<li><em>All changes are observable</em>, happens in the scope of transactions, and there&#39;s the fine-grained change events system.</li>
-<li><em>Validation</em> is performed on the first access to the validation error and never happens twice for unchanged data.</li>
-<li><em>Everything is typed at run-time</em> and is protected from improper updates. The shape of generated JSON and data classes is guaranteed to match the definitions.</li>
-<li>It still looks like regular JS classes and is freaking fast. Type-R data structures are about 10 times faster than Backbone models and collections.</li>
+<li><em>Deeply observable changes</em><ul>
+<li>The series of updates can be grouped to transactions emitting the single change event.</li>
+<li>There are fine-grained change events allowing the cascade of reactions executed as a single transaction.</li>
+</ul>
+</li>
+<li><em>Serialization and persistence</em><ul>
+<li>Type-R data structures are serializable to JSON by default.</li>
+<li>Support for both nested JSON and relationship by id.</li>
+<li>JSON mapping can be customized for every particular attribute or class.</li>
+<li>I/O endpoints abstract out the persistence protocol.</li>
+</ul>
+</li>
+<li><em>Lazily evaluated validation</em><ul>
+<li>The validation is performed on the first access to the validation error field.</li>
+<li>Validation results are cached and never computed twice for unchanged data.</li>
+</ul>
+</li>
+<li><em>Dynamic type safety</em><ul>
+<li>Types are asserted every </li>
+<li>The shape of both data structures and generated JSON is guaranteed to match the definitions.</li>
+</ul>
+</li>
+<li><em>Performance</em><ul>
+<li>Type-R data structures are designed to handle large collections (10K elements and more) with sub-second delays.</li>
+<li>Updates are about 10 times more efficient than BackboneJS models and collections.</li>
+</ul>
+</li>
 </ul>
 <p><img src="images/overview.png" alt="overview"></p>
-<p>Data layer is defined as a superposition of three kinds of building blocks:</p>
-<ul>
-<li><em>Record</em> classes with typed attributes.</li>
-<li>Ordered <em>collections</em> of records.</li>
-<li><em>Stores</em> are records with a set of collections in its attributes used to resolve id-references in JSON.</li>
-</ul>
 <p>Type-R is completely unopinionated on the client-server transport protocol and the view layer technology. It&#39;s your perfect M and VM in modern MVVM or MVC architecture.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
@@ -205,169 +222,8 @@ msg.transaction( <span class="hljs-function"><span class="hljs-params">()</span>
 </tbody>
 </table>
 
-<h1 id="events">Events</h1>
-<p>Type-R uses an efficient synchronous events implementation which is backward compatible with Backbone 1.1 Events API but is about twice faster in all major browsers. It comes in form of <code>Events</code> mixin and the <code>Messenger</code> base class.</p>
-<h2 id="events-mixin">Events mixin</h2>
-<p><code>Events</code> is a <a href="#mixins">mixin</a> giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.</p>
-<p>Both <code>source</code> and <code>listener</code> mentioned in method signatures must implement Events methods.</p>
-<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { mixins, Events } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
-
-@mixins( Events )
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EventfulClass</span> </span>{
-    ...
-}
-</code></pre>
-<aside class="notice">There's the <code>Messenger</code> abstract base class with Events mixed in.</aside>
-
-<h3 id="source-trigger-event-arg1-arg2-">source.trigger(event, arg1, arg2, ... )</h3>
-<p>Trigger callbacks for the given event, or space-delimited list of events. Subsequent arguments to trigger will be passed along to the event callbacks.</p>
-<h3 id="listener-listento-source-event-callback-">listener.listenTo(source, event, callback)</h3>
-<p>Tell an object to listen to a particular event on an other object. The advantage of using this form, instead of other.on(event, callback, object), is that listenTo allows the object to keep track of the events, and they can be removed all at once later on. The callback will always be called with object as context.</p>
-<pre><code class="highlight javascript">    view.listenTo(record, <span class="hljs-string">'change'</span>, view.render );
-</code></pre>
-<aside class="success">Subscriptions made with <code>listenTo()</code> will be stopped automatically if an object is properly disposed (<code>dispose()</code> method is called).</aside>
-
-<h3 id="listener-stoplistening-source-event-callback-">listener.stopListening([source], [event], [callback])</h3>
-<p>Tell an object to stop listening to events. Either call stopListening with no arguments to have the object remove all of its registered callbacks ... or be more precise by telling it to remove just the events it&#39;s listening to on a specific object, or a specific event, or just a specific callback.</p>
-<pre><code class="highlight javascript">    view.stopListening(); <span class="hljs-comment">// Unsubscribe from all events</span>
-
-    view.stopListening(record); <span class="hljs-comment">// Unsubscribe from all events from the record</span>
-</code></pre>
-<aside class="notice">Messenger, Record, Collection, and Store execute <code>this.stopListening()</code> from their <code>dispose()</code> method. You don't have to unsubscribe from events explicitly if you are using <code>listenTo()</code> method and disposing your objects properly.</aside>
-
-<h3 id="listener-listentoonce-source-event-callback-">listener.listenToOnce(source, event, callback)</h3>
-<p>Just like <code>listenTo()</code>, but causes the bound callback to fire only once before being automatically removed.</p>
-<h3 id="source-on-event-callback-context-">source.on(event, callback, [context])</h3>
-<p>Bind a callback function to an object. The callback will be invoked whenever the event is fired. If you have a large number of different events on a page, the convention is to use colons to namespace them: <code>poll:start</code>, or <code>change:selection</code>. The event string may also be a space-delimited list of several events...</p>
-<pre><code class="highlight javascript">    book.on(<span class="hljs-string">"change:title change:author"</span>, ...);
-</code></pre>
-<p>Callbacks bound to the special &quot;all&quot; event will be triggered when any event occurs, and are passed the name of the event as the first argument. For example, to proxy all events from one object to another:</p>
-<pre><code class="highlight javascript">    proxy.on(<span class="hljs-string">"all"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">eventName</span>) </span>{
-        object.trigger(eventName);
-    });
-</code></pre>
-<p>All event methods also support an event map syntax, as an alternative to positional arguments:</p>
-<pre><code class="highlight javascript">    book.on({
-        <span class="hljs-string">"change:author"</span>: authorPane.update,
-        <span class="hljs-string">"change:title change:subtitle"</span>: titleView.update,
-        <span class="hljs-string">"destroy"</span>: bookView.remove
-    });
-</code></pre>
-<p>To supply a context value for this when the callback is invoked, pass the optional last argument: <code>record.on(&#39;change&#39;, this.render, this)</code> or <code>record.on({change: this.render}, this)</code>.</p>
-<aside class="warning">Event subscription with <code>source.on()</code> may create memory leaks if it's not stopped properly with <code>source.off()</code></aside>
-
-<h3 id="source-off-event-callback-context-">source.off([event], [callback], [context])</h3>
-<p>Remove a previously bound callback function from an object. If no context is specified, all of the versions of the callback with different contexts will be removed. If no callback is specified, all callbacks for the event will be removed. If no event is specified, callbacks for all events will be removed.</p>
-<pre><code class="highlight javascript">    <span class="hljs-comment">// Removes just the `onChange` callback.</span>
-    object.off(<span class="hljs-string">"change"</span>, onChange);
-
-    <span class="hljs-comment">// Removes all "change" callbacks.</span>
-    object.off(<span class="hljs-string">"change"</span>);
-
-    <span class="hljs-comment">// Removes the `onChange` callback for all events.</span>
-    object.off(<span class="hljs-literal">null</span>, onChange);
-
-    <span class="hljs-comment">// Removes all callbacks for `context` for all events.</span>
-    object.off(<span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, context);
-
-    <span class="hljs-comment">// Removes all callbacks on `object`.</span>
-    object.off();
-</code></pre>
-<p>Note that calling <code>record.off()</code>, for example, will indeed remove all events on the record — including events that Backbone uses for internal bookkeeping.</p>
-<h3 id="source-once-event-callback-context-">source.once(event, callback, [context])</h3>
-<p>Just like <code>on()</code>, but causes the bound callback to fire only once before being removed. Handy for saying &quot;the next time that X happens, do this&quot;. When multiple events are passed in using the space separated syntax, the event will fire once for every event you passed in, not once for a combination of all events</p>
-<h2 id="messenger-class">Messenger class</h2>
-<p>Messenger is an abstract base class implementing Events mixin and some convenience methods.</p>
-<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, Messenger } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
-
-<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyMessenger</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Messenger</span> </span>{
-
-}
-</code></pre>
-<h3 id="events-mixin-methods-7-">Events mixin methods (7)</h3>
-<p>Messenger implements <a href="#events-mixin">Events</a> mixin.</p>
-<h3 id="messenger-cid">messenger.cid</h3>
-<p>Unique run-time only messenger instance id (string).</p>
-<h3 id="-callback-messenger-initialize-"><code>callback</code> messenger.initialize()</h3>
-<p>Callback which is called at the end of the constructor.</p>
-<h3 id="messenger-dispose-">messenger.dispose()</h3>
-<p>Executes <code>messenger.stopListening()</code> and <code>messenger.off()</code>.</p>
-<p>Objects must be disposed to prevent memory leaks caused by subscribing for events from singletons.</p>
-<h2 id="built-in-events">Built-in events</h2>
-<p>All Type-R objects implement Events mixin and use events to notify listeners on changes.</p>
-<p>Record and Store change events:</p>
-<table>
-<thead>
-<tr>
-<th>Event name</th>
-<th>Handler arguments</th>
-<th>When triggered</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>change</td>
-<td>(record, options)</td>
-<td>At the end of any changes.</td>
-</tr>
-<tr>
-<td>change:attrName</td>
-<td>(record, value, options)</td>
-<td>The record&#39;s attribute has been changed.</td>
-</tr>
-</tbody>
-</table>
-<p>Collection change events:</p>
-<table>
-<thead>
-<tr>
-<th>Event name</th>
-<th>Handler arguments</th>
-<th>When triggered</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>changes</td>
-<td>(collection, options)</td>
-<td>At the end of any changes.</td>
-</tr>
-<tr>
-<td>reset</td>
-<td>(collection, options)</td>
-<td><code>reset()</code> method was called.</td>
-</tr>
-<tr>
-<td>update</td>
-<td>(collection, options)</td>
-<td>Any records added or removed.</td>
-</tr>
-<tr>
-<td>sort</td>
-<td>(collection, options)</td>
-<td>Order of records is changed. </td>
-</tr>
-<tr>
-<td>add</td>
-<td>(record, collection, options)</td>
-<td>The record is added to a collection.</td>
-</tr>
-<tr>
-<td>remove</td>
-<td>(record, collection, options)</td>
-<td>The record is removed from a collection.</td>
-</tr>
-<tr>
-<td>change</td>
-<td>(record, options)</td>
-<td>The record is changed inside of collection.</td>
-</tr>
-</tbody>
-</table>
 <h1 id="record">Record</h1>
 <p>Record is the serializable class with typed attributes, observable changes, and custom validation checks. It is the main building block for managing the application state; component local state, stores, and collection elements are all subclasses of the <code>Record</code>.</p>
-<p>In contrast to the &quot;model&quot; class in the majority of data frameworks, Record is <em>not the key-value hash</em>. It&#39;s the class with statically defined set of attributes of known types.</p>
-<p><code>Record</code> itself is an abstract class. The subclass needs to be defined for every data structure of different shape, in a similar way as it&#39;s done in statically typed languages.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
 <span class="hljs-comment">// ⤹ required to make magic work  </span>
@@ -392,15 +248,28 @@ users.on( <span class="hljs-string">'changes'</span>, () =&gt; updateUI( users )
 users.set( json, { <span class="hljs-attr">parse</span> : <span class="hljs-literal">true</span> } ); <span class="hljs-comment">// ⟵ parse raw JSON from the server.</span>
 users.updateEach( <span class="hljs-function"><span class="hljs-params">user</span> =&gt;</span> user.firstName = <span class="hljs-string">''</span> ); <span class="hljs-comment">// ⟵ bulk update triggering 'changes' once</span>
 </code></pre>
-<h2 id="define">Define</h2>
-<p>Record definition must:</p>
+<h2 id="definition">Definition</h2>
+<p>Record is defined as a regular ES6 class, except:</p>
 <ul>
-<li>be the class extending the <code>Record</code>;</li>
-<li>be preceded with the <code>@define</code> decorator;</li>
-<li>have <code>static attributes</code> definition.</li>
+<li>it <em>must</em> extend the <code>Record</code> base class;</li>
+<li>it <em>must</em> be preceded with the <code>@define</code> decorator;</li>
+<li>it <em>should</em> use <code>static attributes</code> to declare attributes.</li>
 </ul>
+<p>Attributes declaration is an object with attribute names mapped to their type annotation and/or default value.
+Once defined, attributes can be accessed as regular class members.</p>
+<p>The minimal record definition looks like this:</p>
+<pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyRecord</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">name</span> : <span class="hljs-string">''</span>
+    }
+}
+</code></pre>
+<aside class="warning">
+Unlike in the majority of the JS state management framework, Record is <b>not the key-value hash</b>. It needs to be explicitly defined for every data structure of different shape, in a similar way as it's done in statically typed languages.
+</aside>
+
 <h3 id="-decorator-define"><code>decorator</code> @define</h3>
-<p><em>Must</em> be placed before record class definition.</p>
+<p><em>Must</em> be placed before the class definition.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
 @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">X</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
@@ -483,106 +352,6 @@ alert(<span class="hljs-string">"Cake id: "</span> + cake.id);
     attributes : {
         <span class="hljs-attr">text</span> : <span class="hljs-built_in">String</span>,
         <span class="hljs-attr">replies</span> : Comments
-    }
-});
-</code></pre>
-<h2 id="nested-records-and-collections">Nested records and collections</h2>
-<p>Record&#39;s attributes can hold other Records and Collections, forming indefinitely nested data structures of arbitrary complexity.
-To create nested record or collection you should just mention its constructor function in attribute&#39;s definition.</p>
-<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
-
-@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span>,
-        <span class="hljs-attr">email</span> : <span class="hljs-built_in">String</span>,
-        <span class="hljs-attr">isActive</span> : <span class="hljs-literal">true</span>
-    }
-}
-
-@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UsersListState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">users</span> : User.Collection
-    }
-}
-</code></pre>
-<p>All nested records and collections are <em>aggregated</em> by default and behave as integral parts of the containing record. Aggregated attributes are <em>exclusively owned</em> by the record, and taken with it together form an <em>ownership tree</em>. Many operations are performed recursively on aggregated elements:</p>
-<ul>
-<li>They are created when the owner record is created.</li>
-<li>They are cloned when the record is cloned.</li>
-<li>They are disposed when the record is disposed.</li>
-<li>They are validated as part of the record.</li>
-<li>They are serialized as nested JSON.</li>
-</ul>
-<h3 id="-attrdef-recordorcollection"><code>attrDef</code> : RecordOrCollection</h3>
-<p>Aggregated record or collection. Represented as nested object or array in record&#39;s JSON. Aggregated members are owned by the record and treated as its <em>integral part</em> (recursively created, cloned, serialized, validated, and disposed).
-One object can have single owner. The record with its aggregated attributes forms an <em>aggregation tree</em>.</p>
-<p>All changes in aggregated record or collections are detected and cause change events on the containing record.</p>
-<h3 id="record-getowner-">record.getOwner()</h3>
-<p>Return the record which is an owner of the current record, or <code>null</code> there are no one.</p>
-<p>Due to the nature of <em>aggregation</em>, an object may have one and only one owner.</p>
-<h3 id="record-collection">record.collection</h3>
-<p>Return the collection which aggregates the record, or <code>null</code> if there are no one.</p>
-<h3 id="-attrdef-recordorcollection-shared"><code>attrDef</code> : RecordOrCollection.shared</h3>
-<p>Non-serializable reference to the record or collection possibly from the different aggregation tree. Initialized with <code>null</code>. Is not recursively cloned, serialized, validated, or disposed.</p>
-<p>All changes in shared records or collections are detected and cause change events of the containing record.</p>
-<aside class="notice">The type of <code>attrDef</code>{ name : defaultValue } is inferred as `Type.shared` if it extends Record or Collection</aside>
-
-<pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UsersListState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">users</span> : User.Collection,
-        <span class="hljs-attr">selected</span> : User.shared <span class="hljs-comment">// Can be assigned with the user from this.users</span>
-    }
-}
-</code></pre>
-<h3 id="-attrdef-collection-refs"><code>attrDef</code> : Collection.Refs</h3>
-<p>Non-aggregating collection. Collection of references to shared records which itself is <em>aggregated</em> by the record, but <em>does not aggregate</em> its elements. In contrast to the <code>Collection.shared</code>, <code>Collection.Refs</code> creates an instance of collection which <em>is the part the parent record</em>.</p>
-<p>The collection itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, serialized, or disposed.</p>
-<p>All changes in the collection and its elements are detected and cause change events of the containing record.</p>
-<aside class="notice"><code>Collection.Refs</code> is the constructor and can be used to create non-aggregating collection with `new` operator.</aside>
-
-<pre><code class="highlight javascript">    @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyRecord</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-        <span class="hljs-keyword">static</span> attributes = {
-            <span class="hljs-attr">notCloned</span> : SomeCollection.shared, <span class="hljs-comment">// Reference to the _shared collection_ object.</span>
-            cloned : SomeCollection.Refs <span class="hljs-comment">// _Aggregated_ collection of references to the _shared records_.</span>
-    }
-</code></pre>
-<h3 id="-attrdef-record-from-sourcecollection-"><code>attrDef</code> : Record.from( <code>sourceCollection</code> )</h3>
-<p>Serializable reference to the record from the particular collection.
-Initialized as <code>null</code> and serialized as <code>record.id</code>. Is not recursively cloned, validated, or disposed. Used to model one-to-many relationships.</p>
-<p>Changes in shared record are not detected.</p>
-<p><code>sourceCollection</code> may be:</p>
-<ul>
-<li>the singleton collection;</li>
-<li>the function returning the collection;</li>
-<li>the string with the dot-separated <em>relative object path</em> to the collection. It is resolved dynamically relative to the record&#39;s <code>this</code>. <code>^</code> symbol in path is being translated to the <code>getOwner()</code> call.</li>
-</ul>
-<pre><code class="highlight javascript">    @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">State</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-        items : Item.Collection,
-        <span class="hljs-attr">selected</span> : Record.from( <span class="hljs-string">'items'</span> ) <span class="hljs-comment">// Will resolve to `this.items`</span>
-    }
-</code></pre>
-<aside class="info">It's recommended to use ~paths and stores instead of ^paths.</aside>
-
-<h3 id="-attrdef-collection-subsetof-sourcecollection-"><code>attrDef</code> : Collection.subsetOf( <code>sourceCollection</code> )</h3>
-<p>Serializable non-aggregating collection which is the subset of the particular collection. Serialized as an array of record ids. Used to model many-to-many relationships.</p>
-<p>The collection itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, or disposed.</p>
-<p><code>sourceCollection</code> may be the same as for <code>Record.from()</code>.</p>
-<h3 id="-attrdef-type-has-changeevents-false-"><code>attrDef</code> : Type.has.changeEvents( false )</h3>
-<p>Turn off changes observation for nested records or collections.</p>
-<p>Record automatically listens to change events of all nested records and collections, triggering appropriate change events for its attributes. This declaration turns it off for the specific attribute.</p>
-<h3 id="-attrdef-type-has-events-eventname-handler-"><code>attrDef</code> : Type.has.events({ eventName : handler, ... })</h3>
-<p>Automatically manage custom event subscription for the attribute. <code>handler</code> is either the method name or the handler function.</p>
-<h3 id="-decorator-predefine"><code>decorator</code> @predefine</h3>
-<p>Make forward declaration for the record to define its attributes later with <code>RecordClass.define()</code>. Used instead of <code>@define</code> for recursive record definitions.</p>
-<p>Creates the default <code>RecordClass.Collection</code> type which can be referenced in attribute definitions.</p>
-<h3 id="-static-define-attributes-name-attrdef-"><code>static</code> define({ attributes : { name : <code>attrDef</code>, ... } })</h3>
-<p>May be called to define attributes in conjunction with <code>@predefine</code> decorator to make recursive record definitions.</p>
-<pre><code class="highlight javascript">@predefine <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Comment</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span></span>{}
-
-Comment.define({
-    <span class="hljs-attr">attributes</span> : {
-        <span class="hljs-attr">text</span> : <span class="hljs-built_in">String</span>,
-        <span class="hljs-attr">replies</span> : Comment.Collection
     }
 });
 </code></pre>
@@ -681,7 +450,8 @@ myBook.available = some &amp;&amp; weird || condition; <span class="hljs-comment
 <li><code>change</code> <em>(record, options)</em>, if there were changed attributes.</li>
 </ol>
 <h3 id="record-assignfrom-otherrecord-">record.assignFrom( otherRecord )</h3>
-<p>Makes an existing <code>record</code> to be the full clone of <code>otherRecord</code>, recursively assigning all attributes.</p>
+<p>Makes an existing <code>record</code> to be the full clone of <code>otherRecord</code>, recursively assigning all attributes.
+In contracts to <code>record.clone()</code>, the record is updated in place.</p>
 <pre><code class="highlight javascript"><span class="hljs-comment">// Another way of doing the bestSeller.clone()</span>
 <span class="hljs-keyword">const</span> book = <span class="hljs-keyword">new</span> Book();
 book.assignFrom( bestSeller );
@@ -702,188 +472,80 @@ Any additional changes made to the record in <code>change:attr</code> event hand
 <h3 id="-attrdef-type-has-set-hook-"><code>attrDef</code> : Type.has.set( <code>hook</code> )</h3>
 <p>Attach the set hook to the record&#39;s attribute. <code>hook</code> is the function of signature <code>( value, attr ) =&gt; value</code> which is used to transform the attribute&#39;s value <em>before it will be assigned</em>. Hook is executed in the context of the record.</p>
 <p>If set hook will return <code>undefined</code>, it will cancel attribute update.</p>
-<h2 id="change-events">Change events</h2>
-<h3 id="events-mixin-methods-7-">Events mixin methods (7)</h3>
-<p>Record implements <a href="#events-mixin">Events</a> mixin.</p>
-<h3 id="-event-change-record-"><code>event</code> &quot;change&quot; ( record )</h3>
-<p>Triggered by the record at the end of the attributes update transaction in case if there were any changes applied.</p>
-<h3 id="-event-change-attrname-record-value-"><code>event</code> &quot;change:attrName&quot; ( record, value )</h3>
-<p>Triggered by the record during the attributes update transaction for every changed attribute.</p>
-<h3 id="-attrdef-type-has-watcher-watcher-"><code>attrDef</code> : Type.has.watcher( watcher )</h3>
-<p>Attach <code>change:attr</code> event listener to the particular record&#39;s attribute. <code>watcher</code> can either be the record&#39;s method name or the function <code>( newValue, attr ) =&gt; void</code>. Watcher is always executed in the context of the record.</p>
-<pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span>.has.watcher( <span class="hljs-string">'onNameChange'</span> ),
-        <span class="hljs-attr">isAdmin</span> : <span class="hljs-built_in">Boolean</span>,
-    }
+<h2 id="nested-records-and-collections">Nested records and collections</h2>
+<p>Record&#39;s attributes can hold other Records and Collections, forming indefinitely nested data structures of arbitrary complexity.
+To create nested record or collection you should just mention its constructor function in attribute&#39;s definition.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
-    onNameChange(){
-        <span class="hljs-comment">// Cruel. But we need it for the purpose of the example.</span>
-        <span class="hljs-keyword">this</span>.isAdmin = <span class="hljs-keyword">this</span>.name.indexOf( <span class="hljs-string">'Admin'</span> ) &gt;= <span class="hljs-number">0</span>;
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span>,
+        <span class="hljs-attr">email</span> : <span class="hljs-built_in">String</span>,
+        <span class="hljs-attr">isActive</span> : <span class="hljs-literal">true</span>
+    }
+}
+
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UsersListState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">users</span> : User.Collection
     }
 }
 </code></pre>
-<h3 id="record-changed">record.changed</h3>
-<p>The <code>changed</code> property is the internal hash containing all the attributes that have changed during its last transaction.
-Please do not update <code>changed</code> directly since its state is internally maintained by <code>set()</code>.
-A copy of <code>changed</code> can be acquired from <code>changedAttributes()</code>.</p>
-<h3 id="record-changedattributes-attrs-">record.changedAttributes( attrs? )</h3>
-<p>Retrieve a hash of only the record&#39;s attributes that have changed during the last transaction,
-or false if there are none. Optionally, an external attributes hash can be passed in,
-returning the attributes in that hash which differ from the record.
-This can be used to figure out which portions of a view should be updated,
-or what calls need to be made to sync the changes to the server.</p>
-<h3 id="record-previous-attr-">record.previous( attr )</h3>
-<p>During a &quot;change&quot; event, this method can be used to get the previous value of a changed attribute.</p>
-<pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span></span>{
-    <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">name</span>: <span class="hljs-string">''</span>
-    }
-}
-
-<span class="hljs-keyword">const</span> bill = <span class="hljs-keyword">new</span> Person({
-  <span class="hljs-attr">name</span>: <span class="hljs-string">"Bill Smith"</span>
-});
-
-bill.on(<span class="hljs-string">"change:name"</span>, ( record, name ) =&gt; {
-  alert( <span class="hljs-string">`Changed name from <span class="hljs-subst">${ bill.previous(<span class="hljs-string">'name'</span>) }</span> to <span class="hljs-subst">${ name }</span>`</span>);
-});
-
-bill.name = <span class="hljs-string">"Bill Jones"</span>;
-</code></pre>
-<h3 id="record-previousattributes-">record.previousAttributes()</h3>
-<p>Return a copy of the record&#39;s previous attributes. Useful for getting a diff between versions of a record, or getting back to a valid state after an error occurs.</p>
-<h2 id="serialization">Serialization</h2>
-<h3 id="record-tojson-">record.toJSON()</h3>
-<p>Produces the JSON for the given record and its aggregated members. Aggregation tree is serialized as nested JSON. Record corresponds to an object in JSON, while the collection is represented as an array.</p>
-<p>May be overridden in the particular record class.</p>
-<pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Comment</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">body</span> : <span class="hljs-string">''</span>
-    }
-}
-
-@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BlogPost</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">title</span> : <span class="hljs-string">''</span>,
-        <span class="hljs-attr">body</span> : <span class="hljs-string">''</span>,
-        <span class="hljs-attr">comments</span> : Comment.Collection
-    }
-}
-
-<span class="hljs-keyword">const</span> post = <span class="hljs-keyword">new</span> BlogPost({
-    <span class="hljs-attr">title</span>: <span class="hljs-string">"Type-R is cool!"</span>,
-    <span class="hljs-attr">comments</span> : [ { <span class="hljs-attr">body</span> : <span class="hljs-string">"Agree"</span> }]
-});
-
-<span class="hljs-keyword">const</span> rawJSON = post.toJSON()
-<span class="hljs-comment">// { title : "Type-R is cool!", body : "", comments : [{ body : "Agree" }] }</span>
-</code></pre>
-<h3 id="-attrdef-type-has-tojson-false-"><code>attrDef</code> : Type.has.toJSON( false )</h3>
-<p>Do <em>not</em> serialize the specific attribute.</p>
-<h3 id="-attrdef-type-has-tojson-value-name-json-"><code>attrDef</code> : Type.has.toJSON( ( value, name ) =&gt; json )</h3>
-<p>Override the default serialization for the specific record&#39;s attribute.</p>
-<p>Attribute is not serialized when the function return <code>undefined</code>.</p>
-<h3 id="-option-parse-true-"><code>option</code> { parse : true }</h3>
-<p><code>record.set</code> and constructor&#39;s option to force parsing of the raw JSON.</p>
-<p>Must be used to process the data received from the server.</p>
-<pre><code class="highlight javascript"><span class="hljs-comment">// Another way of doing the bestSeller.clone()</span>
-<span class="hljs-comment">// Amazingly, this is guaranteed to work by default.</span>
-<span class="hljs-keyword">const</span> book = <span class="hljs-keyword">new</span> Book();
-book.set( bestSeller.toJSON(), { <span class="hljs-attr">parse</span> : <span class="hljs-literal">true</span> } );
-</code></pre>
-<h3 id="-callback-record-parse-json-"><code>callback</code> record.parse( json )</h3>
-<p>Invoked internally when <code>{ parse : true }</code> option is passed. May be overridden to define custom JSON transformation. Should not be called explicitly.</p>
-<h3 id="-attrdef-type-has-parse-json-name-value-"><code>attrDef</code> : Type.has.parse( ( json, name ) =&gt; value )</h3>
-<p>Transform the data before it will be assigned to the record&#39;s attribute.</p>
-<p>Invoked when the <code>{ parse : true }</code> option is set.</p>
-<pre><code class="highlight javascript"><span class="hljs-comment">// Define custom boolean attribute type which is serialized as 0 or 1.</span>
-<span class="hljs-keyword">const</span> MyWeirdBool = <span class="hljs-built_in">Boolean</span>.has
-                      .parse( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x === <span class="hljs-number">1</span> )
-                      .toJSON( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x ? <span class="hljs-number">1</span> : <span class="hljs-number">0</span> );
-</code></pre>
-<h3 id="-static-create-attrs-options-"><code>static</code> create( attrs, options )</h3>
-<p>Static factory function used internally by Type-R to create instances of the record.</p>
-<p>May be redefined in the abstract Record base class to make it serializable type.</p>
-<pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Widget</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">type</span> : <span class="hljs-built_in">String</span>
-    }
-
-    <span class="hljs-keyword">static</span> create( attrs, options ){
-        <span class="hljs-keyword">switch</span>( attrs.type ){
-            <span class="hljs-keyword">case</span> <span class="hljs-string">"typeA"</span> : <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> TypeA( attrs, options );
-            <span class="hljs-keyword">case</span> <span class="hljs-string">"typeB"</span> : <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> TypeB( attrs, options );
-        }
-    }
-}
-
-@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TypeA</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Widget</span> </span>{
-    <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">type</span> : <span class="hljs-string">"typeA"</span>,
-        ...
-    }
-}
-
-@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TypeB</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Widget</span> </span>{
-    <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">type</span> : <span class="hljs-string">"typeB"</span>,
-        ...
-    }
-}
-</code></pre>
-<h2 id="validation">Validation</h2>
-<p>Validation happens transparently on the first access to any part of the validation API. Validation results are cached. Only the required parts of aggregation tree will be validated again</p>
-<h3 id="-attrdef-type-has-check-predicate-errormsg-"><code>attrDef</code> : Type.has.check( predicate, errorMsg? )</h3>
-<p>Attribute-level validator.</p>
+<p>All nested records and collections are <em>aggregated</em> by default and behave as integral parts of the containing record. Aggregated attributes are <em>exclusively owned</em> by the record, and taken with it together form an <em>ownership tree</em>. Many operations are performed recursively on aggregated elements:</p>
 <ul>
-<li><code>predicate : value =&gt; boolean</code> is the function taking attribute&#39;s value and returning <code>true</code> whenever the value is valid.</li>
-<li>optional <code>errorMsg</code> is the error message which will be passed in case if the validation fail.</li>
+<li>They are created when the owner record is created.</li>
+<li>They are cloned when the record is cloned.</li>
+<li>They are disposed when the record is disposed.</li>
+<li>They are validated as part of the record.</li>
+<li>They are serialized as nested JSON.</li>
 </ul>
-<p>If <code>errorMsg</code> is omitted, error message will be taken from <code>predicate.error</code>. It makes possible to define reusable validation functions.</p>
-<pre><code class="highlight javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isAge</span>(<span class="hljs-params"> years </span>)</span>{
-    <span class="hljs-keyword">return</span> years &gt;= <span class="hljs-number">0</span> &amp;&amp; years &lt; <span class="hljs-number">200</span>;
-}
+<h3 id="-attrdef-recordorcollection"><code>attrDef</code> : RecordOrCollection</h3>
+<p>Aggregated record or collection. Represented as nested object or array in record&#39;s JSON. Aggregated members are owned by the record and treated as its <em>integral part</em> (recursively created, cloned, serialized, validated, and disposed).
+One object can have single owner. The record with its aggregated attributes forms an <em>aggregation tree</em>.</p>
+<p>All changes in aggregated record or collections are detected and cause change events on the containing record.</p>
+<h3 id="record-getowner-">record.getOwner()</h3>
+<p>Return the record which is an owner of the current record, or <code>null</code> there are no one.</p>
+<p>Due to the nature of <em>aggregation</em>, an object may have one and only one owner.</p>
+<h3 id="record-collection">record.collection</h3>
+<p>Return the collection which aggregates the record, or <code>null</code> if there are no one.</p>
+<h3 id="-attrdef-recordorcollection-shared"><code>attrDef</code> : RecordOrCollection.shared</h3>
+<p>Non-serializable reference to the record or collection possibly from the different aggregation tree. Initialized with <code>null</code>. Is not recursively cloned, serialized, validated, or disposed.</p>
+<p>All changes in shared records or collections are detected and cause change events of the containing record.</p>
+<aside class="notice">The type of <code>attrDef</code>{ name : defaultValue } is inferred as `Type.shared` if it extends Record or Collection</aside>
 
-isAge.error = <span class="hljs-string">"Age must be between 0 and 200"</span>;
-</code></pre>
-<p>Attribute may have any number of checks attached, which are execute in sequence. Validation stops when first check in sequence fails.</p>
-<pre><code class="highlight javascript"><span class="hljs-comment">// Define new attribute metatype encapsulating validation checks.</span>
-<span class="hljs-keyword">const</span> Age = <span class="hljs-built_in">Number</span>.has
-                .check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x &gt;= <span class="hljs-number">0</span>, <span class="hljs-string">'I guess you are a bit older'</span> )
-                .check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x &lt; <span class="hljs-number">200</span>, <span class="hljs-string">'No way man can be that old'</span> );
-</code></pre>
-<h3 id="-attrdef-type-isrequired"><code>attrDef</code> : Type.isRequired</h3>
-<p>The special case of attribute-level check cutting out empty values. Attribute value must be truthy to pass, <code>&quot;Required&quot;</code> is used as validation error.</p>
-<p><code>isRequired</code> is the first validator to check, no matter in which order validators were attached.</p>
-<h3 id="-callback-record-validate-"><code>callback</code> record.validate()</h3>
-<p>Override in the subclass to add object-level validation. Whatever is returned from <code>validate()</code> is treated as an error message and triggers the validation error.</p>
-<h3 id="record-isvalid-attrname-">record.isValid( attrName? )</h3>
-<p>Returns <code>true</code> whenever the record and all of its attributes are valid.</p>
-<p>If <code>attrName</code> is provided, returns <code>true</code> whenever the record&#39;s attribute is valid.</p>
-<h3 id="record-validationerror">record.validationError</h3>
-<p>Detailed validation error information, or <code>null</code> if the record and its <em>aggregated attributes</em> are valid.
-An error object has tree structure mapping the invalid subtree of the aggregation tree.</p>
-<pre><code class="highlight javascript"><span class="hljs-comment">// ValidationError object shape</span>
-{
-    <span class="hljs-attr">error</span> : <span class="hljs-comment">/* record-level validation error msg as returned from record.validate() */</span>,
-
-    <span class="hljs-comment">// Attribute-level validation errors, one entry for each invalid attribute.</span>
-    nested : {
-        <span class="hljs-comment">// Contains nested ValidationError object for nested records and collections...</span>
-        nestedRecord : <span class="hljs-comment">/* ValidationError */</span>
-        nestedCollection : <span class="hljs-comment">/* ValidationError */</span>
-
-        <span class="hljs-comment">// ...and error msg for all other attributes.</span>
-        otherAttr : <span class="hljs-comment">/* attribute validation error as returned from .has.check() validator */</span>
+<pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UsersListState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">users</span> : User.Collection,
+        <span class="hljs-attr">selected</span> : User.shared <span class="hljs-comment">// Can be assigned with the user from this.users</span>
     }
 }
 </code></pre>
-<h3 id="record-getvalidationerror-attr-">record.getValidationError( attr )</h3>
-<p>Return the validation error for the given <code>attr</code> or collection&#39;s item.</p>
-<h3 id="record-eachvalidationerror-iteratee-error-key-recordorcollection-void-">record.eachValidationError( iteratee : ( error, key, recordOrCollection ) =&gt; void )</h3>
-<p>Recursively traverse aggregation tree errors. <code>key</code> is <code>null</code> for the record-level validation error (returned from <code>validate()</code>).
-<code>recordOrCollection</code> is the reference to the current object.</p>
+<h3 id="-attrdef-collection-refs"><code>attrDef</code> : Collection.Refs</h3>
+<p>Non-aggregating collection. Collection of references to shared records which itself is <em>aggregated</em> by the record, but <em>does not aggregate</em> its elements. In contrast to the <code>Collection.shared</code>, <code>Collection.Refs</code> creates an instance of collection which <em>is the part the parent record</em>.</p>
+<p>The collection itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, serialized, or disposed.</p>
+<p>All changes in the collection and its elements are detected and cause change events of the containing record.</p>
+<aside class="notice"><code>Collection.Refs</code> is the constructor and can be used to create non-aggregating collection with `new` operator.</aside>
+
+<pre><code class="highlight javascript">    @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyRecord</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+        <span class="hljs-keyword">static</span> attributes = {
+            <span class="hljs-attr">notCloned</span> : SomeCollection.shared, <span class="hljs-comment">// Reference to the _shared collection_ object.</span>
+            cloned : SomeCollection.Refs <span class="hljs-comment">// _Aggregated_ collection of references to the _shared records_.</span>
+    }
+</code></pre>
+<h3 id="-decorator-predefine"><code>decorator</code> @predefine</h3>
+<p>Make forward declaration for the record to define its attributes later with <code>RecordClass.define()</code>. Used instead of <code>@define</code> for recursive record definitions.</p>
+<p>Creates the default <code>RecordClass.Collection</code> type which can be referenced in attribute definitions.</p>
+<h3 id="-static-define-attributes-name-attrdef-"><code>static</code> define({ attributes : { name : <code>attrDef</code>, ... } })</h3>
+<p>May be called to define attributes in conjunction with <code>@predefine</code> decorator to make recursive record definitions.</p>
+<pre><code class="highlight javascript">@predefine <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Comment</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span></span>{}
+
+Comment.define({
+    <span class="hljs-attr">attributes</span> : {
+        <span class="hljs-attr">text</span> : <span class="hljs-built_in">String</span>,
+        <span class="hljs-attr">replies</span> : Comment.Collection
+    }
+});
+</code></pre>
 <h1 id="collection">Collection</h1>
 <p>Collections are ordered sets of records. You can bind &quot;changes&quot; events to be notified when the collection has been modified, listen for the record &quot;add&quot;,  &quot;remove&quot;, and &quot;change&quot; events, and use a full suite of iteration methods.</p>
 <pre><code class="highlight javascript"><span class="hljs-comment">// Implicitly defined collection.</span>
@@ -962,10 +624,6 @@ alert(chapters.map( <span class="hljs-function"><span class="hljs-params">x</spa
 </code></pre>
 <h3 id="new-collection-refs-records-options-">new Collection.Refs( records?, options? )</h3>
 <p>Create a non-aggregating non-serializable collection. The collection does not take ownership in its records. In all other aspects it behaves as the regular collection.</p>
-<h3 id="collection-createsubset-records-options-">collection.createSubset( records?, options? )</h3>
-<p>Create a non-aggregating serializable collection which is the subset of the given collection. Takes the same arguments as the collection&#39;s constructor.</p>
-<aside class="notice">Records in the collection must have an `id` attribute populated to work properly with subsets.</aside>
-
 <h3 id="-callback-collection-initialize-records-options-"><code>callback</code> collection.initialize( records?, options? )</h3>
 <p>Initialization function which is called at the end of the constructor.</p>
 <h3 id="collection-clone-">collection.clone()</h3>
@@ -1074,13 +732,6 @@ vanHalen.set([ eddie, alex, stone, hagar ]);
 <li>Trigger event <code>reset</code>( collection, options ).</li>
 <li>Trigger event <code>changes</code>( collection, options ).</li>
 </ol>
-<h3 id="collection-transaction-fun-">collection.transaction( fun )</h3>
-<p>Execute the sequence of updates in <code>fun</code> function in the scope of the transaction.</p>
-<p>All collection updates occurs in the scope of transactions. Transaction is the sequence of changes which results in a single <code>changes</code> event.</p>
-<p>Transaction can be opened either manually or implicitly with calling any of collection update methods.
-Any additional changes made to the collection or its items in event handlers will be executed in the scope of the original transaction, and won&#39;t trigger an additional <code>changes</code> events.</p>
-<h3 id="collection-updateeach-iteratee-val-record-index-void-context-">collection.updateEach( iteratee : ( val : Record, index ) =&gt; void, context? )</h3>
-<p>Similar to the <code>collection.each</code>, but wraps an iteration in a transaction. The single <code>changes</code> event will be emitted for the group of changes to the records made in <code>updateEach</code>.</p>
 <h3 id="collection-sort-options-">collection.sort( options? )</h3>
 <p>Force a collection to re-sort itself. You don&#39;t need to call this under normal circumstances, as a collection with a comparator will sort itself whenever a record is added. To disable sorting when adding a record, pass <code>{sort: false}</code> to add. Calling sort triggers a &quot;sort&quot; event on the collection.</p>
 <h3 id="collection-push-record-options-">collection.push( record, options? )</h3>
@@ -1091,11 +742,98 @@ Any additional changes made to the collection or its items in event handlers wil
 <p>Add a record at the beginning of a collection. Takes the same options as add.</p>
 <h3 id="collection-shift-options-">collection.shift( options? )</h3>
 <p>Remove and return the first record from a collection. Takes the same options as remove.</p>
-<h2 id="change-events">Change events</h2>
+<h1 id="observable-changes">Observable Changes</h1>
+<h2 id="overview">Overview</h2>
+<p>Type-R implements <em>deeply observable changes</em> on the object graph constructed of records and collection.</p>
+<p>All of the record and collection updates happens in a scope of the transaction followed by the change event. Every record or collection update operation opens <em>implicit</em> transaction. Several update operations can be groped to the single <em>explicit</em> transaction if executed in the scope of the <code>obj.transaction()</code> or <code>col.updateEach()</code> call.</p>
+<pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Author</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">name</span> : <span class="hljs-string">''</span>
+    }
+}
+
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Book</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">name</span> : <span class="hljs-string">''</span>,
+        <span class="hljs-attr">datePublished</span> : <span class="hljs-built_in">Date</span>,
+        <span class="hljs-attr">author</span> : Author
+    }
+}
+
+<span class="hljs-keyword">const</span> book = <span class="hljs-keyword">new</span> Book();
+book.on( <span class="hljs-string">'change'</span>, () =&gt; <span class="hljs-built_in">console</span>.log( <span class="hljs-string">'Book is changed'</span>) );
+
+<span class="hljs-comment">// Implicit transaction, prints to the console</span>
+book.author.name = <span class="hljs-string">'John Smith'</span>;
+</code></pre>
+<h2 id="record">Record</h2>
+<h3 id="events-mixin-methods-7-">Events mixin methods (7)</h3>
+<p>Record implements <a href="#events-mixin">Events</a> mixin.</p>
+<h3 id="-event-change-record-"><code>event</code> &quot;change&quot; ( record )</h3>
+<p>Triggered by the record at the end of the attributes update transaction in case if there were any changes applied.</p>
+<h3 id="-event-change-attrname-record-value-"><code>event</code> &quot;change:attrName&quot; ( record, value )</h3>
+<p>Triggered by the record during the attributes update transaction for every changed attribute.</p>
+<h3 id="-attrdef-type-has-watcher-watcher-"><code>attrDef</code> : Type.has.watcher( watcher )</h3>
+<p>Attach <code>change:attr</code> event listener to the particular record&#39;s attribute. <code>watcher</code> can either be the record&#39;s method name or the function <code>( newValue, attr ) =&gt; void</code>. Watcher is always executed in the context of the record.</p>
+<pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span>.has.watcher( <span class="hljs-string">'onNameChange'</span> ),
+        <span class="hljs-attr">isAdmin</span> : <span class="hljs-built_in">Boolean</span>,
+    }
+
+    onNameChange(){
+        <span class="hljs-comment">// Cruel. But we need it for the purpose of the example.</span>
+        <span class="hljs-keyword">this</span>.isAdmin = <span class="hljs-keyword">this</span>.name.indexOf( <span class="hljs-string">'Admin'</span> ) &gt;= <span class="hljs-number">0</span>;
+    }
+}
+</code></pre>
+<h3 id="-attrdef-type-has-changeevents-false-"><code>attrDef</code> : Type.has.changeEvents( false )</h3>
+<p>Turn off changes observation for nested records or collections.</p>
+<p>Record automatically listens to change events of all nested records and collections, triggering appropriate change events for its attributes. This declaration turns it off for the specific attribute.</p>
+<h3 id="-attrdef-type-has-events-eventname-handler-"><code>attrDef</code> : Type.has.events({ eventName : handler, ... })</h3>
+<p>Automatically manage custom event subscription for the attribute. <code>handler</code> is either the method name or the handler function.</p>
+<h3 id="record-changed">record.changed</h3>
+<p>The <code>changed</code> property is the internal hash containing all the attributes that have changed during its last transaction.
+Please do not update <code>changed</code> directly since its state is internally maintained by <code>set()</code>.
+A copy of <code>changed</code> can be acquired from <code>changedAttributes()</code>.</p>
+<h3 id="record-changedattributes-attrs-">record.changedAttributes( attrs? )</h3>
+<p>Retrieve a hash of only the record&#39;s attributes that have changed during the last transaction,
+or false if there are none. Optionally, an external attributes hash can be passed in,
+returning the attributes in that hash which differ from the record.
+This can be used to figure out which portions of a view should be updated,
+or what calls need to be made to sync the changes to the server.</p>
+<h3 id="record-previous-attr-">record.previous( attr )</h3>
+<p>During a &quot;change&quot; event, this method can be used to get the previous value of a changed attribute.</p>
+<pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span></span>{
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">name</span>: <span class="hljs-string">''</span>
+    }
+}
+
+<span class="hljs-keyword">const</span> bill = <span class="hljs-keyword">new</span> Person({
+  <span class="hljs-attr">name</span>: <span class="hljs-string">"Bill Smith"</span>
+});
+
+bill.on(<span class="hljs-string">"change:name"</span>, ( record, name ) =&gt; {
+  alert( <span class="hljs-string">`Changed name from <span class="hljs-subst">${ bill.previous(<span class="hljs-string">'name'</span>) }</span> to <span class="hljs-subst">${ name }</span>`</span>);
+});
+
+bill.name = <span class="hljs-string">"Bill Jones"</span>;
+</code></pre>
+<h3 id="record-previousattributes-">record.previousAttributes()</h3>
+<p>Return a copy of the record&#39;s previous attributes. Useful for getting a diff between versions of a record, or getting back to a valid state after an error occurs.</p>
+<h2 id="collection">Collection</h2>
 <p>All changes in the records cause change events in the collections they are contained in.</p>
 <p>Subset collections is an exception; they don&#39;t observe changes of its elements by default.</p>
 <h3 id="events-mixin-methods-7-">Events mixin methods (7)</h3>
 <p>Collection implements <a href="#events-mixin">Events</a> mixin.</p>
+<h3 id="collection-transaction-fun-">collection.transaction( fun )</h3>
+<p>Execute the sequence of updates in <code>fun</code> function in the scope of the transaction.</p>
+<p>All collection updates occurs in the scope of transactions. Transaction is the sequence of changes which results in a single <code>changes</code> event.</p>
+<p>Transaction can be opened either manually or implicitly with calling any of collection update methods.
+Any additional changes made to the collection or its items in event handlers will be executed in the scope of the original transaction, and won&#39;t trigger an additional <code>changes</code> events.</p>
+<h3 id="collection-updateeach-iteratee-val-record-index-void-context-">collection.updateEach( iteratee : ( val : Record, index ) =&gt; void, context? )</h3>
+<p>Similar to the <code>collection.each</code>, but wraps an iteration in a transaction. The single <code>changes</code> event will be emitted for the group of changes to the records made in <code>updateEach</code>.</p>
 <h3 id="-static-itemevents-eventname-handler-"><code>static</code> itemEvents = { eventName : <code>handler</code>, ... }</h3>
 <p>Subscribe for events from records. The <code>hander</code> is either the collection&#39;s method name, the handler function, or <code>true</code>.</p>
 <p>When <code>true</code> is passed as a handler, the corresponding event will be triggered on the collection.</p>
@@ -1113,17 +851,378 @@ Any additional changes made to the collection or its items in event handlers wil
 <p>When a record is removed from a collection.</p>
 <h3 id="-event-change-record-options-"><code>event</code> &quot;change&quot; (record, options)</h3>
 <p>When a record inside of the collection is changed.</p>
-<h2 id="serialization">Serialization</h2>
-<p>All kinds of collections except <code>Collection.Refs</code> are serializable.</p>
-<h3 id="collection-tojson-">collection.toJSON()</h3>
-<p>Produces the JSON for the given collection:</p>
-<ul>
-<li><code>[ { record json }, ... ]</code> - array of objects for regular aggregating collection.</li>
-<li><code>[ id1, id2, ... ]</code> - array of record ids for the subset collection.</li>
-</ul>
-<aside class="warning">Although the direct call to <code>toJSON()</code> will produce the correct JSON for the <code>Collection.Refs</code>, it cannot be restored from JSON properly. Therefore, records attributes of the <code>Collection.Refs</code> type are not serialized by default. </aside>
+<h2 id="events-mixin">Events mixin</h2>
+<p>Type-R uses an efficient synchronous events implementation which is backward compatible with Backbone 1.1 Events API but is about twice faster in all major browsers. It comes in form of <code>Events</code> mixin and the <code>Messenger</code> base class.</p>
+<p><code>Events</code> is a <a href="#mixins">mixin</a> giving the object the ability to bind and trigger custom named events. Events do not have to be declared before they are bound, and may take passed arguments.</p>
+<p>Both <code>source</code> and <code>listener</code> mentioned in method signatures must implement Events methods.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { mixins, Events } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
-<p>May be overridden in the particular record or collection class to customize the JSON representation.</p>
+@mixins( Events )
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EventfulClass</span> </span>{
+    ...
+}
+</code></pre>
+<aside class="notice">There's the <code>Messenger</code> abstract base class with Events mixed in.</aside>
+
+<h3 id="source-trigger-event-arg1-arg2-">source.trigger(event, arg1, arg2, ... )</h3>
+<p>Trigger callbacks for the given event, or space-delimited list of events. Subsequent arguments to trigger will be passed along to the event callbacks.</p>
+<h3 id="listener-listento-source-event-callback-">listener.listenTo(source, event, callback)</h3>
+<p>Tell an object to listen to a particular event on an other object. The advantage of using this form, instead of other.on(event, callback, object), is that listenTo allows the object to keep track of the events, and they can be removed all at once later on. The callback will always be called with object as context.</p>
+<pre><code class="highlight javascript">    view.listenTo(record, <span class="hljs-string">'change'</span>, view.render );
+</code></pre>
+<aside class="success">Subscriptions made with <code>listenTo()</code> will be stopped automatically if an object is properly disposed (<code>dispose()</code> method is called).</aside>
+
+<h3 id="listener-stoplistening-source-event-callback-">listener.stopListening([source], [event], [callback])</h3>
+<p>Tell an object to stop listening to events. Either call stopListening with no arguments to have the object remove all of its registered callbacks ... or be more precise by telling it to remove just the events it&#39;s listening to on a specific object, or a specific event, or just a specific callback.</p>
+<pre><code class="highlight javascript">    view.stopListening(); <span class="hljs-comment">// Unsubscribe from all events</span>
+
+    view.stopListening(record); <span class="hljs-comment">// Unsubscribe from all events from the record</span>
+</code></pre>
+<aside class="notice">Messenger, Record, Collection, and Store execute <code>this.stopListening()</code> from their <code>dispose()</code> method. You don't have to unsubscribe from events explicitly if you are using <code>listenTo()</code> method and disposing your objects properly.</aside>
+
+<h3 id="listener-listentoonce-source-event-callback-">listener.listenToOnce(source, event, callback)</h3>
+<p>Just like <code>listenTo()</code>, but causes the bound callback to fire only once before being automatically removed.</p>
+<h3 id="source-on-event-callback-context-">source.on(event, callback, [context])</h3>
+<p>Bind a callback function to an object. The callback will be invoked whenever the event is fired. If you have a large number of different events on a page, the convention is to use colons to namespace them: <code>poll:start</code>, or <code>change:selection</code>. The event string may also be a space-delimited list of several events...</p>
+<pre><code class="highlight javascript">    book.on(<span class="hljs-string">"change:title change:author"</span>, ...);
+</code></pre>
+<p>Callbacks bound to the special &quot;all&quot; event will be triggered when any event occurs, and are passed the name of the event as the first argument. For example, to proxy all events from one object to another:</p>
+<pre><code class="highlight javascript">    proxy.on(<span class="hljs-string">"all"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">eventName</span>) </span>{
+        object.trigger(eventName);
+    });
+</code></pre>
+<p>All event methods also support an event map syntax, as an alternative to positional arguments:</p>
+<pre><code class="highlight javascript">    book.on({
+        <span class="hljs-string">"change:author"</span>: authorPane.update,
+        <span class="hljs-string">"change:title change:subtitle"</span>: titleView.update,
+        <span class="hljs-string">"destroy"</span>: bookView.remove
+    });
+</code></pre>
+<p>To supply a context value for this when the callback is invoked, pass the optional last argument: <code>record.on(&#39;change&#39;, this.render, this)</code> or <code>record.on({change: this.render}, this)</code>.</p>
+<aside class="warning">Event subscription with <code>source.on()</code> may create memory leaks if it's not stopped properly with <code>source.off()</code></aside>
+
+<h3 id="source-off-event-callback-context-">source.off([event], [callback], [context])</h3>
+<p>Remove a previously bound callback function from an object. If no context is specified, all of the versions of the callback with different contexts will be removed. If no callback is specified, all callbacks for the event will be removed. If no event is specified, callbacks for all events will be removed.</p>
+<pre><code class="highlight javascript">    <span class="hljs-comment">// Removes just the `onChange` callback.</span>
+    object.off(<span class="hljs-string">"change"</span>, onChange);
+
+    <span class="hljs-comment">// Removes all "change" callbacks.</span>
+    object.off(<span class="hljs-string">"change"</span>);
+
+    <span class="hljs-comment">// Removes the `onChange` callback for all events.</span>
+    object.off(<span class="hljs-literal">null</span>, onChange);
+
+    <span class="hljs-comment">// Removes all callbacks for `context` for all events.</span>
+    object.off(<span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, context);
+
+    <span class="hljs-comment">// Removes all callbacks on `object`.</span>
+    object.off();
+</code></pre>
+<p>Note that calling <code>record.off()</code>, for example, will indeed remove all events on the record — including events that Backbone uses for internal bookkeeping.</p>
+<h3 id="source-once-event-callback-context-">source.once(event, callback, [context])</h3>
+<p>Just like <code>on()</code>, but causes the bound callback to fire only once before being removed. Handy for saying &quot;the next time that X happens, do this&quot;. When multiple events are passed in using the space separated syntax, the event will fire once for every event you passed in, not once for a combination of all events</p>
+<h3 id="built-in-events">Built-in events</h3>
+<p>All Type-R objects implement Events mixin and use events to notify listeners on changes.</p>
+<p>Record and Store change events:</p>
+<table>
+<thead>
+<tr>
+<th>Event name</th>
+<th>Handler arguments</th>
+<th>When triggered</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>change</td>
+<td>(record, options)</td>
+<td>At the end of any changes.</td>
+</tr>
+<tr>
+<td>change:attrName</td>
+<td>(record, value, options)</td>
+<td>The record&#39;s attribute has been changed.</td>
+</tr>
+</tbody>
+</table>
+<p>Collection change events:</p>
+<table>
+<thead>
+<tr>
+<th>Event name</th>
+<th>Handler arguments</th>
+<th>When triggered</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>changes</td>
+<td>(collection, options)</td>
+<td>At the end of any changes.</td>
+</tr>
+<tr>
+<td>reset</td>
+<td>(collection, options)</td>
+<td><code>reset()</code> method was called.</td>
+</tr>
+<tr>
+<td>update</td>
+<td>(collection, options)</td>
+<td>Any records added or removed.</td>
+</tr>
+<tr>
+<td>sort</td>
+<td>(collection, options)</td>
+<td>Order of records is changed. </td>
+</tr>
+<tr>
+<td>add</td>
+<td>(record, collection, options)</td>
+<td>The record is added to a collection.</td>
+</tr>
+<tr>
+<td>remove</td>
+<td>(record, collection, options)</td>
+<td>The record is removed from a collection.</td>
+</tr>
+<tr>
+<td>change</td>
+<td>(record, options)</td>
+<td>The record is changed inside of collection.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="messenger-class">Messenger class</h2>
+<p>Messenger is an abstract base class implementing Events mixin and some convenience methods.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, Messenger } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyMessenger</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Messenger</span> </span>{
+
+}
+</code></pre>
+<h3 id="events-mixin-methods-7-">Events mixin methods (7)</h3>
+<p>Messenger implements <a href="#events-mixin">Events</a> mixin.</p>
+<h3 id="messenger-cid">messenger.cid</h3>
+<p>Unique run-time only messenger instance id (string).</p>
+<h3 id="-callback-messenger-initialize-"><code>callback</code> messenger.initialize()</h3>
+<p>Callback which is called at the end of the constructor.</p>
+<h3 id="messenger-dispose-">messenger.dispose()</h3>
+<p>Executes <code>messenger.stopListening()</code> and <code>messenger.off()</code>.</p>
+<p>Objects must be disposed to prevent memory leaks caused by subscribing for events from singletons.</p>
+<h1 id="validation">Validation</h1>
+<h2 id="overview">Overview</h2>
+<p>Type-R validation mechanics based on following principles:</p>
+<ul>
+<li>Validation is performed recursively on the aggregation tree formed by nested records and collections. If an element at the bottom of the tree is not valid, the whole object tree is not valid.</li>
+<li>Validation rules can be defined for record&#39;s attribute, record, and collection.</li>
+<li>Validation happens automatically on the first read of the validation error. There&#39;s no special API to trigger the validation.</li>
+<li>Validation results are cached across the aggregation tree, thus consequent validation error reads are fast. Changed parts of aggregation tree will be validated again when necessary.</li>
+</ul>
+<h2 id="record-s-attributes">Record&#39;s attributes</h2>
+<h3 id="-attrdef-type-has-check-predicate-errormsg-"><code>attrDef</code> : Type.has.check( predicate, errorMsg? )</h3>
+<p>Attribute-level validator.</p>
+<ul>
+<li><code>predicate : value =&gt; boolean</code> is the function taking attribute&#39;s value and returning <code>true</code> whenever the value is valid.</li>
+<li>optional <code>errorMsg</code> is the error message which will be passed in case if the validation fail.</li>
+</ul>
+<p>If <code>errorMsg</code> is omitted, error message will be taken from <code>predicate.error</code>. It makes possible to define reusable validation functions.</p>
+<pre><code class="highlight javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isAge</span>(<span class="hljs-params"> years </span>)</span>{
+    <span class="hljs-keyword">return</span> years &gt;= <span class="hljs-number">0</span> &amp;&amp; years &lt; <span class="hljs-number">200</span>;
+}
+
+isAge.error = <span class="hljs-string">"Age must be between 0 and 200"</span>;
+</code></pre>
+<p>Attribute may have any number of checks attached, which are execute in sequence. Validation stops when first check in sequence fails.</p>
+<pre><code class="highlight javascript"><span class="hljs-comment">// Define new attribute metatype encapsulating validation checks.</span>
+<span class="hljs-keyword">const</span> Age = <span class="hljs-built_in">Number</span>.has
+                .check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x &gt;= <span class="hljs-number">0</span>, <span class="hljs-string">'I guess you are a bit older'</span> )
+                .check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x &lt; <span class="hljs-number">200</span>, <span class="hljs-string">'No way man can be that old'</span> );
+</code></pre>
+<h3 id="-attrdef-type-isrequired"><code>attrDef</code> : Type.isRequired</h3>
+<p>The special case of attribute-level check cutting out empty values. Attribute value must be truthy to pass, <code>&quot;Required&quot;</code> is used as validation error.</p>
+<p><code>isRequired</code> is the first validator to check, no matter in which order validators were attached.</p>
+<h3 id="rec-isvalid-attrname-">rec.isValid( attrName )</h3>
+<p>Returns <code>true</code> if the specified record&#39;s attribute is valid.</p>
+<h3 id="rec-getvalidationerror-attrname-">rec.getValidationError( attrName )</h3>
+<p>Return the validation error for the given attribute or <code>null</code> if it&#39;s valid.</p>
+<h2 id="record-and-collection">Record and Collection</h2>
+<p>Record and Collection share the same validation API. <code>key</code> is the attribute name for the record and record&#39;s id/cid for the collection.</p>
+<h3 id="-callback-obj-validate-"><code>callback</code> obj.validate()</h3>
+<p>Override this method in subclass to define object-level validation rules. Whatever is returned from <code>validate()</code> is treated as validation error.</p>
+<aside class="notice">Do not call this method directly, that's not the way how validation works.</aside>
+
+<h3 id="obj-isvalid-">obj.isValid()</h3>
+<p>Returns <code>true</code> if the object is valid. Has same effect as <code>!object.validationError</code>.</p>
+<h3 id="obj-isvalid-key-">obj.isValid( key )</h3>
+<p>Returns <code>true</code> if the specified record&#39;s attribute or collection element is valid. <code>key</code> is an attribute&#39;s name for the record or record&#39;s id/cid for the collection.</p>
+<h3 id="obj-validationerror">obj.validationError</h3>
+<p><code>null</code> if an object is valid, or the the ValidationError object with detailed information on validation results.</p>
+<p>ValidationError object has following shape:</p>
+<pre><code class="highlight javascript">{
+    <span class="hljs-attr">error</span> : <span class="hljs-comment">/* as returned from collection.validate() */</span>,
+
+    <span class="hljs-comment">// Members validation errors.</span>
+    nested : {
+        <span class="hljs-comment">// key is an attrName for the record, and record.cid for the collcation</span>
+        key : validationError,
+        ...
+    }
+}
+</code></pre>
+<h3 id="obj-getvalidationerror-key-">obj.getValidationError( key )</h3>
+<p>Return the validation error for the given attribute or collection&#39;s item.
+<code>key</code> is an attribute&#39;s name for the record or record&#39;s id/cid for the collection.</p>
+<h3 id="obj-eachvalidationerror-iteratee-error-key-obj-void-">obj.eachValidationError( iteratee : ( error, key, obj ) =&gt; void )</h3>
+<p>Recursively traverse aggregation tree validation errors. <code>key</code> is <code>null</code> for the object-level validation error returned by <code>obj.validate()</code>.
+<code>obj</code> is the reference to the current object.</p>
+<h1 id="i-o-and-serialization">I/O and Serialization</h1>
+<h2 id="overview">Overview</h2>
+<p>Type-R implements generalized IO on top of the <code>IOEndpoint</code> interface,  with JSON serialization handled by Record and Collection classes.</p>
+<p>IOEndpoint defines the set of CRUD + list methods operating on raw JSON.
+Attachment of an endpoint to the record or collection enables I/O API.  There are few endpoints bundled with Type-R, for instance <code>memoryIO()</code> which can be used for mock testing.</p>
+<pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> endpoint = memoryIO();
+
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">name</span> : <span class="hljs-string">''</span>,
+        <span class="hljs-attr">email</span> : <span class="hljs-string">''</span>
+    }
+}
+
+<span class="hljs-keyword">const</span> users = <span class="hljs-keyword">new</span> User.Collection();
+users
+    .add({ <span class="hljs-attr">name</span> : <span class="hljs-string">'John'</span> })
+    .save()
+    .then( <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-built_in">console</span>.log( user.id );
+</code></pre>
+<h2 id="ioendpoint">IOEndpoint</h2>
+<p>An endpoint represents the persistent collection of records serialized to JSON. It has CRUD methods used by the Record, list method used by the collection, and an optional methods to subscribe for the data changes which are used by collection&#39;s live updates API. There are several pre-defined endpoints bundled with Type-R which can be used for mock testing, working with localStorage, and IO composition.</p>
+<p>All IOEndpoint methods must return abortable promises (created with <code>createIOPromise()</code>). An IOEndpoint instance is shared by all of the class instances it&#39;s attached to and therefore it&#39;s normally <em>must be stateless</em>.</p>
+<h3 id="-endpoint-memoryio-mockdata-delay-"><code>endpoint</code> memoryIO( mockData?, delay? )</h3>
+<p>Endpoint for mock testing. Takes optional array with mock data, and optional <code>delay</code> parameter which is the simulated I/O delay in milliseconds.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { memoryIO } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r/endpoints/memory'</span>
+
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> endpoint = memoryIO();
+    ...
+}
+</code></pre>
+<h3 id="-endpoint-localstorageio-key-"><code>endpoint</code> localStorageIO( key )</h3>
+<p>Endpoint for localStorage. Takes <code>key</code> parameter which must be unique for the persistent record&#39;s collection.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { localStorageIO } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r/endpoints/localStorage'</span>
+
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> endpoint = localStorageIO( <span class="hljs-string">'/users'</span> );
+    ...
+}
+</code></pre>
+<h3 id="-endpoint-attributesio-"><code>endpoint</code> attributesIO()</h3>
+<p>Endpoint for I/O composition. Redirects record&#39;s <code>fetch()</code> request to its attributes and returns the combined abortable promise. Does not enable any other I/O methods and can be used with <code>record.fetch()</code> only.</p>
+<p>It&#39;s common pattern to use attributesIO endpoint in conjunction with Store to fetch all the data required by SPA page.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { localStorageIO } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r/endpoints/attributes'</span>
+
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PageStore</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Store</span> </span>{
+    <span class="hljs-keyword">static</span> endpoint = attributesIO();
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">users</span> : User.Collection,
+        <span class="hljs-attr">roles</span> : UserRole.Collection,
+    }
+}
+...
+const store = <span class="hljs-keyword">new</span> PageStore();
+store.fetch().then( <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> renderUI() );
+</code></pre>
+<h3 id="-endpoint-httprestio-url-"><code>endpoint</code> httpRestIO( url )</h3>
+<aside class="warning">
+Not implemented yet, is scheduled for v2.1
+</aside>
+
+<p>Simple HTTP REST endpoint.</p>
+<ul>
+<li><code>create()</code> makes <code>POST url</code>, expecting to receive <code>{ id : recordId }</code> or other object used to update the record.</li>
+<li><code>read()</code> makes <code>GET url/:id</code>.</li>
+<li><code>update()</code> makes <code>PUT url/:id</code>.</li>
+<li><code>destroy()</code> makes <code>DELETE url/:id</code>.</li>
+<li><code>list()</code> makes <code>GET url</code>.</li>
+</ul>
+<p>All I/O methods append an optional <code>options.params</code> object to the URL parameters translating them to string using <code>JSON.stringify()</code>.</p>
+<h3 id="endpoint-read-id-options-record-">endpoint.read( id, options, record )</h3>
+<p>Reads an object with a given id. Used by <code>record.fetch()</code> method. Must return JSON wrapped in abortable promise.</p>
+<h3 id="endpoint-update-id-json-options-record-">endpoint.update( id, json, options, record )</h3>
+<p>Updates or creates an object with a given id. Used by <code>record.save()</code> method when record <em>already has</em> an id. Must return abortable promise.</p>
+<h3 id="endpoint-create-json-options-record-">endpoint.create( json, options, record )</h3>
+<p>Creates an object. Used by <code>record.save()</code> method when record <em>does not</em> have an id. Must return abortable promise.</p>
+<h3 id="endpoint-destroy-id-options-record-">endpoint.destroy( id, options, record )</h3>
+<p>Destroys the object with the given id. Used by <code>record.destroy()</code> method. Must return abortable promise.</p>
+<h3 id="endpoint-list-options-collection-">endpoint.list( options, collection )</h3>
+<p>Fetch an array of objects. Used by <code>collection.fetch()</code> method. Must returns abortable promise.</p>
+<h3 id="endpoint-subscribe-callbacks-collection-">endpoint.subscribe( <code>callbacks</code>, collection )</h3>
+<p>Optional method to enable the live updates subscription. Used by <code>collection.liveUpdates( true )</code> method. Must returns abortable promise.</p>
+<p>Method <code>callbacks</code> argument is an object of the following shape:</p>
+<pre><code class="highlight javascript">{
+    <span class="hljs-comment">// Endpoint must call it when an object is created or updated.</span>
+    updated( json ){}
+
+    <span class="hljs-comment">// Endpoint must call it when an object is removed.</span>
+    removed( json ){}
+}
+</code></pre>
+<h3 id="endpoint-unsubscribe-callbacks-collection-">endpoint.unsubscribe( <code>callbacks</code>, collection )</h3>
+<p>Unsubscribe from the live updates. Used by <code>collection.liveUpdates( false )</code> method. Takes the same <code>callbacks</code> object as <code>subscribe()</code>.</p>
+<h3 id="createiopromise-init-">createIOPromise( init )</h3>
+<p>Service function to create an abortable version of ES6 promise (with <code>promise.abort()</code> which meant to stop pending I/O and reject the promise).</p>
+<p><code>init</code> function takes the third <code>onAbort</code> argument to register an optional abort handler. If no handler is registered, the default implementation of <code>promise.abort()</code> will just reject the promise.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { createIOPromise } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
+
+<span class="hljs-keyword">const</span> abortablePromise = createIOPromise( <span class="hljs-function">(<span class="hljs-params"> resolve, reject, onAbort </span>) =&gt;</span>{
+    ...
+    onAbort( <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+        reject( <span class="hljs-string">'I/O Aborted'</span> );
+    });
+});
+</code></pre>
+<h2 id="record-and-collection">Record and Collection</h2>
+<p>Record and Collection has a portion of common API related to the I/O and serialization.</p>
+<h3 id="-static-endpoint"><code>static</code> endpoint</h3>
+<p>I/O endpoint declaration which should be used in Record or Collection definition to enable I/O API.</p>
+<p>If an endpoint is defined for the <code>MyRecord</code>, it&#39;s automatically defined for the corresponding <code>MyRecord.Collection</code> as well.</p>
+<h3 id="obj-haspendingio-">obj.hasPendingIO()</h3>
+<p>Returns an abortable promise if there&#39;s any I/O pending with the object, or <code>null</code> otherwise.</p>
+<p>Can be used to check for active I/O in progress or to abort pending I/O operation. Please note, that all pending I/O is aborted automatically when new I/O operation is started or an object is disposed. When I/O is aborted, the promise is rejected.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">const</span> promise = users.hasPendingIO();
+<span class="hljs-keyword">if</span>( promise ) promise.abort();
+</code></pre>
+<h3 id="obj-getendpoint-">obj.getEndpoint()</h3>
+<p>Returns an object&#39;s IO endpoint. Normally, this is an endpoint which is defined in object&#39;s <code>static endpoint = ...</code> declaration, but it might be overridden by the parent&#39;s record using <code>Type.has.endpoint( ... )</code> attribute declaration.</p>
+<pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> endpoint = httpRestIO( <span class="hljs-string">'/api/users'</span> );
+    ...
+}
+
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserRole</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> endpoint = httpRestIO( <span class="hljs-string">'/api/roles'</span> );
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-comment">// Use the relative path '/api/roles/:id/users'</span>
+        users : User.Collection.has.endpoint( httpRestIO( <span class="hljs-string">'./users'</span> ) ),
+        ...
+    }
+}
+
+<span class="hljs-keyword">const</span> role = <span class="hljs-keyword">new</span> UserRole();
+<span class="hljs-built_in">console</span>.assert( role.users.getEndpoint().rootUrl !== <span class="hljs-string">'/api.users'</span> );
+</code></pre>
+<aside class="warning">
+httpRestIO endpoint is not available yet and is planned to be implemented in v2.1
+</aside>
+
+<h3 id="obj-tojson-">obj.toJSON()</h3>
+<p>Serialize record or collection to JSON. Used internally by I/O methods. Can be overridden to customize serialization.</p>
+<p>Produces the JSON for the given record or collection and its aggregated members. Aggregation tree is serialized as nested JSON. Record corresponds to an object in JSON, while the collection is represented as an array of objects.</p>
+<p>If you override <code>toJSON()</code>, it usually means that you must override <code>parse()</code> as well, and vice versa.</p>
+<aside class="notice">
+Serialization can be controlled on per-attribute level with <b>Type.has.toJSON()</b> declaration.
+</aside>
+
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Comment</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
         <span class="hljs-attr">body</span> : <span class="hljs-string">''</span>
@@ -1146,53 +1245,126 @@ Any additional changes made to the collection or its items in event handlers wil
 <span class="hljs-keyword">const</span> rawJSON = post.toJSON()
 <span class="hljs-comment">// { title : "Type-R is cool!", body : "", comments : [{ body : "Agree" }] }</span>
 </code></pre>
-<h3 id="-options-parse-true-"><code>options</code> { parse : true }</h3>
-<p>Parse raw JSON when passed as an option to the collection&#39;s constructor or update methods.</p>
-<h3 id="-callback-collection-parse-json-"><code>callback</code> collection.parse( json )</h3>
-<p>Invoked internally when <code>{ parse : true }</code> is passed. May be overridden to define custom JSON transformation. Should not be called explicitly.</p>
-<h2 id="validation">Validation</h2>
-<p>Validation happens transparently on the first access to any part of the validation API. Validation results are cached. Only the changed parts of aggregation tree will be validated again.</p>
-<h3 id="-callback-collection-validate-"><code>callback</code> collection.validate()</h3>
-<p>Override in the collection subclass to add collection-level validation. Whatever is returned from <code>validate()</code> is treated as an error message and triggers the validation error.</p>
-<aside class="notice">Do not call this method directly, that's not the way how validation works.</aside>
+<h3 id="-option-parse-true-"><code>option</code> { parse : true }</h3>
+<p><code>obj.set()</code> and constructor&#39;s option to force parsing of the raw JSON. Is used internally by I/O methods to parse the data received from the server.</p>
+<pre><code class="highlight javascript"><span class="hljs-comment">// Another way of doing the bestSeller.clone()</span>
+<span class="hljs-comment">// Amazingly, this is guaranteed to work by default.</span>
+<span class="hljs-keyword">const</span> book = <span class="hljs-keyword">new</span> Book();
+book.set( bestSeller.toJSON(), { <span class="hljs-attr">parse</span> : <span class="hljs-literal">true</span> } );
+</code></pre>
+<h3 id="-callback-obj-parse-json-"><code>callback</code> obj.parse( json )</h3>
+<p>Optional hook called to transform the JSON when it&#39;s passes to the record or collection with <code>set( json, { parse : true })</code> call. Used internally by I/O methods.</p>
+<p>If you override <code>toJSON()</code>, it usually means that you must override <code>parse()</code> as well, and vice versa.</p>
+<aside class="notice">
+Parsing can be controlled on per-attribute level with <b>Type.has.parse()</b> declaration.
+</aside>
 
-<h3 id="collection-isvalid-">collection.isValid()</h3>
-<p>Returns <code>true</code> if the collection is valid. Similar to <code>!collection.validationError</code>.</p>
-<h3 id="collection-isvalid-recordid-">collection.isValid( recordId )</h3>
-<p>Returns <code>true</code> whenever the record from the collection is valid.</p>
-<h3 id="record-validationerror">record.validationError</h3>
-<p><code>null</code> if the collection is valid, or the detailed information on validation errors.</p>
+<h2 id="record-s-attribute-definitions">Record&#39;s attribute definitions</h2>
+<p>All aspects of I/O and serialization may be controlled on per-attribute level.</p>
+<h3 id="-attrdef-type-has-endpoint-endpoint-"><code>attrDef</code> : Type.has.endpoint( <code>endpoint</code> )</h3>
+<p>Override or define an I/O endpoint for the attribute.</p>
+<h3 id="-attrdef-type-has-tojson-false-"><code>attrDef</code> : Type.has.toJSON( false )</h3>
+<p>Do <em>not</em> serialize the specific attribute.</p>
+<h3 id="-attrdef-type-has-tojson-value-name-json-"><code>attrDef</code> : Type.has.toJSON( ( value, name ) =&gt; json )</h3>
+<p>Override the default serialization for the specific record&#39;s attribute.</p>
+<p>Attribute is not serialized when the function return <code>undefined</code>.</p>
+<h3 id="-attrdef-type-has-parse-json-name-value-"><code>attrDef</code> : Type.has.parse( ( json, name ) =&gt; value )</h3>
+<p>Transform the data before it will be assigned to the record&#39;s attribute.</p>
+<p>Invoked when the <code>{ parse : true }</code> option is set.</p>
+<pre><code class="highlight javascript"><span class="hljs-comment">// Define custom boolean attribute type which is serialized as 0 or 1.</span>
+<span class="hljs-keyword">const</span> MyWeirdBool = <span class="hljs-built_in">Boolean</span>.has
+                      .parse( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x === <span class="hljs-number">1</span> )
+                      .toJSON( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x ? <span class="hljs-number">1</span> : <span class="hljs-number">0</span> );
+</code></pre>
+<h3 id="-attrdef-record-from-sourcecollection-"><code>attrDef</code> : Record.from( <code>sourceCollection</code> )</h3>
+<p>Serializable reference to the record from the particular collection.
+Initialized as <code>null</code> and serialized as <code>record.id</code>. Is not recursively cloned, validated, or disposed. Used to model one-to-many relationships.</p>
+<p>Changes in shared record are not detected.</p>
+<p><code>sourceCollection</code> may be:</p>
 <ul>
-<li>Aggregating collection is valid whenever <code>collection.validate()</code> returns <code>undefined</code> <em>and</em> all of its records are valid.</li>
-<li>Non-aggregating collections are valid whenever <code>collection.validate()</code> returns <code>undefined</code>.</li>
+<li>the variable pointing to the collection;</li>
+<li>the function returning the collection;</li>
+<li>the string with the dot-separated <em>relative object path</em> to the collection. It is resolved dynamically relative to the record&#39;s <code>this</code>.</li>
+<li><code>^</code> symbol in path means &quot;take the owner&quot; (<code>getOwner()</code> call).</li>
+<li><code>~</code> symbol in path means &quot;take the store&quot; (<code>getStore()</code> call).</li>
 </ul>
-<pre><code class="highlight javascript"><span class="hljs-comment">// ValidationError object shape</span>
-{
-    <span class="hljs-attr">error</span> : <span class="hljs-comment">/* collection-level validation error msg as returned from collection.validate() */</span>,
+<pre><code class="highlight javascript">    @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">State</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+        items : Item.Collection,
+        <span class="hljs-attr">selected</span> : Record.from( <span class="hljs-string">'items'</span> ) <span class="hljs-comment">// Will resolve to `this.items`</span>
+    }
+</code></pre>
+<aside class="info">It's recommended to use ~paths and stores instead of ^paths.</aside>
 
-    <span class="hljs-comment">// Collection items validation errors</span>
-    nested : {
-        <span class="hljs-comment">// Contains nested ValidationError object for nested records...</span>
-        <span class="hljs-comment">/* record.cid */</span> : <span class="hljs-comment">/* record.validationError */</span>
+<h3 id="-attrdef-collection-subsetof-sourcecollection-"><code>attrDef</code> : Collection.subsetOf( <code>sourceCollection</code> )</h3>
+<p>Serializable non-aggregating collection which is the subset of the particular collection. Serialized as an array of record ids. Used to model many-to-many relationships.</p>
+<p>The collection itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, or disposed.</p>
+<p><code>sourceCollection</code> is the same reference as used by <code>Record.from()</code>.</p>
+<h2 id="record">Record</h2>
+<h3 id="-static-create-attrs-options-"><code>static</code> create( attrs, options )</h3>
+<p>Static factory function used internally by Type-R to create instances of the record.</p>
+<p>May be redefined in the abstract Record base class to make it serializable type.</p>
+<pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Widget</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">type</span> : <span class="hljs-built_in">String</span>
+    }
+
+    <span class="hljs-keyword">static</span> create( attrs, options ){
+        <span class="hljs-keyword">switch</span>( attrs.type ){
+            <span class="hljs-keyword">case</span> <span class="hljs-string">"typeA"</span> : <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> TypeA( attrs, options );
+            <span class="hljs-keyword">case</span> <span class="hljs-string">"typeB"</span> : <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> TypeB( attrs, options );
+        }
+    }
+}
+
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TypeA</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Widget</span> </span>{
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">type</span> : <span class="hljs-string">"typeA"</span>,
+        ...
+    }
+}
+
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TypeB</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Widget</span> </span>{
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">type</span> : <span class="hljs-string">"typeB"</span>,
+        ...
     }
 }
 </code></pre>
-<h3 id="collection-getvalidationerror-recordid-">collection.getValidationError( recordId )</h3>
-<p>Return the validation error for the given collection&#39;s item.</p>
-<h3 id="collection-eachvalidationerror-iteratee-error-key-recordorcollection-void-">collection.eachValidationError( iteratee : ( error, key, recordOrCollection ) =&gt; void )</h3>
-<p>Recursively traverse aggregation tree errors. <code>key</code> is <code>null</code> for the record-level validation error (returned from <code>validate()</code>).
-<code>recordOrCollection</code> is the reference to the current object.</p>
-<h1 id="stores-and-id-references">Stores and id-references</h1>
+<h3 id="rec-fetch-options-">rec.fetch( options? )</h3>
+<p>Asynchronously fetch the record using <code>endpoint.read()</code> method. Returns an abortable ES6 promise.</p>
+<p>An endpoint must be defined for the record in order to use that method.</p>
+<h3 id="rec-save-options-">rec.save( options? )</h3>
+<p>Asynchronously save the record using <code>endpoint.create()</code> (if there are no id) or <code>endpoint.update()</code> (if id is present) method. Returns an abortable ES6 promise.</p>
+<p>An endpoint must be defined for the record in order to use that method.</p>
+<h3 id="rec-destroy-options-">rec.destroy( options? )</h3>
+<p>Asynchronously destroy the record using <code>endpoint.destroy()</code> method. Returns an abortable ES6 promise. The record is removed from the aggregating collection upon the completion of the I/O request.</p>
+<p>An endpoint must be defined for the record in order to use that method.</p>
+<h2 id="collection">Collection</h2>
+<h3 id="collection-createsubset-records-options-">collection.createSubset( records?, options? )</h3>
+<p>Create an instance of <code>Collection.subsetOf( collection )</code> type (non-aggregating serializable collection) which is the subset of the given collection. Takes the same arguments as the collection&#39;s constructor.</p>
+<aside class="notice">
+Records in the collection must have an `id` attribute populated to work properly with subsets.
+</aside>
+
+<h3 id="col-fetch-options-">col.fetch( options? )</h3>
+<p>Fetch the collection. Returns an abortable promise.</p>
+<p><code>options</code> accepts an optional <code>liveUpdates</code> parameter. When <code>true</code>, collection subscribes for the live updates when I/O is finished.</p>
+<h3 id="col-liveupdates-true-false-">col.liveUpdates( true | false )</h3>
+<p>Subscribe for the live data updates if an I/O endpoint supports it (<code>subscribe()</code>/<code>unsubscribe()</code> IOEndpoint methods).</p>
+<aside class="notice">
+No built-in I/O enpoints support that functionality yet.
+</aside>
+
+<h2 id="store">Store</h2>
 <p><code>Store</code> is the special kind of record which serves as a root for ~references.</p>
 <p>For all records inside of the store&#39;s aggregation tree <code>~attrName</code> will resolve to the attribute of the store class found with <code>record.getStore()</code> method. If there are no such an attribute in the store, the next available store upper in aggregation tree will be used (as regular records stores can be nested), or the default store if there are no one.</p>
 <aside class="notice">Stores in Type-R is _very different_ to stores in other framework. Pay attention.</aside>
 
-<h2 id="definition">Definition</h2>
 <p>Store is the subclass of the Record. It&#39;s defined extending the <code>Store</code> abstract base class. It behaves as a regular record in most aspects.</p>
 <h3 id="store-_defaultstore">store._defaultStore</h3>
 <p>Reference to the master store used for lookups if the current store doesn&#39;t have the required attribute and there are no other store found upper in the ownership chain.</p>
 <p>Defaults to the <code>Store.global</code>. May be explicitly defined to create custom store lookup chains across the ownership hierarchy.</p>
-<h3 id="store-global">Store.global</h3>
+<h3 id="-static-store-global"><code>static</code> Store.global</h3>
 <p>The default singleton store class. Is always the last store to lookup when resolving ~reference.</p>
 <p>Use the default store for the <em>globally shared data only</em>. Each application page must have its local store.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyStore</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Store</span> </span>{
@@ -1206,13 +1378,10 @@ Store.global = <span class="hljs-keyword">new</span> MyStore();
 
 <span class="hljs-comment">// Now the reference '~users` will point to users collection from the MyStore.</span>
 </code></pre>
-<h2 id="references-to-stores">References to stores</h2>
-<h3 id="recordorcollection-getstore-">recordOrCollection.getStore()</h3>
-<p>Return the closest store. Used internally to resolve symbolic ~references to the stores.</p>
-<p>Method looks for the <code>Store</code> subclass traversing the ownership chain of current aggregation tree upwards. If there are no store found this way, default Store from <code>Store.global</code> is returned.</p>
-<h3 id="recordorcollection-clone-pinstore-true-">recordOrCollection.clone({ pinStore : true })</h3>
-<p>Make the cloned object to preserve the reference to its original store.</p>
-<p>Cloned objects don&#39;t have an owner by default, thus they loose the reference to their store as no ownership chain can be traversed. <code>pinStore</code> option should be used in such a cases.</p>
+<h2 id="id-references">id-references</h2>
+<p>Id-reference is the special Record attribute type representing nested Record or Collection which is represented in JSON as <code>record.id</code> or array of ids respectively. The reference to locally available &quot;master&quot; collection must be attached to the type in order to resolve id-references properly.</p>
+<p>Master collection reference is the string with an object path which is resolved relative to the record.</p>
+<p>Id-references are being resolved to the real Records &quot;lazily&quot;, on the moment of first attribute read. Therefore, cross-references can be handled right.</p>
 <h3 id="-attrdef-record-from-collectionfromstore-"><code>attrDef</code> : Record.from( &#39;~collectionFromStore&#39; )</h3>
 <p>Serializable reference to the record from the collection taken from the closest store found with <code>this.getStore()</code> call.</p>
 <h3 id="-attrdef-collection-subsetof-collectionfromstore-"><code>attrDef</code> : Collection.subsetOf( <code>~collectionFromStore</code> )</h3>
@@ -1238,6 +1407,12 @@ Store.global = <span class="hljs-keyword">new</span> MyStore();
     }
 }
 </code></pre>
+<h3 id="recordorcollection-getstore-">recordOrCollection.getStore()</h3>
+<p>Return the closest store. Used internally to resolve symbolic <code>~reference</code> relative to the store.</p>
+<p>Method looks for the <code>Store</code> subclass traversing the ownership chain of current aggregation tree upwards. If there are no store found this way, default Store from <code>Store.global</code> is returned.</p>
+<h3 id="recordorcollection-clone-pinstore-true-">recordOrCollection.clone({ pinStore : true })</h3>
+<p>Make the cloned object to preserve the reference to its original store.</p>
+<p>Cloned objects don&#39;t have an owner by default, thus they loose the reference to their store as no ownership chain can be traversed. <code>pinStore</code> option should be used in such a cases.</p>
 <h1 id="class-definitions-and-mixins">Class definitions and mixins</h1>
 <h2 id="class-definitions">Class Definitions</h2>
 <p>Type-R mechanic is based on class transformations at the moment of module load. These transformations are controlled by <em>definitions</em> in static class members.</p>
