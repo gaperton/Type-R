@@ -95,30 +95,31 @@ Is packed as UMD and ES6 module. No peer dependencies are required.
 
 ## How the Type-R compares with X?
 
-Type-R started to develop in 2014 as the modern substitution for BackboneJS, which would retain the spirit of the BackboneJS simplicity but would be superior to Ember Data in its capabilities and an order of magnitude faster than Backbone.
+Type-R started to develop in 2014 as the modern substitution for BackboneJS, which would retain the spirit of the BackboneJS simplicity but would be an order of magnitude faster and superior to Ember Data in its capabilities to describe complex data.
 
-The closest things to the Type-R are [Ember Data](https://guides.emberjs.com/v2.2.0/models/), [BackboneJS models and collections](http://backbonejs.org/#Model), and [mobx](https://github.com/mobxjs/mobx). 
+The closest things to the Type-R are [Ember Data](https://guides.emberjs.com/v2.2.0/models/), [BackboneJS models and collections](http://backbonejs.org/#Model), and [mobx](https://github.com/mobxjs/mobx).
 
-There are a lot of similarities:
+There are both similarities and differences:
 
-- All that things can be used to manage an application's state.
-- Type-R handles observable transactional changes in the way more or less similar to mobx (however, it's heavily optimized for the case of large aggregated object trees).
-- Type-R id-relationships and validation capabilities are comparable to ones in [Ember Data](https://guides.emberjs.com/v2.2.0/models/relationships/), which was used a source of inspiration.
-- Type-R has a lot of common in some API parts with BackboneJS models and collections. For instance, it uses the close API for the [collection updates](#update) and the [similar event model](#built-in-events) for the changes (however, it's generalized for the case of transactions on the nested records and collections).
+- In contrast to mobx, Type-R detects _deeply nested changes_.
+- Records and Collections resembles Backbone's Models/Collections, but Record is _not an object hash_ but class and it's updates are ~10 times faster.
+- Data validation is comparable to one in Ember Data, but it's lazily evaluated and cached.
+- id-relationship resembles one in [Ember Data](https://guides.emberjs.com/v2.2.0/models/relationships/), which was used a source of inspiration. But Type-R supports the first-class aggregation as well.
+- Like Ember Data, Type-R supports abstract data adapters (I/O endpoints).
+- Unlike Ember and Backbone, Type-R is unopinionated on the view layer and routing. Like in mobx, there are React bindings.
 
 Speaking of the distinguishing differences,
 
-- Type-R's records are not key-value pairs but _classes_ with typed attributes. They are protected from improper assignment with run-time type assertions and conversions. Which means that the client-server protocol is protected again errors from both ends.
+- Type-R encourages using of the _layered application state_ instead of the global singleton store. In Type-R, the stores are the special kind of records which can participate in dynamically configured lookup chains. There might be as many dynamically created and disposed stores as you need, starting with no stores at all.
+- Type-R's records are protected from improper assignment with run-time type assertions and conversions.
 - Type-R distinguishes aggregation and the plain association operating with _aggregation trees_ formed by nested records and collections. Aggregation tree is serialized as nested JSON. Operations like `clone()`, `dispose()`, `isValid()` and `toJSON()` are performed recursively on elements of aggregation tree gracefully handling the references to shared objects.
-- Type-R relies on _layered application state_ instead of the global singleton store. In Type-R, the stores are the special kind of records which can participate in dynamically configured lookup chains. There might be as many dynamically created and disposed stores as you need, starting with no stores at all.
-- Type-R features automatic lazily evaluated [validation](#validation) with declarative attribute-level rules. Validation checks are the part of the attribute type; they are evaluated in the moment they needed and never performed twice on the unchanged data. 
-- Type-R is really fast. It's capable of handling collections of 10K elements with real-time response and is about 10 times faster than BackboneJS.
 
 Feature | Type-R | Backbone Models | Ember Data | mobx
 -|-|-|-|-
 Observable changes in object graph | ✓ | - | - | ✓
 JSON Serialization | ✓ | ✓ | ✓ | -
 Validation | ✓ | ✓ | ✓ | -
-Dynamic Type Safety | ✓ | - | For serialization only | -
+Dynamic Type Safety | ✓ | - | for serialization only | -
 Aggregation | ✓ | - | - | -
 Relations by id | ✓ | - | ✓ | - 
+Generalized I/O | ✓ | sync function | ✓ | - 
