@@ -2473,13 +2473,7 @@ var off$6 = off$2;
 var commit$2 = transactionApi.commit;
 var _aquire = transactionApi.aquire;
 var _free = transactionApi.free;
-function dispose(collection) {
-    var models = collection.models;
-    collection.models = [];
-    collection._byId = {};
-    freeAll(collection, models);
-    return models;
-}
+
 function convertAndAquire(collection, attrs, options) {
     var model = collection.model;
     var record;
@@ -3092,12 +3086,21 @@ var Collection = (function (_super) {
     };
     Collection.prototype.reset = function (a_elements, options) {
         if (options === void 0) { options = {}; }
-        var isRoot = begin(this), previousModels = dispose(this);
+        var isRoot = begin(this), previousModels = this.models;
         if (a_elements) {
             emptySetTransaction(this, toElements(this, a_elements, options), options, true);
         }
+        else {
+            this._byId = {};
+            this.models = [];
+        }
         markAsDirty(this, options);
         options.silent || trigger2$2(this, 'reset', this, defaults$1({ previousModels: previousModels }, options));
+        var _byId = this._byId;
+        for (var _i = 0, previousModels_1 = previousModels; _i < previousModels_1.length; _i++) {
+            var toDispose = previousModels_1[_i];
+            _byId[toDispose.cid] || free$2(this, toDispose);
+        }
         isRoot && commit(this);
         return this.models;
     };
