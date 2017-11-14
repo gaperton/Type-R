@@ -1,6 +1,6 @@
 # Release Notes
 
-## 2.0.0-beta.2
+## 2.0.0
 
 This release brings new features which fixes problems with component's inheritance in React bindings and implements long-awaited generic IO implementation based on ES6 promises.
 
