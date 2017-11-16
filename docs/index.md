@@ -12,6 +12,7 @@ includes:
   - observable
   - validation
   - io
+  - react-binding
   - mixins
   - releasenotes
 
