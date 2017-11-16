@@ -507,6 +507,7 @@ To create nested record or collection you should just mention its constructor fu
 <li>They are validated as part of the record.</li>
 <li>They are serialized as nested JSON.</li>
 </ul>
+<p>The nature of aggregation relationship in OO is explained in this <a href="https://medium.com/@gaperton/nestedtypes-2-0-meet-an-aggregation-and-the-rest-of-oo-animals-a9fca7c36ecf">article</a>.</p>
 <h3 id="-attrdef-recordorcollection"><code>attrDef</code> : RecordOrCollection</h3>
 <p>Aggregated record or collection. Represented as nested object or array in record&#39;s JSON. Aggregated members are owned by the record and treated as its <em>integral part</em> (recursively created, cloned, serialized, validated, and disposed).
 One object can have single owner. The record with its aggregated attributes forms an <em>aggregation tree</em>.</p>
