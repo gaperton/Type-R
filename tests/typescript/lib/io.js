@@ -1,10 +1,10 @@
 import * as tslib_1 from "tslib";
 import "reflect-metadata";
-import { define, attr, Record, Store } from '../../../lib';
+import { define, attr, Record, Store } from 'type-r';
 import { expect } from 'chai';
-import { memoryIO } from '../../../lib/endpoints/memory';
-import { attributesIO } from '../../../lib/endpoints/attributes';
-import { localStorageIO } from '../../../lib/endpoints/localStorage';
+import { memoryIO } from '../../../endpoints/memory';
+import { attributesIO } from '../../../endpoints/attributes';
+import { localStorageIO } from '../../../endpoints/localStorage';
 describe('IO', function () {
     describe('memory endpoint', function () {
         var testData = [

@@ -16323,16 +16323,16 @@ var MemoryEndpoint = (function () {
             this.create(obj, {});
         }
     }
-    MemoryEndpoint.prototype.resolve = function (value) {
+    MemoryEndpoint.prototype.resolve = function (value$$1) {
         var _this = this;
         return createIOPromise(function (resolve, reject) {
-            setTimeout(function () { return resolve(value); }, _this.delay);
+            setTimeout(function () { return resolve(value$$1); }, _this.delay);
         });
     };
-    MemoryEndpoint.prototype.reject = function (value) {
+    MemoryEndpoint.prototype.reject = function (value$$1) {
         var _this = this;
         return createIOPromise(function (resolve, reject) {
-            setTimeout(function () { return reject(value); }, _this.delay);
+            setTimeout(function () { return reject(value$$1); }, _this.delay);
         });
     };
     MemoryEndpoint.prototype.generateId = function (a_id) {
@@ -16416,16 +16416,16 @@ var LocalStorageEndpoint = (function () {
     function LocalStorageEndpoint(key) {
         this.key = key;
     }
-    LocalStorageEndpoint.prototype.resolve = function (value) {
+    LocalStorageEndpoint.prototype.resolve = function (value$$1) {
         return createIOPromise(function (resolve, reject) {
             setTimeout(function () {
-                resolve(value);
+                resolve(value$$1);
             }, 0);
         });
     };
-    LocalStorageEndpoint.prototype.reject = function (value) {
+    LocalStorageEndpoint.prototype.reject = function (value$$1) {
         return createIOPromise(function (resolve, reject) {
-            setTimeout(function () { return reject(value); }, 0);
+            setTimeout(function () { return reject(value$$1); }, 0);
         });
     };
     LocalStorageEndpoint.prototype.create = function (json, options) {
