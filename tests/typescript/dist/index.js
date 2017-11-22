@@ -16341,9 +16341,8 @@ var MemoryEndpoint = (function () {
         var id = Number(a_id);
         if (!isNaN(id)) {
             this.index[0] = Math.max(this.index[0], id);
-            return String(id);
         }
-        return String(this.index[0]++);
+        return a_id || String(this.index[0]++);
     };
     MemoryEndpoint.prototype.create = function (json, options) {
         var id = json.id = this.generateId(json.id);
@@ -16614,7 +16613,7 @@ describe('IO', function () {
         var s = new TestStore();
         s.fetch().then(function () {
             chai_1(s.a.first().id).to.eql("777");
-            chai_1(s.b.first().id).to.eql("666");
+            chai_1(s.b.first().id).to.eql(666);
             chai_1(s.c.first().id).to.eql("555");
             done();
         });
