@@ -2880,7 +2880,7 @@ var Collection = (function (_super) {
             eventsMap.addEventsMap(definition.itemEvents);
             this.prototype._itemEvents = eventsMap;
         }
-        if (definition.comparator)
+        if (definition.comparator !== void 0)
             this.prototype.comparator = definition.comparator;
         Transactional.onDefine.call(this, definition);
     };
