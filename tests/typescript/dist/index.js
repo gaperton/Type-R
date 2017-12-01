@@ -2525,14 +2525,14 @@ function sortElements(collection, options) {
 function addIndex(index, model) {
     index[model.cid] = model;
     var id = model.id;
-    if (id != null) {
+    if (id || id === 0) {
         index[id] = model;
     }
 }
 function removeIndex(index, model) {
     delete index[model.cid];
     var id = model.id;
-    if (id != null) {
+    if (id || id === 0) {
         delete index[id];
     }
 }
