@@ -26,9 +26,11 @@ export class CompiledReference {
         const path = reference
                         .match( referenceMask )
                         .map( key => {
-                            if( key === '^' ) return 'getOwner()';
+                            if( key === '^' || key === 'owner' ) return 'getOwner()';
 
                             if( key[ 0 ] === '~' ) return `getStore().get("${ key.substr( 1 ) }")`;
+                            
+                            if( key.indexOf( 'store.' ) === 0 ) return `getStore().get("${ key.substr( 6 ) }")`;
                             
                             return key;
                         } );

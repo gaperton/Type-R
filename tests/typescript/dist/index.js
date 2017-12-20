@@ -874,10 +874,12 @@ var CompiledReference = (function () {
         var path = reference
             .match(referenceMask)
             .map(function (key) {
-            if (key === '^')
+            if (key === '^' || key === 'owner')
                 return 'getOwner()';
             if (key[0] === '~')
                 return "getStore().get(\"" + key.substr(1) + "\")";
+            if (key.indexOf('store.') === 0)
+                return "getStore().get(\"" + key.substr(6) + "\")";
             return key;
         });
         this.tail = splitTail && path.pop();
