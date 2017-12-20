@@ -35,10 +35,16 @@ export class CompiledReference {
                
         this.tail = splitTail && path.pop();
         this.local = !path.length;
-
-        path.unshift( 'self' );
         
-        this.resolve = <any> new Function( 'self', `return ${ path.join('.') };` );
+        this.resolve = <any> new Function( 'self', `
+            var v = self.${ path.shift() };
+                           
+            ${ path.map( x => `
+                v = v && v.${ x };
+            `).join('')}
+
+            return v;
+        ` );
     }
 }
 

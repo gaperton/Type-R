@@ -882,8 +882,7 @@ var CompiledReference = (function () {
         });
         this.tail = splitTail && path.pop();
         this.local = !path.length;
-        path.unshift('self');
-        this.resolve = new Function('self', "return " + path.join('.') + ";");
+        this.resolve = new Function('self', "\n            var v = self." + path.shift() + ";\n                           \n            " + path.map(function (x) { return "\n                v = v && v." + x + ";\n            "; }).join('') + "\n\n            return v;\n        ");
     }
     return CompiledReference;
 }());
