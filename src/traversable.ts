@@ -12,7 +12,7 @@ export interface Traversable {
     get( key : string ) : any 
 }
 
-const referenceMask =  /\^|([^.]+)/g;
+const referenceMask =  /\^|(store\.[^.]+)|([^.]+)/g;
 
 // Compile reference to function
 export type ResolveReference = ( root : Traversable ) => any;  
@@ -29,7 +29,7 @@ export class CompiledReference {
                             if( key === '^' || key === 'owner' ) return 'getOwner()';
 
                             if( key[ 0 ] === '~' ) return `getStore().get("${ key.substr( 1 ) }")`;
-                            
+
                             if( key.indexOf( 'store.' ) === 0 ) return `getStore().get("${ key.substr( 6 ) }")`;
                             
                             return key;

@@ -867,7 +867,7 @@ var ValidationError = (function () {
     return ValidationError;
 }());
 
-var referenceMask = /\^|([^.]+)/g;
+var referenceMask = /\^|(store\.[^.]+)|([^.]+)/g;
 var CompiledReference = (function () {
     function CompiledReference(reference, splitTail) {
         if (splitTail === void 0) { splitTail = false; }
