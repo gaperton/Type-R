@@ -92,11 +92,20 @@ var log = function (a_level, a_msg, a_props) {
 log.level = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production' ? 1 : 2;
 log.throw = 0;
 log.stop = 0;
+var toString = typeof window === 'undefined' ?
+    function toString(something) {
+        if (something && typeof something === 'object') {
+            var value = something.__inner_state__ || something, isTransactional = Boolean(something.__inner_state__), isArray = Array.isArray(value);
+            var keys_1 = Object.keys(value).join(', '), body = isArray ? "[ length = " + value.length + " ]" : "{ " + keys_1 + " }";
+            return something.constructor.name + ' ' + body;
+        }
+        return something;
+    } : function toString(x) { return x; };
 if (typeof console !== 'undefined') {
     log.logger = function _console(level, error, props) {
         var args = [error];
         for (var name_1 in props) {
-            args.push("\n\t" + name_1 + ":", props[name_1]);
+            args.push("\n\t" + name_1 + ":", toString(props[name_1]));
         }
         console[level].apply(console, args);
     };
@@ -4414,7 +4423,7 @@ var getActual$1 = function getActual(obj, args) {
  * @api public
  */
 
-var toString = Function.prototype.toString;
+var toString$1 = Function.prototype.toString;
 var functionNameMatch = /\s*function(?:\s|\s*\/\*[^(?:*\/)]+\*\/\s*)*([^\s\(\/]+)/;
 function getFuncName(aFunc) {
   if (typeof aFunc !== 'function') {
@@ -4424,7 +4433,7 @@ function getFuncName(aFunc) {
   var name = '';
   if (typeof Function.prototype.name === 'undefined' && typeof aFunc.name === 'undefined') {
     // Here we run a polyfill if Function does not support the `name` property and if aFunc.name is not defined
-    var match = toString.call(aFunc).match(functionNameMatch);
+    var match = toString$1.call(aFunc).match(functionNameMatch);
     if (match) {
       name = match[1];
     }
@@ -16269,7 +16278,6 @@ describe('Bugs from Volicon Observer', function () {
             var Placeholder = Record.extend({
                 attributes: {
                     subEncoders: SubEncoder.Collection.has.check(function (x) {
-                        console.log('SubEncoders', this, x);
                         return x.length > 0;
                     }, 'ccccc')
                 }
@@ -16321,7 +16329,38 @@ describe('Bugs from Volicon Observer', function () {
             chai_1(target.inner).to.be.null;
             target.assignFrom(source);
             chai_1(target.inner !== source.inner).to.be.true;
-            console.log(target.inner.cid, source.inner.cid);
+        });
+        it('assign object of similar shape', function () {
+            var A = (function (_super) {
+                __extends(A, _super);
+                function A() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                __decorate([
+                    attr,
+                    __metadata("design:type", String)
+                ], A.prototype, "a", void 0);
+                A = __decorate([
+                    define
+                ], A);
+                return A;
+            }(Record));
+            var B = (function (_super) {
+                __extends(B, _super);
+                function B() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                __decorate([
+                    attr,
+                    __metadata("design:type", String)
+                ], B.prototype, "b", void 0);
+                B = __decorate([
+                    define
+                ], B);
+                return B;
+            }(A));
+            var b = new B({ b: "b" }), a = new A({ a: "a" });
+            b.assignFrom(a);
         });
     });
 });

@@ -136,7 +136,6 @@ describe('Bugs from Volicon Observer', function () {
             var Placeholder = Record.extend({
                 attributes: {
                     subEncoders: SubEncoder.Collection.has.check(function (x) {
-                        console.log('SubEncoders', this, x);
                         return x.length > 0;
                     }, 'ccccc')
                 }
@@ -188,7 +187,38 @@ describe('Bugs from Volicon Observer', function () {
             expect(target.inner).to.be.null;
             target.assignFrom(source);
             expect(target.inner !== source.inner).to.be.true;
-            console.log(target.inner.cid, source.inner.cid);
+        });
+        it('assign object of similar shape', function () {
+            var A = (function (_super) {
+                tslib_1.__extends(A, _super);
+                function A() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                tslib_1.__decorate([
+                    attr,
+                    tslib_1.__metadata("design:type", String)
+                ], A.prototype, "a", void 0);
+                A = tslib_1.__decorate([
+                    define
+                ], A);
+                return A;
+            }(Record));
+            var B = (function (_super) {
+                tslib_1.__extends(B, _super);
+                function B() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                tslib_1.__decorate([
+                    attr,
+                    tslib_1.__metadata("design:type", String)
+                ], B.prototype, "b", void 0);
+                B = tslib_1.__decorate([
+                    define
+                ], B);
+                return B;
+            }(A));
+            var b = new B({ b: "b" }), a = new A({ a: "a" });
+            b.assignFrom(a);
         });
     });
 });
