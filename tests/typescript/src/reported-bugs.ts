@@ -135,7 +135,6 @@ describe( 'Bugs from Volicon Observer', () =>{
             const Placeholder = Record.extend({
                 attributes : {
                     subEncoders : SubEncoder.Collection.has.check( function(x){
-                        console.log( 'SubEncoders', this, x );
                         return x.length > 0;
                     },'ccccc')
                 }
@@ -178,7 +177,19 @@ describe( 'Bugs from Volicon Observer', () =>{
             target.assignFrom( source );
     
             expect( target.inner !== source.inner ).to.be.true;
-            console.log( target.inner.cid, source.inner.cid );
+        });
+
+        it( 'assign object of similar shape', () =>{
+            @define class A extends Record {
+                @attr a : string
+            }
+
+            @define class B extends A {
+                @attr b : string
+            }
+
+            const b = new B({ b : "b" }), a = new A({ a : "a" });
+            b.assignFrom( a );
         });
     });
 } );

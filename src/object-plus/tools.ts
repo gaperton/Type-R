@@ -57,11 +57,28 @@ log.level = typeof process !== 'undefined' && process.env && process.env.NODE_EN
 log.throw = 0;
 log.stop = 0;
 
+
+let toString = typeof window === 'undefined' ? 
+    function toString( something ){
+        if( something && typeof something === 'object' ){
+            const value = something.__inner_state__ || something,
+                isTransactional = Boolean( something.__inner_state__ ),
+                isArray = Array.isArray( value );
+
+            const keys = Object.keys( value ).join( ', ' ),
+                  body = isArray ? `[ length = ${ value.length } ]` : `{ ${ keys } }`;
+
+            return something.constructor.name + ' ' + body;
+        }
+
+        return something;
+    } : function toString( x ){ return x; };
+
 if( typeof console !== 'undefined' ) {
     log.logger = function _console( level : LogLevel, error : string, props : object ){
         const args = [ error ];
         for( let name in props ){
-            args.push( `\n\t${name}:`, props[ name ] );
+            args.push( `\n\t${name}:`, toString( props[ name ] ) );
         }
 
         console[ level ].apply( console, args );

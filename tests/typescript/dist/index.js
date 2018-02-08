@@ -92,11 +92,20 @@ var log = function (a_level, a_msg, a_props) {
 log.level = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'production' ? 1 : 2;
 log.throw = 0;
 log.stop = 0;
+var toString = typeof window === 'undefined' ?
+    function toString(something) {
+        if (something && typeof something === 'object') {
+            var value = something.__inner_state__ || something, isTransactional = Boolean(something.__inner_state__), isArray = Array.isArray(value);
+            var keys_1 = Object.keys(value).join(', '), body = isArray ? "[ length = " + value.length + " ]" : "{ " + keys_1 + " }";
+            return something.constructor.name + ' ' + body;
+        }
+        return something;
+    } : function toString(x) { return x; };
 if (typeof console !== 'undefined') {
     log.logger = function _console(level, error, props) {
         var args = [error];
         for (var name_1 in props) {
-            args.push("\n\t" + name_1 + ":", props[name_1]);
+            args.push("\n\t" + name_1 + ":", toString(props[name_1]));
         }
         console[level].apply(console, args);
     };
@@ -867,23 +876,24 @@ var ValidationError = (function () {
     return ValidationError;
 }());
 
-var referenceMask = /\^|([^.]+)/g;
+var referenceMask = /\^|(store\.[^.]+)|([^.]+)/g;
 var CompiledReference = (function () {
     function CompiledReference(reference, splitTail) {
         if (splitTail === void 0) { splitTail = false; }
         var path = reference
             .match(referenceMask)
             .map(function (key) {
-            if (key === '^')
+            if (key === '^' || key === 'owner')
                 return 'getOwner()';
             if (key[0] === '~')
                 return "getStore().get(\"" + key.substr(1) + "\")";
+            if (key.indexOf('store.') === 0)
+                return "getStore().get(\"" + key.substr(6) + "\")";
             return key;
         });
         this.tail = splitTail && path.pop();
         this.local = !path.length;
-        path.unshift('self');
-        this.resolve = new Function('self', "return " + path.join('.') + ";");
+        this.resolve = new Function('self', "\n            var v = self." + path.shift() + ";\n                           \n            " + path.map(function (x) { return "\n                v = v && v." + x + ";\n            "; }).join('') + "\n\n            return v;\n        ");
     }
     return CompiledReference;
 }());
@@ -1032,7 +1042,15 @@ var Transactional = (function () {
         return this;
     };
     Transactional.prototype.assignFrom = function (source) {
-        return this.set(source.__inner_state__ || source, { merge: true });
+        var _this = this;
+        this.transaction(function () {
+            _this.set(source.__inner_state__ || source, { merge: true });
+            var _changeToken = source._changeToken;
+            if (_changeToken) {
+                _this._changeToken = _changeToken;
+            }
+        });
+        return this;
     };
     Transactional.prototype.parse = function (data, options) { return data; };
     Transactional.prototype.deepGet = function (reference) {
@@ -2525,14 +2543,14 @@ function sortElements(collection, options) {
 function addIndex(index, model) {
     index[model.cid] = model;
     var id = model.id;
-    if (id != null) {
+    if (id || id === 0) {
         index[id] = model;
     }
 }
 function removeIndex(index, model) {
     delete index[model.cid];
     var id = model.id;
-    if (id != null) {
+    if (id || id === 0) {
         delete index[id];
     }
 }
@@ -2880,7 +2898,7 @@ var Collection = (function (_super) {
             eventsMap.addEventsMap(definition.itemEvents);
             this.prototype._itemEvents = eventsMap;
         }
-        if (definition.comparator)
+        if (definition.comparator !== void 0)
             this.prototype.comparator = definition.comparator;
         Transactional.onDefine.call(this, definition);
     };
@@ -3352,6 +3370,13 @@ function defineSubsetCollection(CollectionConstructor) {
                 this.models.map(function (model) { return model.id; });
         };
         SubsetOfCollection.prototype._validateNested = function () { return 0; };
+        Object.defineProperty(SubsetOfCollection.prototype, "length", {
+            get: function () {
+                return this.models.length || (this.refs ? this.refs.length : 0);
+            },
+            enumerable: true,
+            configurable: true
+        });
         SubsetOfCollection.prototype.clone = function (owner) {
             var Ctor = this.constructor, copy = new Ctor([], {
                 model: this.model,
@@ -4401,7 +4426,7 @@ var getActual$1 = function getActual(obj, args) {
  * @api public
  */
 
-var toString = Function.prototype.toString;
+var toString$1 = Function.prototype.toString;
 var functionNameMatch = /\s*function(?:\s|\s*\/\*[^(?:*\/)]+\*\/\s*)*([^\s\(\/]+)/;
 function getFuncName(aFunc) {
   if (typeof aFunc !== 'function') {
@@ -4411,7 +4436,7 @@ function getFuncName(aFunc) {
   var name = '';
   if (typeof Function.prototype.name === 'undefined' && typeof aFunc.name === 'undefined') {
     // Here we run a polyfill if Function does not support the `name` property and if aFunc.name is not defined
-    var match = toString.call(aFunc).match(functionNameMatch);
+    var match = toString$1.call(aFunc).match(functionNameMatch);
     if (match) {
       name = match[1];
     }
@@ -16256,7 +16281,6 @@ describe('Bugs from Volicon Observer', function () {
             var Placeholder = Record.extend({
                 attributes: {
                     subEncoders: SubEncoder.Collection.has.check(function (x) {
-                        console.log('SubEncoders', this, x);
                         return x.length > 0;
                     }, 'ccccc')
                 }
@@ -16308,7 +16332,38 @@ describe('Bugs from Volicon Observer', function () {
             chai_1(target.inner).to.be.null;
             target.assignFrom(source);
             chai_1(target.inner !== source.inner).to.be.true;
-            console.log(target.inner.cid, source.inner.cid);
+        });
+        it('assign object of similar shape', function () {
+            var A = (function (_super) {
+                __extends(A, _super);
+                function A() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                __decorate([
+                    attr,
+                    __metadata("design:type", String)
+                ], A.prototype, "a", void 0);
+                A = __decorate([
+                    define
+                ], A);
+                return A;
+            }(Record));
+            var B = (function (_super) {
+                __extends(B, _super);
+                function B() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                __decorate([
+                    attr,
+                    __metadata("design:type", String)
+                ], B.prototype, "b", void 0);
+                B = __decorate([
+                    define
+                ], B);
+                return B;
+            }(A));
+            var b = new B({ b: "b" }), a = new A({ a: "a" });
+            b.assignFrom(a);
         });
     });
 });
@@ -16344,9 +16399,8 @@ var MemoryEndpoint = (function () {
         var id = Number(a_id);
         if (!isNaN(id)) {
             this.index[0] = Math.max(this.index[0], id);
-            return String(id);
         }
-        return String(this.index[0]++);
+        return a_id || String(this.index[0]++);
     };
     MemoryEndpoint.prototype.create = function (json, options) {
         var id = json.id = this.generateId(json.id);
@@ -16617,7 +16671,7 @@ describe('IO', function () {
         var s = new TestStore();
         s.fetch().then(function () {
             chai_1(s.a.first().id).to.eql("777");
-            chai_1(s.b.first().id).to.eql("666");
+            chai_1(s.b.first().id).to.eql(666);
             chai_1(s.c.first().id).to.eql("555");
             done();
         });
