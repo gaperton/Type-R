@@ -1,6 +1,5 @@
 {
     "name": "localStorageIO",
-    "main": "./index.js",
     "main": "./dist/index.js",
     "jsnext:main": "./lib/index.js",
     "module": "./lib/index.js",
