@@ -15,6 +15,10 @@ export interface RestfulIOOptions extends IOOptions {
 
 export class RestfulEndpoint implements IOEndpoint {
     constructor( public root : string ){
+        //TODO: add support for './dsds' paths.
+        // Must take the parent record's endpoint url as root.
+        // Easy to do, we do have record object passed to every method.
+        // obj.getOwner().getEndpoint().root
     }
 
     create( json, options : RestfulIOOptions ) {
