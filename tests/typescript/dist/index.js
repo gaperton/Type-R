@@ -2101,15 +2101,12 @@ var IORecordMixin = {
     savePatch: function (patch, options) {
         var _this = this;
         if (options === void 0) { options = {}; }
-        this.transaction(function () {
-            for (var key in patch) {
-                _this.deepSet(key, patch[key]);
-            }
-        });
+        this.set(patch);
         var endpoint = this.getEndpoint();
         if (this.isNew() || !endpoint.patch)
             return this.save();
-        return startIO(this, endpoint.patch(this.id, patchToJson(patch, this.toJSON()), options, this), options, function (update) {
+        var json = this.toJSON();
+        return startIO(this, endpoint.patch(this.id, patchToJson(patch, json), options, this), options, function (update) {
             _this.set(update, __assign({ parse: true }, options));
         });
     },
@@ -2132,20 +2129,16 @@ var IORecordMixin = {
         });
     }
 };
-function deepGet(obj, path) {
-    var current = obj;
-    for (var _i = 0, _a = path.split('.'); _i < _a.length; _i++) {
-        var key = _a[_i];
-        current = current[key];
-        if (!current)
-            break;
-    }
-    return current;
-}
 function patchToJson(patch, json) {
     var res = {};
     for (var name_1 in patch) {
-        res[name_1] = deepGet(json, name_1);
+        var patchValue = patch[name_1];
+        if (patchValue && Object.getPrototypeOf(patchValue) === Object.prototype) {
+            res[name_1] = patchToJson(patchValue, json[name_1]);
+        }
+        else {
+            res[name_1] = json[name_1];
+        }
     }
     return res;
 }
