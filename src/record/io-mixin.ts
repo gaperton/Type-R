@@ -29,20 +29,22 @@ export const IORecordMixin = {
         );
     },
 
-    savePatch( this : IORecord, patch : object, options : IOOptions = {} ){
+    savePatch( this : any, patch : object, options : IOOptions = {} ){
         // Apply patch to the record...
-        ( this as any ).set( patch );
+        this.transaction( () => {
+            for( let key in patch ){
+                this.deepSet( key, patch[ key ] );
+            }
+        });
 
         const endpoint = this.getEndpoint();
 
         // Perform full save for the new models or if patch method is not supported...
         if( this.isNew() || !endpoint.patch ) return this.save();
 
-        const json = this.toJSON();
-
         return startIO(
             this,
-            endpoint.patch( this.id, patchToJson( patch, json ), options, this ),
+            endpoint.patch( this.id, patchToJson( patch, this.toJSON() ), options, this ),
             options,
 
             update => {
@@ -80,18 +82,22 @@ export const IORecordMixin = {
     }
 }
 
-function patchToJson( patch, json ){
+function deepGet( obj : object, path : string ){
+    let current = obj;
+
+    for( let key of path.split( '.' ) ){
+        current = current[ key ];
+        if( !current ) break;
+    }
+
+    return current;
+}
+
+function patchToJson( patch : object, json : object ){
     const res = {};
 
     for( let name in patch ){
-        const patchValue = patch[ name ];
-
-        if( patchValue && Object.getPrototypeOf( patchValue ) === Object.prototype ){
-            res[ name ] = patchToJson( patchValue, json[ name ] );
-        }
-        else{
-            res[ name ] = json[ name ];
-        }
+        res[ name ] = deepGet( json, name );
     }
 
     return res;
