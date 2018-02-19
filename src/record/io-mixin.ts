@@ -29,6 +29,28 @@ export const IORecordMixin = {
         );
     },
 
+    savePatch( this : IORecord, patch : object, options : IOOptions = {} ){
+        // Apply patch to the record...
+        ( this as any ).set( patch );
+
+        const endpoint = this.getEndpoint();
+
+        // Perform full save for the new models or if patch method is not supported...
+        if( this.isNew() || !endpoint.patch ) return this.save();
+
+        const json = this.toJSON();
+
+        return startIO(
+            this,
+            endpoint.patch( this.id, patchToJson( patch, json ), options, this ),
+            options,
+
+            update => {
+                this.set( update, { parse : true, ...options } );
+            }
+        );        
+    },
+
     fetch( options : IOOptions = {} ){
         return startIO(
             this,
@@ -56,4 +78,21 @@ export const IORecordMixin = {
             }
         )
     }
+}
+
+function patchToJson( patch, json ){
+    const res = {};
+
+    for( let name in patch ){
+        const patchValue = patch[ name ];
+
+        if( patchValue && Object.getPrototypeOf( patchValue ) === Object.prototype ){
+            res[ name ] = patchToJson( patchValue, json[ name ] );
+        }
+        else{
+            res[ name ] = json[ name ];
+        }
+    }
+
+    return res;
 }

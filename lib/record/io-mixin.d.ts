@@ -11,6 +11,7 @@ export interface IORecord extends IONode {
 }
 export declare const IORecordMixin: {
     save(this: IORecord, options?: IOOptions): IOPromise<any>;
+    savePatch(this: IORecord, patch: object, options?: IOOptions): IOPromise<any>;
     fetch(options?: IOOptions): IOPromise<any>;
     destroy(options?: IOOptions): IOPromise<any>;
 };

@@ -11,6 +11,7 @@ export interface IOEndpoint {
     list( options : IOOptions, collection? ) : IOPromise<any>
     create( json : any, options : IOOptions, record? ) : IOPromise<any>
     update( id : string | number, json :any, options : IOOptions, record? ) : IOPromise<any>
+    patch? : ( id : string | number, json :any, options : IOOptions, record? ) => IOPromise<any>
     read( id : string | number, options : IOOptions, record? ) : IOPromise<any>
     destroy( id : string | number, options : IOOptions, record? ) : IOPromise<any>
     subscribe( events : IOEvents, collection? ) : IOPromise<any>
