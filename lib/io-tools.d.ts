@@ -9,7 +9,6 @@ export interface IOEndpoint {
     list(options: IOOptions, collection?: any): IOPromise<any>;
     create(json: any, options: IOOptions, record?: any): IOPromise<any>;
     update(id: string | number, json: any, options: IOOptions, record?: any): IOPromise<any>;
-    patch?: (id: string | number, json: any, options: IOOptions, record?) => IOPromise<any>;
     read(id: string | number, options: IOOptions, record?: any): IOPromise<any>;
     destroy(id: string | number, options: IOOptions, record?: any): IOPromise<any>;
     subscribe(events: IOEvents, collection?: any): IOPromise<any>;

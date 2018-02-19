@@ -81,7 +81,9 @@ describe( 'Memory management', function(){
         m.dispose();
         expect( m._disposed ).to.be.true;
 
-        expect( singleton._events.change ).to.be.undefined;
+        expect( singleton._events.change ).to.be.empty;
         expect( singleton._disposed ).to.be.undefined;
     } );
+
+
 });

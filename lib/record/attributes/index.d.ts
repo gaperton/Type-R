@@ -9,7 +9,7 @@ export * from './attrDef';
 import { AnyType } from './any';
 import { ConstructorsMixin } from './updates';
 import { IOEndpoint } from '../../io-tools';
-export interface RecordAttributesMixin extends ConstructorsMixin, ParseMixin {
+export interface RecordAttributesMixin extends ConstructorsMixin {
     _attributes: AttributeDescriptors;
     _attributesArray: AnyType[];
     properties: PropertyDescriptorMap;
@@ -24,7 +24,4 @@ export interface AttributeDescriptors {
 }
 export default function (attributesDefinition: object, baseClassAttributes: AttributeDescriptors): RecordAttributesMixin;
 export declare function createAttribute(spec: any, name: string): AnyType;
-export interface ParseMixin {
-    _parse?: (json: any) => object;
-}
 export declare function createSharedTypeSpec(Constructor: Function, Attribute: typeof AnyType): void;

@@ -14,7 +14,7 @@ import { toAttributeOptions, ChainableAttributeSpec } from './attrDef'
 import { CompiledReference } from '../../traversable'
 import { IOEndpoint } from '../../io-tools'
 
-export interface RecordAttributesMixin extends ConstructorsMixin, ParseMixin {
+export interface RecordAttributesMixin extends ConstructorsMixin {
     // Attributes descriptors
     _attributes : AttributeDescriptors
     _attributesArray : AnyType[]
@@ -59,11 +59,7 @@ export function createAttribute( spec : any, name : string ) : AnyType {
     return AnyType.create( toAttributeOptions( spec ), name );
 }
 
-export interface ParseMixin {
-    _parse? : ( json : any ) => object
-}
-
-function parseMixin( attributes : AttributeDescriptors ) : ParseMixin {
+function parseMixin( attributes : AttributeDescriptors ){
     const attrsWithParse = Object.keys( attributes ).filter( name => attributes[ name ].parse );
 
     return attrsWithParse.length ? {
@@ -76,7 +72,7 @@ function parseMixin( attributes : AttributeDescriptors ) : ParseMixin {
 
             return json;
         ` )
-    } : {} as any;
+    } : {};
 }
 
 function createToJSON( attributes : AttributeDescriptors ) : () => void {
