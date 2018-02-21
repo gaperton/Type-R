@@ -61,6 +61,20 @@ function __metadata(metadataKey, metadataValue) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
 }
 
+function defaults(dest, source) {
+    for (var name in source) {
+        if (source.hasOwnProperty(name) && !dest.hasOwnProperty(name)) {
+            dest[name] = source[name];
+        }
+    }
+    if (arguments.length > 2) {
+        for (var i = 2; i < arguments.length; i++) {
+            var other = arguments[i];
+            other && defaults(dest, other);
+        }
+    }
+    return dest;
+}
 var levelToNumber = {
     none: 0, error: 1, warn: 2, info: 3, log: 4, debug: 5
 };
@@ -208,21 +222,6 @@ function assign(dest, source) {
     }
     return dest;
 }
-function defaults(dest, source) {
-    for (var name in source) {
-        if (source.hasOwnProperty(name) && !dest.hasOwnProperty(name)) {
-            dest[name] = source[name];
-        }
-    }
-    if (arguments.length > 2) {
-        for (var i = 2; i < arguments.length; i++) {
-            var other = arguments[i];
-            other && defaults(dest, other);
-        }
-    }
-    return dest;
-}
-Object.setPrototypeOf || (Object.setPrototypeOf = defaults);
 
 function once$1(func) {
     var memo, first = true;
@@ -3473,6 +3472,8 @@ var Store = (function (_super) {
     return Store;
 }(Record));
 Store.global = new Store();
+
+Object.setPrototypeOf || (Object.setPrototypeOf = defaults);
 
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 

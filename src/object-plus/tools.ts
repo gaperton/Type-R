@@ -6,6 +6,25 @@
  * exported [[log]] variable.
  */
 
+ /** Similar to underscore `_.defaults` */
+export function defaults< T >( dest : T, ...sources : Object[] ) : T
+export function defaults< T >( dest : T, source : Object ) : T {
+    for( var name in source ) {
+        if( source.hasOwnProperty( name ) && !dest.hasOwnProperty( name ) ) {
+            dest[ name ] = source[ name ];
+        }
+    }
+
+    if( arguments.length > 2 ){
+        for( let i = 2; i < arguments.length; i++ ){
+            const other = arguments[ i ];
+            other && defaults( dest, other );
+        }
+    }
+
+    return dest;
+}
+
 // Logger is the function.
 export type Logger = ( level : LogLevel, error : string, props? : object ) => void;
 
@@ -258,34 +277,6 @@ export function assign< T >( dest : T, source : Object ) : T {
 
     return dest;
 }
-
-/** Similar to underscore `_.defaults` */
-export function defaults< T >( dest : T, ...sources : Object[] ) : T
-export function defaults< T >( dest : T, source : Object ) : T {
-    for( var name in source ) {
-        if( source.hasOwnProperty( name ) && !dest.hasOwnProperty( name ) ) {
-            dest[ name ] = source[ name ];
-        }
-    }
-
-    if( arguments.length > 2 ){
-        for( let i = 2; i < arguments.length; i++ ){
-            const other = arguments[ i ];
-            other && defaults( dest, other );
-        }
-    }
-
-    return dest;
-}
-
-// Polyfill for IE10. Should fix problems with babel and statics inheritance.
-declare global {
-    interface ObjectConstructor {
-        setPrototypeOf( target : Object, proto : Object );
-    }
-}
-
-Object.setPrototypeOf || ( Object.setPrototypeOf = defaults ); 
 
 /** Similar to underscore `_.keys` */
 export function keys( o : any ) : string[]{
