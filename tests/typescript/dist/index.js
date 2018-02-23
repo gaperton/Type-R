@@ -343,6 +343,7 @@ function definitions(rules) {
         mixins.definitionRules = defaults(hashMap(), rules, mixins.definitionRules);
     };
 }
+
 function definitionDecorator(definitionKey, value) {
     return function (proto, name) {
         MixinsState
