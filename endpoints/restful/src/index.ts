@@ -1,9 +1,7 @@
 import { IOEndpoint, IOOptions, IOPromise, createIOPromise } from 'type-r'
 
-export type Index = number[];
-
-export function create( key : string ){
-    return new RestfulEndpoint( key );
+export function create( url : string, fetchOptions? : Partial<RestfulFetchOptions> ){
+    return new RestfulEndpoint( url, fetchOptions );
 }
 
 export { create as restfulIO }
@@ -13,67 +11,129 @@ export interface RestfulIOOptions extends IOOptions {
     options? : RequestInit
 }
 
+export type RestfulFetchOptions = /* subset of RequestInit */{
+    cache?: RequestCache;
+    credentials?: RequestCredentials;
+    mode?: RequestMode;
+    redirect?: RequestRedirect;
+    referrerPolicy?: ReferrerPolicy;
+}
+
 export class RestfulEndpoint implements IOEndpoint {
-    constructor( public root : string ){
-        //TODO: add support for './dsds' paths.
-        // Must take the parent record's endpoint url as root.
-        // Easy to do, we do have record object passed to every method.
-        // obj.getOwner().getEndpoint().root
+
+    constructor( public url : string, public fetchOptions? : Partial<RestfulFetchOptions> ) {
     }
 
-    create( json, options : RestfulIOOptions ) {
-        return jsonRequest( 'POST', this.collectionUrl( options ), options );
+    public static defaultFetchOptions : RestfulFetchOptions = {
+        cache: "no-cache",
+        credentials: "same-origin",
+        mode: "cors",
+        redirect: "error",
     }
 
-    update( id, json, options : RestfulIOOptions ) {
-        return jsonRequest( 'PUT', this.objectUrl( id, options ), options );
+    create( json, options : RestfulIOOptions, record ) {
+        return this.request( 'POST', this.collectionUrl( record, options ), options, json );
     }
 
-    read( id, options : IOOptions ){
-        return jsonRequest( 'GET', this.objectUrl( id, options ), options );
+    update( id, json, options : RestfulIOOptions, record ) {
+        return this.request( 'PUT', this.objectUrl( record, id, options ), options, json );
     }
 
-    protected objectUrl( id, options ){
-        return appendParams( this.root + "/" + id, options.params );
+    read( id, options : IOOptions, record ){
+        return this.request( 'GET', this.objectUrl( record, id, options ), options );
     }
 
-    protected collectionUrl( options ){
-        return appendParams( this.root, options.params );
+    destroy( id, options : RestfulIOOptions, record ){
+        return this.request( 'DELETE', this.objectUrl( record, id, options ), options );
     }
 
-    destroy( id, options : RestfulIOOptions ){
-        return jsonRequest( 'DELETE', this.objectUrl( id, options ), options );
-    }
-
-    list( options? : RestfulIOOptions ) {
-        return jsonRequest( 'GET', this.collectionUrl( options ), options );
+    list( options : RestfulIOOptions, collection ) {
+        return this.request( 'GET', this.collectionUrl( collection, options ), options );
     }
 
     subscribe( events ) : any {}
-    unsubscribe( events) : any {}
+    unsubscribe( events ) : any {}
+
+
+    protected isRelativeUrl( url ) {
+        return url.indexOf( './' ) === 0;
+    }
+
+    protected removeTrailingSlash( url : string ) {
+        const endsWithSlash = url.charAt( url.length - 1 ) === '/';
+        return endsWithSlash ? url.substr( 0, url.length - 1 ) : url;
+    }
+
+    protected getRootUrl( recordOrCollection ) {
+        const { url } = this
+        if( this.isRelativeUrl( url ) ) {
+            const owner         = recordOrCollection.getOwner(),
+                  ownerUrl      = owner.getEndpoint().getUrl( owner );
+
+            return this.removeTrailingSlash( ownerUrl ) + '/' + url.substr( 2 )
+        } else {
+            return url;
+        }
+    }
+
+    protected getUrl( record ) {
+        const url = this.getRootUrl( record );
+        return record.isNew()
+            ? url
+            : this.removeTrailingSlash( url ) + '/' + record.id
+    }
+
+    protected objectUrl( record, id, options ){
+        return appendParams( this.getUrl( record ), options.params );
+    }
+
+    protected collectionUrl( collection, options ){
+        return appendParams( this.getRootUrl( collection ), options.params );
+    }
+
+    protected buildRequestOptions( method : string, options? : RequestInit, body? ) : RequestInit {
+        const mergedOptions : RequestInit = Object.assign( {},
+            RestfulEndpoint.defaultFetchOptions,
+            this.fetchOptions,
+            options
+        );
+
+        const {headers, ...rest}          = mergedOptions,
+              resultOptions : RequestInit = {
+                  method,
+                  headers: {
+                      'Content-Type': 'application/json',
+                      ...headers
+                  },
+                  ...rest
+              };
+
+        if( body ) {
+            resultOptions.body = JSON.stringify( body );
+        }
+        return resultOptions;
+    }
+
+    protected request( method : string, url : string, {options} : RestfulIOOptions, body? ) : Promise<any> {
+
+        return fetch( url, this.buildRequestOptions( method, options, body ) )
+            .then( response => {
+                if( response.ok ) {
+                    return response.json()
+                } else {
+                    throw new Error( response.statusText )
+                }
+            } );
+    }
 }
 
-function appendParams( url, params? ){
+function appendParams( url, params? ) {
     var esc = encodeURIComponent;
-    return params ? url + '?' + Object.keys(params)
-                    .map(k => esc(k) + '=' + esc(params[k]))
-                    .join('&') :
-                url;
+    return params
+        ? url + '?' + Object.keys( params )
+                          .map( k => esc( k ) + '=' + esc( params[ k ] ) )
+                          .join( '&' )
+        : url;
 }
 
 
-function jsonRequest( method, url, { options } : RestfulIOOptions, body? ){
-    const { headers, ...rest } = options as any,
-        oo = {
-            method,
-            headers: {
-                'Content-Type': 'application/json',
-                ...headers
-            },
-            ...rest
-        };
-
-    if( body ) oo.body = JSON.stringify( body );
-
-    return fetch( url, oo ).then( response => response.json() );
-}
