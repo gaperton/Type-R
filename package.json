@@ -1,6 +1,6 @@
 {
   "name": "type-r",
-  "version": "2.0.9",
+  "version": "2.0.10",
   "description": "Reactive serializable data layer for modern JS applications",
   "main": "./dist/index.js",
   "jsnext:main": "./lib/index.js",
@@ -23,7 +23,7 @@
     "build": "npm run build:lib && npm run build:endpoints && npm test",
     "docs": "node docs/build.js",
     "run:test": "node_modules/.bin/mocha tests/nestedtypes/functionality && node_modules/.bin/mocha tests/typescript/dist",
-    "build:endpoints": "cd endpoints/attributes && npm run build && cd ../localStorage && npm run build && cd ../memory && npm run build",
+    "build:endpoints": "cd endpoints/attributes && npm run build && cd ../localStorage && npm run build && cd ../memory && npm run build && cd ../restful && npm run build",
     "build:test": "npm run compile:test && npm run bundle:test",
     "compile:test": "cd tests/typescript && ../../node_modules/.bin/tsc",
     "bundle:test": "cd tests/typescript && ../../node_modules/.bin/rollup --config"
@@ -57,8 +57,10 @@
     "chai-as-promised": "*",
     "handlebars": "^4.0.11",
     "highlight.js": "^9.12.0",
-    "marked": "^0.3.15",
+    "isomorphic-fetch": "^2.2.1",
+    "marked": "^0.3.17",
     "mocha": "^3.5.3",
+    "nock": "^9.2.3",
     "reflect-metadata": "^0.1.12",
     "rollup": "^0.50.1",
     "rollup-plugin-commonjs": "^8.3.0",

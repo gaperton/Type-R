@@ -1,77 +1,94 @@
-import { createIOPromise } from 'type-r';
-export function create(key) {
-    return new LocalStorageEndpoint(key);
+import * as tslib_1 from "tslib";
+export function create(url, fetchOptions) {
+    return new RestfulEndpoint(url, fetchOptions);
 }
-export { create as localStorageIO };
-var LocalStorageEndpoint = (function () {
-    function LocalStorageEndpoint(key) {
-        this.key = key;
+export { create as restfulIO };
+var RestfulEndpoint = (function () {
+    function RestfulEndpoint(url, fetchOptions) {
+        this.url = url;
+        this.fetchOptions = fetchOptions;
     }
-    LocalStorageEndpoint.prototype.resolve = function (value) {
-        return createIOPromise(function (resolve, reject) {
-            setTimeout(function () {
-                resolve(value);
-            }, 0);
-        });
+    RestfulEndpoint.prototype.create = function (json, options, record) {
+        return this.request('POST', this.collectionUrl(record, options), options, json);
     };
-    LocalStorageEndpoint.prototype.reject = function (value) {
-        return createIOPromise(function (resolve, reject) {
-            setTimeout(function () { return reject(value); }, 0);
-        });
+    RestfulEndpoint.prototype.update = function (id, json, options, record) {
+        return this.request('PUT', this.objectUrl(record, id, options), options, json);
     };
-    LocalStorageEndpoint.prototype.create = function (json, options) {
-        var index = this.index;
-        index.push(json.id = String(index[0]++));
-        this.index = index;
-        this.set(json);
-        return this.resolve({ id: json.id });
+    RestfulEndpoint.prototype.read = function (id, options, record) {
+        return this.request('GET', this.objectUrl(record, id, options), options);
     };
-    LocalStorageEndpoint.prototype.set = function (json) {
-        localStorage.setItem(this.key + '#' + json.id, JSON.stringify(json));
+    RestfulEndpoint.prototype.destroy = function (id, options, record) {
+        return this.request('DELETE', this.objectUrl(record, id, options), options);
     };
-    LocalStorageEndpoint.prototype.get = function (id) {
-        return JSON.parse(localStorage.getItem(this.key + '#' + id));
+    RestfulEndpoint.prototype.list = function (options, collection) {
+        return this.request('GET', this.collectionUrl(collection, options), options);
     };
-    LocalStorageEndpoint.prototype.update = function (id, json, options) {
-        json.id = id;
-        this.set(json);
-        return this.resolve({});
+    RestfulEndpoint.prototype.subscribe = function (events) { };
+    RestfulEndpoint.prototype.unsubscribe = function (events) { };
+    RestfulEndpoint.prototype.isRelativeUrl = function (url) {
+        return url.indexOf('./') === 0;
     };
-    LocalStorageEndpoint.prototype.read = function (id, options) {
-        var existing = this.get(id);
-        return existing ?
-            this.resolve(existing) :
-            this.reject("Not found");
+    RestfulEndpoint.prototype.removeTrailingSlash = function (url) {
+        var endsWithSlash = url.charAt(url.length - 1) === '/';
+        return endsWithSlash ? url.substr(0, url.length - 1) : url;
     };
-    LocalStorageEndpoint.prototype.destroy = function (id, options) {
-        var existing = this.get(id);
-        if (existing) {
-            localStorage.removeItem(this.key + '#' + id);
-            this.index = this.index.filter(function (x) { return x !== id; });
-            return this.resolve({});
+    RestfulEndpoint.prototype.getRootUrl = function (recordOrCollection) {
+        var url = this.url;
+        if (this.isRelativeUrl(url)) {
+            var owner = recordOrCollection.getOwner(), ownerUrl = owner.getEndpoint().getUrl(owner);
+            return this.removeTrailingSlash(ownerUrl) + '/' + url.substr(2);
         }
         else {
-            return this.reject("Not found");
+            return url;
         }
     };
-    Object.defineProperty(LocalStorageEndpoint.prototype, "index", {
-        get: function () {
-            return JSON.parse(localStorage.getItem(this.key)) || [0];
-        },
-        set: function (x) {
-            localStorage.setItem(this.key, JSON.stringify(x));
-        },
-        enumerable: true,
-        configurable: true
-    });
-    LocalStorageEndpoint.prototype.list = function (options) {
-        var _this = this;
-        var index = this.index;
-        return this.resolve(this.index.slice(1).map(function (id) { return _this.get(id); }));
+    RestfulEndpoint.prototype.getUrl = function (record) {
+        var url = this.getRootUrl(record);
+        return record.isNew()
+            ? url
+            : this.removeTrailingSlash(url) + '/' + record.id;
     };
-    LocalStorageEndpoint.prototype.subscribe = function (events) { };
-    LocalStorageEndpoint.prototype.unsubscribe = function (events) { };
-    return LocalStorageEndpoint;
+    RestfulEndpoint.prototype.objectUrl = function (record, id, options) {
+        return appendParams(this.getUrl(record), options.params);
+    };
+    RestfulEndpoint.prototype.collectionUrl = function (collection, options) {
+        return appendParams(this.getRootUrl(collection), options.params);
+    };
+    RestfulEndpoint.prototype.buildRequestOptions = function (method, options, body) {
+        var mergedOptions = Object.assign({}, RestfulEndpoint.defaultFetchOptions, this.fetchOptions, options);
+        var headers = mergedOptions.headers, rest = tslib_1.__rest(mergedOptions, ["headers"]), resultOptions = tslib_1.__assign({ method: method, headers: tslib_1.__assign({ 'Content-Type': 'application/json' }, headers) }, rest);
+        if (body) {
+            resultOptions.body = JSON.stringify(body);
+        }
+        return resultOptions;
+    };
+    RestfulEndpoint.prototype.request = function (method, url, _a, body) {
+        var options = _a.options;
+        return fetch(url, this.buildRequestOptions(method, options, body))
+            .then(function (response) {
+            if (response.ok) {
+                return response.json();
+            }
+            else {
+                throw new Error(response.statusText);
+            }
+        });
+    };
+    RestfulEndpoint.defaultFetchOptions = {
+        cache: "no-cache",
+        credentials: "same-origin",
+        mode: "cors",
+        redirect: "error",
+    };
+    return RestfulEndpoint;
 }());
-export { LocalStorageEndpoint };
+export { RestfulEndpoint };
+function appendParams(url, params) {
+    var esc = encodeURIComponent;
+    return params
+        ? url + '?' + Object.keys(params)
+            .map(function (k) { return esc(k) + '=' + esc(params[k]); })
+            .join('&')
+        : url;
+}
 //# sourceMappingURL=index.js.map
