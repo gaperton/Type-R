@@ -1104,10 +1104,54 @@ users
     .save()
     .then( <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-built_in">console</span>.log( user.id );
 </code></pre>
-<h2 id="ioendpoint">IOEndpoint</h2>
-<p>An endpoint represents the persistent collection of records serialized to JSON. It has CRUD methods used by the Record, list method used by the collection, and an optional methods to subscribe for the data changes which are used by collection&#39;s live updates API. There are several pre-defined endpoints bundled with Type-R which can be used for mock testing, working with localStorage, and IO composition.</p>
-<p>All IOEndpoint methods must return abortable promises (created with <code>createIOPromise()</code>). An IOEndpoint instance is shared by all of the class instances it&#39;s attached to and therefore it&#39;s normally <em>must be stateless</em>.</p>
-<h3 id="endpoint-restfulio-url-options-"><code>endpoint</code> restfulIO( url, options? )</h3>
+<h2 id="i-o-api">I/O API</h2>
+<h3 id="static-endpoint"><code>static</code> endpoint</h3>
+<p>I/O endpoint declaration which should be used in Record or Collection definition to enable I/O API.</p>
+<p>If an endpoint is defined for the <code>MyRecord</code>, it&#39;s automatically defined for the corresponding <code>MyRecord.Collection</code> as well.</p>
+<h3 id="attrdef-type-has-endpoint-endpoint-"><code>attrDef</code> : Type.has.endpoint( <code>endpoint</code> )</h3>
+<p>Override or define an I/O endpoint for the specific record&#39;s attribute.</p>
+<h3 id="obj-getendpoint-">obj.getEndpoint()</h3>
+<p>Returns an object&#39;s IO endpoint. Normally, this is an endpoint which is defined in object&#39;s <code>static endpoint = ...</code> declaration, but it might be overridden by the parent&#39;s record using <code>Type.has.endpoint( ... )</code> attribute declaration.</p>
+<pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> endpoint = restfulIO( <span class="hljs-string">'/api/users'</span> );
+    ...
+}
+
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserRole</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> endpoint = restfulIO( <span class="hljs-string">'/api/roles'</span> );
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-comment">// Use the relative path '/api/roles/:id/users'</span>
+        users : User.Collection.has.endpoint( restfulIO( <span class="hljs-string">'./users'</span> ) ),
+        ...
+    }
+}
+</code></pre>
+<h3 id="record-fetch-options-">record.fetch( options? )</h3>
+<p>Asynchronously fetch the record using <code>endpoint.read()</code> method. Returns an abortable ES6 promise.</p>
+<p>An endpoint must be defined for the record in order to use that method.</p>
+<h3 id="record-save-options-">record.save( options? )</h3>
+<p>Asynchronously save the record using <code>endpoint.create()</code> (if there are no id) or <code>endpoint.update()</code> (if id is present) method. Returns an abortable ES6 promise.</p>
+<p>An endpoint must be defined for the record in order to use that method.</p>
+<h3 id="record-destroy-options-">record.destroy( options? )</h3>
+<p>Asynchronously destroy the record using <code>endpoint.destroy()</code> method. Returns an abortable ES6 promise. The record is removed from the aggregating collection upon the completion of the I/O request.</p>
+<p>An endpoint must be defined for the record in order to use that method.</p>
+<h3 id="collection-fetch-options-">collection.fetch( options? )</h3>
+<p>Fetch the collection. Returns an abortable promise.</p>
+<p><code>options</code> accepts an optional <code>liveUpdates</code> parameter. When <code>true</code>, collection subscribes for the live updates when I/O is finished.</p>
+<h3 id="collection-liveupdates-true-false-">collection.liveUpdates( true | false )</h3>
+<p>Subscribe for the live data updates if an I/O endpoint supports it (<code>subscribe()</code>/<code>unsubscribe()</code> IOEndpoint methods).</p>
+<aside class="notice">
+No built-in I/O enpoints support that functionality yet.
+</aside>
+
+<h3 id="obj-haspendingio-">obj.hasPendingIO()</h3>
+<p>Returns an abortable promise if there&#39;s any I/O pending with the object, or <code>null</code> otherwise.</p>
+<p>Can be used to check for active I/O in progress or to abort pending I/O operation. Please note, that all pending I/O is aborted automatically when new I/O operation is started or an object is disposed. When I/O is aborted, the promise is rejected.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">const</span> promise = users.hasPendingIO();
+<span class="hljs-keyword">if</span>( promise &amp;&amp; promise.abort ) promise.abort();
+</code></pre>
+<h2 id="i-o-endpoints">I/O endpoints</h2>
+<h3 id="restfulio-url-options-">restfulIO( url, options? )</h3>
 <p>HTTP REST client endpoint. Requires <code>window.fetch</code> available natively or through the polyfill. Implements standard BackboneJS REST semantic.</p>
 <p>All I/O methods append an optional <code>options.params</code> object to the URL parameters translating them to string with <code>JSON.stringify()</code>.</p>
 <ul>
@@ -1137,7 +1181,7 @@ users
     }
 }
 </code></pre>
-<h3 id="endpoint-memoryio-mockdata-delay-"><code>endpoint</code> memoryIO( mockData?, delay? )</h3>
+<h3 id="memoryio-mockdata-delay-">memoryIO( mockData?, delay? )</h3>
 <p>Endpoint for mock testing. Takes optional array with mock data, and optional <code>delay</code> parameter which is the simulated I/O delay in milliseconds.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { memoryIO } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r/endpoints/memory'</span>
 
@@ -1146,7 +1190,7 @@ users
     ...
 }
 </code></pre>
-<h3 id="endpoint-localstorageio-key-"><code>endpoint</code> localStorageIO( key )</h3>
+<h3 id="localstorageio-key-">localStorageIO( key )</h3>
 <p>Endpoint for localStorage. Takes <code>key</code> parameter which must be unique for the persistent record&#39;s collection.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { localStorageIO } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r/endpoints/localStorage'</span>
 
@@ -1155,7 +1199,7 @@ users
     ...
 }
 </code></pre>
-<h3 id="endpoint-attributesio-"><code>endpoint</code> attributesIO()</h3>
+<h3 id="attributesio-">attributesIO()</h3>
 <p>Endpoint for I/O composition. Redirects record&#39;s <code>fetch()</code> request to its attributes and returns the combined abortable promise. Does not enable any other I/O methods and can be used with <code>record.fetch()</code> only.</p>
 <p>It&#39;s common pattern to use attributesIO endpoint in conjunction with Store to fetch all the data required by SPA page.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { localStorageIO } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r/endpoints/attributes'</span>
@@ -1171,7 +1215,7 @@ users
 const store = <span class="hljs-keyword">new</span> PageStore();
 store.fetch().then( <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> renderUI() );
 </code></pre>
-<h3 id="endpoint-proxyio-recordctor-"><code>endpoint</code> proxyIO( RecordCtor )</h3>
+<h3 id="proxyio-recordctor-">proxyIO( RecordCtor )</h3>
 <p>Create IO endpoint from the Record class. This endpoint is designed for use on the server side with a data layer managed by Type-R.</p>
 <p>Assuming that you have Type-R records with endpoints working with the database, you can create an endpoint which will use
 an existing Record subclass as a transport. This endpoint can be connected to the RESTful endpoint API on the server side which will serve JSON to the restfulIO endpoint on the client.</p>
@@ -1182,6 +1226,10 @@ an existing Record subclass as a transport. This endpoint can be connected to th
 
     const usersIO = proxyIO( User );
 </code></pre>
+<h2 id="ioendpoint-interface">IOEndpoint Interface</h2>
+<p>An IO endpoint is an &quot;plug-in&quot; abstraction representing the persistent collection of JSON objects, which is required to enable records and collections I/O API. There are several pre-defined endpoints included in Type-R package which can be used for HTTP REST I/O, mock testing, working with localStorage, and IO composition.</p>
+<p>You will need to define custom endpoint if you would like to implement or customize serialization transport for Type-R objects. Use built-in endpoints as an example and the starting boilerplate.</p>
+<p>All IOEndpoint methods might return standard Promises or abortable promises (created with <code>createIOPromise()</code>). An IOEndpoint instance is shared by all of the class instances it&#39;s attached to and therefore it&#39;s normally <em>must be stateless</em>.</p>
 <h3 id="endpoint-read-id-options-record-">endpoint.read( id, options, record )</h3>
 <p>Reads an object with a given id. Used by <code>record.fetch()</code> method. Must return JSON wrapped in abortable promise.</p>
 <h3 id="endpoint-update-id-json-options-record-">endpoint.update( id, json, options, record )</h3>
@@ -1217,40 +1265,8 @@ an existing Record subclass as a transport. This endpoint can be connected to th
     });
 });
 </code></pre>
-<h2 id="record-and-collection">Record and Collection</h2>
+<h2 id="serialization">Serialization</h2>
 <p>Record and Collection has a portion of common API related to the I/O and serialization.</p>
-<h3 id="static-endpoint"><code>static</code> endpoint</h3>
-<p>I/O endpoint declaration which should be used in Record or Collection definition to enable I/O API.</p>
-<p>If an endpoint is defined for the <code>MyRecord</code>, it&#39;s automatically defined for the corresponding <code>MyRecord.Collection</code> as well.</p>
-<h3 id="obj-haspendingio-">obj.hasPendingIO()</h3>
-<p>Returns an abortable promise if there&#39;s any I/O pending with the object, or <code>null</code> otherwise.</p>
-<p>Can be used to check for active I/O in progress or to abort pending I/O operation. Please note, that all pending I/O is aborted automatically when new I/O operation is started or an object is disposed. When I/O is aborted, the promise is rejected.</p>
-<pre><code class="highlight javascript"><span class="hljs-keyword">const</span> promise = users.hasPendingIO();
-<span class="hljs-keyword">if</span>( promise ) promise.abort();
-</code></pre>
-<h3 id="obj-getendpoint-">obj.getEndpoint()</h3>
-<p>Returns an object&#39;s IO endpoint. Normally, this is an endpoint which is defined in object&#39;s <code>static endpoint = ...</code> declaration, but it might be overridden by the parent&#39;s record using <code>Type.has.endpoint( ... )</code> attribute declaration.</p>
-<pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    <span class="hljs-keyword">static</span> endpoint = httpRestIO( <span class="hljs-string">'/api/users'</span> );
-    ...
-}
-
-@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserRole</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    <span class="hljs-keyword">static</span> endpoint = httpRestIO( <span class="hljs-string">'/api/roles'</span> );
-    <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-comment">// Use the relative path '/api/roles/:id/users'</span>
-        users : User.Collection.has.endpoint( httpRestIO( <span class="hljs-string">'./users'</span> ) ),
-        ...
-    }
-}
-
-<span class="hljs-keyword">const</span> role = <span class="hljs-keyword">new</span> UserRole();
-<span class="hljs-built_in">console</span>.assert( role.users.getEndpoint().rootUrl !== <span class="hljs-string">'/api.users'</span> );
-</code></pre>
-<aside class="warning">
-httpRestIO endpoint is not available yet and is planned to be implemented in v2.1
-</aside>
-
 <h3 id="obj-tojson-">obj.toJSON()</h3>
 <p>Serialize record or collection to JSON. Used internally by I/O methods. Can be overridden to customize serialization.</p>
 <p>Produces the JSON for the given record or collection and its aggregated members. Aggregation tree is serialized as nested JSON. Record corresponds to an object in JSON, while the collection is represented as an array of objects.</p>
@@ -1295,10 +1311,6 @@ book.set( bestSeller.toJSON(), { <span class="hljs-attr">parse</span> : <span cl
 Parsing can be controlled on per-attribute level with <b>Type.has.parse()</b> declaration.
 </aside>
 
-<h2 id="record-s-attribute-definitions">Record&#39;s attribute definitions</h2>
-<p>All aspects of I/O and serialization may be controlled on per-attribute level.</p>
-<h3 id="attrdef-type-has-endpoint-endpoint-"><code>attrDef</code> : Type.has.endpoint( <code>endpoint</code> )</h3>
-<p>Override or define an I/O endpoint for the attribute.</p>
 <h3 id="attrdef-type-has-tojson-false-"><code>attrDef</code> : Type.has.toJSON( false )</h3>
 <p>Do <em>not</em> serialize the specific attribute.</p>
 <h3 id="attrdef-type-has-tojson-value-name-json-"><code>attrDef</code> : Type.has.toJSON( ( value, name ) =&gt; json )</h3>
@@ -1312,32 +1324,6 @@ Parsing can be controlled on per-attribute level with <b>Type.has.parse()</b> de
                       .parse( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x === <span class="hljs-number">1</span> )
                       .toJSON( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x ? <span class="hljs-number">1</span> : <span class="hljs-number">0</span> );
 </code></pre>
-<h3 id="attrdef-record-from-sourcecollection-"><code>attrDef</code> : Record.from( <code>sourceCollection</code> )</h3>
-<p>Serializable reference to the record from the particular collection.
-Initialized as <code>null</code> and serialized as <code>record.id</code>. Is not recursively cloned, validated, or disposed. Used to model one-to-many relationships.</p>
-<p>Changes in shared record are not detected.</p>
-<p><code>sourceCollection</code> may be:</p>
-<ul>
-<li>the JS variable pointing to the collection singleton;</li>
-<li>the function returning the collection;</li>
-<li>the string with the dot-separated <em>relative object path</em> to the collection. It is resolved dynamically relative to the record&#39;s <code>this</code>. Following shortcuts may be used in path:<ul>
-<li><code>owner.path</code> (or <code>^path</code>) works as <code>() =&gt; this.getOwner().path</code>.</li>
-<li><code>store.path</code> (or <code>~path</code>) works as <code>() =&gt; this.getStore().path</code>.</li>
-</ul>
-</li>
-</ul>
-<pre><code class="highlight javascript">    @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">State</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-        items : Item.Collection,
-        <span class="hljs-attr">selected</span> : Record.from( <span class="hljs-string">'items'</span> ) <span class="hljs-comment">// Will resolve to `this.items`</span>
-    }
-</code></pre>
-<aside class="info">It's recommended to use ~paths and stores instead of ^paths.</aside>
-
-<h3 id="attrdef-collection-subsetof-sourcecollection-"><code>attrDef</code> : Collection.subsetOf( <code>sourceCollection</code> )</h3>
-<p>Serializable non-aggregating collection which is the subset of the particular collection. Serialized as an array of record ids. Used to model many-to-many relationships.</p>
-<p>The collection itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, or disposed.</p>
-<p><code>sourceCollection</code> is the same reference as used by <code>Record.from()</code>.</p>
-<h2 id="record">Record</h2>
 <h3 id="static-create-attrs-options-"><code>static</code> create( attrs, options )</h3>
 <p>Static factory function used internally by Type-R to create instances of the record.</p>
 <p>May be redefined in the abstract Record base class to make it serializable type.</p>
@@ -1368,62 +1354,34 @@ Initialized as <code>null</code> and serialized as <code>record.id</code>. Is no
     }
 }
 </code></pre>
-<h3 id="rec-fetch-options-">rec.fetch( options? )</h3>
-<p>Asynchronously fetch the record using <code>endpoint.read()</code> method. Returns an abortable ES6 promise.</p>
-<p>An endpoint must be defined for the record in order to use that method.</p>
-<h3 id="rec-save-options-">rec.save( options? )</h3>
-<p>Asynchronously save the record using <code>endpoint.create()</code> (if there are no id) or <code>endpoint.update()</code> (if id is present) method. Returns an abortable ES6 promise.</p>
-<p>An endpoint must be defined for the record in order to use that method.</p>
-<h3 id="rec-destroy-options-">rec.destroy( options? )</h3>
-<p>Asynchronously destroy the record using <code>endpoint.destroy()</code> method. Returns an abortable ES6 promise. The record is removed from the aggregating collection upon the completion of the I/O request.</p>
-<p>An endpoint must be defined for the record in order to use that method.</p>
-<h2 id="collection">Collection</h2>
-<h3 id="collection-createsubset-records-options-">collection.createSubset( records?, options? )</h3>
-<p>Create an instance of <code>Collection.subsetOf( collection )</code> type (non-aggregating serializable collection) which is the subset of the given collection. Takes the same arguments as the collection&#39;s constructor.</p>
-<aside class="notice">
-Records in the collection must have an `id` attribute populated to work properly with subsets.
-</aside>
-
-<h3 id="col-fetch-options-">col.fetch( options? )</h3>
-<p>Fetch the collection. Returns an abortable promise.</p>
-<p><code>options</code> accepts an optional <code>liveUpdates</code> parameter. When <code>true</code>, collection subscribes for the live updates when I/O is finished.</p>
-<h3 id="col-liveupdates-true-false-">col.liveUpdates( true | false )</h3>
-<p>Subscribe for the live data updates if an I/O endpoint supports it (<code>subscribe()</code>/<code>unsubscribe()</code> IOEndpoint methods).</p>
-<aside class="notice">
-No built-in I/O enpoints support that functionality yet.
-</aside>
-
-<h2 id="store">Store</h2>
-<p><code>Store</code> is the special kind of record which serves as a root for ~references.</p>
-<p>For all records inside of the store&#39;s aggregation tree <code>~attrName</code> will resolve to the attribute of the store class found with <code>record.getStore()</code> method. If there are no such an attribute in the store, the next available store upper in aggregation tree will be used (as regular records stores can be nested), or the default store if there are no one.</p>
-<aside class="notice">Stores in Type-R is _very different_ to stores in other framework. Pay attention.</aside>
-
-<p>Store is the subclass of the Record. It&#39;s defined extending the <code>Store</code> abstract base class. It behaves as a regular record in most aspects.</p>
-<h3 id="store-_defaultstore">store._defaultStore</h3>
-<p>Reference to the master store used for lookups if the current store doesn&#39;t have the required attribute and there are no other store found upper in the ownership chain.</p>
-<p>Defaults to the <code>Store.global</code>. May be explicitly defined to create custom store lookup chains across the ownership hierarchy.</p>
-<h3 id="static-store-global"><code>static</code> Store.global</h3>
-<p>The default singleton store class. Is always the last store to lookup when resolving ~reference.</p>
-<p>Use the default store for the <em>globally shared data only</em>. Each application page must have its local store.</p>
-<pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyStore</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Store</span> </span>{
-    <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">users</span> : User.Collection,
-        <span class="hljs-attr">roles</span> : Role.Collection
+<h2 id="normalized-data">Normalized data</h2>
+<p>Type-R has first-class support for working with normalized data represented as a set of collections with cross-references by record id. References are represented as record ids in JSON, and being transparently resolved to record instances on the first access.</p>
+<p><code>Store</code> class is the special record class which serves as a placeholder for the set of interlinked collections of normalized records. Id-references are defined as record attributes of the special type representing the serializable reference to the records from the specified master collection.</p>
+<h3 id="attrdef-record-from-sourcecollection-"><code>attrDef</code> : Record.from( <code>sourceCollection</code> )</h3>
+<p>Serializable reference to the record from the particular collection.
+Initialized as <code>null</code> and serialized as <code>record.id</code>. Is not recursively cloned, validated, or disposed. Used to model one-to-many relationships.</p>
+<p>Changes in shared record are not detected.</p>
+<p><code>sourceCollection</code> may be:</p>
+<ul>
+<li>the JS variable pointing to the collection singleton;</li>
+<li>the function returning the collection;</li>
+<li>the string with the dot-separated <em>relative object path</em> to the collection. It is resolved dynamically relative to the record&#39;s <code>this</code>. Following shortcuts may be used in path:<ul>
+<li><code>owner.path</code> (or <code>^path</code>) works as <code>() =&gt; this.getOwner().path</code>.</li>
+<li><code>store.path</code> (or <code>~path</code>) works as <code>() =&gt; this.getStore().path</code>.</li>
+</ul>
+</li>
+</ul>
+<pre><code class="highlight javascript">    @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">State</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+        items : Item.Collection,
+        <span class="hljs-attr">selected</span> : Record.from( <span class="hljs-string">'items'</span> ) <span class="hljs-comment">// Will resolve to `this.items`</span>
     }
-}
-
-Store.global = <span class="hljs-keyword">new</span> MyStore();
-
-<span class="hljs-comment">// Now the reference '~users` will point to users collection from the MyStore.</span>
 </code></pre>
-<h2 id="id-references">id-references</h2>
-<p>Id-reference is the special Record attribute type representing nested Record or Collection which is represented in JSON as <code>record.id</code> or array of ids respectively. The reference to locally available &quot;master&quot; collection must be attached to the type in order to resolve id-references properly.</p>
-<p>Master collection reference is the string with an object path which is resolved relative to the record.</p>
-<p>Id-references are being resolved to the real Records &quot;lazily&quot;, on the moment of first attribute read. Therefore, cross-references can be handled right.</p>
-<h3 id="attrdef-record-from-collectionfromstore-"><code>attrDef</code> : Record.from( &#39;~collectionFromStore&#39; )</h3>
-<p>Serializable reference to the record from the collection taken from the closest store found with <code>this.getStore()</code> call.</p>
-<h3 id="attrdef-collection-subsetof-collectionfromstore-"><code>attrDef</code> : Collection.subsetOf( <code>~collectionFromStore</code> )</h3>
-<p>Serializable collection of references to the records from the collection taken from the closest store found with <code>this.getStore()</code> call.</p>
+<aside class="info">It's recommended to use ~paths and stores instead of ^paths.</aside>
+
+<h3 id="attrdef-collection-subsetof-sourcecollection-"><code>attrDef</code> : Collection.subsetOf( <code>sourceCollection</code> )</h3>
+<p>Serializable non-aggregating collection which is the subset of the particular collection. Serialized as an array of record ids. Used to model many-to-many relationships.</p>
+<p>The collection itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, or disposed.</p>
+<p><code>sourceCollection</code> is the same reference as used by <code>Record.from()</code>.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Role</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
         <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span>,
@@ -1444,6 +1402,35 @@ Store.global = <span class="hljs-keyword">new</span> MyStore();
         <span class="hljs-attr">users</span> : User.Collection <span class="hljs-comment">// `~roles` references will be resolved against this.roles</span>
     }
 }
+</code></pre>
+<h3 id="collection-createsubset-records-options-">collection.createSubset( records?, options? )</h3>
+<p>Create an instance of <code>Collection.subsetOf( collection )</code> type (non-aggregating serializable collection) which is the subset of the given collection. Takes the same arguments as the collection&#39;s constructor.</p>
+<aside class="notice">
+Records in the collection must have an `id` attribute populated to work properly with subsets.
+</aside>
+
+<h3 id="class-store"><code>class</code> Store</h3>
+<p><code>Store</code> is the special kind of record which serves as a root for id references.</p>
+<p>For all records inside of the store&#39;s aggregation tree <code>~attrName</code> will resolve to the attribute of the store class found with <code>record.getStore()</code> method. If there are no such an attribute in the store, the next available store upper in aggregation tree will be used (as regular records stores can be nested), or the default store if there are no one.</p>
+<aside class="notice">Stores in Type-R is _very different_ to stores in other framework. Pay attention.</aside>
+
+<p>Store is the subclass of the Record. It&#39;s defined extending the <code>Store</code> abstract base class. It behaves as a regular record in most aspects.</p>
+<h3 id="store-_defaultstore">store._defaultStore</h3>
+<p>Reference to the master store used for lookups if the current store doesn&#39;t have the required attribute and there are no other store found upper in the ownership chain.</p>
+<p>Defaults to the <code>Store.global</code>. May be explicitly defined to create custom store lookup chains across the ownership hierarchy.</p>
+<h3 id="static-store-global"><code>static</code> Store.global</h3>
+<p>The default singleton store class. Is always the last store to lookup when resolving ~reference.</p>
+<p>Use the default store for the <em>globally shared data only</em>. Each application page must have its local store.</p>
+<pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyStore</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Store</span> </span>{
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">users</span> : User.Collection,
+        <span class="hljs-attr">roles</span> : Role.Collection
+    }
+}
+
+Store.global = <span class="hljs-keyword">new</span> MyStore();
+
+<span class="hljs-comment">// Now the reference '~users` will point to users collection from the MyStore.</span>
 </code></pre>
 <h3 id="recordorcollection-getstore-">recordOrCollection.getStore()</h3>
 <p>Return the closest store. Used internally to resolve symbolic <code>~reference</code> relative to the store.</p>
