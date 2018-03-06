@@ -30,6 +30,39 @@ An endpoint represents the persistent collection of records serialized to JSON. 
 
 All IOEndpoint methods must return abortable promises (created with `createIOPromise()`). An IOEndpoint instance is shared by all of the class instances it's attached to and therefore it's normally *must be stateless*.
 
+### `endpoint` restfulIO( url, options? )
+
+HTTP REST client endpoint. Requires `window.fetch` available natively or through the polyfill. Implements standard BackboneJS REST semantic.
+
+All I/O methods append an optional `options.params` object to the URL parameters translating them to string with `JSON.stringify()`.
+
+- `record.save()` makes:
+    - `POST url`, if the model has no id. Expects to receive `{ id : recordId }`.
+    - `PUT url/:id`, if the model has an id.
+- `collection.fetch()` makes `GET url`.
+- `record.destroy()` makes `DELETE url`.
+
+Supports URI relative to owner (`./relative/url` resolves as `/owner/:id/relative/url/:id` ).
+
+```javascript
+import { restfulIO } from 'type-r/endpoints/restful'
+
+@define class Role extends Record {
+    static endpoint = restfulIO( '/api/roles' );
+    ...
+}
+
+@define class User extends Record {
+    static endpoint = restfulIO( '/api/users' );
+    
+    static attributes = {
+        // Roles collection here has relative url /api/users/:user_id/roles/
+        roles : Role.Collection.has.endpoint( restfulIO( './roles' ) ), 
+        ...
+    }
+}
+```
+
 ### `endpoint` memoryIO( mockData?, delay? )
 
 Endpoint for mock testing. Takes optional array with mock data, and optional `delay` parameter which is the simulated I/O delay in milliseconds.
@@ -77,21 +110,22 @@ const store = new PageStore();
 store.fetch().then( () => renderUI() );
 ```
 
-### `endpoint` httpRestIO( url )
+### `endpoint` proxyIO( RecordCtor )
 
-<aside class="warning">
-Not implemented yet, is scheduled for v2.1
-</aside>
+Create IO endpoint from the Record class. This endpoint is designed for use on the server side with a data layer managed by Type-R.
 
-Simple HTTP REST endpoint.
+Assuming that you have Type-R records with endpoints working with the database, you can create an endpoint which will use
+an existing Record subclass as a transport. This endpoint can be connected to the RESTful endpoint API on the server side which will serve JSON to the restfulIO endpoint on the client.
 
-- `create()` makes `POST url`, expecting to receive `{ id : recordId }` or other object used to update the record.
-- `read()` makes `GET url/:id`.
-- `update()` makes `PUT url/:id`.
-- `destroy()` makes `DELETE url/:id`.
-- `list()` makes `GET url`.
+An advantage of this approach is that JSON schema will be transparently validated on the server side by the Type-R.
 
-All I/O methods append an optional `options.params` object to the URL parameters translating them to string using `JSON.stringify()`.
+```javascript
+    import { proxyIO } from 'type-r/endpoint/proxy'
+    
+    ...
+
+    const usersIO = proxyIO( User );
+```
 
 ### endpoint.read( id, options, record )
 
