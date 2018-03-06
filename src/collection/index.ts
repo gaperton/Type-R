@@ -191,7 +191,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
         }
     }
 
-    forEach( iteratee : ( val : R, key : number ) => void, context? : any ){
+    forEach( iteratee : ( val : R, key? : number ) => void, context? : any ){
         return this.each( iteratee, context );
     }
 
