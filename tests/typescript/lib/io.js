@@ -1,7 +1,7 @@
 import * as tslib_1 from "tslib";
 import "reflect-metadata";
 import "isomorphic-fetch";
-import { define, attr, prop, Record, Store, Collection } from 'type-r';
+import { define, attr, prop, Record, Store, type, Collection } from 'type-r';
 import { expect } from 'chai';
 import { memoryIO } from '../../../endpoints/memory';
 import { attributesIO } from '../../../endpoints/attributes';
@@ -126,9 +126,9 @@ describe('IO', function () {
             }
             TestStore.endpoint = attributesIO();
             TestStore.attributes = {
-                a: NoEndpoint.Collection.has.endpoint(memoryIO([{ id: "777" }])),
+                a: type(NoEndpoint.Collection).endpoint(memoryIO([{ id: "777" }])),
                 b: HasEndpoint.Collection,
-                c: HasEndpoint.Collection.has.endpoint(memoryIO([{ id: "555" }]))
+                c: type(HasEndpoint.Collection).endpoint(memoryIO([{ id: "555" }]))
             };
             TestStore = tslib_1.__decorate([
                 define

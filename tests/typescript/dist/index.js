@@ -1563,6 +1563,11 @@ var ChainableAttributeSpec = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(ChainableAttributeSpec.prototype, "as", {
+        get: function () { return this.asProp; },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(ChainableAttributeSpec.prototype, "isRequired", {
         get: function () {
             return this.metadata({ isRequired: true });
@@ -1632,6 +1637,14 @@ var ChainableAttributeSpec = (function () {
     return ChainableAttributeSpec;
 }());
 function emptyFunction() { }
+function type(spec) {
+    return spec instanceof ChainableAttributeSpec ? spec : new ChainableAttributeSpec({
+        type: spec,
+        value: spec._attribute.defaultValue,
+        hasCustomDefault: spec._attribute.defaultValue !== void 0
+    });
+    
+}
 Function.prototype.value = function (x) {
     return new ChainableAttributeSpec({ type: this, value: x, hasCustomDefault: true });
 };
@@ -1644,11 +1657,7 @@ Object.defineProperty(Function.prototype, 'asProp', {
 });
 Object.defineProperty(Function.prototype, 'has', {
     get: function () {
-        return this._has || new ChainableAttributeSpec({
-            type: this,
-            value: this._attribute.defaultValue,
-            hasCustomDefault: this._attribute.defaultValue !== void 0
-        });
+        return this._has || type(this);
     },
     set: function (value) { this._has = value; }
 });
@@ -1661,12 +1670,12 @@ function toAttributeOptions(spec) {
         attrSpec = spec;
     }
     else {
-        var type = inferType(spec);
-        if (type && type.prototype instanceof Transactional) {
-            attrSpec = type.shared.value(spec);
+        var type_1 = inferType(spec);
+        if (type_1 && type_1.prototype instanceof Transactional) {
+            attrSpec = type_1.shared.value(spec);
         }
         else {
-            attrSpec = new ChainableAttributeSpec({ type: type, value: spec, hasCustomDefault: true });
+            attrSpec = new ChainableAttributeSpec({ type: type_1, value: spec, hasCustomDefault: true });
         }
     }
     return attrSpec.options;
@@ -6686,7 +6695,7 @@ var test = test$1;
  * type utility
  */
 
-var type = typeDetect;
+var type$1 = typeDetect;
 
 /*!
  * expectTypes utility
@@ -6839,7 +6848,7 @@ var isNaN$1 = _isNaN;
 
 var utils = {
 	test: test,
-	type: type,
+	type: type$1,
 	expectTypes: expectTypes,
 	getMessage: getMessage,
 	getActual: getActual,
@@ -16184,15 +16193,15 @@ describe('Bugs from Volicon Observer', function () {
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
                 __decorate([
-                    attr(String.has.watcher(function (x) { return calls.push('inherited'); })),
+                    type(String).watcher(function (x) { return calls.push('inherited'); }).as,
                     __metadata("design:type", String)
                 ], Base.prototype, "inherited", void 0);
                 __decorate([
-                    attr(String.has.watcher('onNamedWatcher')),
+                    type(String).watcher('onNamedWatcher').as,
                     __metadata("design:type", String)
                 ], Base.prototype, "namedWatcher", void 0);
                 __decorate([
-                    attr(String.has.watcher(function (x) { return calls.push('base'); })),
+                    type(String).watcher(function (x) { return calls.push('base'); }).as,
                     __metadata("design:type", String)
                 ], Base.prototype, "overriden", void 0);
                 Base = __decorate([
@@ -16260,7 +16269,7 @@ describe('Bugs from Volicon Observer', function () {
             var SubEncoder = Record.extend({
                 defaults: {
                     Bitrate: BitrateModel,
-                    HistoryDepth: MinutesInterval.has.value(43800),
+                    HistoryDepth: type(MinutesInterval).value(43800),
                     BitrateAsString: null,
                     ResolutionHeight: Number,
                     ResolutionWidth: Number,
@@ -41240,9 +41249,9 @@ describe('IO', function () {
             }
             TestStore.endpoint = create$1();
             TestStore.attributes = {
-                a: NoEndpoint.Collection.has.endpoint(create([{ id: "777" }])),
+                a: type(NoEndpoint.Collection).endpoint(create([{ id: "777" }])),
                 b: HasEndpoint.Collection,
-                c: HasEndpoint.Collection.has.endpoint(create([{ id: "555" }]))
+                c: type(HasEndpoint.Collection).endpoint(create([{ id: "555" }]))
             };
             TestStore = __decorate([
                 define

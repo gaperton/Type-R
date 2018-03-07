@@ -1,5 +1,5 @@
 import "reflect-metadata"
-import { predefine, define, attr, prop, Record, Store, Collection } from 'type-r'
+import { predefine, define, attr, prop, Record, Store, type, Collection } from 'type-r'
 import { expect } from 'chai'
 import { MinutesInterval } from './common'
 
@@ -9,14 +9,12 @@ describe( 'Bugs from Volicon Observer', () =>{
             let calls = [];
 
             @define class Base extends Record {
-                @attr( String.has.watcher( x => calls.push( 'inherited' ) ) )
+                @type( String ).watcher( x => calls.push( 'inherited' ) ).as
                 inherited : string;
 
-                @attr( String.has.watcher( 'onNamedWatcher' ) )
-                namedWatcher : string;
+                @type( String ).watcher( 'onNamedWatcher' ).as namedWatcher : string;
 
-                @attr( String.has.watcher( x => calls.push( 'base' ) ) )
-                overriden : string;
+                @type( String ).watcher( x => calls.push( 'base' ) ).as overriden : string;
             }
 
             @define class Subclass extends Base {
@@ -90,7 +88,7 @@ describe( 'Bugs from Volicon Observer', () =>{
             const SubEncoder : any = Record.extend({
                 defaults :{
                     Bitrate: BitrateModel,
-                    HistoryDepth: MinutesInterval.has.value( 43800 ),
+                    HistoryDepth: type( MinutesInterval ).value( 43800 ),
                     BitrateAsString: null,
                     ResolutionHeight: Number,
                     ResolutionWidth: Number,

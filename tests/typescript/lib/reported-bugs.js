@@ -1,6 +1,6 @@
 import * as tslib_1 from "tslib";
 import "reflect-metadata";
-import { define, attr, Record, Collection } from 'type-r';
+import { define, attr, Record, type, Collection } from 'type-r';
 import { expect } from 'chai';
 import { MinutesInterval } from './common';
 describe('Bugs from Volicon Observer', function () {
@@ -13,15 +13,15 @@ describe('Bugs from Volicon Observer', function () {
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
                 tslib_1.__decorate([
-                    attr(String.has.watcher(function (x) { return calls.push('inherited'); })),
+                    type(String).watcher(function (x) { return calls.push('inherited'); }).as,
                     tslib_1.__metadata("design:type", String)
                 ], Base.prototype, "inherited", void 0);
                 tslib_1.__decorate([
-                    attr(String.has.watcher('onNamedWatcher')),
+                    type(String).watcher('onNamedWatcher').as,
                     tslib_1.__metadata("design:type", String)
                 ], Base.prototype, "namedWatcher", void 0);
                 tslib_1.__decorate([
-                    attr(String.has.watcher(function (x) { return calls.push('base'); })),
+                    type(String).watcher(function (x) { return calls.push('base'); }).as,
                     tslib_1.__metadata("design:type", String)
                 ], Base.prototype, "overriden", void 0);
                 Base = tslib_1.__decorate([
@@ -89,7 +89,7 @@ describe('Bugs from Volicon Observer', function () {
             var SubEncoder = Record.extend({
                 defaults: {
                     Bitrate: BitrateModel,
-                    HistoryDepth: MinutesInterval.has.value(43800),
+                    HistoryDepth: type(MinutesInterval).value(43800),
                     BitrateAsString: null,
                     ResolutionHeight: Number,
                     ResolutionWidth: Number,

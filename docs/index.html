@@ -354,14 +354,58 @@ alert(<span class="hljs-string">"Cake id: "</span> + cake.id);
 <pre><code class="highlight javascript"><span class="hljs-comment">// Declare the collection class.</span>
 @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Comments</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span>.<span class="hljs-title">Collection</span> </span>{}
 
-@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Comment</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span>(</span>{
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Comment</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span></span>{
     <span class="hljs-keyword">static</span> Collection = Comments; <span class="hljs-comment">// Make it the default Comment collection.</span>
 
-    attributes : {
+    <span class="hljs-keyword">static</span> attributes = {
         <span class="hljs-attr">text</span> : <span class="hljs-built_in">String</span>,
         <span class="hljs-attr">replies</span> : Comments
     }
-});
+}
+</code></pre>
+<h3 id="attrdef-type-has-and-type-type-"><code>attrDef</code> Type.has and type( Type )</h3>
+<p>Attribute definition can have different metadata attached which affects various aspects of attribute&#39;s behavior. Metadata is attached with
+a chain of calls after the <code>Ctor.has</code> property or <code>type( Ctor )</code> call. Attribute&#39;s default value is the most common example of such a metadata and is the single option which can be applied to the constructor function directly.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, type, Record }
+
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Dummy</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">a</span> : <span class="hljs-built_in">String</span>.has.value( <span class="hljs-string">"a"</span> ), <span class="hljs-comment">// Same as String.value( "a" )</span>
+        b : type( <span class="hljs-built_in">String</span> ).value( <span class="hljs-string">"a"</span> ) <span class="hljs-comment">// Same as above</span>
+    }
+}
+</code></pre>
+<h2 id="definitions-in-typescript">Definitions in TypeScript</h2>
+<p>Type-R implements experimental support for TypeScript record definitions.</p>
+<h3 id="decorator-attr"><code>decorator</code> @attr</h3>
+<p>The simplest form of attribute definition. Requires <code>reflect-metadata</code> npm package and <code>emitDecoratorMetadata</code> option set to true in the <code>tsconfig.json</code>.</p>
+<p>No metadata can be attached.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, attr, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
+
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    @attr name : string
+    @attr email : string
+}
+</code></pre>
+<h3 id="decorator-attr-attrdef-"><code>decorator</code> @attr( attrDef )</h3>
+<p>Long form of the attribute definition. Accepts arbitraty Type-R attribute definition as a parameter. Could be used if metadata must be attached to an attributed.
+Doesn&#39;t require <code>reflect-metadata</code> package.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, attr, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
+
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    @attr( <span class="hljs-built_in">String</span>.value( <span class="hljs-number">5</span> ) ) name : string
+    @attr( <span class="hljs-built_in">String</span>.has.toJSON( <span class="hljs-literal">false</span> ) ) email : string
+}
+</code></pre>
+<h3 id="decorator-type-ctor-as"><code>decorator</code> @type( Ctor ).as</h3>
+<p>Attribute definition has <code>.as</code> property which converts the definition to the attribute&#39;s decorator. Can be used in conjunction with <code>type()</code> function to provide an 
+alternative syntax for attribute definitions.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, type, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
+
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    @type( <span class="hljs-built_in">String</span> ).value( <span class="hljs-number">5</span> ).as name : string
+    @type( <span class="hljs-built_in">String</span> ).toJSON( <span class="hljs-literal">false</span> ).as email : string
+}
 </code></pre>
 <h2 id="create-and-dispose">Create and dispose</h2>
 <p>Record behaves as regular ES6 class with attributes accessible as properties.</p>

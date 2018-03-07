@@ -1,6 +1,6 @@
 import "reflect-metadata"
 import "isomorphic-fetch"
-import { predefine, define, attr, prop, Record, Store, Collection } from 'type-r'
+import { predefine, define, attr, prop, Record, Store, type, Collection } from 'type-r'
 import { expect } from 'chai'
 import { memoryIO } from '../../../endpoints/memory'
 import { attributesIO } from '../../../endpoints/attributes'
@@ -107,9 +107,9 @@ describe( 'IO', function(){
         @define class TestStore extends Store {
             static endpoint = attributesIO();
             static attributes = {
-                a : NoEndpoint.Collection.has.endpoint( memoryIO([{ id : "777" }]) ),
+                a : type( NoEndpoint.Collection ).endpoint( memoryIO([{ id : "777" }]) ),
                 b : HasEndpoint.Collection,
-                c : HasEndpoint.Collection.has.endpoint( memoryIO([{ id : "555" }]) )
+                c : type( HasEndpoint.Collection ).endpoint( memoryIO([{ id : "555" }]) )
             }
 
             a;
