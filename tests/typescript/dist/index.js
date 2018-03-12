@@ -401,9 +401,6 @@ var MixinsState = (function () {
             else if (appliedMixins.indexOf(mixin) < 0) {
                 appliedMixins.push(mixin);
                 if (typeof mixin === 'function') {
-                    if (getBaseClass(mixin) !== Object) {
-                        console.log('Mixin error');
-                    }
                     this.mergeObject(this.Class, mixin);
                     var sourceMixins = mixin.mixins;
                     if (sourceMixins) {
@@ -471,7 +468,7 @@ var dontMix = {
 };
 function forEachOwnProp(object, fun) {
     var ignore = dontMix[typeof object];
-    for (var _i = 0, _a = Object.getOwnPropertyNames(object); _i < _a.length; _i++) {
+    for (var _i = 0, _a = Object.keys(object); _i < _a.length; _i++) {
         var name_2 = _a[_i];
         ignore[name_2] || fun(name_2);
     }
@@ -16399,6 +16396,42 @@ describe('Bugs from Volicon Observer', function () {
             }(A));
             var b = new B({ b: "b" }), a = new A({ a: "a" });
             b.assignFrom(a);
+        });
+    });
+    describe('Mixins', function () {
+        it('can work with overriden atribute', function () {
+            var Source = (function (_super) {
+                __extends(Source, _super);
+                function Source() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                __decorate([
+                    attr,
+                    __metadata("design:type", String)
+                ], Source.prototype, "name", void 0);
+                Source = __decorate([
+                    define
+                ], Source);
+                return Source;
+            }(Record));
+            var Target = (function (_super) {
+                __extends(Target, _super);
+                function Target() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                __decorate([
+                    attr,
+                    __metadata("design:type", Number)
+                ], Target.prototype, "name", void 0);
+                Target = __decorate([
+                    define,
+                    mixins(Source)
+                ], Target);
+                return Target;
+            }(Record));
+            var t = new Target();
+            t.name = "1";
+            chai_1(t.name).to.eql(1);
         });
     });
 });

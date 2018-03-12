@@ -1,6 +1,6 @@
 import * as tslib_1 from "tslib";
 import "reflect-metadata";
-import { define, attr, Record, type, Collection } from 'type-r';
+import { define, attr, mixins, Record, type, Collection } from 'type-r';
 import { expect } from 'chai';
 import { MinutesInterval } from './common';
 describe('Bugs from Volicon Observer', function () {
@@ -219,6 +219,42 @@ describe('Bugs from Volicon Observer', function () {
             }(A));
             var b = new B({ b: "b" }), a = new A({ a: "a" });
             b.assignFrom(a);
+        });
+    });
+    describe('Mixins', function () {
+        it('can work with overriden atribute', function () {
+            var Source = (function (_super) {
+                tslib_1.__extends(Source, _super);
+                function Source() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                tslib_1.__decorate([
+                    attr,
+                    tslib_1.__metadata("design:type", String)
+                ], Source.prototype, "name", void 0);
+                Source = tslib_1.__decorate([
+                    define
+                ], Source);
+                return Source;
+            }(Record));
+            var Target = (function (_super) {
+                tslib_1.__extends(Target, _super);
+                function Target() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                tslib_1.__decorate([
+                    attr,
+                    tslib_1.__metadata("design:type", Number)
+                ], Target.prototype, "name", void 0);
+                Target = tslib_1.__decorate([
+                    define,
+                    mixins(Source)
+                ], Target);
+                return Target;
+            }(Record));
+            var t = new Target();
+            t.name = "1";
+            expect(t.name).to.eql(1);
         });
     });
 });

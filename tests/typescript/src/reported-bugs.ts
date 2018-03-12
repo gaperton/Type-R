@@ -1,5 +1,5 @@
 import "reflect-metadata"
-import { predefine, define, attr, prop, Record, Store, type, Collection } from 'type-r'
+import { predefine, define, attr, mixins, prop, Record, Store, type, Collection } from 'type-r'
 import { expect } from 'chai'
 import { MinutesInterval } from './common'
 
@@ -188,6 +188,25 @@ describe( 'Bugs from Volicon Observer', () =>{
 
             const b = new B({ b : "b" }), a = new A({ a : "a" });
             b.assignFrom( a );
+        });
+    });
+
+    describe( 'Mixins', () => {
+        it( 'can work with overriden atribute', ()=>{
+            @define class Source extends Record {
+                @attr name : string
+            }
+
+            @define
+            @mixins( Source )
+            class Target extends Record {
+                @attr name : number
+            }
+
+            const t = new Target();
+            t.name = "1" as any;
+
+            expect( t.name ).to.eql( 1 );
         });
     });
 } );
