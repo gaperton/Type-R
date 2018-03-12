@@ -195,18 +195,24 @@ describe( 'Bugs from Volicon Observer', () =>{
         it( 'can work with overriden atribute', ()=>{
             @define class Source extends Record {
                 @attr name : string
+
+                get hi(){
+                    return 'hi';
+                }
             }
 
             @define
             @mixins( Source )
             class Target extends Record {
                 @attr name : number
+                hi : string
             }
 
             const t = new Target();
             t.name = "1" as any;
 
             expect( t.name ).to.eql( 1 );
+            expect( t.hi ).to.eql( 'hi' );
         });
     });
 } );

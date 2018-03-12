@@ -228,6 +228,13 @@ describe('Bugs from Volicon Observer', function () {
                 function Source() {
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
+                Object.defineProperty(Source.prototype, "hi", {
+                    get: function () {
+                        return 'hi';
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
                 tslib_1.__decorate([
                     attr,
                     tslib_1.__metadata("design:type", String)
@@ -255,6 +262,7 @@ describe('Bugs from Volicon Observer', function () {
             var t = new Target();
             t.name = "1";
             expect(t.name).to.eql(1);
+            expect(t.hi).to.eql('hi');
         });
     });
 });
