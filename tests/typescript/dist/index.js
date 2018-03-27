@@ -2134,6 +2134,7 @@ var IORecordMixin = {
             else {
                 _this.dispose();
             }
+            return _this;
         });
     }
 };
@@ -3094,7 +3095,7 @@ var Collection = (function (_super) {
                 },
                 removed: function (id) { return _this.remove(id); }
             };
-            return this.getEndpoint().subscribe(this._liveUpdates, this);
+            return this.getEndpoint().subscribe(this._liveUpdates, this).then(function () { return _this; });
         }
         else {
             if (this._liveUpdates) {
