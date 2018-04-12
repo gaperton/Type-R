@@ -38883,6 +38883,7 @@ var lib = {
 
 
 
+
 var match_body =
 function matchBody(spec, body) {
   if (typeof spec === 'undefined') {
@@ -38894,10 +38895,14 @@ function matchBody(spec, body) {
     body = body.toString();
   }
 
-  var contentType = options.headers && (options.headers['Content-Type'] ||
-                                        options.headers['content-type']);
+  var contentType = (
+    options.headers &&
+    (options.headers['Content-Type'] || options.headers['content-type']) ||
+    ''
+  ).toString();
 
-  var isMultipart = contentType && contentType.toString().match(/multipart/);
+  var isMultipart = contentType.indexOf('multipart') >= 0;
+  var isUrlencoded = contentType.indexOf('application/x-www-form-urlencoded') >= 0;
 
   // try to transform body to json
   var json;
@@ -38905,10 +38910,8 @@ function matchBody(spec, body) {
     try { json = JSON.parse(body);} catch(err) {}
     if (json !== undefined) {
       body = json;
-    } else {
-      if (contentType && contentType.toString().match(/application\/x-www-form-urlencoded/)) {
-        body = lib.parse(body, { allowDots: true });
-      }
+    } else if (isUrlencoded) {
+      body = lib.parse(body, { allowDots: true });
     }
   }
 
@@ -38934,8 +38937,36 @@ function matchBody(spec, body) {
     spec = spec.replace(/\r?\n|\r/g, '');
   }
 
+  if (isUrlencoded) {
+    spec = mapValuesDeep(spec, function(val) {
+      if (lodash.isRegExp(val)) {
+        return val
+      }
+      return val + ''
+    });
+  }
+
   return deepEqualExtended(spec, body);
 };
+
+
+/**
+ * Based on lodash issue discussion
+ * https://github.com/lodash/lodash/issues/1244
+ */
+function mapValuesDeep(obj, cb) {
+  if (lodash.isArray(obj)) {
+    return obj.map(function(v) {
+      return mapValuesDeep(v, cb)
+    })
+  }
+  if (lodash.isPlainObject(obj)) {
+    return lodash.mapValues(obj, function(v) {
+      return mapValuesDeep(v, cb)
+    })
+  }
+  return cb(obj)
+}
 
 function deepEqualExtended(spec, body) {
   if (spec && spec.constructor === RegExp) {
