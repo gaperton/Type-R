@@ -284,7 +284,7 @@ const dontMix = {
 function forEachOwnProp( object : object, fun : ( name : string ) => void ){
     const ignore = dontMix[ typeof object ];
 
-    for( let name of Object.keys( object ) ) {
+    for( let name of Object.getOwnPropertyNames( object ) ) {
         ignore[ name ] || fun( name );
     }
 }

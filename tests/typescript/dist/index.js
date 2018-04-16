@@ -468,7 +468,7 @@ var dontMix = {
 };
 function forEachOwnProp(object, fun) {
     var ignore = dontMix[typeof object];
-    for (var _i = 0, _a = Object.keys(object); _i < _a.length; _i++) {
+    for (var _i = 0, _a = Object.getOwnPropertyNames(object); _i < _a.length; _i++) {
         var name_2 = _a[_i];
         ignore[name_2] || fun(name_2);
     }
@@ -847,7 +847,7 @@ var Messenger = (function () {
 var Events = omit(Messenger.prototype, 'constructor', 'initialize');
 function toPropertyDescriptor(x) {
     if (x) {
-        return typeof x === 'function' ? { get: x } : x;
+        return typeof x === 'function' ? { get: x, configurable: true } : x;
     }
 }
 function addReference(listener, source) {
@@ -1384,7 +1384,8 @@ var AnyType = (function () {
                     function () {
                         return getHook.call(this, this.attributes[name], name);
                     } :
-                    function () { return this.attributes[name]; })
+                    function () { return this.attributes[name]; }),
+                configurable: true
             };
         }
     };
@@ -3284,6 +3285,20 @@ function toPredicateFunction(iteratee, context) {
     }
     return bindContext(iteratee, context);
 }
+var CollectionIterator = (function () {
+    function CollectionIterator(collection) {
+        this.collection = collection;
+        this.idx = 0;
+    }
+    CollectionIterator.prototype.next = function () {
+        var done = this.idx === this.collection.length;
+        return {
+            done: done,
+            value: done ? this.collection[this.idx++] : void 0
+        };
+    };
+    return CollectionIterator;
+}());
 
 function parseReference(collectionRef) {
     switch (typeof collectionRef) {
@@ -14208,383 +14223,302 @@ var chai = chai$2;
 
 var chai_1 = chai.expect;
 
-var M = {
+const M = {
     num: 1,
     nul: null,
     undef: void 0,
     obj: { hi: 'there' },
-    fun: function () { },
+    fun() { },
     arr: [],
-    fwd: function (arr) { arr.push("M"); },
-    bck: function (arr) { arr.push("M"); }
+    fwd(arr) { arr.push("M"); },
+    bck(arr) { arr.push("M"); }
 };
-var C = (function () {
-    function C() {
-    }
-    C.prototype.b = function () { };
-    C.prototype.fwd = function (arr) { arr.push("C"); };
-    C.prototype.bck = function (arr) { arr.push("C"); };
-    C.a = 1;
-    return C;
-}());
-describe("Forward declarations", function () {
-    it('@predefine calls onExtend hook', function () {
-        var called = 0;
-        var X = (function () {
-            function X() {
-            }
-            X.onExtend = function (BaseClass) {
+class C {
+    b() { }
+    fwd(arr) { arr.push("C"); }
+    bck(arr) { arr.push("C"); }
+}
+C.a = 1;
+describe("Forward declarations", () => {
+    it('@predefine calls onExtend hook', () => {
+        let called = 0;
+        let X = class X {
+            static onExtend(BaseClass) {
                 chai_1(BaseClass).to.eql(Object);
                 called++;
-            };
-            X = __decorate([
-                predefine
-            ], X);
-            return X;
-        }());
+            }
+        };
+        X = __decorate([
+            predefine
+        ], X);
         chai_1(called).to.eql(1);
     });
 });
-describe("@define decorator", function () {
-    it('@define makes plain class mixable', function () {
-        var X = (function () {
-            function X() {
-            }
-            X = __decorate([
-                define
-            ], X);
-            return X;
-        }());
+describe("@define decorator", () => {
+    it('@define makes plain class mixable', () => {
+        let X = class X {
+        };
+        X = __decorate([
+            define
+        ], X);
         chai_1(X.define).to.exist;
     });
-    it('@define calls onDefine hook', function () {
-        var called = 0;
-        var X = (function () {
-            function X() {
-            }
-            X.onDefine = function (spec, BaseClass) {
+    it('@define calls onDefine hook', () => {
+        let called = 0;
+        let X = class X {
+            static onDefine(spec, BaseClass) {
                 called++;
                 chai_1(spec).to.eql({});
                 chai_1(BaseClass).to.eql(Object);
-            };
-            X = __decorate([
-                define({ a: 1 })
-            ], X);
-            return X;
-        }());
+            }
+        };
+        X = __decorate([
+            define({ a: 1 })
+        ], X);
         chai_1(X.define).to.exist;
         chai_1(called).to.eql(1);
     });
-    it('@define does nothing when extend mixable', function () {
-        var X = (function (_super) {
-            __extends(X, _super);
-            function X() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            X = __decorate([
-                define
-            ], X);
-            return X;
-        }(Mixable));
+    it('@define does nothing when extend mixable', () => {
+        let X = class X extends Mixable {
+        };
+        X = __decorate([
+            define
+        ], X);
         chai_1(X.__super__).to.eql(Mixable.prototype);
     });
-    it('@define( props ) assign members to class proto', function () {
-        var X = (function () {
-            function X() {
-            }
-            X.prototype.a = function () { };
-            X = __decorate([
-                define({
-                    a: 1,
-                    b: 2
-                })
-            ], X);
-            return X;
-        }());
+    it('@define( props ) assign members to class proto', () => {
+        let X = class X {
+            a() { }
+        };
+        X = __decorate([
+            define({
+                a: 1,
+                b: 2
+            })
+        ], X);
         chai_1(X.prototype.b).to.eql(2);
         chai_1(X.prototype.a).to.eql(1);
     });
-    it('Mixable.extend creates the subclass', function () {
-        var X = Mixable.extend({ a: 5 });
-        var x = new X();
+    it('Mixable.extend creates the subclass', () => {
+        const X = Mixable.extend({ a: 5 });
+        const x = new X();
         chai_1(x.a).to.eql(5);
         chai_1(x).to.be.instanceof(Mixable);
     });
-    it('allows toString() and valueOf() override', function () {
-        var Base = (function (_super) {
-            __extends(Base, _super);
-            function Base() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            Base.prototype.toString = function () { return "base"; };
-            Base.prototype.valueOf = function () { return 'base'; };
-            Base = __decorate([
-                define
-            ], Base);
-            return Base;
-        }(Mixable));
-        var Sub = (function (_super) {
-            __extends(Sub, _super);
-            function Sub() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            Sub.prototype.toString = function () { return "sub"; };
-            Sub.prototype.valueOf = function () { return 'sub'; };
-            Sub = __decorate([
-                define
-            ], Sub);
-            return Sub;
-        }(Base));
-        var base = new Base(), sub = new Sub();
+    it('allows toString() and valueOf() override', () => {
+        let Base = class Base extends Mixable {
+            toString() { return "base"; }
+            valueOf() { return 'base'; }
+        };
+        Base = __decorate([
+            define
+        ], Base);
+        let Sub = class Sub extends Base {
+            toString() { return "sub"; }
+            valueOf() { return 'sub'; }
+        };
+        Sub = __decorate([
+            define
+        ], Sub);
+        const base = new Base(), sub = new Sub();
         chai_1(base.toString()).to.eql('base');
         chai_1(base.valueOf()).to.eql('base');
         chai_1(sub.toString()).to.eql('sub');
         chai_1(sub.valueOf()).to.eql('sub');
     });
-    it('allows toString() and valueOf() override with .extend()', function () {
-        var Base = Mixable.extend({
-            toString: function () { return "base"; },
-            valueOf: function () { return 'base'; }
+    it('allows toString() and valueOf() override with .extend()', () => {
+        const Base = Mixable.extend({
+            toString() { return "base"; },
+            valueOf() { return 'base'; }
         });
-        var Sub = Base.extend({
-            toString: function () { return "sub"; },
-            valueOf: function () { return 'sub'; }
+        const Sub = Base.extend({
+            toString() { return "sub"; },
+            valueOf() { return 'sub'; }
         });
-        var base = new Base(), sub = new Sub();
+        const base = new Base(), sub = new Sub();
         chai_1(base.toString()).to.eql('base');
         chai_1(base.valueOf()).to.eql('base');
         chai_1(sub.toString()).to.eql('sub');
         chai_1(sub.valueOf()).to.eql('sub');
     });
-    it("gives priority to the class definition", function () {
-        var X = (function (_super) {
-            __extends(X, _super);
-            function X() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            X.prototype.nul = function () { };
-            X = __decorate([
-                define({
-                    undef: 1
-                }),
-                mixins(M)
-            ], X);
-            return X;
-        }(Mixable));
+    it("gives priority to the class definition", () => {
+        let X = class X extends Mixable {
+            nul() { }
+        };
+        X = __decorate([
+            define({
+                undef: 1
+            }),
+            mixins(M)
+        ], X);
         chai_1(X.prototype.nul).to.be.instanceof(Function);
         chai_1(X.prototype.undef).to.be.eql(1);
     });
 });
-describe('@mixins', function () {
-    it("merges in the plain objects", function () {
-        var X = (function (_super) {
-            __extends(X, _super);
-            function X() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            X = __decorate([
-                define,
-                mixins(M)
-            ], X);
-            return X;
-        }(Mixable));
+describe('@mixins', () => {
+    it("merges in the plain objects", () => {
+        let X = class X extends Mixable {
+        };
+        X = __decorate([
+            define,
+            mixins(M)
+        ], X);
         chai_1(X.prototype).to.contain(M);
     });
-    it("don't merge same mixin twice", function () {
-        var X = (function (_super) {
-            __extends(X, _super);
-            function X() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            X = __decorate([
-                define,
-                mixins(M, M)
-            ], X);
-            return X;
-        }(Mixable));
+    it("don't merge same mixin twice", () => {
+        let X = class X extends Mixable {
+        };
+        X = __decorate([
+            define,
+            mixins(M, M)
+        ], X);
         chai_1(X.mixins.appliedMixins.length).to.equal(1);
-        var Y = (function (_super) {
-            __extends(Y, _super);
-            function Y() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            Y = __decorate([
-                define, mixins(M)
-            ], Y);
-            return Y;
-        }(X));
+        let Y = class Y extends X {
+        };
+        Y = __decorate([
+            define, mixins(M)
+        ], Y);
         chai_1(Y.mixins.appliedMixins.length).to.equal(1);
     });
-    it("mix in classes", function () {
-        var X = (function () {
-            function X() {
-            }
-            X = __decorate([
-                define, mixins(C)
-            ], X);
-            return X;
-        }());
-        var x = new X();
+    it("mix in classes", () => {
+        let X = class X {
+        };
+        X = __decorate([
+            define, mixins(C)
+        ], X);
+        const x = new X();
         chai_1(X.a).to.eql(1);
         chai_1(x.b).to.be.instanceof(Function);
     });
-    it("mix in sequence", function () {
-        var A = { a: 1, b: 1 }, B = { a: 2 };
-        var X = (function () {
-            function X() {
-            }
-            X = __decorate([
-                define, mixins(B, A)
-            ], X);
-            return X;
-        }());
-        var x = new X();
+    it("mix in sequence", () => {
+        const A = { a: 1, b: 1 }, B = { a: 2 };
+        let X = class X {
+        };
+        X = __decorate([
+            define, mixins(B, A)
+        ], X);
+        const x = new X();
         chai_1(x.a).to.eql(2);
         chai_1(x.b).to.eql(1);
     });
-    it('merge methods from mixin if they are not locally defined', function () {
-        var Base = (function () {
-            function Base() {
-            }
-            Base.prototype.first = function () { };
-            Base = __decorate([
-                define
-            ], Base);
-            return Base;
-        }());
-        var Mix = {
-            first: function () { },
-            second: function () { }
+    it('merge methods from mixin if they are not locally defined', () => {
+        let Base = class Base {
+            first() { }
         };
-        var Y = (function (_super) {
-            __extends(Y, _super);
-            function Y() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            Y.prototype.second = function () { };
-            Y = __decorate([
-                define, mixins(Mix)
-            ], Y);
-            return Y;
-        }(Base));
+        Base = __decorate([
+            define
+        ], Base);
+        const Mix = {
+            first() { },
+            second() { }
+        };
+        let Y = class Y extends Base {
+            second() { }
+        };
+        Y = __decorate([
+            define, mixins(Mix)
+        ], Y);
         chai_1(Y.prototype.second).to.not.eql(Mix.second);
         chai_1(Y.prototype.first).to.eql(Mix.first);
     });
 });
-describe('mixin rules', function () {
-    var X = (function () {
-        function X() {
-        }
-        X = __decorate([
-            define,
-            mixins(M, C),
-            mixinRules({
-                fwd: mixinRules.classFirst,
-                bck: mixinRules.classLast
-            })
-        ], X);
-        return X;
-    }());
-    it('chains functions when merge rules are defined', function () {
-        var x = new X();
-        var fwda = [], bcka = [];
+describe('mixin rules', () => {
+    let X = class X {
+    };
+    X = __decorate([
+        define,
+        mixins(M, C),
+        mixinRules({
+            fwd: mixinRules.classFirst,
+            bck: mixinRules.classLast
+        })
+    ], X);
+    it('chains functions when merge rules are defined', () => {
+        const x = new X();
+        const fwda = [], bcka = [];
         x.fwd(fwda);
         chai_1(fwda).to.have.ordered.members(["M", "C"]);
         x.bck(bcka);
         chai_1(bcka).to.have.ordered.members(["C", "M"]);
     });
-    it('chains function on inheritance', function () {
-        var Y = (function (_super) {
-            __extends(Y, _super);
-            function Y() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            Y.prototype.fwd = function (arr) { arr.push('Y'); };
-            Y.prototype.bck = function (arr) { arr.push('Y'); };
-            Y = __decorate([
-                define,
-                mixins({
-                    fwd: function (arr) { arr.push('Z'); },
-                    bck: function (arr) { arr.push('Z'); }
-                })
-            ], Y);
-            return Y;
-        }(X));
-        var y = new Y();
-        var fwda = [], bcka = [];
+    it('chains function on inheritance', () => {
+        let Y = class Y extends X {
+            fwd(arr) { arr.push('Y'); }
+            bck(arr) { arr.push('Y'); }
+        };
+        Y = __decorate([
+            define,
+            mixins({
+                fwd(arr) { arr.push('Z'); },
+                bck(arr) { arr.push('Z'); }
+            })
+        ], Y);
+        const y = new Y();
+        const fwda = [], bcka = [];
         y.fwd(fwda);
         chai_1(fwda).to.have.ordered.members(["Y", "Z", "M", "C"]);
         y.bck(bcka);
         chai_1(bcka).to.have.ordered.members(["C", "M", "Z", "Y"]);
     });
 });
-describe('@definitions', function () {
-    it('extract definitions from statics', function () {
-        var Y = (function () {
-            function Y() {
-            }
-            Y.onDefine = function (spec) {
+describe('@definitions', () => {
+    it('extract definitions from statics', () => {
+        let Y = class Y {
+            static onDefine(spec) {
                 chai_1(spec).to.deep.equal({ a: 'a', b: { a: 1 } });
                 this.prototype.zzz = 'Hurrah!';
-            };
-            Y.a = 'a';
-            Y.b = { a: 1 };
-            Y = __decorate([
-                define,
-                definitions({
-                    a: mixinRules.value,
-                    b: mixinRules.merge
-                })
-            ], Y);
-            return Y;
-        }());
-    });
-    it('extract definitions from @define parameter', function () {
-        var Y = (function () {
-            function Y() {
             }
-            Y.onDefine = function (spec) {
+        };
+        Y.a = 'a';
+        Y.b = { a: 1 };
+        Y = __decorate([
+            define,
+            definitions({
+                a: mixinRules.value,
+                b: mixinRules.merge
+            })
+        ], Y);
+    });
+    it('extract definitions from @define parameter', () => {
+        let Y = class Y {
+            static onDefine(spec) {
                 chai_1(spec).to.deep.equal({ a: 'a', b: { a: 1 } });
                 this.prototype.zzz = 'Hurrah!';
-            };
-            Y = __decorate([
-                define({
-                    a: 'a',
-                    b: { a: 1 }
-                }),
-                definitions({
-                    a: mixinRules.value,
-                    b: mixinRules.merge
-                })
-            ], Y);
-            return Y;
-        }());
-    });
-    it('extract definitions from mixins', function () {
-        var Y = (function () {
-            function Y() {
             }
-            Y.onDefine = function (spec) {
+        };
+        Y = __decorate([
+            define({
+                a: 'a',
+                b: { a: 1 }
+            }),
+            definitions({
+                a: mixinRules.value,
+                b: mixinRules.merge
+            })
+        ], Y);
+    });
+    it('extract definitions from mixins', () => {
+        let Y = class Y {
+            static onDefine(spec) {
                 chai_1(spec).to.deep.equal({ a: 'a', b: { a: 1, b: 1, c: 1 } });
                 this.prototype.zzz = 'Hurrah!';
-            };
-            Y.b = { c: 1 };
-            Y = __decorate([
-                define({
-                    a: 'a',
-                    b: { a: 1 }
-                }),
-                mixins({
-                    a: 'no',
-                    b: { b: 1, a: 2 }
-                }),
-                definitions({
-                    a: mixinRules.value,
-                    b: mixinRules.merge
-                })
-            ], Y);
-            return Y;
-        }());
+            }
+        };
+        Y.b = { c: 1 };
+        Y = __decorate([
+            define({
+                a: 'a',
+                b: { a: 1 }
+            }),
+            mixins({
+                a: 'no',
+                b: { b: 1, a: 2 }
+            }),
+            definitions({
+                a: mixinRules.value,
+                b: mixinRules.merge
+            })
+        ], Y);
     });
 });
 
@@ -15720,65 +15654,55 @@ var Reflect$1;
     });
 })(Reflect$1 || (Reflect$1 = {}));
 
-describe('Record', function () {
-    it("can be instantiated", function () {
+describe('Record', () => {
+    it("can be instantiated", () => {
         new Record();
     });
-    describe('Subclass', function () {
-        it("attaches properties to prototype", function () {
-            var M = (function (_super) {
-                __extends(M, _super);
-                function M() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                M = __decorate([
-                    define({
-                        a: 'a'
-                    })
-                ], M);
-                return M;
-            }(Record));
+    describe('Subclass', () => {
+        it("attaches properties to prototype", () => {
+            let M = class M extends Record {
+            };
+            M = __decorate([
+                define({
+                    a: 'a'
+                })
+            ], M);
             chai_1(M.prototype.a).to.eql('a');
         });
     });
-    describe("Attribute spec", function () {
-        describe('...as constructors', function () {
-            var M = (function (_super) {
-                __extends(M, _super);
-                function M() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                __decorate([
-                    attr(String),
-                    __metadata("design:type", Object)
-                ], M.prototype, "s", void 0);
-                __decorate([
-                    attr(Number),
-                    __metadata("design:type", Object)
-                ], M.prototype, "n", void 0);
-                __decorate([
-                    attr(Boolean),
-                    __metadata("design:type", Object)
-                ], M.prototype, "b", void 0);
-                __decorate([
-                    attr(Object),
-                    __metadata("design:type", Object)
-                ], M.prototype, "o", void 0);
-                __decorate([
-                    attr(Array),
-                    __metadata("design:type", Object)
-                ], M.prototype, "a", void 0);
-                __decorate([
-                    attr,
-                    __metadata("design:type", Date)
-                ], M.prototype, "d", void 0);
-                M = __decorate([
-                    define
-                ], M);
-                return M;
-            }(Record));
-            it("invokes constructor to create defaults", function () {
-                var m = new M();
+    describe("Attribute spec", () => {
+        describe('...as constructors', () => {
+            let M = class M extends Record {
+            };
+            __decorate([
+                attr(String),
+                __metadata("design:type", Object)
+            ], M.prototype, "s", void 0);
+            __decorate([
+                attr(Number),
+                __metadata("design:type", Object)
+            ], M.prototype, "n", void 0);
+            __decorate([
+                attr(Boolean),
+                __metadata("design:type", Object)
+            ], M.prototype, "b", void 0);
+            __decorate([
+                attr(Object),
+                __metadata("design:type", Object)
+            ], M.prototype, "o", void 0);
+            __decorate([
+                attr(Array),
+                __metadata("design:type", Object)
+            ], M.prototype, "a", void 0);
+            __decorate([
+                attr,
+                __metadata("design:type", Date)
+            ], M.prototype, "d", void 0);
+            M = __decorate([
+                define
+            ], M);
+            it("invokes constructor to create defaults", () => {
+                const m = new M();
                 chai_1(m.s).to.equal('');
                 chai_1(m.n).to.equal(0);
                 chai_1(m.b).to.equal(false);
@@ -15786,8 +15710,8 @@ describe('Record', function () {
                 chai_1(m.a).to.eql([]);
                 chai_1(m.d).to.be.instanceof(Date);
             });
-            it("convert values to defined type in 'new'", function () {
-                var m = new M({
+            it("convert values to defined type in 'new'", () => {
+                const m = new M({
                     s: 55,
                     n: "1",
                     b: 'not bool',
@@ -15802,8 +15726,8 @@ describe('Record', function () {
                 chai_1(m.a).to.eql([]);
                 chai_1(m.d).to.be.instanceof(Date);
             });
-            it("convert values to defined types on assignment", function () {
-                var m = new M();
+            it("convert values to defined types on assignment", () => {
+                const m = new M();
                 m.s = 55;
                 m.n = "1";
                 m.b = 'not bool';
@@ -15817,8 +15741,8 @@ describe('Record', function () {
                 chai_1(m.a).to.eql([]);
                 chai_1(m.d).to.be.instanceof(Date);
             });
-            it("convert values to defined types on set", function () {
-                var m = new M();
+            it("convert values to defined types on set", () => {
+                const m = new M();
                 m.set({
                     s: 55,
                     n: "1",
@@ -15835,49 +15759,46 @@ describe('Record', function () {
                 chai_1(m.d).to.be.instanceof(Date);
             });
         });
-        describe('...as default values', function () {
-            var M = (function (_super) {
-                __extends(M, _super);
-                function M() {
-                    var _this = _super !== null && _super.apply(this, arguments) || this;
-                    _this.s = 'b';
-                    _this.n = 1;
-                    _this.b = true;
-                    _this.o = {};
-                    _this.a = [];
-                    return _this;
+        describe('...as default values', () => {
+            let M = class M extends Record {
+                constructor() {
+                    super(...arguments);
+                    this.s = 'b';
+                    this.n = 1;
+                    this.b = true;
+                    this.o = {};
+                    this.a = [];
                 }
-                __decorate([
-                    attr,
-                    __metadata("design:type", String)
-                ], M.prototype, "s", void 0);
-                __decorate([
-                    attr,
-                    __metadata("design:type", Number)
-                ], M.prototype, "n", void 0);
-                __decorate([
-                    attr,
-                    __metadata("design:type", Boolean)
-                ], M.prototype, "b", void 0);
-                __decorate([
-                    attr,
-                    __metadata("design:type", Object)
-                ], M.prototype, "o", void 0);
-                __decorate([
-                    attr,
-                    __metadata("design:type", Array)
-                ], M.prototype, "a", void 0);
-                __decorate([
-                    attr,
-                    __metadata("design:type", Date)
-                ], M.prototype, "d", void 0);
-                M = __decorate([
-                    define
-                ], M);
-                return M;
-            }(Record));
-            it("accepts values as type spec", function () {
-                var m = new M();
+            };
+            __decorate([
+                attr,
+                __metadata("design:type", String)
+            ], M.prototype, "s", void 0);
+            __decorate([
+                attr,
+                __metadata("design:type", Number)
+            ], M.prototype, "n", void 0);
+            __decorate([
+                attr,
+                __metadata("design:type", Boolean)
+            ], M.prototype, "b", void 0);
+            __decorate([
+                attr,
+                __metadata("design:type", Object)
+            ], M.prototype, "o", void 0);
+            __decorate([
+                attr,
+                __metadata("design:type", Array)
+            ], M.prototype, "a", void 0);
+            __decorate([
+                attr,
+                __metadata("design:type", Date)
+            ], M.prototype, "d", void 0);
+            M = __decorate([
+                define
+            ], M);
+            it("accepts values as type spec", () => {
+                const m = new M();
                 chai_1(m.s).to.equal('b');
                 chai_1(m.n).to.equal(1);
                 chai_1(m.b).to.equal(true);
@@ -15887,8 +15808,8 @@ describe('Record', function () {
                 chai_1(m.a).to.eql([]);
                 chai_1(m.d).to.be.instanceof(Date);
             });
-            it("infers types from values", function () {
-                var m = new M(), _attributes = m._attributes;
+            it("infers types from values", () => {
+                const m = new M(), { _attributes } = m;
                 chai_1(_attributes.s.type).to.equal(String);
                 chai_1(_attributes.n.type).to.equal(Number);
                 chai_1(_attributes.b.type).to.equal(Boolean);
@@ -15897,28 +15818,23 @@ describe('Record', function () {
                 chai_1(_attributes.d.type).to.equal(Date);
             });
         });
-        describe('...as constructors with values', function () {
-            it("converts default values to defined types", function () {
-                var M = (function (_super) {
-                    __extends(M, _super);
-                    function M() {
-                        return _super !== null && _super.apply(this, arguments) || this;
-                    }
-                    M = __decorate([
-                        define({
-                            attributes: {
-                                s: String.value(55),
-                                n: Number.value("1"),
-                                b: Boolean.value("some"),
-                                o: Object.value("not an object"),
-                                a: Array.value("not an array"),
-                                d: Date.value(22222)
-                            }
-                        })
-                    ], M);
-                    return M;
-                }(Record));
-                var m = new M();
+        describe('...as constructors with values', () => {
+            it("converts default values to defined types", () => {
+                let M = class M extends Record {
+                };
+                M = __decorate([
+                    define({
+                        attributes: {
+                            s: String.value(55),
+                            n: Number.value("1"),
+                            b: Boolean.value("some"),
+                            o: Object.value("not an object"),
+                            a: Array.value("not an array"),
+                            d: Date.value(22222)
+                        }
+                    })
+                ], M);
+                const m = new M();
                 chai_1(m.s).to.equal('55');
                 chai_1(m.n).to.equal(1);
                 chai_1(m.b).to.equal(true);
@@ -15926,27 +15842,22 @@ describe('Record', function () {
                 chai_1(m.a).to.eql([]);
                 chai_1(m.d).to.be.instanceof(Date);
             });
-            it("accepts null as default value", function () {
-                var M = (function (_super) {
-                    __extends(M, _super);
-                    function M() {
-                        return _super !== null && _super.apply(this, arguments) || this;
-                    }
-                    M = __decorate([
-                        define({
-                            attributes: {
-                                s: String.value(null),
-                                n: Number.value(null),
-                                b: Boolean.value(null),
-                                o: Object.value(null),
-                                a: Array.value(null),
-                                d: Date.value(null)
-                            }
-                        })
-                    ], M);
-                    return M;
-                }(Record));
-                var m = new M();
+            it("accepts null as default value", () => {
+                let M = class M extends Record {
+                };
+                M = __decorate([
+                    define({
+                        attributes: {
+                            s: String.value(null),
+                            n: Number.value(null),
+                            b: Boolean.value(null),
+                            o: Object.value(null),
+                            a: Array.value(null),
+                            d: Date.value(null)
+                        }
+                    })
+                ], M);
+                const m = new M();
                 chai_1(m.s).to.equal(null);
                 chai_1(m.n).to.equal(null);
                 chai_1(m.b).to.equal(null);
@@ -15956,135 +15867,95 @@ describe('Record', function () {
             });
         });
     });
-    describe("Record's collection", function () {
-        it("is defined in the base Record", function () {
+    describe("Record's collection", () => {
+        it("is defined in the base Record", () => {
             chai_1(Record.Collection).to.be.a('function');
             chai_1(Record.Collection.prototype.model).to.eql(Record);
         });
-        it("is created on Record's extension", function () {
-            var M = (function (_super) {
-                __extends(M, _super);
-                function M() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                M = __decorate([
-                    define
-                ], M);
-                return M;
-            }(Record));
-            var prototype = M.Collection.prototype;
+        it("is created on Record's extension", () => {
+            let M = class M extends Record {
+            };
+            M = __decorate([
+                define
+            ], M);
+            const { prototype } = M.Collection;
             chai_1(prototype).to.be.instanceof(Record.Collection);
             chai_1(prototype.model).to.eql(M);
         });
-        it("takes properties from .collection", function () {
-            var M = (function (_super) {
-                __extends(M, _super);
-                function M() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                M = __decorate([
-                    define({
-                        collection: {
-                            a: 'a'
-                        }
-                    })
-                ], M);
-                return M;
-            }(Record));
+        it("takes properties from .collection", () => {
+            let M = class M extends Record {
+            };
+            M = __decorate([
+                define({
+                    collection: {
+                        a: 'a'
+                    }
+                })
+            ], M);
             chai_1(M.Collection.prototype.a).to.eql('a');
         });
-        it("can be defined separately", function () {
-            var C = (function (_super) {
-                __extends(C, _super);
-                function C() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                C = __decorate([
-                    define({
-                        a: 'a'
-                    })
-                ], C);
-                return C;
-            }(Collection));
-            var M = (function (_super) {
-                __extends(M, _super);
-                function M() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                M.Collection = C;
-                M = __decorate([
-                    define
-                ], M);
-                return M;
-            }(Record));
+        it("can be defined separately", () => {
+            let C = class C extends Collection {
+            };
+            C = __decorate([
+                define({
+                    a: 'a'
+                })
+            ], C);
+            let M = class M extends Record {
+            };
+            M.Collection = C;
+            M = __decorate([
+                define
+            ], M);
             chai_1(M.Collection).to.equal(C);
-            var prototype = M.Collection.prototype;
+            const { prototype } = M.Collection;
             chai_1(prototype).to.be.instanceof(Record.Collection);
             chai_1(prototype.a).to.eql('a');
             chai_1(prototype.model).to.eql(M);
         });
     });
-    describe('Attribute types', function () {
-        var Test = (function (_super) {
-            __extends(Test, _super);
-            function Test() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            __decorate([
-                attr(Function.value(null)),
-                __metadata("design:type", Function)
-            ], Test.prototype, "fun", void 0);
-            Test = __decorate([
-                define
-            ], Test);
-            return Test;
-        }(Record));
-        it('Supports function type', function () {
-            var t = new Test();
-            var t2 = t.clone();
+    describe('Attribute types', () => {
+        let Test = class Test extends Record {
+        };
+        __decorate([
+            attr(Function.value(null)),
+            __metadata("design:type", Function)
+        ], Test.prototype, "fun", void 0);
+        Test = __decorate([
+            define
+        ], Test);
+        it('Supports function type', () => {
+            const t = new Test();
+            const t2 = t.clone();
             chai_1(t.fun).to.eql(t2.fun);
         });
     });
-    describe('Record pre-definition', function () {
-        var M1 = (function (_super) {
-            __extends(M1, _super);
-            function M1() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            M1 = __decorate([
-                define
-            ], M1);
-            return M1;
-        }(Record));
-        var M2 = (function (_super) {
-            __extends(M2, _super);
-            function M2() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            M2 = __decorate([
-                predefine
-            ], M2);
-            return M2;
-        }(Record));
+    describe('Record pre-definition', () => {
+        let M1 = class M1 extends Record {
+        };
+        M1 = __decorate([
+            define
+        ], M1);
+        let M2 = class M2 extends Record {
+        };
+        M2 = __decorate([
+            predefine
+        ], M2);
         M2.define();
-        it('predefine collection types', function () {
+        it('predefine collection types', () => {
             chai_1(M1.Collection).to.be.instanceOf(Function);
             chai_1(M2.Collection).to.be.instanceOf(Function);
         });
-        it("can't be instantiated", function () {
+        it("can't be instantiated", () => {
             new M1();
         });
-        it('support forward declaration', function () {
-            var M = (function (_super) {
-                __extends(M, _super);
-                function M() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                M = __decorate([
-                    define
-                ], M);
-                return M;
-            }(Record));
+        it('support forward declaration', () => {
+            let M = class M extends Record {
+            };
+            M = __decorate([
+                define
+            ], M);
             chai_1(M.Collection).to.be.a('function');
             chai_1(M.Collection.prototype.model).to.eql(M);
             M.define({
@@ -16092,7 +15963,7 @@ describe('Record', function () {
             });
             chai_1(M.prototype.a).to.eql('a');
         });
-        it('can be defined', function () {
+        it('can be defined', () => {
             M1.define({
                 a: 'first',
                 collection: {
@@ -16107,9 +15978,26 @@ describe('Record', function () {
             });
         });
     });
+    describe('Iterables', () => {
+        let Person = class Person extends Record {
+        };
+        __decorate([
+            attr,
+            __metadata("design:type", String)
+        ], Person.prototype, "name", void 0);
+        Person = __decorate([
+            define
+        ], Person);
+        it('can iterate through collections', () => {
+            const persons = new Person.Collection([{ name: "1" }, { name: "2" }]);
+            for (let rec of persons) {
+                console.log(rec.name);
+            }
+        });
+    });
 });
 
-var SecondsInterval = Record.extend({
+const SecondsInterval = Record.extend({
     units: [
         'seconds',
         'minutes',
@@ -16132,7 +16020,7 @@ var SecondsInterval = Record.extend({
         months: function () { return this.getUnitValue(2628000); },
         years: function () { return this.getUnitValue(31536000); }
     },
-    getUnitValue: function (value$$1) {
+    getUnitValue(value$$1) {
         return value$$1;
     },
     parse: function (data) {
@@ -16142,7 +16030,7 @@ var SecondsInterval = Record.extend({
         };
         data = typeof data === 'object' ? 0 : data;
         for (var i = this.units.length; i > 0; i--) {
-            var l = this.units[i - 1];
+            let l = this.units[i - 1];
             if (data % this[l] == 0) {
                 res.value = Math.floor(data / this[l]);
                 res.interval = l;
@@ -16157,16 +16045,15 @@ var SecondsInterval = Record.extend({
     toJSON: function () {
         return this.toInteger();
     },
-    getUnits: function () {
-        var _this = this;
-        var units = {};
-        Object.keys(this.units).forEach(function (name) {
-            units[name] = _this[name];
+    getUnits() {
+        let units = {};
+        Object.keys(this.units).forEach(name => {
+            units[name] = this[name];
         });
         return units;
     }
 });
-var MinutesInterval = SecondsInterval.extend({
+const MinutesInterval = SecondsInterval.extend({
     units: [
         'minutes',
         'hours',
@@ -16175,86 +16062,71 @@ var MinutesInterval = SecondsInterval.extend({
         'months',
         'years'
     ],
-    getUnitValue: function (value$$1) {
+    getUnitValue(value$$1) {
         return value$$1 / 60;
     },
 });
 
-describe('Bugs from Volicon Observer', function () {
-    describe('Attribute definitions', function () {
-        it('@attr( value ) must work as expected', function () {
-            var Test = (function (_super) {
-                __extends(Test, _super);
-                function Test() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                __decorate([
-                    attr(5),
-                    __metadata("design:type", Number)
-                ], Test.prototype, "num", void 0);
-                __decorate([
-                    attr("5"),
-                    __metadata("design:type", String)
-                ], Test.prototype, "str", void 0);
-                Test = __decorate([
-                    define
-                ], Test);
-                return Test;
-            }(Record));
-            var t = new Test();
+describe('Bugs from Volicon Observer', () => {
+    describe('Attribute definitions', () => {
+        it('@attr( value ) must work as expected', () => {
+            let Test = class Test extends Record {
+            };
+            __decorate([
+                attr(5),
+                __metadata("design:type", Number)
+            ], Test.prototype, "num", void 0);
+            __decorate([
+                attr("5"),
+                __metadata("design:type", String)
+            ], Test.prototype, "str", void 0);
+            Test = __decorate([
+                define
+            ], Test);
+            const t = new Test();
             chai_1(t.num).to.eql(5);
             chai_1(t.str).to.eql("5");
             t.str = 6;
             chai_1(t.str).to.eql("6");
         });
     });
-    describe('Attribute change watcher', function () {
-        it('works in base class and subclass', function () {
-            var calls = [];
-            var Base = (function (_super) {
-                __extends(Base, _super);
-                function Base() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                __decorate([
-                    type(String).watcher(function (x) { return calls.push('inherited'); }).as,
-                    __metadata("design:type", String)
-                ], Base.prototype, "inherited", void 0);
-                __decorate([
-                    type(String).watcher('onNamedWatcher').as,
-                    __metadata("design:type", String)
-                ], Base.prototype, "namedWatcher", void 0);
-                __decorate([
-                    type(String).watcher(function (x) { return calls.push('base'); }).as,
-                    __metadata("design:type", String)
-                ], Base.prototype, "overriden", void 0);
-                Base = __decorate([
-                    define
-                ], Base);
-                return Base;
-            }(Record));
-            var Subclass = (function (_super) {
-                __extends(Subclass, _super);
-                function Subclass() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                Subclass.prototype.onNamedWatcher = function () {
+    describe('Attribute change watcher', () => {
+        it('works in base class and subclass', () => {
+            let calls = [];
+            let Base = class Base extends Record {
+            };
+            __decorate([
+                type(String).watcher(x => calls.push('inherited')).as,
+                __metadata("design:type", String)
+            ], Base.prototype, "inherited", void 0);
+            __decorate([
+                type(String).watcher('onNamedWatcher').as,
+                __metadata("design:type", String)
+            ], Base.prototype, "namedWatcher", void 0);
+            __decorate([
+                type(String).watcher(x => calls.push('base')).as,
+                __metadata("design:type", String)
+            ], Base.prototype, "overriden", void 0);
+            Base = __decorate([
+                define
+            ], Base);
+            let Subclass = class Subclass extends Base {
+                onNamedWatcher() {
                     calls.push('named');
-                };
-                __decorate([
-                    attr(String.has.watcher(function (x) { return calls.push('added'); })),
-                    __metadata("design:type", String)
-                ], Subclass.prototype, "added", void 0);
-                __decorate([
-                    attr(String.has.watcher(function (x) { return calls.push('subclass'); })),
-                    __metadata("design:type", String)
-                ], Subclass.prototype, "overriden", void 0);
-                Subclass = __decorate([
-                    define
-                ], Subclass);
-                return Subclass;
-            }(Base));
-            var subclass = new Subclass();
+                }
+            };
+            __decorate([
+                attr(String.has.watcher(x => calls.push('added'))),
+                __metadata("design:type", String)
+            ], Subclass.prototype, "added", void 0);
+            __decorate([
+                attr(String.has.watcher(x => calls.push('subclass'))),
+                __metadata("design:type", String)
+            ], Subclass.prototype, "overriden", void 0);
+            Subclass = __decorate([
+                define
+            ], Subclass);
+            const subclass = new Subclass();
             subclass.inherited = "a";
             subclass.added = "b";
             subclass.overriden = "b";
@@ -16262,15 +16134,15 @@ describe('Bugs from Volicon Observer', function () {
             chai_1(calls).to.eql(['inherited', 'added', 'subclass', 'base', 'named']);
         });
     });
-    describe('Validation', function () {
-        it('performs validation if collection item is changed', function () {
+    describe('Validation', () => {
+        it('performs validation if collection item is changed', () => {
             var BitrateModel = Record.extend({
                 defaults: {
                     bitrate: Number.value(512)
                 },
                 properties: {
                     bitrates: function () {
-                        var available_bitrate = [128, 256, 384, 450, 512, 768, 896, 1000, 1500, 2000, 2500, 3000, 4500, 6000, 6500, 9000, 12000, 15000];
+                        const available_bitrate = [128, 256, 384, 450, 512, 768, 896, 1000, 1500, 2000, 2500, 3000, 4500, 6000, 6500, 9000, 12000, 15000];
                         if (available_bitrate.indexOf(this.bitrate) === -1) {
                             available_bitrate.push(this.bitrate);
                         }
@@ -16282,7 +16154,7 @@ describe('Bugs from Volicon Observer', function () {
                 initialize: function (options) {
                     Record.prototype.initialize.apply(this, arguments);
                 },
-                parse: function (data) {
+                parse(data) {
                     return { bitrate: data / 1000 };
                 },
                 toJSON: function () {
@@ -16290,7 +16162,7 @@ describe('Bugs from Volicon Observer', function () {
                     return bitrate;
                 }
             });
-            var SubEncoder = Record.extend({
+            const SubEncoder = Record.extend({
                 defaults: {
                     Bitrate: BitrateModel,
                     HistoryDepth: type(MinutesInterval).value(43800),
@@ -16331,20 +16203,20 @@ describe('Bugs from Volicon Observer', function () {
                         }
                     },
                     localEvents: {
-                        change: function () {
+                        change() {
                             this.sort();
                         }
                     }
                 }
             });
-            var Placeholder = Record.extend({
+            const Placeholder = Record.extend({
                 attributes: {
                     subEncoders: SubEncoder.Collection.has.check(function (x) {
                         return x.length > 0;
                     }, 'ccccc')
                 }
             });
-            var p = new Placeholder(), subEncoders = p.subEncoders;
+            const p = new Placeholder(), { subEncoders } = p;
             chai_1(p.isValid()).to.be.false;
             chai_1(subEncoders.isValid()).to.be.true;
             subEncoders.add({});
@@ -16357,113 +16229,79 @@ describe('Bugs from Volicon Observer', function () {
             chai_1(p._validationError).not.to.be.undefined;
         });
     });
-    describe('assignFrom', function () {
-        it('copy the value if the target is null', function () {
-            var Inner = (function (_super) {
-                __extends(Inner, _super);
-                function Inner() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                __decorate([
-                    attr,
-                    __metadata("design:type", String)
-                ], Inner.prototype, "name", void 0);
-                Inner = __decorate([
-                    define
-                ], Inner);
-                return Inner;
-            }(Record));
-            var Test = (function (_super) {
-                __extends(Test, _super);
-                function Test() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                __decorate([
-                    attr(Inner.value(null)),
-                    __metadata("design:type", Inner)
-                ], Test.prototype, "inner", void 0);
-                Test = __decorate([
-                    define
-                ], Test);
-                return Test;
-            }(Record));
-            var target = new Test(), source = new Test({ inner: { name: "ron" } });
+    describe('assignFrom', () => {
+        it('copy the value if the target is null', () => {
+            let Inner = class Inner extends Record {
+            };
+            __decorate([
+                attr,
+                __metadata("design:type", String)
+            ], Inner.prototype, "name", void 0);
+            Inner = __decorate([
+                define
+            ], Inner);
+            let Test = class Test extends Record {
+            };
+            __decorate([
+                attr(Inner.value(null)),
+                __metadata("design:type", Inner)
+            ], Test.prototype, "inner", void 0);
+            Test = __decorate([
+                define
+            ], Test);
+            const target = new Test(), source = new Test({ inner: { name: "ron" } });
             chai_1(target.inner).to.be.null;
             target.assignFrom(source);
             chai_1(target.inner !== source.inner).to.be.true;
         });
-        it('assign object of similar shape', function () {
-            var A = (function (_super) {
-                __extends(A, _super);
-                function A() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                __decorate([
-                    attr,
-                    __metadata("design:type", String)
-                ], A.prototype, "a", void 0);
-                A = __decorate([
-                    define
-                ], A);
-                return A;
-            }(Record));
-            var B = (function (_super) {
-                __extends(B, _super);
-                function B() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                __decorate([
-                    attr,
-                    __metadata("design:type", String)
-                ], B.prototype, "b", void 0);
-                B = __decorate([
-                    define
-                ], B);
-                return B;
-            }(A));
-            var b = new B({ b: "b" }), a = new A({ a: "a" });
+        it('assign object of similar shape', () => {
+            let A = class A extends Record {
+            };
+            __decorate([
+                attr,
+                __metadata("design:type", String)
+            ], A.prototype, "a", void 0);
+            A = __decorate([
+                define
+            ], A);
+            let B = class B extends A {
+            };
+            __decorate([
+                attr,
+                __metadata("design:type", String)
+            ], B.prototype, "b", void 0);
+            B = __decorate([
+                define
+            ], B);
+            const b = new B({ b: "b" }), a = new A({ a: "a" });
             b.assignFrom(a);
         });
     });
-    describe('Mixins', function () {
-        it('can work with overriden atribute', function () {
-            var Source = (function (_super) {
-                __extends(Source, _super);
-                function Source() {
-                    return _super !== null && _super.apply(this, arguments) || this;
+    describe('Mixins', () => {
+        it('can work with overriden atribute', () => {
+            let Source = class Source extends Record {
+                get hi() {
+                    return 'hi';
                 }
-                Object.defineProperty(Source.prototype, "hi", {
-                    get: function () {
-                        return 'hi';
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                __decorate([
-                    attr,
-                    __metadata("design:type", String)
-                ], Source.prototype, "name", void 0);
-                Source = __decorate([
-                    define
-                ], Source);
-                return Source;
-            }(Record));
-            var Target = (function (_super) {
-                __extends(Target, _super);
-                function Target() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                __decorate([
-                    attr,
-                    __metadata("design:type", Number)
-                ], Target.prototype, "name", void 0);
-                Target = __decorate([
-                    define,
-                    mixins(Source)
-                ], Target);
-                return Target;
-            }(Record));
-            var t = new Target();
+            };
+            __decorate([
+                attr,
+                __metadata("design:type", String)
+            ], Source.prototype, "name", void 0);
+            Source = __decorate([
+                define
+            ], Source);
+            let Target = class Target extends Record {
+            };
+            __decorate([
+                attr,
+                __metadata("design:type", Number)
+            ], Target.prototype, "name", void 0);
+            Target = __decorate([
+                define,
+                mixins(Source)
+            ], Target);
+            const t = new Target();
             t.name = "1";
             chai_1(t.name).to.eql(1);
             chai_1(t.hi).to.eql('hi');
@@ -41231,155 +41069,134 @@ nock.back = back;
 nock.restore = restore;
 
 describe('IO', function () {
-    describe('memory endpoint', function () {
-        var testData = [
+    describe('memory endpoint', () => {
+        const testData = [
             { name: "John" }
         ];
-        var User = (function (_super) {
-            __extends(User, _super);
-            function User() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            User.endpoint = create(testData);
-            __decorate([
-                attr,
-                __metadata("design:type", String)
-            ], User.prototype, "name", void 0);
-            User = __decorate([
-                define
-            ], User);
-            return User;
-        }(Record));
-        it('loads the test data', function (done) {
-            var users = new User.Collection();
+        let User = class User extends Record {
+        };
+        User.endpoint = create(testData);
+        __decorate([
+            attr,
+            __metadata("design:type", String)
+        ], User.prototype, "name", void 0);
+        User = __decorate([
+            define
+        ], User);
+        it('loads the test data', done => {
+            const users = new User.Collection();
             users.fetch()
-                .then(function () {
+                .then(() => {
                 chai_1(users.length).to.eql(1);
                 chai_1(users.first().name).to.eql('John');
                 done();
             });
         });
-        it('create', function (done) {
-            var x = new User({ name: "test" });
-            x.save().then(function () {
+        it('create', done => {
+            const x = new User({ name: "test" });
+            x.save().then(() => {
                 chai_1(x.id).to.eql("1");
                 done();
             });
         });
-        it('read', function (done) {
-            var x = (new User({ id: "1" })).fetch().then(function (x) {
+        it('read', done => {
+            const x = (new User({ id: "1" })).fetch().then(x => {
                 chai_1(x.name).to.eql("test");
                 done();
             });
         });
-        it('update', function (done) {
-            var x = new User({ id: "1" });
+        it('update', done => {
+            const x = new User({ id: "1" });
             x.fetch()
-                .then(function () {
+                .then(() => {
                 x.name = "Mike";
                 return x.save();
             })
-                .then(function () {
-                var y = new User({ id: "1" });
+                .then(() => {
+                const y = new User({ id: "1" });
                 return y.fetch();
             })
-                .then(function (y) {
+                .then(y => {
                 chai_1(y.name).to.eql('Mike');
                 done();
             });
         });
-        it('list', function (done) {
-            var users = new User.Collection();
+        it('list', done => {
+            const users = new User.Collection();
             users.fetch()
-                .then(function () {
+                .then(() => {
                 chai_1(users.length).to.eql(2);
                 chai_1(users.first().name).to.eql("John");
                 chai_1(users.last().name).to.eql("Mike");
                 done();
             });
         });
-        it("destroy", function (done) {
-            var x = new User({ id: "1" });
+        it("destroy", done => {
+            const x = new User({ id: "1" });
             x.destroy()
-                .then(function () {
-                var users = new User.Collection();
+                .then(() => {
+                const users = new User.Collection();
                 return users.fetch();
             })
-                .then(function (users) {
+                .then(users => {
                 chai_1(users.length).to.eql(1);
                 chai_1(users.first().name).to.eql("John");
                 done();
             });
         });
     });
-    it('can override endpoint with .has.endpoint', function (done) {
-        var NoEndpoint = (function (_super) {
-            __extends(NoEndpoint, _super);
-            function NoEndpoint() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            NoEndpoint.attributes = {
-                type: 'no endpoint'
-            };
-            NoEndpoint = __decorate([
-                define
-            ], NoEndpoint);
-            return NoEndpoint;
-        }(Record));
-        var HasEndpoint = (function (_super) {
-            __extends(HasEndpoint, _super);
-            function HasEndpoint() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            HasEndpoint.endpoint = create([{ id: 666 }]);
-            HasEndpoint.attributes = {
-                type: 'has endpoint'
-            };
-            HasEndpoint = __decorate([
-                define
-            ], HasEndpoint);
-            return HasEndpoint;
-        }(Record));
-        var TestStore = (function (_super) {
-            __extends(TestStore, _super);
-            function TestStore() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            TestStore.endpoint = create$1();
-            TestStore.attributes = {
-                a: type(NoEndpoint.Collection).endpoint(create([{ id: "777" }])),
-                b: HasEndpoint.Collection,
-                c: type(HasEndpoint.Collection).endpoint(create([{ id: "555" }]))
-            };
-            TestStore = __decorate([
-                define
-            ], TestStore);
-            return TestStore;
-        }(Store));
-        var s = new TestStore();
-        s.fetch().then(function () {
+    it('can override endpoint with .has.endpoint', done => {
+        let NoEndpoint = class NoEndpoint extends Record {
+        };
+        NoEndpoint.attributes = {
+            type: 'no endpoint'
+        };
+        NoEndpoint = __decorate([
+            define
+        ], NoEndpoint);
+        let HasEndpoint = class HasEndpoint extends Record {
+        };
+        HasEndpoint.endpoint = create([{ id: 666 }]);
+        HasEndpoint.attributes = {
+            type: 'has endpoint'
+        };
+        HasEndpoint = __decorate([
+            define
+        ], HasEndpoint);
+        let TestStore = class TestStore extends Store {
+        };
+        TestStore.endpoint = create$1();
+        TestStore.attributes = {
+            a: type(NoEndpoint.Collection).endpoint(create([{ id: "777" }])),
+            b: HasEndpoint.Collection,
+            c: type(HasEndpoint.Collection).endpoint(create([{ id: "555" }]))
+        };
+        TestStore = __decorate([
+            define
+        ], TestStore);
+        const s = new TestStore();
+        s.fetch().then(() => {
             chai_1(s.a.first().id).to.eql("777");
             chai_1(s.b.first().id).to.eql(666);
             chai_1(s.c.first().id).to.eql("555");
             done();
         });
     });
-    describe("restful endpoint", function () {
-        describe('Base test', function () {
-            var usersStorage = {
+    describe("restful endpoint", () => {
+        describe('Base test', () => {
+            let usersStorage = {
                 models: [],
                 counter: 0
             };
-            var USER_REGEX = /\/users\/(\w+)/;
+            const USER_REGEX = /\/users\/(\w+)/;
             function getUserId(uri) {
                 return uri.match(USER_REGEX)[1];
             }
             function getUser(id) {
-                return usersStorage.models.filter(function (u) { return u.id == id; })[0];
+                return usersStorage.models.filter(u => u.id == id)[0];
             }
-            function cloneUser(_a) {
-                var id = _a.id, name = _a.name;
-                return { id: id, name: name };
+            function cloneUser({ id, name }) {
+                return { id, name };
             }
             nock.cleanAll();
             nock('http://restful.basic')
@@ -41390,7 +41207,7 @@ describe('IO', function () {
             })
                 .get(USER_REGEX)
                 .reply(function (uri) {
-                var user = getUser(getUserId(uri));
+                const user = getUser(getUserId(uri));
                 if (user) {
                     return [200, cloneUser(user)];
                 }
@@ -41401,13 +41218,13 @@ describe('IO', function () {
             })
                 .post('/users')
                 .reply(200, function (uri, requestBody) {
-                var id = ++usersStorage.counter, user = __assign({ id: String(id) }, requestBody);
+                let id = ++usersStorage.counter, user = Object.assign({ id: String(id) }, requestBody);
                 usersStorage.models.push(user);
                 return cloneUser(user);
             })
                 .put(USER_REGEX)
                 .reply(function (uri, requestBody) {
-                var user = getUser(getUserId(uri));
+                const user = getUser(getUserId(uri));
                 if (user) {
                     user.name = requestBody.name;
                     return [200, cloneUser(user)];
@@ -41419,9 +41236,9 @@ describe('IO', function () {
             })
                 .delete(USER_REGEX)
                 .reply(function (uri) {
-                var user = getUser(getUserId(uri));
+                const user = getUser(getUserId(uri));
                 if (user) {
-                    var idx = usersStorage.models.indexOf(user);
+                    const idx = usersStorage.models.indexOf(user);
                     usersStorage.models.splice(idx, 1);
                     return [200];
                 }
@@ -41432,61 +41249,46 @@ describe('IO', function () {
             });
             testEndpoint(create$3('http://restful.basic/users'))();
         });
-        describe('Relative urls', function () {
-            var User = (function (_super) {
-                __extends(User, _super);
-                function User() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                User.endpoint = create$3('./users');
-                __decorate([
-                    attr,
-                    __metadata("design:type", String)
-                ], User.prototype, "name", void 0);
-                User = __decorate([
-                    define
-                ], User);
-                return User;
-            }(Record));
-            var Store = (function (_super) {
-                __extends(Store, _super);
-                function Store() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                Store.endpoint = create$3('./store');
-                __decorate([
-                    attr,
-                    __metadata("design:type", String)
-                ], Store.prototype, "name", void 0);
-                __decorate([
-                    prop(User),
-                    __metadata("design:type", User)
-                ], Store.prototype, "user", void 0);
-                Store = __decorate([
-                    define
-                ], Store);
-                return Store;
-            }(Record));
-            var Root = (function (_super) {
-                __extends(Root, _super);
-                function Root() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                Root.endpoint = create$3('http://restful.relative/');
-                __decorate([
-                    prop(User.Collection),
-                    __metadata("design:type", Collection)
-                ], Root.prototype, "users", void 0);
-                __decorate([
-                    prop(Store),
-                    __metadata("design:type", Store)
-                ], Root.prototype, "store", void 0);
-                Root = __decorate([
-                    define
-                ], Root);
-                return Root;
-            }(Record));
-            var root = new Root();
+        describe('Relative urls', () => {
+            let User = class User extends Record {
+            };
+            User.endpoint = create$3('./users');
+            __decorate([
+                attr,
+                __metadata("design:type", String)
+            ], User.prototype, "name", void 0);
+            User = __decorate([
+                define
+            ], User);
+            let Store = class Store extends Record {
+            };
+            Store.endpoint = create$3('./store');
+            __decorate([
+                attr,
+                __metadata("design:type", String)
+            ], Store.prototype, "name", void 0);
+            __decorate([
+                prop(User),
+                __metadata("design:type", User)
+            ], Store.prototype, "user", void 0);
+            Store = __decorate([
+                define
+            ], Store);
+            let Root = class Root extends Record {
+            };
+            Root.endpoint = create$3('http://restful.relative/');
+            __decorate([
+                prop(User.Collection),
+                __metadata("design:type", Collection)
+            ], Root.prototype, "users", void 0);
+            __decorate([
+                prop(Store),
+                __metadata("design:type", Store)
+            ], Root.prototype, "store", void 0);
+            Root = __decorate([
+                define
+            ], Root);
+            const root = new Root();
             root.store.id = 99;
             root.store.user.id = 1000;
             nock('http://restful.relative')
@@ -41496,47 +41298,47 @@ describe('IO', function () {
                 .reply(200, { id: 99, name: 'something' })
                 .get('/store/99/users/1000')
                 .reply(200, { id: 1000, name: 'special' });
-            it('resolves in simple case', function (done) {
-                root.store.fetch().then(function () {
+            it('resolves in simple case', done => {
+                root.store.fetch().then(() => {
                     chai_1(root.store.name).to.eql('something');
                     done();
                 });
             });
-            it('resolves for collection', function (done) {
-                root.users.fetch().then(function () {
-                    chai_1(root.users.map(function (u) { return u.id; })).deep.equal([10, 11]);
+            it('resolves for collection', done => {
+                root.users.fetch().then(() => {
+                    chai_1(root.users.map(u => u.id)).deep.equal([10, 11]);
                     done();
                 });
             });
-            it('nested resolve', function (done) {
-                var user = root.store.user;
-                user.fetch().then(function () {
+            it('nested resolve', done => {
+                const { user } = root.store;
+                user.fetch().then(() => {
                     chai_1(user.name).to.equal('special');
                     done();
                 });
             });
         });
-        describe("Merging options", function () {
+        describe("Merging options", () => {
             RestfulEndpoint.defaultFetchOptions = {
                 cache: "force-cache",
                 credentials: "omit",
                 mode: "navigate",
                 redirect: "manual",
             };
-            it("uses default options", function () {
-                var io = create$3(""), options = io.buildRequestOptions("get");
+            it("uses default options", () => {
+                let io = create$3(""), options = io.buildRequestOptions("get");
                 chai_1(options.cache).to.equal("force-cache");
                 chai_1(options.credentials).to.equal("omit");
                 chai_1(options.mode).to.equal("navigate");
                 chai_1(options.redirect).to.equal("manual");
             });
-            it("Overrides at ctor", function () {
-                var io = create$3("", { credentials: "include", cache: "reload" }), options = io.buildRequestOptions("get");
+            it("Overrides at ctor", () => {
+                let io = create$3("", { credentials: "include", cache: "reload" }), options = io.buildRequestOptions("get");
                 chai_1(options.cache).to.equal("reload");
                 chai_1(options.credentials).to.equal("include");
             });
-            it("Overrides at call", function () {
-                var io = create$3("", { credentials: "include", cache: "reload" }), options = io.buildRequestOptions("get", { cache: "no-store", credentials: "same-origin" });
+            it("Overrides at call", () => {
+                let io = create$3("", { credentials: "include", cache: "reload" }), options = io.buildRequestOptions("get", { cache: "no-store", credentials: "same-origin" });
                 chai_1(options.cache).to.equal("no-store");
                 chai_1(options.credentials).to.equal("same-origin");
             });
@@ -41546,71 +41348,66 @@ describe('IO', function () {
         describe('localStorage endpoint', testEndpoint(create$2("/test")));
 });
 function testEndpoint(endpoint) {
-    return function () {
-        var User = (function (_super) {
-            __extends(User, _super);
-            function User() {
-                return _super !== null && _super.apply(this, arguments) || this;
-            }
-            User.endpoint = endpoint;
-            __decorate([
-                attr,
-                __metadata("design:type", String)
-            ], User.prototype, "name", void 0);
-            User = __decorate([
-                define
-            ], User);
-            return User;
-        }(Record));
-        var generatedId;
-        it('create', function (done) {
-            var x = new User({ name: "test" });
-            x.save().then(function () {
+    return () => {
+        let User = class User extends Record {
+        };
+        User.endpoint = endpoint;
+        __decorate([
+            attr,
+            __metadata("design:type", String)
+        ], User.prototype, "name", void 0);
+        User = __decorate([
+            define
+        ], User);
+        let generatedId;
+        it('create', done => {
+            const x = new User({ name: "test" });
+            x.save().then(() => {
                 generatedId = x.id;
                 chai_1(x.id).to.be.not.empty;
                 done();
             });
         });
-        it('read', function (done) {
-            var x = new User({ id: generatedId });
-            x.fetch().then(function () {
+        it('read', done => {
+            const x = new User({ id: generatedId });
+            x.fetch().then(() => {
                 chai_1(x.name).to.eql("test");
                 done();
             });
         });
-        it('update', function (done) {
-            var x = new User({ id: generatedId });
+        it('update', done => {
+            const x = new User({ id: generatedId });
             x.fetch()
-                .then(function () {
+                .then(() => {
                 x.name = "Mike";
                 return x.save();
             })
-                .then(function () {
-                var y = new User({ id: generatedId });
+                .then(() => {
+                const y = new User({ id: generatedId });
                 return y.fetch();
             })
-                .then(function (y) {
+                .then(y => {
                 chai_1(y.name).to.eql('Mike');
                 done();
             });
         });
-        it('list', function (done) {
-            var users = new User.Collection();
+        it('list', done => {
+            const users = new User.Collection();
             users.fetch()
-                .then(function () {
+                .then(() => {
                 chai_1(users.length).to.eql(1);
                 chai_1(users.last().name).to.eql("Mike");
                 done();
             });
         });
-        it("destroy", function (done) {
-            var x = new User({ id: generatedId });
+        it("destroy", done => {
+            const x = new User({ id: generatedId });
             x.destroy()
-                .then(function () {
-                var users = new User.Collection();
+                .then(() => {
+                const users = new User.Collection();
                 return users.fetch();
             })
-                .then(function (users) {
+                .then(users => {
                 chai_1(users.length).to.eql(0);
                 done();
             });

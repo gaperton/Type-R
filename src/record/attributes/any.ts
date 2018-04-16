@@ -125,7 +125,9 @@ export class AnyType implements AttributeUpdatePipeline {
                             return getHook.call( this, this.attributes[ name ], name );
                         } :
                         function() { return this.attributes[ name ]; }
-                )
+                ),
+
+                configurable : true
             }
         }
     }

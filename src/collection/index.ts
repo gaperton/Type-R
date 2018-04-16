@@ -194,6 +194,10 @@ export class Collection< R extends Record = Record> extends Transactional implem
     forEach( iteratee : ( val : R, key? : number ) => void, context? : any ){
         return this.each( iteratee, context );
     }
+    
+    /*[ Symbol.iterator ]() : CollectionIterator<R>{
+        return new CollectionIterator<R>( this );
+    }*/
 
     every( iteratee : Predicate<R>, context? : any ) : boolean {
         const fun = toPredicateFunction( iteratee, context ),
@@ -611,4 +615,17 @@ function toPredicateFunction<R>( iteratee : Predicate<R>, context : any ){
     
     return bindContext( iteratee, context );
 
+}
+
+export class CollectionIterator<R extends Record> {
+    private idx = 0;
+    constructor( private readonly collection : Collection<R>){}
+
+    next(){
+        const done = this.idx === this.collection.length;
+        return {
+            done,
+            value : done ? this.collection[ this.idx++ ] : void 0
+        }
+    }
 }

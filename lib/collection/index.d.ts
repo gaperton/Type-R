@@ -83,3 +83,12 @@ export declare class Collection<R extends Record = Record> extends Transactional
 }
 export declare type LiveUpdatesOption = boolean | ((x: any) => boolean);
 export declare type ElementsArg = Object | Record | Object[] | Record[];
+export declare class CollectionIterator<R extends Record> {
+    private readonly collection;
+    private idx;
+    constructor(collection: Collection<R>);
+    next(): {
+        done: boolean;
+        value: any;
+    };
+}

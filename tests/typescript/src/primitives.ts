@@ -309,4 +309,17 @@ describe( 'Record', () =>{
             } );
         } );
     } );
+
+    describe( 'Iterables', () => {
+        @define class Person extends Record {
+            @attr name : string
+        }
+
+        it( 'can iterate through collections', ()=>{
+            const persons = new Person.Collection<Person>([ { name : "1" } , { name : "2" }]);
+            for( let rec of persons as any ){
+                console.log( rec.name );
+            }
+        });
+    });
 } );

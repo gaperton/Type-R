@@ -197,7 +197,7 @@ export const Events : Messenger = <Messenger> omit( Messenger.prototype, 'constr
 
 function toPropertyDescriptor( x : Property ) : PropertyDescriptor {
     if( x ){
-        return typeof x === 'function' ? { get : < () => any >x } : <PropertyDescriptor> x;
+        return typeof x === 'function' ? { get : < () => any >x, configurable : true } : <PropertyDescriptor> x;
     }
 }
 

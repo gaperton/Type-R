@@ -1,5 +1,5 @@
 import { Model } from 'type-r';
-export var SecondsInterval = Model.extend({
+export const SecondsInterval = Model.extend({
     units: [
         'seconds',
         'minutes',
@@ -22,7 +22,7 @@ export var SecondsInterval = Model.extend({
         months: function () { return this.getUnitValue(2628000); },
         years: function () { return this.getUnitValue(31536000); }
     },
-    getUnitValue: function (value) {
+    getUnitValue(value) {
         return value;
     },
     parse: function (data) {
@@ -32,7 +32,7 @@ export var SecondsInterval = Model.extend({
         };
         data = typeof data === 'object' ? 0 : data;
         for (var i = this.units.length; i > 0; i--) {
-            var l = this.units[i - 1];
+            let l = this.units[i - 1];
             if (data % this[l] == 0) {
                 res.value = Math.floor(data / this[l]);
                 res.interval = l;
@@ -47,16 +47,15 @@ export var SecondsInterval = Model.extend({
     toJSON: function () {
         return this.toInteger();
     },
-    getUnits: function () {
-        var _this = this;
-        var units = {};
-        Object.keys(this.units).forEach(function (name) {
-            units[name] = _this[name];
+    getUnits() {
+        let units = {};
+        Object.keys(this.units).forEach(name => {
+            units[name] = this[name];
         });
         return units;
     }
 });
-export var MinutesInterval = SecondsInterval.extend({
+export const MinutesInterval = SecondsInterval.extend({
     units: [
         'minutes',
         'hours',
@@ -65,7 +64,7 @@ export var MinutesInterval = SecondsInterval.extend({
         'months',
         'years'
     ],
-    getUnitValue: function (value) {
+    getUnitValue(value) {
         return value / 60;
     },
 });
