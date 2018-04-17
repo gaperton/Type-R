@@ -39,7 +39,9 @@ export declare class Collection<R extends Record = Record> extends Transactional
     get(objOrId: string | R | Object): R;
     each(iteratee: (val: R, key: number) => void, context?: any): void;
     forEach(iteratee: (val: R, key?: number) => void, context?: any): void;
-    [ Symbol.iterator ](): CollectionIterator<R>;
+    [ Symbol.iterator ](): CollectionValIterator<R>;
+    values(): CollectionValIterator<R>;
+    entries(): CollectionEntryIterator<R>;
     every(iteratee: Predicate<R>, context?: any): boolean;
     filter(iteratee: Predicate<R>, context?: any): R[];
     find(iteratee: Predicate<R>, context?: any): R;
@@ -84,12 +86,21 @@ export declare class Collection<R extends Record = Record> extends Transactional
 }
 export declare type LiveUpdatesOption = boolean | ((x: any) => boolean);
 export declare type ElementsArg = Object | Record | Object[] | Record[];
-export declare class CollectionIterator<R extends Record> {
-    private readonly collection;
+export declare class CollectionValIterator<R extends Record> {
     private idx;
+    private models;
     constructor(collection: Collection<R>);
     next(): {
         done: boolean;
         value: R;
+    };
+}
+export declare class CollectionEntryIterator<R extends Record> {
+    private idx;
+    private models;
+    constructor(collection: Collection<R>);
+    next(): {
+        done: boolean;
+        value: [number, R];
     };
 }

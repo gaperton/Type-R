@@ -195,9 +195,13 @@ export class Collection< R extends Record = Record> extends Transactional implem
         return this.each( iteratee, context );
     }
     
-    [ Symbol.iterator ]() : CollectionIterator<R>{
-        return new CollectionIterator<R>( this );
+    [ Symbol.iterator ]() : CollectionValIterator<R>{
+        return new CollectionValIterator<R>( this );
     }
+
+    values(){ return new CollectionValIterator<R>( this ); }
+
+    entries(){ return new CollectionEntryIterator<R>( this ); }
 
     every( iteratee : Predicate<R>, context? : any ) : boolean {
         const fun = toPredicateFunction( iteratee, context ),
@@ -617,15 +621,38 @@ function toPredicateFunction<R>( iteratee : Predicate<R>, context : any ){
 
 }
 
-export class CollectionIterator<R extends Record> {
+export class CollectionValIterator<R extends Record> {
     private idx = 0;
-    constructor( private readonly collection : Collection<R>){}
+    private models : R[]
+    constructor( collection : Collection<R>){
+        this.models = collection.models;
+    }
 
-    next(){
-        const done = this.idx === this.collection.length;
-        return {
-            done,
-            value : done ? void 0 : this.collection.models[ this.idx++ ]
-        }
+    next() : { done : boolean, value : R }{
+        const { models, idx } = this;
+
+        if( idx === models.length ) return { done : true, value : void 0 };
+
+        this.idx++;        
+
+        return { done : false, value : models[ idx ] };
+    }
+}
+
+export class CollectionEntryIterator<R extends Record> {
+    private idx = 0;
+    private models : R[]
+    constructor( collection : Collection<R> ){
+        this.models = collection.models;
+    }
+
+    next() : { done : boolean, value : [ number, R ] }{
+        const { models, idx } = this;
+
+        if( idx === models.length ) return { done : true, value : void 0 };
+
+        this.idx++;        
+
+        return { done : false, value : [ idx, models[ idx ] ] };
     }
 }

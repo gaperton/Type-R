@@ -251,6 +251,14 @@ export class Record extends Transactional implements IORecord, AttributesContain
         }
     }
 
+    [ Symbol.iterator ](){
+        return new RecordValIterator( this );
+    }
+
+    entries(){
+        return new RecordEntriesIterator( this );
+    }
+
     // Get array of attribute keys (Record) or record ids (Collection) 
     keys() : string[] {
         const keys : string[] = [];
@@ -507,4 +515,52 @@ function typeCheck( record : Record, values : object ){
             record._log( 'warn', `undefined attributes ${ unknown.join(', ')} are ignored.`, { values } );
         }
     }
+}
+
+export class RecordValIterator {
+    private readonly keys : string[];
+    private idx = 0;
+    
+    constructor( private readonly record : Record){
+        this.keys = record.keys();
+    }
+
+    next() : { done : boolean, value : any }{
+        const { keys, record, idx } = this,
+            done = idx === keys.length;
+        
+        if( done ) return { done, value : void 0 };
+
+        this.idx++;        
+
+        return {
+            done,
+            value : record[ keys[ idx ] ]
+        }
+    }        
+}
+
+export class RecordEntriesIterator {
+    private readonly keys : string[];
+    private idx = 0;
+    
+    constructor( private readonly record : Record){
+        this.keys = record.keys();
+    }
+
+    next() : { done : boolean, value : [ string, any ]}{
+        const { keys, record, idx } = this,
+            done = idx === keys.length;
+        
+        if( done ) return { done, value : void 0 };
+
+        this.idx++;        
+
+        const key = keys[ idx ];
+
+        return {
+            done,
+            value : [ key, record[ key ] ]
+        }
+    }        
 }

@@ -2276,6 +2276,12 @@ var Record = (function (_super) {
                 fun(value, key);
         }
     };
+    Record.prototype[Symbol.iterator] = function () {
+        return new RecordValIterator(this);
+    };
+    Record.prototype.entries = function () {
+        return new RecordEntriesIterator(this);
+    };
     Record.prototype.keys = function () {
         var keys$$1 = [];
         this.each(function (value, key) { return value === void 0 || keys$$1.push(key); });
@@ -2444,6 +2450,43 @@ function typeCheck(record, values) {
         }
     }
 }
+var RecordValIterator = (function () {
+    function RecordValIterator(record) {
+        this.record = record;
+        this.idx = 0;
+        this.keys = record.keys();
+    }
+    RecordValIterator.prototype.next = function () {
+        var _a = this, keys$$1 = _a.keys, record = _a.record, idx = _a.idx, done = idx === keys$$1.length;
+        if (done)
+            return { done: done, value: void 0 };
+        this.idx++;
+        return {
+            done: done,
+            value: record[keys$$1[idx]]
+        };
+    };
+    return RecordValIterator;
+}());
+var RecordEntriesIterator = (function () {
+    function RecordEntriesIterator(record) {
+        this.record = record;
+        this.idx = 0;
+        this.keys = record.keys();
+    }
+    RecordEntriesIterator.prototype.next = function () {
+        var _a = this, keys$$1 = _a.keys, record = _a.record, idx = _a.idx, done = idx === keys$$1.length;
+        if (done)
+            return { done: done, value: void 0 };
+        this.idx++;
+        var key = keys$$1[idx];
+        return {
+            done: done,
+            value: [key, record[key]]
+        };
+    };
+    return RecordEntriesIterator;
+}());
 
 var assign$3 = assign;
 var defaults$2 = defaults;
@@ -3003,8 +3046,10 @@ var Collection = (function (_super) {
         return this.each(iteratee, context);
     };
     Collection.prototype[Symbol.iterator] = function () {
-        return new CollectionIterator(this);
+        return new CollectionValIterator(this);
     };
+    Collection.prototype.values = function () { return new CollectionValIterator(this); };
+    Collection.prototype.entries = function () { return new CollectionEntryIterator(this); };
     Collection.prototype.every = function (iteratee, context) {
         var fun = toPredicateFunction(iteratee, context), models = this.models;
         for (var i = 0; i < models.length; i++) {
@@ -3288,19 +3333,33 @@ function toPredicateFunction(iteratee, context) {
     }
     return bindContext(iteratee, context);
 }
-var CollectionIterator = (function () {
-    function CollectionIterator(collection) {
-        this.collection = collection;
+var CollectionValIterator = (function () {
+    function CollectionValIterator(collection) {
         this.idx = 0;
+        this.models = collection.models;
     }
-    CollectionIterator.prototype.next = function () {
-        var done = this.idx === this.collection.length;
-        return {
-            done: done,
-            value: done ? void 0 : this.collection.models[this.idx++]
-        };
+    CollectionValIterator.prototype.next = function () {
+        var _a = this, models = _a.models, idx = _a.idx;
+        if (idx === models.length)
+            return { done: true, value: void 0 };
+        this.idx++;
+        return { done: false, value: models[idx] };
     };
-    return CollectionIterator;
+    return CollectionValIterator;
+}());
+var CollectionEntryIterator = (function () {
+    function CollectionEntryIterator(collection) {
+        this.idx = 0;
+        this.models = collection.models;
+    }
+    CollectionEntryIterator.prototype.next = function () {
+        var _a = this, models = _a.models, idx = _a.idx;
+        if (idx === models.length)
+            return { done: true, value: void 0 };
+        this.idx++;
+        return { done: false, value: [idx, models[idx]] };
+    };
+    return CollectionEntryIterator;
 }());
 
 function parseReference(collectionRef) {
@@ -15991,6 +16050,10 @@ describe('Record', () => {
             attr,
             __metadata("design:type", String)
         ], Person.prototype, "name", void 0);
+        __decorate([
+            attr,
+            __metadata("design:type", String)
+        ], Person.prototype, "email", void 0);
         Person = __decorate([
             define
         ], Person);
@@ -16000,6 +16063,25 @@ describe('Record', () => {
             for (let rec of persons) {
                 chai_1(rec.name).to.eql(String(++counter));
             }
+        });
+        it('can iterate through collections.values', () => {
+            const persons = new Person.Collection([{ name: "1" }, { name: "2" }]);
+            chai_1(persons.values().next().value.name).to.eql("1");
+        });
+        it('can iterate through collections.entries', () => {
+            const persons = new Person.Collection([{ name: "1" }, { name: "2" }]);
+            chai_1(persons.entries().next().value[1].name).to.eql("1");
+        });
+        it('can iterate through records', () => {
+            const persons = new Person({ name: "1", email: "2" });
+            let counter = 0;
+            for (let attr of persons) {
+                chai_1(attr).to.eql(String(++counter));
+            }
+        });
+        it('can iterate through records entries', () => {
+            const person = new Person({ name: "1", email: "2" });
+            chai_1(person.entries().next().value[1]).to.eql(String("1"));
         });
     });
 });

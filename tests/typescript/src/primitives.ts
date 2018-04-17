@@ -313,6 +313,7 @@ describe( 'Record', () =>{
     describe( 'Iterables', () => {
         @define class Person extends Record {
             @attr name : string
+            @attr email : string
         }
 
         it( 'can iterate through collections', ()=>{
@@ -323,5 +324,34 @@ describe( 'Record', () =>{
                 expect( rec.name ).to.eql( String( ++counter ) ) ;
             }
         });
+
+        it( 'can iterate through collections.values', ()=>{
+            const persons = new Person.Collection<Person>([ { name : "1" } , { name : "2" }]);
+
+            expect( persons.values().next().value.name ).to.eql( "1" );
+        });
+
+        it( 'can iterate through collections.entries', ()=>{
+            const persons = new Person.Collection<Person>([ { name : "1" } , { name : "2" }]);
+
+            expect( persons.entries().next().value[ 1 ].name ).to.eql( "1" );
+        });
+
+
+        it( 'can iterate through records', ()=>{
+            const persons = new Person({ name : "1", email : "2" });
+            let counter = 0;
+
+            for( let attr of persons ){
+                expect( attr ).to.eql( String( ++counter ) ) ;
+            }
+        });
+
+        it( 'can iterate through records entries', ()=>{
+            const person = new Person({ name : "1", email : "2" });
+            
+            expect( person.entries().next().value[ 1 ] ).to.eql( String( "1" ) ) ;
+        });
+
     });
 } );

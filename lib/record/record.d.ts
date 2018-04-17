@@ -50,6 +50,8 @@ export declare class Record extends Transactional implements IORecord, Attribute
     AttributesCopy: AttributesCopyConstructor;
     forEachAttr(attrs: {}, iteratee: (value: any, key?: string, spec?: AnyType) => void): void;
     each(iteratee: (value?: any, key?: string) => void, context?: any): void;
+    [ Symbol.iterator ](): RecordValIterator;
+    entries(): RecordEntriesIterator;
     keys(): string[];
     values(): any[];
     _toJSON(): {};
@@ -71,4 +73,24 @@ export declare class Record extends Transactional implements IORecord, Attribute
     _createTransaction(values: object, options: TransactionOptions): Transaction;
     forceAttributeChange: (key: string, options: TransactionOptions) => void;
     _onChildrenChange: (child: Transactional, options: TransactionOptions) => void;
+}
+export declare class RecordValIterator {
+    private readonly record;
+    private readonly keys;
+    private idx;
+    constructor(record: Record);
+    next(): {
+        done: boolean;
+        value: any;
+    };
+}
+export declare class RecordEntriesIterator {
+    private readonly record;
+    private readonly keys;
+    private idx;
+    constructor(record: Record);
+    next(): {
+        done: boolean;
+        value: [string, any];
+    };
 }
