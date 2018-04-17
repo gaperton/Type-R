@@ -317,8 +317,10 @@ describe( 'Record', () =>{
 
         it( 'can iterate through collections', ()=>{
             const persons = new Person.Collection<Person>([ { name : "1" } , { name : "2" }]);
-            for( let rec of persons as any ){
-                console.log( rec.name );
+            let counter = 0;
+
+            for( let rec of persons ){
+                expect( rec.name ).to.eql( String( ++counter ) ) ;
             }
         });
     });

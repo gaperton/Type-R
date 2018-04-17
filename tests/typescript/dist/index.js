@@ -3002,6 +3002,9 @@ var Collection = (function (_super) {
     Collection.prototype.forEach = function (iteratee, context) {
         return this.each(iteratee, context);
     };
+    Collection.prototype[Symbol.iterator] = function () {
+        return new CollectionIterator(this);
+    };
     Collection.prototype.every = function (iteratee, context) {
         var fun = toPredicateFunction(iteratee, context), models = this.models;
         for (var i = 0; i < models.length; i++) {
@@ -3294,7 +3297,7 @@ var CollectionIterator = (function () {
         var done = this.idx === this.collection.length;
         return {
             done: done,
-            value: done ? this.collection[this.idx++] : void 0
+            value: done ? void 0 : this.collection.models[this.idx++]
         };
     };
     return CollectionIterator;
@@ -15990,8 +15993,9 @@ describe('Record', () => {
         ], Person);
         it('can iterate through collections', () => {
             const persons = new Person.Collection([{ name: "1" }, { name: "2" }]);
+            let counter = 0;
             for (let rec of persons) {
-                console.log(rec.name);
+                chai_1(rec.name).to.eql(String(++counter));
             }
         });
     });

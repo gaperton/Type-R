@@ -39,6 +39,7 @@ export declare class Collection<R extends Record = Record> extends Transactional
     get(objOrId: string | R | Object): R;
     each(iteratee: (val: R, key: number) => void, context?: any): void;
     forEach(iteratee: (val: R, key?: number) => void, context?: any): void;
+    [ Symbol.iterator ](): CollectionIterator<R>;
     every(iteratee: Predicate<R>, context?: any): boolean;
     filter(iteratee: Predicate<R>, context?: any): R[];
     find(iteratee: Predicate<R>, context?: any): R;
@@ -89,6 +90,6 @@ export declare class CollectionIterator<R extends Record> {
     constructor(collection: Collection<R>);
     next(): {
         done: boolean;
-        value: any;
+        value: R;
     };
 }

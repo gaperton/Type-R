@@ -195,9 +195,9 @@ export class Collection< R extends Record = Record> extends Transactional implem
         return this.each( iteratee, context );
     }
     
-    /*[ Symbol.iterator ]() : CollectionIterator<R>{
+    [ Symbol.iterator ]() : CollectionIterator<R>{
         return new CollectionIterator<R>( this );
-    }*/
+    }
 
     every( iteratee : Predicate<R>, context? : any ) : boolean {
         const fun = toPredicateFunction( iteratee, context ),
@@ -625,7 +625,7 @@ export class CollectionIterator<R extends Record> {
         const done = this.idx === this.collection.length;
         return {
             done,
-            value : done ? this.collection[ this.idx++ ] : void 0
+            value : done ? void 0 : this.collection.models[ this.idx++ ]
         }
     }
 }
