@@ -7,6 +7,11 @@ declare global {
     }
 }
 
+// Dummy polyfill to prevent exception in IE.
+if( typeof Symbol === 'undefined' ){
+    Object.defineProperty( window, 'Symbol', { value : { iterator : 'Symbol.iterator' }, configurable : true  });
+}
+
 Object.setPrototypeOf || ( Object.setPrototypeOf = tools.defaults );
 
 /**

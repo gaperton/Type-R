@@ -3519,6 +3519,9 @@ var Store = (function (_super) {
 }(Record));
 Store.global = new Store();
 
+if (typeof Symbol === 'undefined') {
+    Object.defineProperty(window, 'Symbol', { value: { iterator: 'Symbol.iterator' }, configurable: true });
+}
 Object.setPrototypeOf || (Object.setPrototypeOf = defaults);
 
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
