@@ -57,7 +57,7 @@ export interface RecordDefinition extends TransactionalDefinition {
     Collection : mixinRules.value,
     idAttribute : mixinRules.protoValue
 })
-export class Record extends Transactional implements IORecord, AttributesContainer {
+export class Record extends Transactional implements IORecord, AttributesContainer, Iterable<any> {
     // Hack
     static onDefine( definition, BaseClass ){}
 
@@ -517,7 +517,7 @@ function typeCheck( record : Record, values : object ){
     }
 }
 
-export class RecordValIterator {
+export class RecordValIterator implements Iterator<any>{
     private readonly keys : string[];
     private idx = 0;
     
@@ -525,7 +525,7 @@ export class RecordValIterator {
         this.keys = record.keys();
     }
 
-    next() : { done : boolean, value : any }{
+    next() : IteratorResult<any> {
         const { keys, record, idx } = this,
             done = idx === keys.length;
         
@@ -540,7 +540,7 @@ export class RecordValIterator {
     }        
 }
 
-export class RecordEntriesIterator {
+export class RecordEntriesIterator implements Iterator<[string, any]> {
     private readonly keys : string[];
     private idx = 0;
     
@@ -548,7 +548,7 @@ export class RecordEntriesIterator {
         this.keys = record.keys();
     }
 
-    next() : { done : boolean, value : [ string, any ]}{
+    next() : IteratorResult<[string, any]> {
         const { keys, record, idx } = this,
             done = idx === keys.length;
         

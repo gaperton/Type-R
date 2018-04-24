@@ -15,7 +15,7 @@ export interface CollectionDefinition extends TransactionalDefinition {
     itemEvents?: EventsDefinition;
     _itemEvents?: EventMap;
 }
-export declare class Collection<R extends Record = Record> extends Transactional implements CollectionCore {
+export declare class Collection<R extends Record = Record> extends Transactional implements CollectionCore, Iterable<R> {
     _shared: number;
     _aggregationError: R[];
     static Subset: typeof Collection;
@@ -86,21 +86,15 @@ export declare class Collection<R extends Record = Record> extends Transactional
 }
 export declare type LiveUpdatesOption = boolean | ((x: any) => boolean);
 export declare type ElementsArg = Object | Record | Object[] | Record[];
-export declare class CollectionValIterator<R extends Record> {
+export declare class CollectionValIterator<R extends Record> implements Iterator<R> {
     private idx;
     private models;
     constructor(collection: Collection<R>);
-    next(): {
-        done: boolean;
-        value: R;
-    };
+    next(): IteratorResult<R>;
 }
 export declare class CollectionEntryIterator<R extends Record> {
     private idx;
     private models;
     constructor(collection: Collection<R>);
-    next(): {
-        done: boolean;
-        value: [number, R];
-    };
+    next(): IteratorResult<[number, R]>;
 }

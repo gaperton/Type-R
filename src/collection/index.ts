@@ -47,7 +47,7 @@ class CollectionRefsType extends SharedType {
     model : mixinRules.protoValue,
     itemEvents : mixinRules.merge
 })
-export class Collection< R extends Record = Record> extends Transactional implements CollectionCore {
+export class Collection< R extends Record = Record> extends Transactional implements CollectionCore, Iterable<R> {
     _shared : number
     _aggregationError : R[]
 
@@ -621,14 +621,14 @@ function toPredicateFunction<R>( iteratee : Predicate<R>, context : any ){
 
 }
 
-export class CollectionValIterator<R extends Record> {
+export class CollectionValIterator<R extends Record> implements Iterator<R>{
     private idx = 0;
     private models : R[]
     constructor( collection : Collection<R>){
         this.models = collection.models;
     }
 
-    next() : { done : boolean, value : R }{
+    next() :  IteratorResult<R> {
         const { models, idx } = this;
 
         if( idx === models.length ) return { done : true, value : void 0 };
@@ -646,7 +646,7 @@ export class CollectionEntryIterator<R extends Record> {
         this.models = collection.models;
     }
 
-    next() : { done : boolean, value : [ number, R ] }{
+    next() : IteratorResult<[number, R]> {
         const { models, idx } = this;
 
         if( idx === models.length ) return { done : true, value : void 0 };
