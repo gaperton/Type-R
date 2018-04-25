@@ -1532,166 +1532,6 @@ var AggregatedType = (function (_super) {
     return AggregatedType;
 }(AnyType));
 
-var assign$6 = assign;
-var ChainableAttributeSpec = (function () {
-    function ChainableAttributeSpec(options) {
-        this.options = { getHooks: [], transforms: [], changeHandlers: [] };
-        if (options)
-            assign$6(this.options, options);
-    }
-    ChainableAttributeSpec.prototype.check = function (check, error) {
-        function validate(model, value, name) {
-            if (!check.call(model, value, name)) {
-                var msg = error || check.error || name + ' is not valid';
-                return typeof msg === 'function' ? msg.call(model, name) : msg;
-            }
-        }
-        var prev = this.options.validate;
-        return this.metadata({
-            validate: prev ? (function (model, value, name) {
-                return prev(model, value, name) || validate(model, value, name);
-            }) : validate
-        });
-    };
-    Object.defineProperty(ChainableAttributeSpec.prototype, "asProp", {
-        get: function () {
-            return definitionDecorator('attributes', this);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ChainableAttributeSpec.prototype, "as", {
-        get: function () { return this.asProp; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ChainableAttributeSpec.prototype, "isRequired", {
-        get: function () {
-            return this.metadata({ isRequired: true });
-        },
-        enumerable: true,
-        configurable: true
-    });
-    ChainableAttributeSpec.prototype.endpoint = function (endpoint) {
-        return this.metadata({ endpoint: endpoint });
-    };
-    ChainableAttributeSpec.prototype.watcher = function (ref) {
-        return this.metadata({ _onChange: ref });
-    };
-    ChainableAttributeSpec.prototype.parse = function (fun) {
-        return this.metadata({ parse: fun });
-    };
-    ChainableAttributeSpec.prototype.toJSON = function (fun) {
-        return this.metadata({
-            toJSON: typeof fun === 'function' ? fun : (fun ? function (x) { return x && x.toJSON(); } : emptyFunction)
-        });
-    };
-    ChainableAttributeSpec.prototype.get = function (fun) {
-        return this.metadata({
-            getHooks: this.options.getHooks.concat(fun)
-        });
-    };
-    ChainableAttributeSpec.prototype.set = function (fun) {
-        function handleSetHook(next, prev, record, options) {
-            if (this.isChanged(next, prev)) {
-                var changed = fun.call(record, next, this.name);
-                return changed === void 0 ? prev : this.convert(changed, prev, record, options);
-            }
-            return prev;
-        }
-        return this.metadata({
-            transforms: this.options.transforms.concat(handleSetHook)
-        });
-    };
-    ChainableAttributeSpec.prototype.changeEvents = function (events) {
-        return this.metadata({ changeEvents: events });
-    };
-    ChainableAttributeSpec.prototype.events = function (map) {
-        var eventMap = new EventMap(map);
-        function handleEventsSubscribtion(next, prev, record) {
-            prev && prev.trigger && eventMap.unsubscribe(record, prev);
-            next && next.trigger && eventMap.subscribe(record, next);
-        }
-        return this.metadata({
-            changeHandlers: this.options.changeHandlers.concat(handleEventsSubscribtion)
-        });
-    };
-    Object.defineProperty(ChainableAttributeSpec.prototype, "has", {
-        get: function () {
-            return this;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    ChainableAttributeSpec.prototype.metadata = function (options) {
-        var cloned = new ChainableAttributeSpec(this.options);
-        assign$6(cloned.options, options);
-        return cloned;
-    };
-    ChainableAttributeSpec.prototype.value = function (x) {
-        return this.metadata({ value: x, hasCustomDefault: true });
-    };
-    ChainableAttributeSpec.from = function (spec) {
-        var attrSpec;
-        if (typeof spec === 'function') {
-            attrSpec = spec.has;
-        }
-        else if (spec && spec instanceof ChainableAttributeSpec) {
-            attrSpec = spec;
-        }
-        else {
-            var type_1 = inferType(spec);
-            if (type_1 && type_1.prototype instanceof Transactional) {
-                attrSpec = type_1.shared.value(spec);
-            }
-            else {
-                attrSpec = new ChainableAttributeSpec({ type: type_1, value: spec, hasCustomDefault: true });
-            }
-        }
-        return attrSpec;
-    };
-    return ChainableAttributeSpec;
-}());
-function emptyFunction() { }
-function type(spec) {
-    return spec instanceof ChainableAttributeSpec ? spec : new ChainableAttributeSpec({
-        type: spec,
-        value: spec._attribute.defaultValue,
-        hasCustomDefault: spec._attribute.defaultValue !== void 0
-    });
-    
-}
-Function.prototype.value = function (x) {
-    return new ChainableAttributeSpec({ type: this, value: x, hasCustomDefault: true });
-};
-Object.defineProperty(Function.prototype, 'isRequired', {
-    get: function () { return this._isRequired || this.has.isRequired; },
-    set: function (x) { this._isRequired = x; }
-});
-Object.defineProperty(Function.prototype, 'asProp', {
-    get: function () { return this.has.asProp; },
-});
-Object.defineProperty(Function.prototype, 'has', {
-    get: function () {
-        return this._has || type(this);
-    },
-    set: function (value) { this._has = value; }
-});
-function inferType(value) {
-    switch (typeof value) {
-        case 'number':
-            return Number;
-        case 'string':
-            return String;
-        case 'boolean':
-            return Boolean;
-        case 'undefined':
-            return void 0;
-        case 'object':
-            return value ? value.constructor : void 0;
-    }
-}
-
 var DateType = (function (_super) {
     __extends(DateType, _super);
     function DateType() {
@@ -1729,51 +1569,6 @@ var DateType = (function (_super) {
     DateType.prototype.dispose = function () { };
     return DateType;
 }(AnyType));
-Date._attribute = DateType;
-var msDatePattern = /\/Date\(([0-9]+)\)\//;
-var MSDateType = (function (_super) {
-    __extends(MSDateType, _super);
-    function MSDateType() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    MSDateType.prototype.convert = function (next) {
-        if (typeof next === 'string') {
-            var msDate = msDatePattern.exec(next);
-            if (msDate) {
-                return new Date(Number(msDate[1]));
-            }
-        }
-        return DateType.prototype.convert.apply(this, arguments);
-    };
-    MSDateType.prototype.toJSON = function (value) { return value && "/Date(" + value.getTime() + ")/"; };
-    return MSDateType;
-}(DateType));
-var TimestampType = (function (_super) {
-    __extends(TimestampType, _super);
-    function TimestampType() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    TimestampType.prototype.toJSON = function (value) { return value && value.getTime(); };
-    return TimestampType;
-}(DateType));
-Object.defineProperties(Date, {
-    microsoft: {
-        get: function () {
-            return new ChainableAttributeSpec({
-                type: Date,
-                _attribute: MSDateType
-            });
-        }
-    },
-    timestamp: {
-        get: function () {
-            return new ChainableAttributeSpec({
-                type: Date,
-                _attribute: TimestampType
-            });
-        }
-    }
-});
 function supportsDate(date) {
     return !isNaN((new Date(date)).getTime());
 }
@@ -2043,6 +1838,166 @@ var SharedType = (function (_super) {
     return SharedType;
 }(AnyType));
 function ignore() { }
+
+var assign$6 = assign;
+var ChainableAttributeSpec = (function () {
+    function ChainableAttributeSpec(options) {
+        this.options = { getHooks: [], transforms: [], changeHandlers: [] };
+        if (options)
+            assign$6(this.options, options);
+    }
+    ChainableAttributeSpec.prototype.check = function (check, error) {
+        function validate(model, value, name) {
+            if (!check.call(model, value, name)) {
+                var msg = error || check.error || name + ' is not valid';
+                return typeof msg === 'function' ? msg.call(model, name) : msg;
+            }
+        }
+        var prev = this.options.validate;
+        return this.metadata({
+            validate: prev ? (function (model, value, name) {
+                return prev(model, value, name) || validate(model, value, name);
+            }) : validate
+        });
+    };
+    Object.defineProperty(ChainableAttributeSpec.prototype, "asProp", {
+        get: function () {
+            return definitionDecorator('attributes', this);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ChainableAttributeSpec.prototype, "as", {
+        get: function () { return this.asProp; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ChainableAttributeSpec.prototype, "isRequired", {
+        get: function () {
+            return this.metadata({ isRequired: true });
+        },
+        enumerable: true,
+        configurable: true
+    });
+    ChainableAttributeSpec.prototype.endpoint = function (endpoint) {
+        return this.metadata({ endpoint: endpoint });
+    };
+    ChainableAttributeSpec.prototype.watcher = function (ref) {
+        return this.metadata({ _onChange: ref });
+    };
+    ChainableAttributeSpec.prototype.parse = function (fun) {
+        return this.metadata({ parse: fun });
+    };
+    ChainableAttributeSpec.prototype.toJSON = function (fun) {
+        return this.metadata({
+            toJSON: typeof fun === 'function' ? fun : (fun ? function (x) { return x && x.toJSON(); } : emptyFunction)
+        });
+    };
+    ChainableAttributeSpec.prototype.get = function (fun) {
+        return this.metadata({
+            getHooks: this.options.getHooks.concat(fun)
+        });
+    };
+    ChainableAttributeSpec.prototype.set = function (fun) {
+        function handleSetHook(next, prev, record, options) {
+            if (this.isChanged(next, prev)) {
+                var changed = fun.call(record, next, this.name);
+                return changed === void 0 ? prev : this.convert(changed, prev, record, options);
+            }
+            return prev;
+        }
+        return this.metadata({
+            transforms: this.options.transforms.concat(handleSetHook)
+        });
+    };
+    ChainableAttributeSpec.prototype.changeEvents = function (events) {
+        return this.metadata({ changeEvents: events });
+    };
+    ChainableAttributeSpec.prototype.events = function (map) {
+        var eventMap = new EventMap(map);
+        function handleEventsSubscribtion(next, prev, record) {
+            prev && prev.trigger && eventMap.unsubscribe(record, prev);
+            next && next.trigger && eventMap.subscribe(record, next);
+        }
+        return this.metadata({
+            changeHandlers: this.options.changeHandlers.concat(handleEventsSubscribtion)
+        });
+    };
+    Object.defineProperty(ChainableAttributeSpec.prototype, "has", {
+        get: function () {
+            return this;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    ChainableAttributeSpec.prototype.metadata = function (options) {
+        var cloned = new ChainableAttributeSpec(this.options);
+        assign$6(cloned.options, options);
+        return cloned;
+    };
+    ChainableAttributeSpec.prototype.value = function (x) {
+        return this.metadata({ value: x, hasCustomDefault: true });
+    };
+    ChainableAttributeSpec.from = function (spec) {
+        var attrSpec;
+        if (typeof spec === 'function') {
+            attrSpec = spec.has;
+        }
+        else if (spec && spec instanceof ChainableAttributeSpec) {
+            attrSpec = spec;
+        }
+        else {
+            var type_1 = inferType(spec);
+            if (type_1 && type_1.prototype instanceof Transactional) {
+                attrSpec = type_1.shared.value(spec);
+            }
+            else {
+                attrSpec = new ChainableAttributeSpec({ type: type_1, value: spec, hasCustomDefault: true });
+            }
+        }
+        return attrSpec;
+    };
+    return ChainableAttributeSpec;
+}());
+function emptyFunction() { }
+function type(spec) {
+    return spec instanceof ChainableAttributeSpec ? spec : new ChainableAttributeSpec({
+        type: spec,
+        value: spec._attribute.defaultValue,
+        hasCustomDefault: spec._attribute.defaultValue !== void 0
+    });
+    
+}
+Function.prototype.value = function (x) {
+    return new ChainableAttributeSpec({ type: this, value: x, hasCustomDefault: true });
+};
+Object.defineProperty(Function.prototype, 'isRequired', {
+    get: function () { return this._isRequired || this.has.isRequired; },
+    set: function (x) { this._isRequired = x; }
+});
+Object.defineProperty(Function.prototype, 'asProp', {
+    get: function () { return this.has.asProp; },
+});
+Object.defineProperty(Function.prototype, 'has', {
+    get: function () {
+        return this._has || type(this);
+    },
+    set: function (value) { this._has = value; }
+});
+function inferType(value) {
+    switch (typeof value) {
+        case 'number':
+            return Number;
+        case 'string':
+            return String;
+        case 'boolean':
+            return Boolean;
+        case 'undefined':
+            return void 0;
+        case 'object':
+            return value ? value.constructor : void 0;
+    }
+}
 
 var compile = function (attributesDefinition, baseClassAttributes) {
     var myAttributes = transform({}, attributesDefinition, createAttribute), allAttributes = defaults({}, myAttributes, baseClassAttributes);
@@ -41617,6 +41572,185 @@ function testEndpoint(endpoint) {
         });
     };
 }
+
+var msDatePattern = /\/Date\(([0-9]+)\)\//;
+var MicrosoftDateType = (function (_super) {
+    __extends(MicrosoftDateType, _super);
+    function MicrosoftDateType() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    MicrosoftDateType.prototype.convert = function (next) {
+        if (typeof next === 'string') {
+            var msDate = msDatePattern.exec(next);
+            if (msDate) {
+                return new Date(Number(msDate[1]));
+            }
+        }
+        return DateType.prototype.convert.apply(this, arguments);
+    };
+    MicrosoftDateType.prototype.toJSON = function (value$$1) { return value$$1 && "/Date(" + value$$1.getTime() + ")/"; };
+    return MicrosoftDateType;
+}(DateType));
+var TimestampType = (function (_super) {
+    __extends(TimestampType, _super);
+    function TimestampType() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    TimestampType.prototype.toJSON = function (value$$1) { return value$$1 && value$$1.getTime(); };
+    return TimestampType;
+}(DateType));
+var MicrosoftDate = new ChainableAttributeSpec({
+    type: Date,
+    _attribute: MicrosoftDateType
+});
+var Timestamp = new ChainableAttributeSpec({
+    type: Date,
+    _attribute: TimestampType
+});
+
+function Integer$1(x) {
+    return x ? Math.round(x) : 0;
+}
+Integer$1._attribute = NumericType;
+Number.integer = Integer$1;
+if (typeof window !== 'undefined') {
+    window.Integer = Number.integer;
+}
+
+var urlPattern = /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i;
+function isUrl(x) {
+    return !x || urlPattern.test(x);
+}
+isUrl.error = 'Not valid URL';
+var Url = type(String).check(isUrl, void 0);
+
+var ipPattern = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
+function isIPAddress(x) {
+    return !x || ipPattern.test(x);
+}
+isIPAddress.error = 'Not valid IP address';
+var IPAddress = type(String).check(isIPAddress, void 0);
+
+var emailPattern = /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i;
+function isEmail(x) {
+    return !x || !!x.match(emailPattern);
+}
+isEmail.error = 'Not valid email';
+var Email = type(String).check(isEmail, void 0);
+
+describe('Extended Type specs', function () {
+    describe('Date type', function () {
+        var user, User = Record.extend({
+            attributes: {
+                created: Date,
+                timestamp: Timestamp,
+                microsoft: MicrosoftDate,
+                name: String
+            }
+        });
+        before(function () {
+            user = new User();
+        });
+        it('create new Date object on construction', function () {
+            chai_1(user.created).to.be.instanceOf(Date);
+            chai_1(user.microsoft).to.be.instanceOf(Date);
+            chai_1(user.timestamp).to.be.instanceOf(Date);
+        });
+        it('parse ISO dates in all browsers on assignment', function () {
+            user.created = "2012-12-12T10:00Z";
+            chai_1(user.created).to.be.instanceof(Date);
+            chai_1(user.created.toISOString()).to.be.eql('2012-12-12T10:00:00.000Z');
+            user.timestamp = "2012-12-12T10:00Z";
+            chai_1(user.timestamp).to.be.instanceof(Date);
+            chai_1(user.timestamp.toISOString()).to.be.eql('2012-12-12T10:00:00.000Z');
+            user.microsoft = "2012-12-12T10:00Z";
+            chai_1(user.microsoft).to.be.instanceof(Date);
+            chai_1(user.microsoft.toISOString()).to.be.eql('2012-12-12T10:00:00.000Z');
+        });
+        it('parse integer time stamps on assignment', function () {
+            user.created = 1234567890123;
+            chai_1(user.created).to.be.instanceof(Date);
+            chai_1(user.created.toISOString()).to.be.eql('2009-02-13T23:31:30.123Z');
+            user.timestamp = 1234567890123;
+            chai_1(user.timestamp).to.be.instanceof(Date);
+            chai_1(user.timestamp.toISOString()).to.be.eql('2009-02-13T23:31:30.123Z');
+            user.microsoft = 1234567890123;
+            chai_1(user.microsoft).to.be.instanceof(Date);
+            chai_1(user.microsoft.toISOString()).to.be.eql('2009-02-13T23:31:30.123Z');
+        });
+        it('parse MS time stamps on assignment', function () {
+            user.microsoft = "/Date(1234567890123)/";
+            chai_1(user.microsoft).to.be.instanceof(Date);
+            chai_1(user.microsoft.toISOString()).to.be.eql('2009-02-13T23:31:30.123Z');
+        });
+        it('is serialized to ISO date', function () {
+            var json = user.toJSON();
+            chai_1(json.created).to.be.eql('2009-02-13T23:31:30.123Z');
+            chai_1(json.timestamp).to.be.eql(1234567890123);
+            chai_1(json.microsoft).to.be.eql('/Date(1234567890123)/');
+        });
+    });
+    describe("Url", function () {
+        var user, User = Record.extend({
+            attributes: {
+                url: Url
+            }
+        });
+        before(function () {
+            user = new User();
+        });
+        it('create new URL string on construction', function () {
+            chai_1(user.url).to.be.eq('');
+        });
+        it('checks for invalid urls', function () {
+            user.url = 'asd123';
+            chai_1(user.isValid()).to.be.false;
+            chai_1(user.getValidationError('url')).to.eq('Not valid URL');
+            user.url = 'http://test.com?x=y';
+            chai_1(user.isValid()).to.be.true;
+        });
+    });
+    describe("Email", function () {
+        var user, User = Record.extend({
+            attributes: {
+                email: Email
+            }
+        });
+        before(function () {
+            user = new User();
+        });
+        it('create new email string on construction', function () {
+            chai_1(user.email).to.be.eq('');
+        });
+        it('checks for invalid emails', function () {
+            user.email = 'asd123';
+            chai_1(user.isValid()).to.be.false;
+            chai_1(user.getValidationError('email')).to.eq('Not valid email');
+            user.email = 'my@mail.com';
+            chai_1(user.isValid()).to.be.true;
+        });
+    });
+    describe("IP Address", function () {
+        var user, User = Record.extend({
+            attributes: {
+                ip: IPAddress
+            }
+        });
+        before(function () {
+            user = new User();
+        });
+        it('create new ip string on construction', function () {
+            chai_1(user.ip).to.be.eq('');
+        });
+        it('checks for invalid ip', function () {
+            user.ip = 'asd123';
+            chai_1(user.isValid()).to.be.false;
+            chai_1(user.getValidationError('ip')).to.eq('Not valid IP address');
+            user.ip = '222.111.123.001';
+            chai_1(user.isValid()).to.be.true;
+        });
+    });
+});
 
 })));
 //# sourceMappingURL=index.js.map

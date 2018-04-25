@@ -108,29 +108,29 @@ export class NumericType extends PrimitiveType {
 
 Number._attribute = NumericType;
 
-/**
- * Add Number.integer attrubute type
- */
-declare global {
-    interface NumberConstructor {
-        integer : Function
-    }
-
-    interface Window {
-        Integer : Function;
-    }
-}
-
-function Integer( x ){
-    return x ? Math.round( x ) : 0;
-}
-Integer._attribute = NumericType;
-Number.integer = Integer;
-
-
-if( typeof window !== 'undefined' ){
-    window.Integer = Number.integer;
-}
+// /**
+//  * Add Number.integer attrubute type
+//  */
+// declare global {
+//     interface NumberConstructor {
+//         integer : Function
+//     }
+//
+//     interface Window {
+//         Integer : Function;
+//     }
+// }
+//
+// function Integer( x ){
+//     return x ? Math.round( x ) : 0;
+// }
+// Integer._attribute = NumericType;
+// Number.integer = Integer;
+//
+//
+// if( typeof window !== 'undefined' ){
+//     window.Integer = Number.integer;
+// }
 
 /**
  * Compatibility wrapper for Array type.
