@@ -86,15 +86,14 @@ export declare class Collection<R extends Record = Record> extends Transactional
 }
 export declare type LiveUpdatesOption = boolean | ((x: any) => boolean);
 export declare type ElementsArg = Object | Record | Object[] | Record[];
-export declare class CollectionValIterator<R extends Record> implements Iterator<R> {
-    private idx;
-    private models;
-    constructor(collection: Collection<R>);
-    next(): IteratorResult<R>;
-}
-export declare class CollectionEntryIterator<R extends Record> {
+export declare class CollectionEntryIterator<R extends Record> implements Iterator<[number, R]> {
     private idx;
     private models;
     constructor(collection: Collection<R>);
     next(): IteratorResult<[number, R]>;
+}
+export declare class CollectionValIterator<R extends Record> implements Iterator<R> {
+    private entries;
+    constructor(collection: Collection<R>);
+    next(): IteratorResult<R>;
 }

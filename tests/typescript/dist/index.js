@@ -2450,24 +2450,6 @@ function typeCheck(record, values) {
         }
     }
 }
-var RecordValIterator = (function () {
-    function RecordValIterator(record) {
-        this.record = record;
-        this.idx = 0;
-        this.keys = record.keys();
-    }
-    RecordValIterator.prototype.next = function () {
-        var _a = this, keys$$1 = _a.keys, record = _a.record, idx = _a.idx, done = idx === keys$$1.length;
-        if (done)
-            return { done: done, value: void 0 };
-        this.idx++;
-        return {
-            done: done,
-            value: record[keys$$1[idx]]
-        };
-    };
-    return RecordValIterator;
-}());
 var RecordEntriesIterator = (function () {
     function RecordEntriesIterator(record) {
         this.record = record;
@@ -2486,6 +2468,18 @@ var RecordEntriesIterator = (function () {
         };
     };
     return RecordEntriesIterator;
+}());
+var RecordValIterator = (function () {
+    function RecordValIterator(record) {
+        this.entries = new RecordEntriesIterator(record);
+    }
+    RecordValIterator.prototype.next = function () {
+        var _a = this.entries.next(), done = _a.done, value = _a.value;
+        return done
+            ? { done: done, value: value }
+            : { done: done, value: value[1] };
+    };
+    return RecordValIterator;
 }());
 
 var assign$3 = assign;
@@ -3333,20 +3327,6 @@ function toPredicateFunction(iteratee, context) {
     }
     return bindContext(iteratee, context);
 }
-var CollectionValIterator = (function () {
-    function CollectionValIterator(collection) {
-        this.idx = 0;
-        this.models = collection.models;
-    }
-    CollectionValIterator.prototype.next = function () {
-        var _a = this, models = _a.models, idx = _a.idx;
-        if (idx === models.length)
-            return { done: true, value: void 0 };
-        this.idx++;
-        return { done: false, value: models[idx] };
-    };
-    return CollectionValIterator;
-}());
 var CollectionEntryIterator = (function () {
     function CollectionEntryIterator(collection) {
         this.idx = 0;
@@ -3360,6 +3340,18 @@ var CollectionEntryIterator = (function () {
         return { done: false, value: [idx, models[idx]] };
     };
     return CollectionEntryIterator;
+}());
+var CollectionValIterator = (function () {
+    function CollectionValIterator(collection) {
+        this.entries = new CollectionEntryIterator(collection);
+    }
+    CollectionValIterator.prototype.next = function () {
+        var _a = this.entries.next(), done = _a.done, value = _a.value;
+        return done
+            ? { done: done, value: void 0 }
+            : { done: done, value: value[1] };
+    };
+    return CollectionValIterator;
 }());
 
 function parseReference(collectionRef) {

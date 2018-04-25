@@ -621,38 +621,37 @@ function toPredicateFunction<R>( iteratee : Predicate<R>, context : any ){
 
 }
 
-export class CollectionValIterator<R extends Record> implements Iterator<R>{
+export class CollectionEntryIterator<R extends Record> implements Iterator<[ number, R ]> {
     private idx = 0;
     private models : R[]
-    constructor( collection : Collection<R>){
+
+    constructor( collection : Collection<R> ) {
         this.models = collection.models;
     }
 
-    next() :  IteratorResult<R> {
-        const { models, idx } = this;
+    next() : IteratorResult<[ number, R ]> {
+        const {models, idx} = this;
 
-        if( idx === models.length ) return { done : true, value : void 0 };
+        if( idx === models.length ) return {done: true, value: void 0};
 
-        this.idx++;        
+        this.idx++;
 
-        return { done : false, value : models[ idx ] };
+        return {done: false, value: [ idx, models[ idx ] ]};
     }
 }
 
-export class CollectionEntryIterator<R extends Record> {
-    private idx = 0;
-    private models : R[]
-    constructor( collection : Collection<R> ){
-        this.models = collection.models;
+export class CollectionValIterator<R extends Record> implements Iterator<R> {
+
+    private entries : CollectionEntryIterator<R>
+
+    constructor( collection : Collection<R> ) {
+        this.entries = new CollectionEntryIterator( collection )
     }
 
-    next() : IteratorResult<[number, R]> {
-        const { models, idx } = this;
-
-        if( idx === models.length ) return { done : true, value : void 0 };
-
-        this.idx++;        
-
-        return { done : false, value : [ idx, models[ idx ] ] };
+    next() : IteratorResult<R> {
+        const { done, value } = this.entries.next();
+        return done
+            ? { done, value: void 0 }
+            : { done, value: value[ 1 ] }
     }
 }

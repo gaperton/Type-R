@@ -517,29 +517,6 @@ function typeCheck( record : Record, values : object ){
     }
 }
 
-export class RecordValIterator implements Iterator<any>{
-    private readonly keys : string[];
-    private idx = 0;
-    
-    constructor( private readonly record : Record){
-        this.keys = record.keys();
-    }
-
-    next() : IteratorResult<any> {
-        const { keys, record, idx } = this,
-            done = idx === keys.length;
-        
-        if( done ) return { done, value : void 0 };
-
-        this.idx++;        
-
-        return {
-            done,
-            value : record[ keys[ idx ] ]
-        }
-    }        
-}
-
 export class RecordEntriesIterator implements Iterator<[string, any]> {
     private readonly keys : string[];
     private idx = 0;
@@ -563,4 +540,19 @@ export class RecordEntriesIterator implements Iterator<[string, any]> {
             value : [ key, record[ key ] ]
         }
     }        
+}
+
+export class RecordValIterator implements Iterator<any>{
+    private entries : RecordEntriesIterator;
+
+    constructor( record : Record){
+        this.entries = new RecordEntriesIterator( record )
+    }
+
+    next() : IteratorResult<any> {
+        const { done, value } = this.entries.next();
+        return done
+            ? { done, value }
+            : { done, value: value[ 1 ] }
+    }
 }
