@@ -161,7 +161,6 @@
                     num : Number,
                     str : String,
                     bool : Boolean,
-                    int : Number.integer
                 }
             });
 
@@ -169,7 +168,6 @@
                 var m = new A();
 
                 expect( m.num ).to.be.a( 'number' ).and.equal( 0 );
-                expect( m.int ).to.be.a( 'number' ).and.equal( 0 );
                 expect( m.str ).to.be.a( 'string' ).and.equal( "" );
                 expect( m.bool ).to.be.a( 'boolean' ).and.equal( false );
             });
@@ -185,12 +183,6 @@
 
                 m.bool = "5";
                 expect( m.bool ).to.be.a( 'boolean' ).and.equal( true );
-
-                m.int = 25.7;
-                expect( m.int ).to.be.a( 'number' ).and.equal( 26 );
-
-                m.int = "25.7";
-                expect( m.int ).to.be.a( 'number' ).and.equal( 26 );
             });
 
             it( 'can be set with null', function(){
@@ -205,13 +197,10 @@
                 m.bool = null;
                 expect( m.bool ).to.be.null;
 
-                m.int = null;
-                expect( m.int ).to.be.null;
-
                 expect( m.isValid() ).to.be.true;
             });
 
-            it( 'inferred from default values (except Integer)', function(){
+            it( 'inferred from default values', function(){
                 var A = Nested.Model.extend({
                     defaults : {
                         num : 1,

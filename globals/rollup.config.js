@@ -4,7 +4,7 @@ import sourcemaps from 'rollup-plugin-sourcemaps';
 
 export default {
     input : 'lib/index.js',
-    external : "type-r,types",
+    external : "type-r,ext-types",
     globals : {
         "type-r":"Nested"
     },

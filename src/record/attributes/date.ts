@@ -62,54 +62,6 @@ export class DateType extends AnyType {
 }
 
 Date._attribute = DateType;
-//
-// const msDatePattern  = /\/Date\(([0-9]+)\)\//;
-//
-// export class MSDateType extends DateType {
-//     convert( next ) {
-//         if( typeof next === 'string' ){
-//             const msDate = msDatePattern.exec( next );
-//             if( msDate ){
-//                 return new Date( Number( msDate[ 1 ] ) );
-//             }
-//         }
-//
-//         return DateType.prototype.convert.apply( this, arguments );
-//     }
-//
-//     toJSON( value ) { return value && `/Date(${ value.getTime() })/`; }
-// }
-//
-// export class TimestampType extends DateType {
-//     toJSON( value ) { return value && value.getTime(); }
-// }
-//
-// declare global {
-//     interface DateConstructor {
-//         microsoft : ChainableAttributeSpec
-//         timestamp :  ChainableAttributeSpec
-//     }
-// }
-//
-// Object.defineProperties( Date, {
-//     microsoft : {
-//         get(){
-//             return new ChainableAttributeSpec({
-//                 type : Date,
-//                 _attribute : MSDateType
-//             })
-//         }
-//     },
-//
-//     timestamp : {
-//         get(){
-//             return new ChainableAttributeSpec({
-//                 type : Date,
-//                 _attribute : TimestampType
-//             })
-//         }
-//     }
-// });
 
 // If ISO date is not supported by date constructor (such as in Safari), polyfill it.
 function supportsDate( date ){

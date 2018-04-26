@@ -1,8 +1,9 @@
 import {DateType, ChainableAttributeSpec} from "type-r";
-import {MicrosoftDate, Timestamp} from "types";
+import {MicrosoftDate, Timestamp, Integer} from "ext-types";
 
-Date._attribute = DateType;
-
+/*
+ * dates
+ */
 declare global {
     interface DateConstructor {
         microsoft : ChainableAttributeSpec
@@ -12,20 +13,26 @@ declare global {
 
 Object.defineProperties( Date, {
     microsoft: {
-        get() {
-            return new ChainableAttributeSpec( {
-                type      : Date,
-                _attribute: MicrosoftDate
-            } )
-        }
+        value: MicrosoftDate
     },
 
     timestamp: {
-        get() {
-            return new ChainableAttributeSpec( {
-                type      : Date,
-                _attribute: Timestamp
-            } )
-        }
+        value: Timestamp
     }
 } );
+
+
+/*
+ * integer
+ */
+declare global {
+    interface Window {
+        Integer : Function;
+    }
+}
+
+Number.integer = Integer;
+
+if( typeof window !== 'undefined' ) {
+    window.Integer = Number.integer;
+}

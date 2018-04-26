@@ -1569,6 +1569,7 @@ var DateType = (function (_super) {
     DateType.prototype.dispose = function () { };
     return DateType;
 }(AnyType));
+Date._attribute = DateType;
 function supportsDate(date) {
     return !isNaN((new Date(date)).getTime());
 }
@@ -1678,14 +1679,6 @@ var NumericType = (function (_super) {
     return NumericType;
 }(PrimitiveType));
 Number._attribute = NumericType;
-function Integer(x) {
-    return x ? Math.round(x) : 0;
-}
-Integer._attribute = NumericType;
-Number.integer = Integer;
-if (typeof window !== 'undefined') {
-    window.Integer = Number.integer;
-}
 var ArrayType = (function (_super) {
     __extends(ArrayType, _super);
     function ArrayType() {
@@ -41608,14 +41601,10 @@ var Timestamp = new ChainableAttributeSpec({
     _attribute: TimestampType
 });
 
-function Integer$1(x) {
+function Integer(x) {
     return x ? Math.round(x) : 0;
 }
-Integer$1._attribute = NumericType;
-Number.integer = Integer$1;
-if (typeof window !== 'undefined') {
-    window.Integer = Number.integer;
-}
+Integer._attribute = NumericType;
 
 var urlPattern = /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i;
 function isUrl(x) {
@@ -41642,7 +41631,6 @@ describe('Extended Type specs', function () {
     describe('Date type', function () {
         var user, User = Record.extend({
             attributes: {
-                created: Date,
                 timestamp: Timestamp,
                 microsoft: MicrosoftDate,
                 name: String
@@ -41652,14 +41640,10 @@ describe('Extended Type specs', function () {
             user = new User();
         });
         it('create new Date object on construction', function () {
-            chai_1(user.created).to.be.instanceOf(Date);
             chai_1(user.microsoft).to.be.instanceOf(Date);
             chai_1(user.timestamp).to.be.instanceOf(Date);
         });
         it('parse ISO dates in all browsers on assignment', function () {
-            user.created = "2012-12-12T10:00Z";
-            chai_1(user.created).to.be.instanceof(Date);
-            chai_1(user.created.toISOString()).to.be.eql('2012-12-12T10:00:00.000Z');
             user.timestamp = "2012-12-12T10:00Z";
             chai_1(user.timestamp).to.be.instanceof(Date);
             chai_1(user.timestamp.toISOString()).to.be.eql('2012-12-12T10:00:00.000Z');
@@ -41668,9 +41652,6 @@ describe('Extended Type specs', function () {
             chai_1(user.microsoft.toISOString()).to.be.eql('2012-12-12T10:00:00.000Z');
         });
         it('parse integer time stamps on assignment', function () {
-            user.created = 1234567890123;
-            chai_1(user.created).to.be.instanceof(Date);
-            chai_1(user.created.toISOString()).to.be.eql('2009-02-13T23:31:30.123Z');
             user.timestamp = 1234567890123;
             chai_1(user.timestamp).to.be.instanceof(Date);
             chai_1(user.timestamp.toISOString()).to.be.eql('2009-02-13T23:31:30.123Z');
@@ -41685,7 +41666,6 @@ describe('Extended Type specs', function () {
         });
         it('is serialized to ISO date', function () {
             var json = user.toJSON();
-            chai_1(json.created).to.be.eql('2009-02-13T23:31:30.123Z');
             chai_1(json.timestamp).to.be.eql(1234567890123);
             chai_1(json.microsoft).to.be.eql('/Date(1234567890123)/');
         });
@@ -41747,6 +41727,30 @@ describe('Extended Type specs', function () {
             chai_1(user.isValid()).to.be.false;
             chai_1(user.getValidationError('ip')).to.eq('Not valid IP address');
             user.ip = '222.111.123.001';
+            chai_1(user.isValid()).to.be.true;
+        });
+    });
+    describe("Integer", function () {
+        var user, User = Record.extend({
+            attributes: {
+                int: Integer
+            }
+        });
+        before(function () {
+            user = new User();
+        });
+        it('create new int string on construction', function () {
+            chai_1(user.int).to.be.eq(0);
+        });
+        it('rounding and conversion', function () {
+            user.int = 3.2;
+            chai_1(user.int).to.be.a('number').and.be.eq(3);
+            user.int = "25.7";
+            chai_1(user.int).to.be.a('number').and.equal(26);
+        });
+        it('can be set with null', function () {
+            user.int = null;
+            chai_1(user.int).to.be.null;
             chai_1(user.isValid()).to.be.true;
         });
     });
