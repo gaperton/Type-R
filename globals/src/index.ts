@@ -31,8 +31,8 @@ declare global {
     }
 }
 
-Number.integer = Integer;
+(Number as any).integer = Integer;
 
 if( typeof window !== 'undefined' ) {
-    window.Integer = Number.integer;
+    window.Integer = Integer;
 }

@@ -13,7 +13,7 @@ export default {
     output : {
         file   : 'dist/index.js',
         format : 'umd',
-        name   : 'globals'
+        name   : 'ExtTypes'
     },
     plugins: [
         resolve(), //for support of `import X from "directory"` rather than verbose `import X from "directory/index"`
