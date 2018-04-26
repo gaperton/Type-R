@@ -363,8 +363,9 @@ describe('Record', () => {
             }
         });
         it('can iterate through records entries', () => {
-            const person = new Person({ name: "1", email: "2" });
-            expect(person.entries().next().value[1]).to.eql(String("1"));
+            const person = new Person({ name: "1", email: "2" }), entries = person.entries();
+            expect(entries.next().value[1]).to.eql(String("1"));
+            expect(entries.next().value[0]).to.eql("email");
         });
     });
 });
