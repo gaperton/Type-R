@@ -14,11 +14,7 @@ import { ChainableAttributeSpec } from './attrDef'
 import { CompiledReference } from '../../traversable'
 import { IOEndpoint } from '../../io-tools'
 
-export interface ParseMixin {
-    _parse? : ( json : any ) => object
-}
-
-export interface RecordAttributesMixin extends ConstructorsMixin, ParseMixin {
+export interface RecordAttributesMixin extends ConstructorsMixin {
     // Attributes descriptors
     _attributes : AttributeDescriptors
     _attributesArray : AnyType[]
@@ -52,7 +48,6 @@ export default function( attributesDefinition : object, baseClassAttributes : At
         _attributesArray : Object.keys( allAttributes ).map( key => allAttributes[ key ] ),
         properties : _.transform( <PropertyDescriptorMap>{}, myAttributes, x => x.createPropertyDescriptor() ),
         _toJSON : createToJSON( allAttributes ),
-        ...parseMixin( allAttributes ),
         ...localEventsMixin( myAttributes ),
         _endpoints : _.transform( {}, allAttributes, attrDef => attrDef.options.endpoint )
     }            
@@ -61,22 +56,6 @@ export default function( attributesDefinition : object, baseClassAttributes : At
 // Create attribute from the type spec.
 export function createAttribute( spec : any, name : string ) : AnyType {
     return AnyType.create( ChainableAttributeSpec.from( spec ).options, name );
-}
-
-function parseMixin( attributes : AttributeDescriptors ) : ParseMixin {
-    const attrsWithParse = Object.keys( attributes ).filter( name => attributes[ name ].parse );
-
-    return attrsWithParse.length ? {
-        _parse : new Function( 'json', `
-            var _attrs = this._attributes;
-
-            ${ attrsWithParse.map( name => `                
-                json.${ name } === void 0 || ( json.${ name } = _attrs.${ name }.parse.call( this, json.${ name }, "${ name }" ) );
-            ` ).join('')}
-
-            return json;
-        ` )
-    } : {} as any;
 }
 
 function createToJSON( attributes : AttributeDescriptors ) : () => void {

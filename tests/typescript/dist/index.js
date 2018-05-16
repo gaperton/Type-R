@@ -1337,7 +1337,6 @@ var AnyType = (function () {
             this.validate = wrapIsRequired(this.validate);
         }
         transforms.unshift(this.convert);
-        this.parse = parse || this.parse;
         if (this.get)
             getHooks.unshift(this.get);
         this.initialize.call(this, options);
@@ -1350,6 +1349,13 @@ var AnyType = (function () {
         }
         this.transform = transforms.length ? transforms.reduce(chainTransforms) : this.transform;
         this.handleChange = changeHandlers.length ? changeHandlers.reduce(chainChangeHandlers) : this.handleChange;
+        var _a = this, doInit = _a.doInit, doUpdate = _a.doUpdate;
+        this.doInit = parse ? function (value, record, options) {
+            return doInit.call(this, options.parse && value != null ? parse.call(record, value, this.name) : value, record, options);
+        } : doInit;
+        this.doUpdate = parse ? function (value, record, options, nested) {
+            return doUpdate.call(this, options.parse && value != null ? parse.call(record, value, this.name) : value, record, options, nested);
+        } : doUpdate;
     }
     AnyType.create = function (options, name) {
         var type = options.type, AttributeCtor = options._attribute || (type ? type._attribute : AnyType);
@@ -2047,16 +2053,10 @@ function ignore() { }
 var compile = function (attributesDefinition, baseClassAttributes) {
     var myAttributes = transform({}, attributesDefinition, createAttribute), allAttributes = defaults({}, myAttributes, baseClassAttributes);
     var ConstructorsMixin = constructorsMixin(allAttributes);
-    return __assign({}, ConstructorsMixin, { _attributes: new ConstructorsMixin.AttributesCopy(allAttributes), _attributesArray: Object.keys(allAttributes).map(function (key) { return allAttributes[key]; }), properties: transform({}, myAttributes, function (x) { return x.createPropertyDescriptor(); }), _toJSON: createToJSON(allAttributes) }, parseMixin(allAttributes), localEventsMixin(myAttributes), { _endpoints: transform({}, allAttributes, function (attrDef) { return attrDef.options.endpoint; }) });
+    return __assign({}, ConstructorsMixin, { _attributes: new ConstructorsMixin.AttributesCopy(allAttributes), _attributesArray: Object.keys(allAttributes).map(function (key) { return allAttributes[key]; }), properties: transform({}, myAttributes, function (x) { return x.createPropertyDescriptor(); }), _toJSON: createToJSON(allAttributes) }, localEventsMixin(myAttributes), { _endpoints: transform({}, allAttributes, function (attrDef) { return attrDef.options.endpoint; }) });
 };
 function createAttribute(spec, name) {
     return AnyType.create(ChainableAttributeSpec.from(spec).options, name);
-}
-function parseMixin(attributes) {
-    var attrsWithParse = Object.keys(attributes).filter(function (name) { return attributes[name].parse; });
-    return attrsWithParse.length ? {
-        _parse: new Function('json', "\n            var _attrs = this._attributes;\n\n            " + attrsWithParse.map(function (name) { return "                \n                json." + name + " === void 0 || ( json." + name + " = _attrs." + name + ".parse.call( this, json." + name + ", \"" + name + "\" ) );\n            "; }).join('') + "\n\n            return json;\n        ")
-    } : {};
 }
 function createToJSON(attributes) {
     return new Function("\n        var json = {},\n            v = this.attributes,\n            a = this._attributes;\n\n        " + Object.keys(attributes).map(function (key) {
@@ -2284,7 +2284,6 @@ var Record = (function (_super) {
         return this.map(function (value) { return value; });
     };
     Record.prototype._toJSON = function () { return {}; };
-    Record.prototype._parse = function (data) { return data; };
     Record.prototype.defaults = function (values) {
         if (values === void 0) { values = {}; }
         var defaults$$1 = {}, _attributesArray = this._attributesArray;
@@ -2334,8 +2333,9 @@ var Record = (function (_super) {
         return json;
     };
     Record.prototype.parse = function (data, options) {
-        return this._parse(data);
+        return data;
     };
+    Record.prototype._parse = function (data) { return data; };
     Record.prototype.deepSet = function (name, value, options) {
         var _this = this;
         this.transaction(function () {
@@ -38883,6 +38883,7 @@ var lib = {
 
 
 
+
 var match_body =
 function matchBody(spec, body) {
   if (typeof spec === 'undefined') {
@@ -38894,10 +38895,14 @@ function matchBody(spec, body) {
     body = body.toString();
   }
 
-  var contentType = options.headers && (options.headers['Content-Type'] ||
-                                        options.headers['content-type']);
+  var contentType = (
+    options.headers &&
+    (options.headers['Content-Type'] || options.headers['content-type']) ||
+    ''
+  ).toString();
 
-  var isMultipart = contentType && contentType.toString().match(/multipart/);
+  var isMultipart = contentType.indexOf('multipart') >= 0;
+  var isUrlencoded = contentType.indexOf('application/x-www-form-urlencoded') >= 0;
 
   // try to transform body to json
   var json;
@@ -38905,10 +38910,8 @@ function matchBody(spec, body) {
     try { json = JSON.parse(body);} catch(err) {}
     if (json !== undefined) {
       body = json;
-    } else {
-      if (contentType && contentType.toString().match(/application\/x-www-form-urlencoded/)) {
-        body = lib.parse(body, { allowDots: true });
-      }
+    } else if (isUrlencoded) {
+      body = lib.parse(body, { allowDots: true });
     }
   }
 
@@ -38934,8 +38937,36 @@ function matchBody(spec, body) {
     spec = spec.replace(/\r?\n|\r/g, '');
   }
 
+  if (isUrlencoded) {
+    spec = mapValuesDeep(spec, function(val) {
+      if (lodash.isRegExp(val)) {
+        return val
+      }
+      return val + ''
+    });
+  }
+
   return deepEqualExtended(spec, body);
 };
+
+
+/**
+ * Based on lodash issue discussion
+ * https://github.com/lodash/lodash/issues/1244
+ */
+function mapValuesDeep(obj, cb) {
+  if (lodash.isArray(obj)) {
+    return obj.map(function(v) {
+      return mapValuesDeep(v, cb)
+    })
+  }
+  if (lodash.isPlainObject(obj)) {
+    return lodash.mapValues(obj, function(v) {
+      return mapValuesDeep(v, cb)
+    })
+  }
+  return cb(obj)
+}
 
 function deepEqualExtended(spec, body) {
   if (spec && spec.constructor === RegExp) {

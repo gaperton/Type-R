@@ -268,9 +268,6 @@ export class Record extends Transactional implements IORecord, AttributesContain
     // Attributes-level serialization
     _toJSON(){ return {}; }
 
-    // Attributes-level parse
-    _parse( data ){ return data; }
-
     // Create record default values, optionally augmenting given values.
     defaults( values = {} ){
         const defaults = {},
@@ -366,9 +363,11 @@ export class Record extends Transactional implements IORecord, AttributesContain
     
     // Default record-level parser, to be overriden by the subclasses.
     parse( data, options? : TransactionOptions ){
-        // Call dynamically compiled loop-unrolled attribute-level parse function.
-        return this._parse( data );
+        return data;
     }
+
+    // DEPRECATED: Attributes-level parse. Is moved to attribute descriptors.
+    _parse( data ){ return data; }
 
     /**
      * Transactional control
