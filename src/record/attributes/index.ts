@@ -54,22 +54,6 @@ export function createAttribute( spec : any, name : string ) : AnyType {
     return AnyType.create( ChainableAttributeSpec.from( spec ).options, name );
 }
 
-function createToJSON( attributes : AttributeDescriptors ) : () => void {
-    return new Function(`
-        var json = {},
-            v = this.attributes,
-            a = this._attributes;
-
-        ${ Object.keys( attributes ).map( key => {
-            if( attributes[ key ].toJSON ){
-                return `json.${key} = a.${key}.toJSON.call( this, v.${ key }, '${key}' );`;
-            }
-        } ).join( '\n' ) }
-
-        return json;
-    `) as any;
-}
-
 export function createSharedTypeSpec( Constructor : Function, Attribute : typeof AnyType ){
     if( !Constructor.hasOwnProperty( 'shared' ) ){
         Object.defineProperty( Constructor, 'shared', {
