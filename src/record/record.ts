@@ -265,9 +265,6 @@ export class Record extends Transactional implements IORecord, AttributesContain
         return this.map( value => value );
     }
 
-    // Attributes-level serialization
-    _toJSON(){ return {}; }
-
     // Create record default values, optionally augmenting given values.
     defaults( values = {} ){
         const defaults = {},

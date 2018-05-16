@@ -2053,17 +2053,10 @@ function ignore() { }
 var compile = function (attributesDefinition, baseClassAttributes) {
     var myAttributes = transform({}, attributesDefinition, createAttribute), allAttributes = defaults({}, myAttributes, baseClassAttributes);
     var ConstructorsMixin = constructorsMixin(allAttributes);
-    return __assign({}, ConstructorsMixin, { _attributes: new ConstructorsMixin.AttributesCopy(allAttributes), _attributesArray: Object.keys(allAttributes).map(function (key) { return allAttributes[key]; }), properties: transform({}, myAttributes, function (x) { return x.createPropertyDescriptor(); }), _toJSON: createToJSON(allAttributes) }, localEventsMixin(myAttributes), { _endpoints: transform({}, allAttributes, function (attrDef) { return attrDef.options.endpoint; }) });
+    return __assign({}, ConstructorsMixin, { _attributes: new ConstructorsMixin.AttributesCopy(allAttributes), _attributesArray: Object.keys(allAttributes).map(function (key) { return allAttributes[key]; }), properties: transform({}, myAttributes, function (x) { return x.createPropertyDescriptor(); }) }, localEventsMixin(myAttributes), { _endpoints: transform({}, allAttributes, function (attrDef) { return attrDef.options.endpoint; }) });
 };
 function createAttribute(spec, name) {
     return AnyType.create(ChainableAttributeSpec.from(spec).options, name);
-}
-function createToJSON(attributes) {
-    return new Function("\n        var json = {},\n            v = this.attributes,\n            a = this._attributes;\n\n        " + Object.keys(attributes).map(function (key) {
-        if (attributes[key].toJSON) {
-            return "json." + key + " = a." + key + ".toJSON.call( this, v." + key + ", '" + key + "' );";
-        }
-    }).join('\n') + "\n\n        return json;\n    ");
 }
 function createSharedTypeSpec(Constructor, Attribute) {
     if (!Constructor.hasOwnProperty('shared')) {
@@ -2283,7 +2276,6 @@ var Record = (function (_super) {
     Record.prototype.values = function () {
         return this.map(function (value) { return value; });
     };
-    Record.prototype._toJSON = function () { return {}; };
     Record.prototype.defaults = function (values) {
         if (values === void 0) { values = {}; }
         var defaults$$1 = {}, _attributesArray = this._attributesArray;

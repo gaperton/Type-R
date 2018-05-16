@@ -52,7 +52,6 @@ export declare class Record extends Transactional implements IORecord, Attribute
     each(iteratee: (value?: any, key?: string) => void, context?: any): void;
     keys(): string[];
     values(): any[];
-    _toJSON(): {};
     defaults(values?: {}): {};
     constructor(a_values?: {}, a_options?: ConstructorOptions);
     initialize(values?: any, options?: any): void;

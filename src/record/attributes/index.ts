@@ -22,9 +22,6 @@ export interface RecordAttributesMixin extends ConstructorsMixin {
     // Attribute's property descriptors
     properties : PropertyDescriptorMap
 
-    // Attributes serialization
-    _toJSON() : any
-
     // Event map for record's local events.
     _localEvents? : eventsApi.EventMap,
 
@@ -47,7 +44,6 @@ export default function( attributesDefinition : object, baseClassAttributes : At
         _attributes : new ConstructorsMixin.AttributesCopy( allAttributes ),
         _attributesArray : Object.keys( allAttributes ).map( key => allAttributes[ key ] ),
         properties : _.transform( <PropertyDescriptorMap>{}, myAttributes, x => x.createPropertyDescriptor() ),
-        _toJSON : createToJSON( allAttributes ),
         ...localEventsMixin( myAttributes ),
         _endpoints : _.transform( {}, allAttributes, attrDef => attrDef.options.endpoint )
     }            
