@@ -253,11 +253,11 @@ export class AnyType implements AttributeUpdatePipeline {
         // Attribute-level parse transform are attached as update hooks modifiers...
         const { doInit, doUpdate } = this;
         this.doInit = parse ? function( value, record : AttributesContainer, options : TransactionOptions ){
-            return doInit.call( this, options.parse && value != null ? parse.call( record, value, this.name ) : value, record, options );
+            return doInit.call( this, options.parse && value !== void 0 ? parse.call( record, value, this.name ) : value, record, options );
         } : doInit;
 
         this.doUpdate = parse ? function( value, record : AttributesContainer, options : TransactionOptions, nested? : RecordTransaction[] ){
-            return doUpdate.call( this, options.parse && value != null ? parse.call( record, value, this.name ) : value, record, options, nested );
+            return doUpdate.call( this, options.parse && value !== void 0 ? parse.call( record, value, this.name ) : value, record, options, nested );
         } : doUpdate;
     }
 

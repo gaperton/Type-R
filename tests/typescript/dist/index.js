@@ -1351,10 +1351,10 @@ var AnyType = (function () {
         this.handleChange = changeHandlers.length ? changeHandlers.reduce(chainChangeHandlers) : this.handleChange;
         var _a = this, doInit = _a.doInit, doUpdate = _a.doUpdate;
         this.doInit = parse ? function (value, record, options) {
-            return doInit.call(this, options.parse && value != null ? parse.call(record, value, this.name) : value, record, options);
+            return doInit.call(this, options.parse && value !== void 0 ? parse.call(record, value, this.name) : value, record, options);
         } : doInit;
         this.doUpdate = parse ? function (value, record, options, nested) {
-            return doUpdate.call(this, options.parse && value != null ? parse.call(record, value, this.name) : value, record, options, nested);
+            return doUpdate.call(this, options.parse && value !== void 0 ? parse.call(record, value, this.name) : value, record, options, nested);
         } : doUpdate;
     }
     AnyType.create = function (options, name) {
