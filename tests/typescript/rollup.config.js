@@ -8,7 +8,8 @@ export default {
 
     output : {
         file   : 'dist/index.js',
-        format : 'umd'
+        format : 'umd',
+        sourcemap: true
     },
     external: ['encoding', 'iconv-lite'], //for fixing weird error: Unexpected token ../../node_modules/iconv-lite/encodings/tables/gb18030-ranges.jso
 
@@ -23,6 +24,5 @@ export default {
         }),
         resolve(), //for support of `import X from "directory"` rather than verbose `import X from "directory/index"`
         sourcemaps()
-    ],
-    sourcemap: true
+    ]
 };
