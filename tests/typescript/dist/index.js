@@ -1595,7 +1595,7 @@ var ChainableAttributeSpec = (function () {
     };
     ChainableAttributeSpec.prototype.toJSON = function (fun) {
         return this.metadata({
-            toJSON: typeof fun === 'function' ? fun : (fun ? function (x) { return x && x.toJSON(); } : emptyFunction)
+            toJSON: typeof fun === 'function' ? fun : (fun ? function (x, k, o) { return x && x.toJSON(o); } : emptyFunction)
         });
     };
     ChainableAttributeSpec.prototype.get = function (fun) {
@@ -1834,8 +1834,8 @@ var ImmutableClassType = (function (_super) {
     ImmutableClassType.prototype.convert = function (next) {
         return next == null || next instanceof this.type ? next : new this.type(next);
     };
-    ImmutableClassType.prototype.toJSON = function (value) {
-        return value && value.toJSON ? value.toJSON() : value;
+    ImmutableClassType.prototype.toJSON = function (value, key, options) {
+        return value && value.toJSON ? value.toJSON(options) : value;
     };
     ImmutableClassType.prototype.clone = function (value) {
         return new this.type(this.toJSON(value));
@@ -2110,7 +2110,7 @@ var IORecordMixin = {
     save: function (options) {
         var _this = this;
         if (options === void 0) { options = {}; }
-        var endpoint = this.getEndpoint(), json = this.toJSON();
+        var endpoint = this.getEndpoint(), json = this.toJSON(options);
         return startIO(this, this.isNew() ?
             endpoint.create(json, options, this) :
             endpoint.update(this.id, json, options, this), options, function (update) {
