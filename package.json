@@ -50,31 +50,31 @@
   },
   "homepage": "https://github.com/gaperton/TransactionalJS#readme",
   "devDependencies": {
-    "@types/chai": "^4.1.2",
+    "@types/chai": "^4.1.4",
     "@types/mocha": "^2.2.48",
-    "@types/sinon-chai": "^2.7.29",
+    "@types/sinon-chai": "^2.7.33",
     "chai": "^4.1.2",
     "chai-as-promised": "*",
     "handlebars": "^4.0.11",
     "highlight.js": "^9.12.0",
     "isomorphic-fetch": "^2.2.1",
-    "marked": "^0.3.17",
+    "marked": "^0.3.19",
     "mocha": "^3.5.3",
-    "nock": "^9.2.3",
+    "nock": "^9.6.1",
     "reflect-metadata": "^0.1.12",
     "rollup": "^0.50.1",
-    "rollup-plugin-commonjs": "^8.3.0",
-    "rollup-plugin-node-resolve": "^3.0.3",
-    "rollup-plugin-sourcemaps": "^0.4.2",
+    "rollup-plugin-commonjs": "^8.4.1",
+    "rollup-plugin-node-resolve": "^3.3.0",
     "rollup-plugin-paths": "*",
+    "rollup-plugin-sourcemaps": "^0.4.2",
     "rollup-plugin-uglify": "^2.0.1",
-    "sinon": "*",
-    "sinon-chai": "*",
+    "sinon": "^6.1.5",
+    "sinon-chai": "^3.2.0",
     "ts-node": "^3.3.0",
-    "typescript": "^2.7.2",
-    "underscore": "*"
+    "typescript": "^3.0.1",
+    "underscore": "^1.9.1"
   },
   "dependencies": {
-    "tslib": "^1.9.0"
+    "tslib": "^1.9.3"
   }
 }

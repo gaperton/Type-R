@@ -104,8 +104,8 @@ export class AnyType implements AttributeUpdatePipeline {
 
     validate( record : AttributesContainer, value : any, key : string ){}
 
-    toJSON( value, key ) {
-        return value && value.toJSON ? value.toJSON() : value;
+    toJSON( value, key, options? : object ) {
+        return value && value.toJSON ? value.toJSON( options ) : value;
     }
 
     createPropertyDescriptor() : PropertyDescriptor | void {

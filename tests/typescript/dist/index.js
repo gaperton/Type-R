@@ -34,9 +34,12 @@ and limitations under the License.
 ***************************************************************************** */
 /* global Reflect, Promise */
 
-var extendStatics = Object.setPrototypeOf ||
-    ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-    function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+var extendStatics = function(d, b) {
+    extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return extendStatics(d, b);
+};
 
 function __extends(d, b) {
     extendStatics(d, b);
@@ -44,12 +47,15 @@ function __extends(d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 }
 
-var __assign = Object.assign || function __assign(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-    }
-    return t;
+var __assign = function() {
+    __assign = Object.assign || function __assign(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
 };
 
 function __rest(s, e) {
@@ -360,12 +366,12 @@ function definitions(rules) {
 
 function definitionDecorator(definitionKey, value) {
     return function (proto, name) {
+        var _a, _b;
         MixinsState
             .get(proto.constructor)
             .mergeObject(proto, (_a = {}, _a[definitionKey] = (_b = {},
                 _b[name] = value,
                 _b), _a));
-        var _a, _b;
     };
 }
 var MixinsState = (function () {
@@ -1127,6 +1133,7 @@ var Transactional = (function () {
         if (name !== 'Subclass')
             return name;
     };
+    var Transactional_1;
     Transactional = Transactional_1 = __decorate([
         define,
         definitions({
@@ -1135,7 +1142,6 @@ var Transactional = (function () {
         mixins(Messenger)
     ], Transactional);
     return Transactional;
-    var Transactional_1;
 }());
 var transactionApi = {
     begin: function (object) {
@@ -1376,8 +1382,8 @@ var AnyType = (function () {
         this.handleChange(void 0, value, record, emptyOptions);
     };
     AnyType.prototype.validate = function (record, value, key) { };
-    AnyType.prototype.toJSON = function (value, key) {
-        return value && value.toJSON ? value.toJSON() : value;
+    AnyType.prototype.toJSON = function (value, key, options) {
+        return value && value.toJSON ? value.toJSON(options) : value;
     };
     AnyType.prototype.createPropertyDescriptor = function () {
         var _a = this, name = _a.name, getHook = _a.getHook;
@@ -1455,7 +1461,7 @@ var AggregatedType = (function (_super) {
     AggregatedType.prototype.clone = function (value) {
         return value ? value.clone() : value;
     };
-    AggregatedType.prototype.toJSON = function (x) { return x && x.toJSON(); };
+    AggregatedType.prototype.toJSON = function (x, key, options) { return x && x.toJSON(options); };
     AggregatedType.prototype.doInit = function (value, record, options) {
         var v = options.clone ? this.clone(value) : (value === void 0 ? this.defaultValue() : value);
         var x = this.transform(v, void 0, record, options);
@@ -2218,10 +2224,10 @@ var Record = (function (_super) {
         return this[key] != void 0;
     };
     Record.prototype.unset = function (key, options) {
+        var _a;
         var value = this[key];
         this.set((_a = {}, _a[key] = void 0, _a), __assign({ unset: true }, options));
         return value;
-        var _a;
     };
     Record.prototype.clear = function (options) {
         var _this = this;
@@ -2311,13 +2317,13 @@ var Record = (function (_super) {
     Record.prototype.get = function (key) {
         return this[key];
     };
-    Record.prototype.toJSON = function () {
+    Record.prototype.toJSON = function (options) {
         var _this = this;
         var json = {};
         this.forEachAttr(this.attributes, function (value, key, _a) {
             var toJSON = _a.toJSON;
             if (value !== void 0) {
-                var asJson = toJSON.call(_this, value, key);
+                var asJson = toJSON.call(_this, value, key, options);
                 if (asJson !== void 0)
                     json[key] = asJson;
             }
@@ -2331,6 +2337,7 @@ var Record = (function (_super) {
     Record.prototype.deepSet = function (name, value, options) {
         var _this = this;
         this.transaction(function () {
+            var _a;
             var path$$1 = name.split('.'), l = path$$1.length - 1, attr = path$$1[l];
             var model = _this;
             for (var i = 0; i < l; i++) {
@@ -2356,7 +2363,6 @@ var Record = (function (_super) {
             else {
                 model[attr] = value;
             }
-            var _a;
         });
         return this;
     };
@@ -2383,6 +2389,7 @@ var Record = (function (_super) {
         return _super.prototype.getClassName.call(this) || 'Record';
     };
     Record.prototype._createTransaction = function (values, options) { return void 0; };
+    var Record_1;
     Record = Record_1 = __decorate([
         define({
             cidPrefix: 'm',
@@ -2398,7 +2405,6 @@ var Record = (function (_super) {
         })
     ], Record);
     return Record;
-    var Record_1;
 }(Transactional));
 
 assign$4(Record.prototype, UpdateRecordMixin, IORecordMixin);
@@ -3058,8 +3064,8 @@ var Collection = (function (_super) {
             copy._defaultStore = this.getStore();
         return copy;
     };
-    Collection.prototype.toJSON = function () {
-        return this.models.map(function (model) { return model.toJSON(); });
+    Collection.prototype.toJSON = function (options) {
+        return this.models.map(function (model) { return model.toJSON(options); });
     };
     Collection.prototype.set = function (elements, options) {
         if (elements === void 0) { elements = []; }
@@ -3238,6 +3244,7 @@ var Collection = (function (_super) {
     Collection.prototype.getClassName = function () {
         return _super.prototype.getClassName.call(this) || 'Collection';
     };
+    var Collection_1;
     Collection._attribute = AggregatedType;
     Collection = Collection_1 = __decorate([
         define({
@@ -3253,7 +3260,6 @@ var Collection = (function (_super) {
         })
     ], Collection);
     return Collection;
-    var Collection_1;
 }(Transactional));
 function toElements(collection, elements, options) {
     var parsed = options.parse ? collection.parse(elements, options) : elements;
@@ -17617,7 +17623,7 @@ var lodash = createCommonjsModule(function (module, exports) {
   var undefined;
 
   /** Used as the semantic version number. */
-  var VERSION = '4.17.5';
+  var VERSION = '4.17.10';
 
   /** Used as the size to enable large array optimizations. */
   var LARGE_ARRAY_SIZE = 200;
@@ -18041,6 +18047,14 @@ var lodash = createCommonjsModule(function (module, exports) {
   /** Used to access faster Node.js helpers. */
   var nodeUtil = (function() {
     try {
+      // Use `util.types` for Node.js 10+.
+      var types = freeModule && freeModule.require && freeModule.require('util').types;
+
+      if (types) {
+        return types;
+      }
+
+      // Legacy `process.binding('util')` for Node.js < 10.
       return freeProcess && freeProcess.binding && freeProcess.binding('util');
     } catch (e) {}
   }());
@@ -37159,7 +37173,7 @@ var headersArrayToObject = function (rawHeaders) {
   var headers = {};
 
   for (var i=0, len=rawHeaders.length; i<len; i=i+2) {
-    var key = rawHeaders[i];
+    var key = rawHeaders[i].toLowerCase();
     var value = rawHeaders[i+1];
 
     if (headers[key]) {
@@ -37497,6 +37511,7 @@ function Socket(options) {
   this.writable = true;
   this.readable = true;
   this.destroyed = false;
+  this.connecting = false;
 
   this.setNoDelay = noop$1;
   this.setKeepAlive = noop$1;
@@ -37629,7 +37644,6 @@ function RequestOverrider(req, options, interceptors, remove, cb) {
   }
 
   var requestBodyBuffers = [],
-      aborted,
       emitError,
       end,
       ended,
@@ -37667,11 +37681,10 @@ function RequestOverrider(req, options, interceptors, remove, cb) {
   };
 
   req.socket = response.socket = socket({ proto: options.proto });
-  req.socket.connecting = true;
 
   req.write = function(buffer, encoding$$1, callback) {
     debug$5('write', arguments);
-    if (!aborted) {
+    if (!req.aborted) {
       if (buffer) {
         if (!Buffer.isBuffer(buffer)) {
           buffer = new Buffer(buffer, encoding$$1);
@@ -37695,7 +37708,7 @@ function RequestOverrider(req, options, interceptors, remove, cb) {
 
   req.end = function(buffer, encoding$$1, callback) {
     debug$5('req.end');
-    if (!aborted && !ended) {
+    if (!req.aborted && !ended) {
       req.write(buffer, encoding$$1, function () {
         if (typeof callback === 'function') {
           callback();
@@ -37705,27 +37718,27 @@ function RequestOverrider(req, options, interceptors, remove, cb) {
         req.emit('end');
       });
     }
-    if (aborted) {
+    if (req.aborted) {
       emitError(new Error('Request aborted'));
     }
   };
 
   req.flushHeaders = function() {
     debug$5('req.flushHeaders');
-    if (!aborted && !ended) {
+    if (!req.aborted && !ended) {
       end(cb);
     }
-    if (aborted) {
+    if (req.aborted) {
       emitError(new Error('Request aborted'));
     }
   };
 
   req.abort = function() {
-    if (aborted) {
+    if (req.aborted) {
       return;
     }
     debug$5('req.abort');
-    aborted = true;
+    req.aborted = Date.now();
     if (!ended) {
       end();
     }
@@ -37830,7 +37843,7 @@ function RequestOverrider(req, options, interceptors, remove, cb) {
     interceptor.req = req;
     req.headers = req.getHeaders ? req.getHeaders() : req._headers;
 
-    interceptor.scope.emit('request', req, interceptor);
+    interceptor.scope.emit('request', req, interceptor, requestBody);
 
     if (typeof interceptor.errorMessage !== 'undefined') {
       interceptor.interceptionCounter++;
@@ -37855,14 +37868,14 @@ function RequestOverrider(req, options, interceptors, remove, cb) {
 
 
     if (typeof interceptor.body === 'function') {
-      if (requestBody && common.isJSONContent(options.headers)) {
-        if (requestBody && common.contentEncoding(options.headers, 'gzip')) {
+      if (requestBody && common.isJSONContent(req.headers)) {
+        if (requestBody && common.contentEncoding(req.headers, 'gzip')) {
           if (typeof zlib.gunzipSync !== 'function') {
             emitError(new Error('Gzip encoding is currently not supported in this version of Node.'));
             return;
           }
           requestBody = String(zlib.gunzipSync(new Buffer(requestBody, 'hex')), 'hex');
-        } else if (requestBody && common.contentEncoding(options.headers, 'deflate')) {
+        } else if (requestBody && common.contentEncoding(req.headers, 'deflate')) {
           if (typeof zlib.deflateSync !== 'function') {
             emitError(new Error('Deflate encoding is currently not supported in this version of Node.'));
             return;
@@ -37997,7 +38010,7 @@ function RequestOverrider(req, options, interceptors, remove, cb) {
       remove(interceptor);
       interceptor.discard();
 
-      if (aborted) { return; }
+      if (req.aborted) { return; }
 
       /// response.client.authorized = true
       /// fixes https://github.com/pgte/nock/issues/158
@@ -38034,7 +38047,7 @@ function RequestOverrider(req, options, interceptors, remove, cb) {
 
       function respond() {
 
-        if (aborted) { return; }
+        if (req.aborted) { return; }
 
         if (interceptor.socketDelayInMs && interceptor.socketDelayInMs > 0) {
           req.socket.applyDelay(interceptor.socketDelayInMs);
@@ -38048,7 +38061,7 @@ function RequestOverrider(req, options, interceptors, remove, cb) {
         }
 
         function _respond() {
-          if (aborted) { return; }
+          if (req.aborted) { return; }
 
           debug$5('emitting response');
 
@@ -38057,7 +38070,7 @@ function RequestOverrider(req, options, interceptors, remove, cb) {
             cb(response);
           }
 
-          if (aborted) {
+          if (req.aborted) {
             emitError(new Error('Request aborted'));
           }
           else {
@@ -38248,7 +38261,6 @@ function objEquiv(a, b, opts) {
 }
 });
 
-var utils$2 = createCommonjsModule(function (module, exports) {
 'use strict';
 
 var has = Object.prototype.hasOwnProperty;
@@ -38285,7 +38297,7 @@ var compactQueue = function compactQueue(queue) {
     return obj;
 };
 
-exports.arrayToObject = function arrayToObject(source, options) {
+var arrayToObject = function arrayToObject(source, options) {
     var obj = options && options.plainObjects ? Object.create(null) : {};
     for (var i = 0; i < source.length; ++i) {
         if (typeof source[i] !== 'undefined') {
@@ -38296,7 +38308,7 @@ exports.arrayToObject = function arrayToObject(source, options) {
     return obj;
 };
 
-exports.merge = function merge(target, source, options) {
+var merge = function merge(target, source, options) {
     if (!source) {
         return target;
     }
@@ -38321,14 +38333,14 @@ exports.merge = function merge(target, source, options) {
 
     var mergeTarget = target;
     if (Array.isArray(target) && !Array.isArray(source)) {
-        mergeTarget = exports.arrayToObject(target, options);
+        mergeTarget = arrayToObject(target, options);
     }
 
     if (Array.isArray(target) && Array.isArray(source)) {
         source.forEach(function (item, i) {
             if (has.call(target, i)) {
                 if (target[i] && typeof target[i] === 'object') {
-                    target[i] = exports.merge(target[i], item, options);
+                    target[i] = merge(target[i], item, options);
                 } else {
                     target.push(item);
                 }
@@ -38343,7 +38355,7 @@ exports.merge = function merge(target, source, options) {
         var value = source[key];
 
         if (has.call(acc, key)) {
-            acc[key] = exports.merge(acc[key], value, options);
+            acc[key] = merge(acc[key], value, options);
         } else {
             acc[key] = value;
         }
@@ -38351,14 +38363,14 @@ exports.merge = function merge(target, source, options) {
     }, mergeTarget);
 };
 
-exports.assign = function assignSingleSource(target, source) {
+var assign$7 = function assignSingleSource(target, source) {
     return Object.keys(source).reduce(function (acc, key) {
         acc[key] = source[key];
         return acc;
     }, target);
 };
 
-exports.decode = function (str) {
+var decode = function (str) {
     try {
         return decodeURIComponent(str.replace(/\+/g, ' '));
     } catch (e) {
@@ -38366,7 +38378,7 @@ exports.decode = function (str) {
     }
 };
 
-exports.encode = function encode(str) {
+var encode = function encode(str) {
     // This code was originally written by Brian White (mscdex) for the io.js core querystring library.
     // It has been adapted here for stricter adherence to RFC 3986
     if (str.length === 0) {
@@ -38418,7 +38430,7 @@ exports.encode = function encode(str) {
     return out;
 };
 
-exports.compact = function compact(value) {
+var compact = function compact(value) {
     var queue = [{ obj: { o: value }, prop: 'o' }];
     var refs = [];
 
@@ -38440,18 +38452,28 @@ exports.compact = function compact(value) {
     return compactQueue(queue);
 };
 
-exports.isRegExp = function isRegExp(obj) {
+var isRegExp = function isRegExp(obj) {
     return Object.prototype.toString.call(obj) === '[object RegExp]';
 };
 
-exports.isBuffer = function isBuffer(obj) {
+var isBuffer = function isBuffer(obj) {
     if (obj === null || typeof obj === 'undefined') {
         return false;
     }
 
     return !!(obj.constructor && obj.constructor.isBuffer && obj.constructor.isBuffer(obj));
 };
-});
+
+var utils$2 = {
+    arrayToObject: arrayToObject,
+    assign: assign$7,
+    compact: compact,
+    decode: decode,
+    encode: encode,
+    isBuffer: isBuffer,
+    isRegExp: isRegExp,
+    merge: merge
+};
 
 'use strict';
 
@@ -38687,7 +38709,7 @@ var stringify_1 = function (object, opts) {
 
 
 
-var has = Object.prototype.hasOwnProperty;
+var has$1 = Object.prototype.hasOwnProperty;
 
 var defaults$4 = {
     allowDots: false,
@@ -38721,7 +38743,7 @@ var parseValues = function parseQueryStringValues(str, options) {
             key = options.decoder(part.slice(0, pos), defaults$4.decoder);
             val = options.decoder(part.slice(pos + 1), defaults$4.decoder);
         }
-        if (has.call(obj, key)) {
+        if (has$1.call(obj, key)) {
             obj[key] = [].concat(obj[key]).concat(val);
         } else {
             obj[key] = val;
@@ -38789,7 +38811,7 @@ var parseKeys = function parseQueryStringKeys(givenKey, val, options) {
     if (parent) {
         // If we aren't using plain objects, optionally prefix keys
         // that would overwrite object prototype properties
-        if (!options.plainObjects && has.call(Object.prototype, parent)) {
+        if (!options.plainObjects && has$1.call(Object.prototype, parent)) {
             if (!options.allowPrototypes) {
                 return;
             }
@@ -38803,7 +38825,7 @@ var parseKeys = function parseQueryStringKeys(givenKey, val, options) {
     var i = 0;
     while ((segment = child.exec(key)) !== null && i < options.depth) {
         i += 1;
-        if (!options.plainObjects && has.call(Object.prototype, segment[1].slice(1, -1))) {
+        if (!options.plainObjects && has$1.call(Object.prototype, segment[1].slice(1, -1))) {
             if (!options.allowPrototypes) {
                 return;
             }
@@ -38876,6 +38898,7 @@ var lib = {
 
 
 
+
 var match_body =
 function matchBody(spec, body) {
   if (typeof spec === 'undefined') {
@@ -38885,6 +38908,14 @@ function matchBody(spec, body) {
 
   if (Buffer.isBuffer(body)) {
     body = body.toString();
+  }
+
+  if (Buffer.isBuffer(spec)) {
+    if (common.isBinaryBuffer(spec)) {
+      spec = spec.toString('hex');
+    } else {
+      spec = spec.toString('utf8');
+    }
   }
 
   var contentType = (
@@ -39049,8 +39080,12 @@ function Interceptor(scope, uri, method, requestBody, interceptorOptions) {
     this.optional = false;
 }
 
-Interceptor.prototype.optionally = function optionally() {
-    this.optional = true;
+Interceptor.prototype.optionally = function optionally(value) {
+    // The default behaviour of optionally() with no arguments is to make the mock optional.
+    value = (typeof value === 'undefined') ? true : value;
+
+    this.optional = value;
+
     return this;
 };
 
@@ -39312,7 +39347,8 @@ Interceptor.prototype.match = function match(options, body, hostNameOnly) {
 
     if (typeof this.uri === 'function') {
         matches = matchQueries &&
-            method.toUpperCase() + ' ' + proto + '://' + options.host === this.baseUri &&
+            method === this.method &&
+            common.matchStringOrRegexp(matchKey, this.basePath) &&
             this.uri.call(this, path$$1);
     } else {
         matches = method === this.method &&
@@ -39341,6 +39377,7 @@ Interceptor.prototype.match = function match(options, body, hostNameOnly) {
 
 Interceptor.prototype.matchIndependentOfBody = function matchIndependentOfBody(options) {
     var isRegex = lodash.isRegExp(this.path);
+    var isRegexBasePath = lodash.isRegExp(this.scope.basePath);
 
     var method = (options.method || 'GET').toUpperCase()
         , path$$1 = options.path
@@ -39367,8 +39404,12 @@ Interceptor.prototype.matchIndependentOfBody = function matchIndependentOfBody(o
     var comparisonKey = isRegex ? this.__nock_scopeKey : this._key;
     var matchKey = method + ' ' + proto + '://' + options.host + path$$1;
 
-    if (isRegex) {
+    if (isRegex && !isRegexBasePath) {
         return !!matchKey.match(comparisonKey) && !!path$$1.match(this.path);
+    }
+
+    if(isRegexBasePath) {
+        return !!matchKey.match(this.scope.basePath) && !!path$$1.match(this.path);
     }
 
     return comparisonKey === matchKey;
@@ -39568,6 +39609,7 @@ Interceptor.prototype.socketDelay = function socketDelay(ms) {
 
 var inherits         = util.inherits;
 var parse$2            = require$$1.parse;
+var URL$1              = require$$1.URL;
 var debug$4            = src('nock.intercept');
 var EventEmitter     = require$$0.EventEmitter;
 
@@ -39912,6 +39954,8 @@ function activate() {
 
     if (typeof options === 'string') {
       options = parse$2(options);
+    } else if (URL$1 && options instanceof URL$1) {
+      options = parse$2(options.toString());
     }
     options.proto = proto;
 
@@ -40413,9 +40457,7 @@ var scope = createCommonjsModule(function (module) {
  * @module nock/scope
  */
 var debug           = src('nock.scope')
-  , EventEmitter    = require$$0.EventEmitter
-  , extend          = util._extend
-  , util$$2            = util;
+  , EventEmitter    = require$$0.EventEmitter;
 
 var fs$$2;
 
@@ -40458,7 +40500,7 @@ function Scope(basePath, options) {
   }
 }
 
-util$$2.inherits(Scope, EventEmitter);
+util.inherits(Scope, EventEmitter);
 
 Scope.prototype.add = function add(key, interceptor$$2, scope) {
   if (! this.keyedInterceptors.hasOwnProperty(key)) {
@@ -40749,7 +40791,7 @@ function define(nockDefs) {
   return nocks;
 }
 
-module.exports = extend(startScope, {
+module.exports = Object.assign(startScope, {
   cleanAll: cleanAll,
   activate: intercept.activate,
   isActive: intercept.isActive,
