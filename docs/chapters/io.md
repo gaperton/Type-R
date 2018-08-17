@@ -267,7 +267,7 @@ const abortablePromise = createIOPromise( ( resolve, reject, onAbort ) =>{
 
 Record and Collection has a portion of common API related to the I/O and serialization.
 
-### obj.toJSON()
+### obj.toJSON( options? )
 
 Serialize record or collection to JSON. Used internally by I/O methods. Can be overridden to customize serialization.
 
@@ -328,7 +328,7 @@ Parsing can be controlled on per-attribute level with <b>Type.has.parse()</b> de
 
 Do _not_ serialize the specific attribute.
 
-### `attrDef` : Type.has.toJSON( ( value, name ) => json )
+### `attrDef` : Type.has.toJSON( ( value, name, options ) => json )
 
 Override the default serialization for the specific record's attribute.
 
