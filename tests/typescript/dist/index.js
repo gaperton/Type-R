@@ -16108,6 +16108,28 @@
     });
 
     describe('Bugs from Volicon Observer', function () {
+        describe('Serialization', function () {
+            it('null attribute values should call has.parse()', function () {
+                var Test = (function (_super) {
+                    __extends(Test, _super);
+                    function Test() {
+                        return _super !== null && _super.apply(this, arguments) || this;
+                    }
+                    __decorate([
+                        type(String)
+                            .parse(function (x) { return 'bla-bla'; })
+                            .as,
+                        __metadata("design:type", String)
+                    ], Test.prototype, "a", void 0);
+                    Test = __decorate([
+                        define
+                    ], Test);
+                    return Test;
+                }(Record));
+                var t = new Test({ a: null }, { parse: true });
+                chai_1$1(t.a).to.eql('bla-bla');
+            });
+        });
         describe('Attribute definitions', function () {
             it('@attr( value ) must work as expected', function () {
                 var Test = (function (_super) {

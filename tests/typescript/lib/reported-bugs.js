@@ -4,6 +4,28 @@ import { define, attr, mixins, Record, type, Collection } from 'type-r';
 import { expect } from 'chai';
 import { MinutesInterval } from './common';
 describe('Bugs from Volicon Observer', function () {
+    describe('Serialization', function () {
+        it('null attribute values should call has.parse()', function () {
+            var Test = (function (_super) {
+                tslib_1.__extends(Test, _super);
+                function Test() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                tslib_1.__decorate([
+                    type(String)
+                        .parse(function (x) { return 'bla-bla'; })
+                        .as,
+                    tslib_1.__metadata("design:type", String)
+                ], Test.prototype, "a", void 0);
+                Test = tslib_1.__decorate([
+                    define
+                ], Test);
+                return Test;
+            }(Record));
+            var t = new Test({ a: null }, { parse: true });
+            expect(t.a).to.eql('bla-bla');
+        });
+    });
     describe('Attribute definitions', function () {
         it('@attr( value ) must work as expected', function () {
             var Test = (function (_super) {
