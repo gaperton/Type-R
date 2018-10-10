@@ -50,7 +50,7 @@ let toString = typeof window === 'undefined' ?
             return something.constructor.name + ' ' + body;
         }
 
-        return something;
+        return JSON.stringify( something );
     }
     : x => x;
 

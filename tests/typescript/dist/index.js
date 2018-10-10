@@ -833,7 +833,7 @@
                 var body = isArray ? "[ length = " + value.length + " ]" : "{ " + Object.keys(value).join(', ') + " }";
                 return something.constructor.name + ' ' + body;
             }
-            return something;
+            return JSON.stringify(something);
         }
         : function (x) { return x; };
     var logRouter = new Logger();
