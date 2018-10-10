@@ -54,7 +54,7 @@ export declare abstract class Transactional implements Messenger, IONode, Valida
     assignFrom(source: Transactional | Object): this;
     abstract _createTransaction(values: any, options?: TransactionOptions): Transaction | void;
     parse(data: any, options?: TransactionOptions): any;
-    abstract toJSON(): {};
+    abstract toJSON(options?: object): {};
     abstract get(key: string): any;
     deepGet(reference: string): any;
     getOwner(): Owner;

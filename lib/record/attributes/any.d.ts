@@ -42,7 +42,7 @@ export declare class AnyType implements AttributeUpdatePipeline {
     clone(value: any, record: AttributesContainer): any;
     dispose(record: AttributesContainer, value: any): void;
     validate(record: AttributesContainer, value: any, key: string): any;
-    toJSON(value: any, key: any): any;
+    toJSON(value: any, key: any, options?: object): any;
     createPropertyDescriptor(): PropertyDescriptor | void;
     value: any;
     static defaultValue: any;
@@ -54,7 +54,6 @@ export declare class AnyType implements AttributeUpdatePipeline {
     propagateChanges: boolean;
     protected _log(level: LogLevel, code: string, text: string, value: any, record: AttributesContainer): void;
     defaultValue(): any;
-    parse: Parse;
     constructor(name: string, a_options: AttributeOptions);
     getHook: (value: any, key: string) => any;
     get: (value: any, key: string) => any;

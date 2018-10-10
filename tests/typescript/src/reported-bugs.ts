@@ -4,6 +4,19 @@ import { expect } from 'chai'
 import { MinutesInterval } from './common'
 
 describe( 'Bugs from Volicon Observer', () =>{
+    describe( 'Attribute serialization', () => {
+        it( 'should call has.parse() when null attribute value is passed', ()=>{
+            @define class Test extends Record {
+                @type( String )
+                    .parse( x => 'bla-bla' )
+                    .as a : string
+            }
+    
+            const t = new Test({ a : null }, { parse : true });
+            expect( t.a ).to.eql( 'bla-bla' );
+        });    
+    });
+
     describe( 'Attribute definitions', () => {
         it( '@attr( value ) must work as expected', () => {
             @define class Test extends Record {

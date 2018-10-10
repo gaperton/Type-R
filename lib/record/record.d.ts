@@ -52,8 +52,6 @@ export declare class Record extends Transactional implements IORecord, Attribute
     each(iteratee: (value?: any, key?: string) => void, context?: any): void;
     keys(): string[];
     values(): any[];
-    _toJSON(): {};
-    _parse(data: any): any;
     defaults(values?: {}): {};
     constructor(a_values?: {}, a_options?: ConstructorOptions);
     initialize(values?: any, options?: any): void;
@@ -61,8 +59,9 @@ export declare class Record extends Transactional implements IORecord, Attribute
     deepClone(): this;
     _validateNested(errors: ChildrenErrors): number;
     get(key: string): any;
-    toJSON(): Object;
+    toJSON(options?: object): any;
     parse(data: any, options?: TransactionOptions): any;
+    _parse(data: any): any;
     deepSet(name: string, value: any, options?: any): this;
     readonly collection: any;
     dispose(): void;

@@ -1310,7 +1310,6 @@
                 this.validate = wrapIsRequired(this.validate);
             }
             transforms.unshift(this.convert);
-            this.parse = parse || this.parse;
             if (this.get)
                 getHooks.unshift(this.get);
             this.initialize.call(this, options);
@@ -1323,6 +1322,13 @@
             }
             this.transform = transforms.length ? transforms.reduce(chainTransforms) : this.transform;
             this.handleChange = changeHandlers.length ? changeHandlers.reduce(chainChangeHandlers) : this.handleChange;
+            var _a = this, doInit = _a.doInit, doUpdate = _a.doUpdate;
+            this.doInit = parse ? function (value, record, options) {
+                return doInit.call(this, options.parse && value !== void 0 ? parse.call(record, value, this.name) : value, record, options);
+            } : doInit;
+            this.doUpdate = parse ? function (value, record, options, nested) {
+                return doUpdate.call(this, options.parse && value !== void 0 ? parse.call(record, value, this.name) : value, record, options, nested);
+            } : doUpdate;
         }
         AnyType.create = function (options, name) {
             var type = options.type, AttributeCtor = options._attribute || (type ? type._attribute : AnyType);
@@ -1343,8 +1349,8 @@
             this.handleChange(void 0, value, record, emptyOptions);
         };
         AnyType.prototype.validate = function (record, value, key) { };
-        AnyType.prototype.toJSON = function (value, key) {
-            return value && value.toJSON ? value.toJSON() : value;
+        AnyType.prototype.toJSON = function (value, key, options) {
+            return value && value.toJSON ? value.toJSON(options) : value;
         };
         AnyType.prototype.createPropertyDescriptor = function () {
             var _a = this, name = _a.name, getHook = _a.getHook;
@@ -1421,7 +1427,7 @@
         AggregatedType.prototype.clone = function (value) {
             return value ? value.clone() : value;
         };
-        AggregatedType.prototype.toJSON = function (x) { return x && x.toJSON(); };
+        AggregatedType.prototype.toJSON = function (x, key, options) { return x && x.toJSON(options); };
         AggregatedType.prototype.doInit = function (value, record, options) {
             var v = options.clone ? this.clone(value) : (value === void 0 ? this.defaultValue() : value);
             var x = this.transform(v, void 0, record, options);
@@ -1555,7 +1561,7 @@
         };
         ChainableAttributeSpec.prototype.toJSON = function (fun) {
             return this.metadata({
-                toJSON: typeof fun === 'function' ? fun : (fun ? function (x) { return x && x.toJSON(); } : emptyFunction)
+                toJSON: typeof fun === 'function' ? fun : (fun ? function (x, k, o) { return x && x.toJSON(o); } : emptyFunction)
             });
         };
         ChainableAttributeSpec.prototype.get = function (fun) {
@@ -1792,8 +1798,8 @@
         ImmutableClassType.prototype.convert = function (next) {
             return next == null || next instanceof this.type ? next : new this.type(next);
         };
-        ImmutableClassType.prototype.toJSON = function (value) {
-            return value && value.toJSON ? value.toJSON() : value;
+        ImmutableClassType.prototype.toJSON = function (value, key, options) {
+            return value && value.toJSON ? value.toJSON(options) : value;
         };
         ImmutableClassType.prototype.clone = function (value) {
             return new this.type(this.toJSON(value));
@@ -2014,23 +2020,10 @@
     function compile (attributesDefinition, baseClassAttributes) {
         var myAttributes = transform({}, attributesDefinition, createAttribute), allAttributes = defaults({}, myAttributes, baseClassAttributes);
         var ConstructorsMixin = constructorsMixin(allAttributes);
-        return __assign({}, ConstructorsMixin, { _attributes: new ConstructorsMixin.AttributesCopy(allAttributes), _attributesArray: Object.keys(allAttributes).map(function (key) { return allAttributes[key]; }), properties: transform({}, myAttributes, function (x) { return x.createPropertyDescriptor(); }), _toJSON: createToJSON(allAttributes) }, parseMixin(allAttributes), localEventsMixin(myAttributes), { _endpoints: transform({}, allAttributes, function (attrDef) { return attrDef.options.endpoint; }) });
+        return __assign({}, ConstructorsMixin, { _attributes: new ConstructorsMixin.AttributesCopy(allAttributes), _attributesArray: Object.keys(allAttributes).map(function (key) { return allAttributes[key]; }), properties: transform({}, myAttributes, function (x) { return x.createPropertyDescriptor(); }) }, localEventsMixin(myAttributes), { _endpoints: transform({}, allAttributes, function (attrDef) { return attrDef.options.endpoint; }) });
     }
     function createAttribute(spec, name) {
         return AnyType.create(ChainableAttributeSpec.from(spec).options, name);
-    }
-    function parseMixin(attributes) {
-        var attrsWithParse = Object.keys(attributes).filter(function (name) { return attributes[name].parse; });
-        return attrsWithParse.length ? {
-            _parse: new Function('json', "\n            var _attrs = this._attributes;\n\n            " + attrsWithParse.map(function (name) { return "                \n                json." + name + " === void 0 || ( json." + name + " = _attrs." + name + ".parse.call( this, json." + name + ", \"" + name + "\" ) );\n            "; }).join('') + "\n\n            return json;\n        ")
-        } : {};
-    }
-    function createToJSON(attributes) {
-        return new Function("\n        var json = {},\n            v = this.attributes,\n            a = this._attributes;\n\n        " + Object.keys(attributes).map(function (key) {
-            if (attributes[key].toJSON) {
-                return "json." + key + " = a." + key + ".toJSON.call( this, v." + key + ", '" + key + "' );";
-            }
-        }).join('\n') + "\n\n        return json;\n    ");
     }
     function createSharedTypeSpec(Constructor, Attribute) {
         if (!Constructor.hasOwnProperty('shared')) {
@@ -2078,7 +2071,7 @@
         save: function (options) {
             var _this = this;
             if (options === void 0) { options = {}; }
-            var endpoint = this.getEndpoint(), json = this.toJSON();
+            var endpoint = this.getEndpoint(), json = this.toJSON(options);
             return startIO(this, this.isNew() ?
                 endpoint.create(json, options, this) :
                 endpoint.update(this.id, json, options, this), options, function (update) {
@@ -2247,8 +2240,6 @@
         Record.prototype.values = function () {
             return this.map(function (value) { return value; });
         };
-        Record.prototype._toJSON = function () { return {}; };
-        Record.prototype._parse = function (data) { return data; };
         Record.prototype.defaults = function (values) {
             if (values === void 0) { values = {}; }
             var defaults$$1 = {}, _attributesArray = this._attributesArray;
@@ -2283,13 +2274,13 @@
         Record.prototype.get = function (key) {
             return this[key];
         };
-        Record.prototype.toJSON = function () {
+        Record.prototype.toJSON = function (options) {
             var _this = this;
             var json = {};
             this.forEachAttr(this.attributes, function (value, key, _a) {
                 var toJSON = _a.toJSON;
                 if (value !== void 0) {
-                    var asJson = toJSON.call(_this, value, key);
+                    var asJson = toJSON.call(_this, value, key, options);
                     if (asJson !== void 0)
                         json[key] = asJson;
                 }
@@ -2297,8 +2288,9 @@
             return json;
         };
         Record.prototype.parse = function (data, options) {
-            return this._parse(data);
+            return data;
         };
+        Record.prototype._parse = function (data) { return data; };
         Record.prototype.deepSet = function (name, value, options) {
             var _this = this;
             this.transaction(function () {
@@ -3002,8 +2994,8 @@
                 copy._defaultStore = this.getStore();
             return copy;
         };
-        Collection.prototype.toJSON = function () {
-            return this.models.map(function (model) { return model.toJSON(); });
+        Collection.prototype.toJSON = function (options) {
+            return this.models.map(function (model) { return model.toJSON(options); });
         };
         Collection.prototype.set = function (elements, options) {
             if (elements === void 0) { elements = []; }
@@ -16254,6 +16246,28 @@
     });
 
     describe('Bugs from Volicon Observer', function () {
+        describe('Attribute serialization', function () {
+            it('should call has.parse() when null attribute value is passed', function () {
+                var Test = (function (_super) {
+                    __extends(Test, _super);
+                    function Test() {
+                        return _super !== null && _super.apply(this, arguments) || this;
+                    }
+                    __decorate([
+                        type(String)
+                            .parse(function (x) { return 'bla-bla'; })
+                            .as,
+                        __metadata("design:type", String)
+                    ], Test.prototype, "a", void 0);
+                    Test = __decorate([
+                        define
+                    ], Test);
+                    return Test;
+                }(Record));
+                var t = new Test({ a: null }, { parse: true });
+                chai_1$1(t.a).to.eql('bla-bla');
+            });
+        });
         describe('Attribute definitions', function () {
             it('@attr( value ) must work as expected', function () {
                 var Test = (function (_super) {

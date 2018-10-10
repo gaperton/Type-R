@@ -259,12 +259,6 @@ export class Record extends Transactional implements IORecord, AttributesContain
         return this.map( value => value );
     }
 
-    // Attributes-level serialization
-    _toJSON(){ return {}; }
-
-    // Attributes-level parse
-    _parse( data ){ return data; }
-
     // Create record default values, optionally augmenting given values.
     defaults( values = {} ){
         const defaults = {},
@@ -341,14 +335,14 @@ export class Record extends Transactional implements IORecord, AttributesContain
      */
 
     // Default record-level serializer, to be overriden by subclasses 
-    toJSON() : Object {
+    toJSON( options? : object ) : any {
         const json = {};
 
         this.forEachAttr( this.attributes, ( value, key : string, { toJSON } ) =>{
             // If attribute serialization is not disabled, and its value is not undefined...
             if( value !== void 0 ){
                 // ...serialize it according to its spec.
-                const asJson = toJSON.call( this, value, key );
+                const asJson = toJSON.call( this, value, key, options );
 
                 // ...skipping undefined values. Such an attributes are excluded.
                 if( asJson !== void 0 ) json[ key ] = asJson; 
@@ -360,9 +354,11 @@ export class Record extends Transactional implements IORecord, AttributesContain
     
     // Default record-level parser, to be overriden by the subclasses.
     parse( data, options? : TransactionOptions ){
-        // Call dynamically compiled loop-unrolled attribute-level parse function.
-        return this._parse( data );
+        return data;
     }
+
+    // DEPRECATED: Attributes-level parse. Is moved to attribute descriptors.
+    _parse( data ){ return data; }
 
     /**
      * Transactional control

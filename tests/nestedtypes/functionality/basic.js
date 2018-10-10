@@ -81,7 +81,6 @@
                 });
         
                 it( 'return default values', ()=>{
-                    console.log( t.defaults.toString() );
                     const values = t.defaults();
                     expect( values.text ).to.eql( "" );
                 });

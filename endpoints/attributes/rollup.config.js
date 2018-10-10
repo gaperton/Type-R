@@ -9,11 +9,11 @@ export default {
         file   : 'dist/index.js',
         format : 'umd',
         name   : 'attributesIO',
-        sourcemap: true,
+        sourcemap: true
     },
     plugins: [
         resolve(), //for support of `import X from "directory"` rather than verbose `import X from "directory/index"`
         sourcemaps(),
         uglify()
-    ],
+    ]
 };

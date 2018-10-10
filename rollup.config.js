@@ -15,5 +15,5 @@ export default {
         resolve(), //for support of `import X from "directory"` rather than verbose `import X from "directory/index"`
         sourcemaps(),
         uglify()
-    ],
+    ]
 };

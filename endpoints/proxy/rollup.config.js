@@ -10,14 +10,14 @@ export default {
         file   : 'dist/index.js',
         format : 'umd',
         name   : 'proxyIO',
+        sourcemap: true,
         globals : {
             "type-r":"Nested"
-        },
-        sourcemap: true,
+        }    
     },
     plugins: [
         resolve(), //for support of `import X from "directory"` rather than verbose `import X from "directory/index"`
         sourcemaps(),
         uglify()
-    ],
+    ]
 };
