@@ -49,7 +49,7 @@ export type CallbacksByEvents = { [ events : string ] : Function }
     properties : mixinRules.merge,
     localEvents : mixinRules.merge
 })
-export abstract class Messenger implements Mixable, EventSource {
+export class Messenger implements Mixable, EventSource {
     // Define extendable mixin static properties.
     static __super__ : object;
     static mixins : MixinsState;

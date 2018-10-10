@@ -1,9 +1,9 @@
-import { tools, EventMap, EventsDefinition } from '../object-plus';
-import { Transactional, CloneOptions, TransactionOptions, TransactionalDefinition } from '../transactions';
-import { Record, AggregatedType } from '../record';
-import { CollectionCore, CollectionTransaction } from './commons';
-import { AddOptions } from './add';
 import { IOPromise } from '../io-tools';
+import { EventMap, EventsDefinition, LogLevel } from '../object-plus';
+import { AggregatedType, Record } from '../record';
+import { CloneOptions, Transactional, TransactionalDefinition, TransactionOptions } from '../transactions';
+import { AddOptions } from './add';
+import { CollectionCore, CollectionTransaction } from './commons';
 export declare type GenericComparator = string | ((x: Record) => number) | ((a: Record, b: Record) => number);
 export interface CollectionOptions extends TransactionOptions {
     comparator?: GenericComparator;
@@ -78,7 +78,7 @@ export declare class Collection<R extends Record = Record> extends Transactional
     indexOf(modelOrId: any): number;
     modelId(attrs: {}): any;
     toggle(model: R, a_next?: boolean): boolean;
-    _log(level: tools.LogLevel, text: string, value: any): void;
+    _log(level: LogLevel, text: string, value: any): void;
     getClassName(): string;
 }
 export declare type LiveUpdatesOption = boolean | ((x: any) => boolean);

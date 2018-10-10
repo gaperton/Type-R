@@ -3,21 +3,15 @@
  * The root of all definitions. 
  */
 
-import { tools, eventsApi, Mixable, definitions, mixins,  mixinRules, define } from '../object-plus'
+import { Collection } from '../collection';
+import { IOEndpoint, IOPromise } from '../io-tools';
+import { define, definitions, mixinRules, tools, log, LogLevel, isProduction } from '../object-plus';
+import { CloneOptions, Owner, Transaction, Transactional, TransactionalDefinition, TransactionOptions } from '../transactions';
+import { ChildrenErrors } from '../validation';
+import { AggregatedType, AnyType, AttributesConstructor, AttributesContainer, AttributesCopyConstructor, AttributesValues, setAttribute, shouldBeAnObject, UpdateRecordMixin } from './attributes';
+import { IORecord, IORecordMixin } from './io-mixin';
 
-import { CloneOptions, Transactional, TransactionalDefinition, Transaction, TransactionOptions, Owner } from '../transactions'
-import { ChildrenErrors } from '../validation'
-
-import { Collection } from '../collection'
-
-import { AnyType, AggregatedType, setAttribute, UpdateRecordMixin, 
-    AttributesValues, AttributesContainer,
-    ConstructorsMixin, AttributesConstructor, AttributesCopyConstructor } from './attributes'
-
-import { IORecord, IORecordMixin } from './io-mixin'
-import { IOPromise, IOEndpoint } from '../io-tools'
-
-const { assign, isEmpty, log } = tools;
+const { assign, isEmpty } = tools;
 
 /*******************************************************
  * Record core implementation
@@ -235,7 +229,7 @@ export class Record extends Transactional implements IORecord, AttributesContain
         }
 
         if( unknown ){
-            this._log( 'warn', `attributes ${ unknown.join(', ')} are not defined`,{
+            this._log( 'warn', 'typeError', `attributes ${ unknown.join(', ')} are not defined`, {
                 attributes : attrs
             } );
         }
@@ -297,7 +291,7 @@ export class Record extends Transactional implements IORecord, AttributesContain
         const options = a_options || {},
               values = ( options.parse ? this.parse( a_values, options ) :  a_values ) || {};
 
-        if( log.level > 1 ) typeCheck( this, values );
+        isProduction || typeCheck( this, values );
 
         this._previousAttributes = this.attributes = new this.Attributes( this, values, options );
 
@@ -439,11 +433,11 @@ export class Record extends Transactional implements IORecord, AttributesContain
         super.dispose();
     }
 
-    _log( level : tools.LogLevel, text : string, props : object ) : void {
-        tools.log( level, '[Record] ' + text, {
+    _log( level : LogLevel, topic: string, text : string, props : object ) : void {
+        log( level, 'record:' + topic, text, {
+            ...props,
             'Record' : this,
-            'Attributes definition:' : this._attributes,
-            ...props
+            'Attributes definition:' : this._attributes
         });
     }
 
@@ -489,7 +483,6 @@ Record.prototype._attributes = { id : IdAttribute };
 Record.prototype._attributesArray = [ IdAttribute ];
 Record._attribute = AggregatedType;
 
-import { shouldBeAnObject } from './attributes'
 
 function typeCheck( record : Record, values : object ){
     if( shouldBeAnObject( record, values ) ){
@@ -504,7 +497,7 @@ function typeCheck( record : Record, values : object ){
         }
 
         if( unknown ){
-            record._log( 'warn', `undefined attributes ${ unknown.join(', ')} are ignored.`, { values } );
+            record._log( 'warn', 'typeError', `undefined attributes ${ unknown.join(', ')} are ignored.`, { values } );
         }
     }
 }

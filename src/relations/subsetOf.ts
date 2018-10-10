@@ -73,7 +73,7 @@ function defineSubsetCollection( CollectionConstructor : typeof Collection ) {
                 // Collection is resolved, so parse ids and forward the call to set.
                 super.reset( resolveRefs( resolvedWith, elements ), options ) :
                 // Collection is not resolved yet. So, we prepare the delayed computation.
-                delaySet( this, elements, options ) || [];
+                delaySet( this, elements, options ) as any || [];
         }
 
         _createTransaction( a_elements, options? ){

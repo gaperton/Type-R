@@ -1,7 +1,7 @@
-import { setAttribute, AttributesContainer, AttributeUpdatePipeline, RecordTransaction } from './updates'
-import { tools } from '../../object-plus'
-import { Owner, Transactional, TransactionOptions } from '../../transactions'
-import { IOEndpoint } from '../../io-tools'
+import { IOEndpoint } from '../../io-tools';
+import { tools, log, LogLevel } from '../../object-plus';
+import { TransactionOptions } from '../../transactions';
+import { AttributesContainer, AttributeUpdatePipeline, RecordTransaction, setAttribute } from './updates';
 
 const { notEqual, assign} = tools;
 
@@ -102,7 +102,7 @@ export class AnyType implements AttributeUpdatePipeline {
         this.handleChange( void 0, value, record, emptyOptions );
     }
 
-    validate( record : AttributesContainer, value : any, key : string ){}
+    validate( record : AttributesContainer, value : any, key : string ) : any {}
 
     toJSON( value, key ) {
         return value && value.toJSON ? value.toJSON() : value;
@@ -168,12 +168,12 @@ export class AnyType implements AttributeUpdatePipeline {
 
     propagateChanges : boolean
 
-    _log( level : tools.LogLevel, text : string, value, record : AttributesContainer ){
-        tools.log( level, `[Attribute Update Error] ${ record.getClassName() }.${ this.name }: ` + text, {
-            'Record' : record,
-            'Attribute definition' : this,
+    protected _log( level : LogLevel, code : string, text : string, value, record : AttributesContainer ){
+        log( level, 'record:' + code, `${record.getClassName()}.${ this.name } ${ text }`, {
+            'New value' : value,
             'Prev. value' : record.attributes[ this.name ],
-            'New value' : value
+            'Attribute definition' : this,
+            'Record' : record
         });
     }
 

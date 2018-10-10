@@ -3,8 +3,8 @@
  *
  * Vlad Balin & Volicon, (c) 2016-2017
  */
-import { log, assign, omit, hashMap, getPropertyDescriptor, getBaseClass, defaults, transform } from './tools'
-import { __extends } from 'tslib'
+import { __extends } from 'tslib';
+import { assign, defaults, getBaseClass, hashMap, transform } from './tools';
 
 export interface Subclass< T > extends MixableConstructor {
     new ( ...args ) : T
@@ -113,7 +113,7 @@ export function define( ClassOrDefinition : object | MixableConstructor ){
     // @define class
     if( typeof ClassOrDefinition === 'function' ){
         predefine( ClassOrDefinition );
-        ClassOrDefinition.define();
+        ( ClassOrDefinition as MixableConstructor ).define();
     }
     // @define({ prop : val, ... }) class
     else{

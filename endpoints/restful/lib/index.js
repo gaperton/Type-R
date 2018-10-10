@@ -55,7 +55,7 @@ var RestfulEndpoint = (function () {
         return appendParams(this.getRootUrl(collection), options.params);
     };
     RestfulEndpoint.prototype.buildRequestOptions = function (method, options, body) {
-        var mergedOptions = Object.assign({}, RestfulEndpoint.defaultFetchOptions, this.fetchOptions, options);
+        var mergedOptions = tslib_1.__assign({}, RestfulEndpoint.defaultFetchOptions, this.fetchOptions, options);
         var headers = mergedOptions.headers, rest = tslib_1.__rest(mergedOptions, ["headers"]), resultOptions = tslib_1.__assign({ method: method, headers: tslib_1.__assign({ 'Content-Type': 'application/json' }, headers) }, rest);
         if (body) {
             resultOptions.body = JSON.stringify(body);

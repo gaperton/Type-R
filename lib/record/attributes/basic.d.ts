@@ -1,6 +1,6 @@
+import { TransactionOptions } from '../../transactions';
 import { AnyType } from './any';
 import { AttributesContainer } from './updates';
-import { TransactionOptions } from '../../transactions';
 export declare class PrimitiveType extends AnyType {
     type: NumberConstructor | StringConstructor | BooleanConstructor;
     dispose(): void;
@@ -19,7 +19,7 @@ export declare class NumericType extends PrimitiveType {
     convert(next: any, prev?: any, record?: any): any;
     validate(model: any, value: any, name: any): string;
 }
-declare global  {
+declare global {
     interface NumberConstructor {
         integer: Function;
     }

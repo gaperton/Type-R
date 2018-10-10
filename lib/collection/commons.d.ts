@@ -11,7 +11,7 @@ export interface CollectionCore extends Transactional, Owner {
     _itemEvents?: eventsApi.EventMap;
     _shared: number;
     _aggregationError: Record[];
-    _log(level: string, text: string, value: any): void;
+    _log(level: string, topic: string, text: string, value: any): void;
 }
 export declare type Elements = (Object | Record)[];
 export interface CollectionOptions extends TransactionOptions {

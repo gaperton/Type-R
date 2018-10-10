@@ -1,16 +1,16 @@
-import { define, tools, eventsApi, EventMap, definitions, mixinRules, EventsDefinition, Mixable } from '../object-plus'
-import { ItemsBehavior, transactionApi, Transactional, CloneOptions, Transaction, TransactionOptions, TransactionalDefinition, Owner } from '../transactions'
-import { Record, SharedType, AggregatedType, createSharedTypeSpec } from '../record'
+import { IOPromise, startIO } from '../io-tools';
+import { define, definitions, EventMap, eventsApi, EventsDefinition, Mixable, mixinRules, tools, log, LogLevel } from '../object-plus';
+import { AggregatedType, createSharedTypeSpec, Record, SharedType } from '../record';
+import { CloneOptions, ItemsBehavior, Transactional, TransactionalDefinition, transactionApi, TransactionOptions } from '../transactions';
+import { AddOptions, addTransaction } from './add';
+import { CollectionCore, CollectionTransaction, Elements, free, sortElements, updateIndex } from './commons';
+import { removeMany, removeOne } from './remove';
+import { emptySetTransaction, setTransaction } from './set';
 
-import { IdIndex, free, sortElements, dispose, Elements, CollectionCore, addIndex, removeIndex, updateIndex, Comparator, CollectionTransaction } from './commons'
-import { addTransaction, AddOptions } from './add'
-import { setTransaction, emptySetTransaction } from './set'
-import { removeOne, removeMany } from './remove'
-import { IOPromise, startIO } from '../io-tools'
 
 const { trigger2, on, off } = eventsApi,
     { begin, commit, markAsDirty } = transactionApi,
-    { omit, log, assign, defaults, assignToClassProto } = tools;
+    { omit, assign, defaults, assignToClassProto } = tools;
 
 let _count = 0;
 
@@ -566,8 +566,8 @@ export class Collection< R extends Record = Record> extends Transactional implem
         return next;
     }
 
-    _log( level : tools.LogLevel, text : string, value ) : void {
-        tools.log( level, `[Collection Update] ${ this.model.prototype.getClassName() }.${ this.getClassName() }: ` + text, {
+    _log( level : LogLevel, text : string, value ) : void {
+        log( level, 'collection:update', `${ this.model.prototype.getClassName() }.${ this.getClassName() }: ` + text, {
             Argument : value,
             'Attributes spec' : this.model.prototype._attributes
         });

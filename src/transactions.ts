@@ -335,7 +335,7 @@ export abstract class Transactional implements Messenger, IONode, Validatable, T
     }
 
     // Logging interface for run time errors and warnings.
-    abstract _log( level : string, text : string, value : any ) : void;
+    abstract _log( level : string, topic : string, text : string, value : any ) : void;
 }
 
 export interface CloneOptions {

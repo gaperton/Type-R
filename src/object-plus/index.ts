@@ -8,21 +8,4 @@ export * from './events'
 import * as eventsApi from './eventsource'
 export { eventsApi }
 
-import { Mixable, MixableConstructor } from './mixins'
-
-declare global {
-    interface ObjectConstructor {
-        /** Polyfill for Object.assign */
-        assign< T >( dest : T, ...sources : Object[] ) : T
-
-        /** Global logging interface, for console debugging. */
-        log : tools.Log
-
-        /** ES5 Object.extend */
-        extend( protoProps : {}, staticProps : {} ) : MixableConstructor
-    }
-}
-
-Object.extend = ( protoProps, staticProps ) => Mixable.extend( protoProps, staticProps );
-Object.assign || ( Object.assign = tools.assign );
-Object.log = tools.log;
+export * from './logging'

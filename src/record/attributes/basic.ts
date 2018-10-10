@@ -4,10 +4,9 @@
  * Adds type assertions, default validation, and optimized update pipeline.
  */
 
-import { AnyType } from './any'
-import { tools } from '../../object-plus'
-import { AttributesContainer } from './updates'
-import { TransactionOptions } from '../../transactions'
+import { TransactionOptions } from '../../transactions';
+import { AnyType } from './any';
+import { AttributesContainer } from './updates';
 
 /**
  * Custom class must be immutable class which implements toJSON() method
@@ -92,7 +91,7 @@ export class NumericType extends PrimitiveType {
         const num = next == null ? next : this.type( next );
 
         if( num !== num ){
-            this._log( 'warn', 'assigned with Invalid Number', next, record );
+            this._log( 'error', 'typeError', 'Number attribute is assigned with an invalid number', next, record );
         }
         
         return num;
@@ -145,7 +144,7 @@ export class ArrayType extends AnyType {
         // Fix incompatible constructor behaviour of Array...
         if( next == null || Array.isArray( next ) ) return next;
 
-        this._log( 'warn', 'assignment of non-array to Array attribute is ignored', next, record );
+        this._log( 'error', 'typeError', 'Array attribute assigned with non-array value', next, record );
 
         return [];
     }
@@ -163,7 +162,7 @@ export class ObjectType extends AnyType {
     convert( next, prev, record ) {
         if( next == null || typeof next === 'object' ) return next;
                 
-        this._log( 'warn', 'assignment of non-object to Object attribute is ignored', next, record );
+        this._log( 'error', 'typeError', 'Object attribute is assigned with non-object value', next, record );
         return {};
     }
 }
@@ -182,7 +181,7 @@ export class FunctionType extends AnyType {
         // Fix incompatible constructor behaviour of Function...
         if( next == null || typeof next === 'function' ) return next;
 
-        this._log( 'warn', 'assigned with non-function', next, record );
+        this._log( 'error', 'typeError', 'Function attribute assigned with non-function value', next, record );
 
         return doNothing;
     }

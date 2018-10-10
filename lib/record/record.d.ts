@@ -1,10 +1,10 @@
-import { tools } from '../object-plus';
-import { CloneOptions, Transactional, TransactionalDefinition, Transaction, TransactionOptions, Owner } from '../transactions';
-import { ChildrenErrors } from '../validation';
 import { Collection } from '../collection';
-import { AnyType, AttributesValues, AttributesContainer, AttributesConstructor, AttributesCopyConstructor } from './attributes';
+import { IOEndpoint, IOPromise } from '../io-tools';
+import { LogLevel } from '../object-plus';
+import { CloneOptions, Owner, Transaction, Transactional, TransactionalDefinition, TransactionOptions } from '../transactions';
+import { ChildrenErrors } from '../validation';
+import { AnyType, AttributesConstructor, AttributesContainer, AttributesCopyConstructor, AttributesValues } from './attributes';
 import { IORecord } from './io-mixin';
-import { IOPromise, IOEndpoint } from '../io-tools';
 export interface ConstructorOptions extends TransactionOptions {
     clone?: boolean;
 }
@@ -66,7 +66,7 @@ export declare class Record extends Transactional implements IORecord, Attribute
     deepSet(name: string, value: any, options?: any): this;
     readonly collection: any;
     dispose(): void;
-    _log(level: tools.LogLevel, text: string, props: object): void;
+    _log(level: LogLevel, topic: string, text: string, props: object): void;
     getClassName(): string;
     _createTransaction(values: object, options: TransactionOptions): Transaction;
     forceAttributeChange: (key: string, options: TransactionOptions) => void;
