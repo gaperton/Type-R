@@ -1516,6 +1516,302 @@
         return AggregatedType;
     }(AnyType));
 
+    var DateType = (function (_super) {
+        __extends(DateType, _super);
+        function DateType() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        DateType.prototype.create = function () {
+            return new Date();
+        };
+        DateType.prototype.convert = function (next, a, record) {
+            if (next == null || next instanceof Date)
+                return next;
+            var date = new Date(next), timestamp = date.getTime();
+            if (timestamp !== timestamp) {
+                this._log('error', 'Type-R:InvalidDate', 'Date attribute assigned with invalid date', next, record);
+            }
+            return date;
+        };
+        DateType.prototype.validate = function (model, value, name) {
+            if (value != null) {
+                var timestamp = value.getTime();
+                if (timestamp !== timestamp)
+                    return name + ' is Invalid Date';
+            }
+        };
+        DateType.prototype.toJSON = function (value) { return value && value.toISOString(); };
+        DateType.prototype.isChanged = function (a, b) { return (a && a.getTime()) !== (b && b.getTime()); };
+        DateType.prototype.doInit = function (value, record, options) {
+            return this.transform(value === void 0 ? this.defaultValue() : value, void 0, record, options);
+        };
+        DateType.prototype.doUpdate = function (value, record, options, nested) {
+            var name = this.name, attributes = record.attributes, prev = attributes[name];
+            return this.isChanged(prev, attributes[name] = this.transform(value, prev, record, options));
+        };
+        DateType.prototype.clone = function (value) { return value && new Date(value.getTime()); };
+        DateType.prototype.dispose = function () { };
+        return DateType;
+    }(AnyType));
+    Date._attribute = DateType;
+    function supportsDate(date) {
+        return !isNaN((new Date(date)).getTime());
+    }
+    if (!supportsDate('2011-11-29T15:52:30.5') ||
+        !supportsDate('2011-11-29T15:52:30.52') ||
+        !supportsDate('2011-11-29T15:52:18.867') ||
+        !supportsDate('2011-11-29T15:52:18.867Z') ||
+        !supportsDate('2011-11-29T15:52:18.867-03:30')) {
+        DateType.prototype.convert = function (value) {
+            return value == null || value instanceof Date ? value : new Date(safeParseDate(value));
+        };
+    }
+    var numericKeys = [1, 4, 5, 6, 7, 10, 11], isoDatePattern = /^(\d{4}|[+\-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:(Z)|([+\-])(\d{2})(?::(\d{2}))?)?)?$/;
+    function safeParseDate(date) {
+        var timestamp, struct, minutesOffset = 0;
+        if ((struct = isoDatePattern.exec(date))) {
+            for (var i = 0, k; (k = numericKeys[i]); ++i) {
+                struct[k] = +struct[k] || 0;
+            }
+            struct[2] = (+struct[2] || 1) - 1;
+            struct[3] = +struct[3] || 1;
+            if (struct[8] !== 'Z' && struct[9] !== undefined) {
+                minutesOffset = struct[10] * 60 + struct[11];
+                if (struct[9] === '+') {
+                    minutesOffset = 0 - minutesOffset;
+                }
+            }
+            timestamp =
+                Date.UTC(struct[1], struct[2], struct[3], struct[4], struct[5] + minutesOffset, struct[6], struct[7]);
+        }
+        else {
+            timestamp = Date.parse(date);
+        }
+        return timestamp;
+    }
+
+    var ImmutableClassType = (function (_super) {
+        __extends(ImmutableClassType, _super);
+        function ImmutableClassType() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        ImmutableClassType.prototype.create = function () {
+            return new this.type();
+        };
+        ImmutableClassType.prototype.convert = function (next) {
+            return next == null || next instanceof this.type ? next : new this.type(next);
+        };
+        ImmutableClassType.prototype.toJSON = function (value, key, options) {
+            return value && value.toJSON ? value.toJSON(options) : value;
+        };
+        ImmutableClassType.prototype.clone = function (value) {
+            return new this.type(this.toJSON(value));
+        };
+        ImmutableClassType.prototype.isChanged = function (a, b) {
+            return a !== b;
+        };
+        return ImmutableClassType;
+    }(AnyType));
+    Function.prototype._attribute = ImmutableClassType;
+    var PrimitiveType = (function (_super) {
+        __extends(PrimitiveType, _super);
+        function PrimitiveType() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        PrimitiveType.prototype.dispose = function () { };
+        PrimitiveType.prototype.create = function () { return this.type(); };
+        PrimitiveType.prototype.toJSON = function (value) { return value; };
+        PrimitiveType.prototype.convert = function (next) { return next == null ? next : this.type(next); };
+        PrimitiveType.prototype.isChanged = function (a, b) { return a !== b; };
+        PrimitiveType.prototype.clone = function (value) { return value; };
+        PrimitiveType.prototype.doInit = function (value, record, options) {
+            return this.transform(value === void 0 ? this.value : value, void 0, record, options);
+        };
+        PrimitiveType.prototype.doUpdate = function (value, record, options, nested) {
+            var name = this.name, attributes = record.attributes, prev = attributes[name];
+            return prev !== (attributes[name] = this.transform(value, prev, record, options));
+        };
+        PrimitiveType.prototype.initialize = function () {
+            if (!this.options.hasCustomDefault) {
+                this.value = this.type();
+            }
+        };
+        return PrimitiveType;
+    }(AnyType));
+    Boolean._attribute = String._attribute = PrimitiveType;
+    var NumericType = (function (_super) {
+        __extends(NumericType, _super);
+        function NumericType() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        NumericType.prototype.create = function () {
+            return 0;
+        };
+        NumericType.prototype.convert = function (next, prev, record) {
+            var num = next == null ? next : this.type(next);
+            if (num !== num) {
+                this._log('error', 'Type-R:InvalidNumber', 'Number attribute is assigned with an invalid number', next, record);
+            }
+            return num;
+        };
+        NumericType.prototype.validate = function (model, value, name) {
+            if (value != null && !isFinite(value)) {
+                return name + ' is not valid number';
+            }
+        };
+        return NumericType;
+    }(PrimitiveType));
+    Number._attribute = NumericType;
+    var ArrayType = (function (_super) {
+        __extends(ArrayType, _super);
+        function ArrayType() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        ArrayType.prototype.toJSON = function (value) { return value; };
+        ArrayType.prototype.dispose = function () { };
+        ArrayType.prototype.create = function () { return []; };
+        ArrayType.prototype.convert = function (next, prev, record) {
+            if (next == null || Array.isArray(next))
+                return next;
+            this._log('error', 'Type-R:InvalidArray', 'Array attribute assigned with non-array value', next, record);
+            return [];
+        };
+        ArrayType.prototype.clone = function (value) {
+            return value && value.slice();
+        };
+        return ArrayType;
+    }(AnyType));
+    Array._attribute = ArrayType;
+    var ObjectType = (function (_super) {
+        __extends(ObjectType, _super);
+        function ObjectType() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        ObjectType.prototype.create = function () { return {}; };
+        ObjectType.prototype.convert = function (next, prev, record) {
+            if (next == null || typeof next === 'object')
+                return next;
+            this._log('error', 'Type-R:InvalidObject', 'Object attribute is assigned with non-object value', next, record);
+            return {};
+        };
+        return ObjectType;
+    }(AnyType));
+    Object._attribute = ObjectType;
+    function doNothing() { }
+    var FunctionType = (function (_super) {
+        __extends(FunctionType, _super);
+        function FunctionType() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        FunctionType.prototype.toJSON = function (value) { return void 0; };
+        FunctionType.prototype.create = function () { return doNothing; };
+        FunctionType.prototype.dispose = function () { };
+        FunctionType.prototype.convert = function (next, prev, record) {
+            if (next == null || typeof next === 'function')
+                return next;
+            this._log('error', 'Type-R:InvalidFunction', 'Function attribute assigned with non-function value', next, record);
+            return doNothing;
+        };
+        FunctionType.prototype.clone = function (value) { return value; };
+        return FunctionType;
+    }(AnyType));
+    Function._attribute = FunctionType;
+
+    var on$3 = on, off$3 = off, free$1 = transactionApi.free, aquire$1 = transactionApi.aquire;
+    var shareAndListen = ItemsBehavior.listen | ItemsBehavior.share;
+    var SharedType = (function (_super) {
+        __extends(SharedType, _super);
+        function SharedType() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        SharedType.prototype.doInit = function (value, record, options) {
+            var v = options.clone ? this.clone(value, record) : (value === void 0 ? this.defaultValue() : value);
+            var x = this.transform(v, void 0, record, options);
+            this.handleChange(x, void 0, record, options);
+            return x;
+        };
+        SharedType.prototype.doUpdate = function (value, record, options, nested) {
+            var key = this.name, attributes = record.attributes;
+            var prev = attributes[key];
+            var update;
+            if (update = this.canBeUpdated(prev, value, options)) {
+                var nestedTransaction = prev._createTransaction(update, options);
+                if (nestedTransaction) {
+                    if (nested) {
+                        nested.push(nestedTransaction);
+                    }
+                    else {
+                        nestedTransaction.commit(record);
+                    }
+                    if (this.propagateChanges)
+                        return true;
+                }
+                return false;
+            }
+            var next = this.transform(value, prev, record, options);
+            attributes[key] = next;
+            if (this.isChanged(next, prev)) {
+                this.handleChange(next, prev, record, options);
+                return true;
+            }
+            return false;
+        };
+        SharedType.prototype.clone = function (value, record) {
+            if (!value || value._owner !== record)
+                return value;
+            var clone = value.clone();
+            aquire$1(record, clone, this.name);
+            return clone;
+        };
+        SharedType.prototype.toJSON = function () { };
+        SharedType.prototype.canBeUpdated = function (prev, next, options) {
+            if (prev && next != null && !(next instanceof this.type)) {
+                return next;
+            }
+        };
+        SharedType.prototype.convert = function (next, prev, record, options) {
+            if (next == null || next instanceof this.type)
+                return next;
+            var implicitObject = new this.type(next, options, shareAndListen);
+            aquire$1(record, implicitObject, this.name);
+            return implicitObject;
+        };
+        SharedType.prototype.validate = function (model, value, name) { };
+        SharedType.prototype.create = function () {
+            return null;
+        };
+        SharedType.prototype._handleChange = function (next, prev, record, options) {
+            if (prev) {
+                if (prev._owner === record) {
+                    free$1(record, prev);
+                    options.unset || prev.dispose();
+                }
+                else {
+                    off$3(prev, prev._changeEventName, this._onChange, record);
+                }
+            }
+            if (next) {
+                if (next._owner !== record) {
+                    on$3(next, next._changeEventName, this._onChange, record);
+                }
+            }
+        };
+        SharedType.prototype.dispose = function (record, value) {
+            if (value) {
+                this.handleChange(void 0, value, record, {});
+            }
+        };
+        SharedType.prototype.initialize = function (options) {
+            var attribute = this;
+            this._onChange = this.propagateChanges ? function (child, options, initiator) {
+                this === initiator || this.forceAttributeChange(attribute.name, options);
+            } : ignore;
+            options.changeHandlers.unshift(this._handleChange);
+        };
+        return SharedType;
+    }(AnyType));
+    function ignore() { }
+
     var assign$3 = assign;
     var ChainableAttributeSpec = (function () {
         function ChainableAttributeSpec(options) {
@@ -1674,354 +1970,6 @@
                 return value ? value.constructor : void 0;
         }
     }
-
-    var DateType = (function (_super) {
-        __extends(DateType, _super);
-        function DateType() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        DateType.prototype.create = function () {
-            return new Date();
-        };
-        DateType.prototype.convert = function (next, a, record) {
-            if (next == null || next instanceof Date)
-                return next;
-            var date = new Date(next), timestamp = date.getTime();
-            if (timestamp !== timestamp) {
-                this._log('error', 'Type-R:InvalidDate', 'Date attribute assigned with invalid date', next, record);
-            }
-            return date;
-        };
-        DateType.prototype.validate = function (model, value, name) {
-            if (value != null) {
-                var timestamp = value.getTime();
-                if (timestamp !== timestamp)
-                    return name + ' is Invalid Date';
-            }
-        };
-        DateType.prototype.toJSON = function (value) { return value && value.toISOString(); };
-        DateType.prototype.isChanged = function (a, b) { return (a && a.getTime()) !== (b && b.getTime()); };
-        DateType.prototype.doInit = function (value, record, options) {
-            return this.transform(value === void 0 ? this.defaultValue() : value, void 0, record, options);
-        };
-        DateType.prototype.doUpdate = function (value, record, options, nested) {
-            var name = this.name, attributes = record.attributes, prev = attributes[name];
-            return this.isChanged(prev, attributes[name] = this.transform(value, prev, record, options));
-        };
-        DateType.prototype.clone = function (value) { return value && new Date(value.getTime()); };
-        DateType.prototype.dispose = function () { };
-        return DateType;
-    }(AnyType));
-    Date._attribute = DateType;
-    var msDatePattern = /\/Date\(([0-9]+)\)\//;
-    var MSDateType = (function (_super) {
-        __extends(MSDateType, _super);
-        function MSDateType() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        MSDateType.prototype.convert = function (next) {
-            if (typeof next === 'string') {
-                var msDate = msDatePattern.exec(next);
-                if (msDate) {
-                    return new Date(Number(msDate[1]));
-                }
-            }
-            return DateType.prototype.convert.apply(this, arguments);
-        };
-        MSDateType.prototype.toJSON = function (value) { return value && "/Date(" + value.getTime() + ")/"; };
-        return MSDateType;
-    }(DateType));
-    var TimestampType = (function (_super) {
-        __extends(TimestampType, _super);
-        function TimestampType() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        TimestampType.prototype.toJSON = function (value) { return value && value.getTime(); };
-        return TimestampType;
-    }(DateType));
-    Object.defineProperties(Date, {
-        microsoft: {
-            get: function () {
-                return new ChainableAttributeSpec({
-                    type: Date,
-                    _attribute: MSDateType
-                });
-            }
-        },
-        timestamp: {
-            get: function () {
-                return new ChainableAttributeSpec({
-                    type: Date,
-                    _attribute: TimestampType
-                });
-            }
-        }
-    });
-    function supportsDate(date) {
-        return !isNaN((new Date(date)).getTime());
-    }
-    if (!supportsDate('2011-11-29T15:52:30.5') ||
-        !supportsDate('2011-11-29T15:52:30.52') ||
-        !supportsDate('2011-11-29T15:52:18.867') ||
-        !supportsDate('2011-11-29T15:52:18.867Z') ||
-        !supportsDate('2011-11-29T15:52:18.867-03:30')) {
-        DateType.prototype.convert = function (value) {
-            return value == null || value instanceof Date ? value : new Date(safeParseDate(value));
-        };
-    }
-    var numericKeys = [1, 4, 5, 6, 7, 10, 11], isoDatePattern = /^(\d{4}|[+\-]\d{6})(?:-(\d{2})(?:-(\d{2}))?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{3}))?)?(?:(Z)|([+\-])(\d{2})(?::(\d{2}))?)?)?$/;
-    function safeParseDate(date) {
-        var timestamp, struct, minutesOffset = 0;
-        if ((struct = isoDatePattern.exec(date))) {
-            for (var i = 0, k; (k = numericKeys[i]); ++i) {
-                struct[k] = +struct[k] || 0;
-            }
-            struct[2] = (+struct[2] || 1) - 1;
-            struct[3] = +struct[3] || 1;
-            if (struct[8] !== 'Z' && struct[9] !== undefined) {
-                minutesOffset = struct[10] * 60 + struct[11];
-                if (struct[9] === '+') {
-                    minutesOffset = 0 - minutesOffset;
-                }
-            }
-            timestamp =
-                Date.UTC(struct[1], struct[2], struct[3], struct[4], struct[5] + minutesOffset, struct[6], struct[7]);
-        }
-        else {
-            timestamp = Date.parse(date);
-        }
-        return timestamp;
-    }
-
-    var ImmutableClassType = (function (_super) {
-        __extends(ImmutableClassType, _super);
-        function ImmutableClassType() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        ImmutableClassType.prototype.create = function () {
-            return new this.type();
-        };
-        ImmutableClassType.prototype.convert = function (next) {
-            return next == null || next instanceof this.type ? next : new this.type(next);
-        };
-        ImmutableClassType.prototype.toJSON = function (value, key, options) {
-            return value && value.toJSON ? value.toJSON(options) : value;
-        };
-        ImmutableClassType.prototype.clone = function (value) {
-            return new this.type(this.toJSON(value));
-        };
-        ImmutableClassType.prototype.isChanged = function (a, b) {
-            return a !== b;
-        };
-        return ImmutableClassType;
-    }(AnyType));
-    Function.prototype._attribute = ImmutableClassType;
-    var PrimitiveType = (function (_super) {
-        __extends(PrimitiveType, _super);
-        function PrimitiveType() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        PrimitiveType.prototype.dispose = function () { };
-        PrimitiveType.prototype.create = function () { return this.type(); };
-        PrimitiveType.prototype.toJSON = function (value) { return value; };
-        PrimitiveType.prototype.convert = function (next) { return next == null ? next : this.type(next); };
-        PrimitiveType.prototype.isChanged = function (a, b) { return a !== b; };
-        PrimitiveType.prototype.clone = function (value) { return value; };
-        PrimitiveType.prototype.doInit = function (value, record, options) {
-            return this.transform(value === void 0 ? this.value : value, void 0, record, options);
-        };
-        PrimitiveType.prototype.doUpdate = function (value, record, options, nested) {
-            var name = this.name, attributes = record.attributes, prev = attributes[name];
-            return prev !== (attributes[name] = this.transform(value, prev, record, options));
-        };
-        PrimitiveType.prototype.initialize = function () {
-            if (!this.options.hasCustomDefault) {
-                this.value = this.type();
-            }
-        };
-        return PrimitiveType;
-    }(AnyType));
-    Boolean._attribute = String._attribute = PrimitiveType;
-    var NumericType = (function (_super) {
-        __extends(NumericType, _super);
-        function NumericType() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        NumericType.prototype.create = function () {
-            return 0;
-        };
-        NumericType.prototype.convert = function (next, prev, record) {
-            var num = next == null ? next : this.type(next);
-            if (num !== num) {
-                this._log('error', 'Type-R:InvalidNumber', 'Number attribute is assigned with an invalid number', next, record);
-            }
-            return num;
-        };
-        NumericType.prototype.validate = function (model, value, name) {
-            if (value != null && !isFinite(value)) {
-                return name + ' is not valid number';
-            }
-        };
-        return NumericType;
-    }(PrimitiveType));
-    Number._attribute = NumericType;
-    function Integer(x) {
-        return x ? Math.round(x) : 0;
-    }
-    Integer._attribute = NumericType;
-    Number.integer = Integer;
-    if (typeof window !== 'undefined') {
-        window.Integer = Number.integer;
-    }
-    var ArrayType = (function (_super) {
-        __extends(ArrayType, _super);
-        function ArrayType() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        ArrayType.prototype.toJSON = function (value) { return value; };
-        ArrayType.prototype.dispose = function () { };
-        ArrayType.prototype.create = function () { return []; };
-        ArrayType.prototype.convert = function (next, prev, record) {
-            if (next == null || Array.isArray(next))
-                return next;
-            this._log('error', 'Type-R:InvalidArray', 'Array attribute assigned with non-array value', next, record);
-            return [];
-        };
-        ArrayType.prototype.clone = function (value) {
-            return value && value.slice();
-        };
-        return ArrayType;
-    }(AnyType));
-    Array._attribute = ArrayType;
-    var ObjectType = (function (_super) {
-        __extends(ObjectType, _super);
-        function ObjectType() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        ObjectType.prototype.create = function () { return {}; };
-        ObjectType.prototype.convert = function (next, prev, record) {
-            if (next == null || typeof next === 'object')
-                return next;
-            this._log('error', 'Type-R:InvalidObject', 'Object attribute is assigned with non-object value', next, record);
-            return {};
-        };
-        return ObjectType;
-    }(AnyType));
-    Object._attribute = ObjectType;
-    function doNothing() { }
-    var FunctionType = (function (_super) {
-        __extends(FunctionType, _super);
-        function FunctionType() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        FunctionType.prototype.toJSON = function (value) { return void 0; };
-        FunctionType.prototype.create = function () { return doNothing; };
-        FunctionType.prototype.dispose = function () { };
-        FunctionType.prototype.convert = function (next, prev, record) {
-            if (next == null || typeof next === 'function')
-                return next;
-            this._log('error', 'Type-R:InvalidFunction', 'Function attribute assigned with non-function value', next, record);
-            return doNothing;
-        };
-        FunctionType.prototype.clone = function (value) { return value; };
-        return FunctionType;
-    }(AnyType));
-    Function._attribute = FunctionType;
-
-    var on$3 = on, off$3 = off, free$1 = transactionApi.free, aquire$1 = transactionApi.aquire;
-    var shareAndListen = ItemsBehavior.listen | ItemsBehavior.share;
-    var SharedType = (function (_super) {
-        __extends(SharedType, _super);
-        function SharedType() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        SharedType.prototype.doInit = function (value, record, options) {
-            var v = options.clone ? this.clone(value, record) : (value === void 0 ? this.defaultValue() : value);
-            var x = this.transform(v, void 0, record, options);
-            this.handleChange(x, void 0, record, options);
-            return x;
-        };
-        SharedType.prototype.doUpdate = function (value, record, options, nested) {
-            var key = this.name, attributes = record.attributes;
-            var prev = attributes[key];
-            var update;
-            if (update = this.canBeUpdated(prev, value, options)) {
-                var nestedTransaction = prev._createTransaction(update, options);
-                if (nestedTransaction) {
-                    if (nested) {
-                        nested.push(nestedTransaction);
-                    }
-                    else {
-                        nestedTransaction.commit(record);
-                    }
-                    if (this.propagateChanges)
-                        return true;
-                }
-                return false;
-            }
-            var next = this.transform(value, prev, record, options);
-            attributes[key] = next;
-            if (this.isChanged(next, prev)) {
-                this.handleChange(next, prev, record, options);
-                return true;
-            }
-            return false;
-        };
-        SharedType.prototype.clone = function (value, record) {
-            if (!value || value._owner !== record)
-                return value;
-            var clone = value.clone();
-            aquire$1(record, clone, this.name);
-            return clone;
-        };
-        SharedType.prototype.toJSON = function () { };
-        SharedType.prototype.canBeUpdated = function (prev, next, options) {
-            if (prev && next != null && !(next instanceof this.type)) {
-                return next;
-            }
-        };
-        SharedType.prototype.convert = function (next, prev, record, options) {
-            if (next == null || next instanceof this.type)
-                return next;
-            var implicitObject = new this.type(next, options, shareAndListen);
-            aquire$1(record, implicitObject, this.name);
-            return implicitObject;
-        };
-        SharedType.prototype.validate = function (model, value, name) { };
-        SharedType.prototype.create = function () {
-            return null;
-        };
-        SharedType.prototype._handleChange = function (next, prev, record, options) {
-            if (prev) {
-                if (prev._owner === record) {
-                    free$1(record, prev);
-                    options.unset || prev.dispose();
-                }
-                else {
-                    off$3(prev, prev._changeEventName, this._onChange, record);
-                }
-            }
-            if (next) {
-                if (next._owner !== record) {
-                    on$3(next, next._changeEventName, this._onChange, record);
-                }
-            }
-        };
-        SharedType.prototype.dispose = function (record, value) {
-            if (value) {
-                this.handleChange(void 0, value, record, {});
-            }
-        };
-        SharedType.prototype.initialize = function (options) {
-            var attribute = this;
-            this._onChange = this.propagateChanges ? function (child, options, initiator) {
-                this === initiator || this.forceAttributeChange(attribute.name, options);
-            } : ignore;
-            options.changeHandlers.unshift(this._handleChange);
-        };
-        return SharedType;
-    }(AnyType));
-    function ignore() { }
 
     function compile (attributesDefinition, baseClassAttributes) {
         var myAttributes = transform({}, attributesDefinition, createAttribute), allAttributes = defaults({}, myAttributes, baseClassAttributes);
@@ -41722,6 +41670,196 @@
             });
         };
     }
+
+    var msDatePattern = /\/Date\(([0-9]+)\)\//;
+    var MicrosoftDateType = (function (_super) {
+        __extends(MicrosoftDateType, _super);
+        function MicrosoftDateType() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        MicrosoftDateType.prototype.convert = function (next) {
+            if (typeof next === 'string') {
+                var msDate = msDatePattern.exec(next);
+                if (msDate) {
+                    return new Date(Number(msDate[1]));
+                }
+            }
+            return DateType.prototype.convert.apply(this, arguments);
+        };
+        MicrosoftDateType.prototype.toJSON = function (value$$1) { return value$$1 && "/Date(" + value$$1.getTime() + ")/"; };
+        return MicrosoftDateType;
+    }(DateType));
+    var TimestampType = (function (_super) {
+        __extends(TimestampType, _super);
+        function TimestampType() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        TimestampType.prototype.toJSON = function (value$$1) { return value$$1 && value$$1.getTime(); };
+        return TimestampType;
+    }(DateType));
+    var MicrosoftDate = new ChainableAttributeSpec({
+        type: Date,
+        _attribute: MicrosoftDateType
+    });
+    var Timestamp = new ChainableAttributeSpec({
+        type: Date,
+        _attribute: TimestampType
+    });
+
+    function Integer(x) {
+        return x ? Math.round(x) : 0;
+    }
+    Integer._attribute = NumericType;
+
+    var urlPattern = /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i;
+    function isUrl(x) {
+        return !x || urlPattern.test(x);
+    }
+    isUrl.error = 'Not valid URL';
+    var Url = type(String).check(isUrl, void 0);
+
+    var ipPattern = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
+    function isIPAddress(x) {
+        return !x || ipPattern.test(x);
+    }
+    isIPAddress.error = 'Not valid IP address';
+    var IPAddress = type(String).check(isIPAddress, void 0);
+
+    var emailPattern = /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i;
+    function isEmail(x) {
+        return !x || !!x.match(emailPattern);
+    }
+    isEmail.error = 'Not valid email';
+    var Email = type(String).check(isEmail, void 0);
+
+    describe('Extended Type specs', function () {
+        describe('Date type', function () {
+            var user, User = Record.extend({
+                attributes: {
+                    timestamp: Timestamp,
+                    microsoft: MicrosoftDate,
+                    name: String
+                }
+            });
+            before(function () {
+                user = new User();
+            });
+            it('create new Date object on construction', function () {
+                chai_1$1(user.microsoft).to.be.instanceOf(Date);
+                chai_1$1(user.timestamp).to.be.instanceOf(Date);
+            });
+            it('parse ISO dates in all browsers on assignment', function () {
+                user.timestamp = "2012-12-12T10:00Z";
+                chai_1$1(user.timestamp).to.be.instanceof(Date);
+                chai_1$1(user.timestamp.toISOString()).to.be.eql('2012-12-12T10:00:00.000Z');
+                user.microsoft = "2012-12-12T10:00Z";
+                chai_1$1(user.microsoft).to.be.instanceof(Date);
+                chai_1$1(user.microsoft.toISOString()).to.be.eql('2012-12-12T10:00:00.000Z');
+            });
+            it('parse integer time stamps on assignment', function () {
+                user.timestamp = 1234567890123;
+                chai_1$1(user.timestamp).to.be.instanceof(Date);
+                chai_1$1(user.timestamp.toISOString()).to.be.eql('2009-02-13T23:31:30.123Z');
+                user.microsoft = 1234567890123;
+                chai_1$1(user.microsoft).to.be.instanceof(Date);
+                chai_1$1(user.microsoft.toISOString()).to.be.eql('2009-02-13T23:31:30.123Z');
+            });
+            it('parse MS time stamps on assignment', function () {
+                user.microsoft = "/Date(1234567890123)/";
+                chai_1$1(user.microsoft).to.be.instanceof(Date);
+                chai_1$1(user.microsoft.toISOString()).to.be.eql('2009-02-13T23:31:30.123Z');
+            });
+            it('is serialized to ISO date', function () {
+                var json = user.toJSON();
+                chai_1$1(json.timestamp).to.be.eql(1234567890123);
+                chai_1$1(json.microsoft).to.be.eql('/Date(1234567890123)/');
+            });
+        });
+        describe("Url", function () {
+            var user, User = Record.extend({
+                attributes: {
+                    url: Url
+                }
+            });
+            before(function () {
+                user = new User();
+            });
+            it('create new URL string on construction', function () {
+                chai_1$1(user.url).to.be.eq('');
+            });
+            it('checks for invalid urls', function () {
+                user.url = 'asd123';
+                chai_1$1(user.isValid()).to.be.false;
+                chai_1$1(user.getValidationError('url')).to.eq('Not valid URL');
+                user.url = 'http://test.com?x=y';
+                chai_1$1(user.isValid()).to.be.true;
+            });
+        });
+        describe("Email", function () {
+            var user, User = Record.extend({
+                attributes: {
+                    email: Email
+                }
+            });
+            before(function () {
+                user = new User();
+            });
+            it('create new email string on construction', function () {
+                chai_1$1(user.email).to.be.eq('');
+            });
+            it('checks for invalid emails', function () {
+                user.email = 'asd123';
+                chai_1$1(user.isValid()).to.be.false;
+                chai_1$1(user.getValidationError('email')).to.eq('Not valid email');
+                user.email = 'my@mail.com';
+                chai_1$1(user.isValid()).to.be.true;
+            });
+        });
+        describe("IP Address", function () {
+            var user, User = Record.extend({
+                attributes: {
+                    ip: IPAddress
+                }
+            });
+            before(function () {
+                user = new User();
+            });
+            it('create new ip string on construction', function () {
+                chai_1$1(user.ip).to.be.eq('');
+            });
+            it('checks for invalid ip', function () {
+                user.ip = 'asd123';
+                chai_1$1(user.isValid()).to.be.false;
+                chai_1$1(user.getValidationError('ip')).to.eq('Not valid IP address');
+                user.ip = '222.111.123.001';
+                chai_1$1(user.isValid()).to.be.true;
+            });
+        });
+        describe("Integer", function () {
+            var user, User = Record.extend({
+                attributes: {
+                    int: Integer
+                }
+            });
+            before(function () {
+                user = new User();
+            });
+            it('create new int string on construction', function () {
+                chai_1$1(user.int).to.be.eq(0);
+            });
+            it('rounding and conversion', function () {
+                user.int = 3.2;
+                chai_1$1(user.int).to.be.a('number').and.be.eq(3);
+                user.int = "25.7";
+                chai_1$1(user.int).to.be.a('number').and.equal(26);
+            });
+            it('can be set with null', function () {
+                user.int = null;
+                chai_1$1(user.int).to.be.null;
+                chai_1$1(user.isValid()).to.be.true;
+            });
+        });
+    });
 
 })));
 //# sourceMappingURL=index.js.map
