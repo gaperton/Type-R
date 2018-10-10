@@ -1,11 +1,3 @@
-/**
- * Simple overridable logging stubs, writing to `console` by default.
- * Node.js users might want to redirect logging somewhere.
- * 
- * This is the singleton avaliable globally through `Object.log` or 
- * exported [[log]] variable.
- */
-
  /** Similar to underscore `_.defaults` */
 export function defaults< T >( dest : T, ...sources : Object[] ) : T
 export function defaults< T >( dest : T, source : Object ) : T {

@@ -217,6 +217,6 @@ export class CollectionTransaction implements Transaction {
 }
 
 export function logAggregationError( collection : CollectionCore ){
-    collection._log( 'error', 'aggregation', 'added records already have an owner', collection._aggregationError );
+    collection._log( 'error', 'InvalidOwner', 'added records already have an owner', collection._aggregationError );
     collection._aggregationError = void 0;
 }
