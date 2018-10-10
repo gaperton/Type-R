@@ -1,5 +1,5 @@
-import {DateType, ChainableAttributeSpec} from "type-r";
-import {MicrosoftDate, Timestamp, Integer} from "ext-types";
+import { Integer, MicrosoftDate, Timestamp } from "ext-types";
+import { ChainableAttributeSpec } from "type-r";
 
 /*
  * dates
