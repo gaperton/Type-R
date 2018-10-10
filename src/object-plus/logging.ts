@@ -34,14 +34,18 @@ export class Logger extends Messenger {
     on : ( handlers : { [ name in LogLevel ] : LoggerEventHandler } | LogLevel, handler? : LoggerEventHandler ) => this
 }
 
+/**
+ * Convert objects to the plain text friendly format.
+ * primitives as in JSON.
+ */
 let toString = typeof window === 'undefined' ? 
     something => {
         if( something && typeof something === 'object' ){
-            const value = something.__inner_state__ || something,
+            const { __inner_state__ } = something,
+                value = __inner_state__ || something,
                 isArray = Array.isArray( value );
 
-            const keys = Object.keys( value ).join( ', ' ),
-                  body = isArray ? `[ length = ${ value.length } ]` : `{ ${ keys } }`;
+            const body = isArray ? `[ length = ${ value.length } ]` : `{ ${ Object.keys( value ).join( ', ' )} }`;
 
             return something.constructor.name + ' ' + body;
         }

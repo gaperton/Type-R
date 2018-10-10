@@ -327,7 +327,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
     // Apply bulk in-place object update in scope of ad-hoc transaction 
     set( elements : ElementsArg = [], options : TransactionOptions = {} ) : this {
         if( (<any>options).add !== void 0 ){
-            this._log( 'warn', "InvalidOption", "Collection.set doesn't support 'add' option, behaving as if options.add === true.", options );
+            this._log( 'warn', "Type-R:InvalidOption", "Collection.set doesn't support 'add' option, behaving as if options.add === true.", options );
         }
 
         // Handle reset option here - no way it will be populated from the top as nested transaction.

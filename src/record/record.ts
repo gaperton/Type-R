@@ -229,7 +229,7 @@ export class Record extends Transactional implements IORecord, AttributesContain
         }
 
         if( unknown ){
-            this._log( 'warn', 'UnknownAttrs', `attributes ${ unknown.join(', ')} are not defined`, {
+            this._log( 'warn', 'Type-R:UnknownAttrs', `attributes ${ unknown.join(', ')} are not defined`, {
                 attributes : attrs
             } );
         }
@@ -434,7 +434,7 @@ export class Record extends Transactional implements IORecord, AttributesContain
     }
 
     _log( level : LogLevel, topic: string, text : string, props : object ) : void {
-        log( level, 'record:' + topic, text, {
+        log( level, topic, text, {
             ...props,
             'Record' : this,
             'Attributes definition:' : this._attributes
@@ -497,7 +497,7 @@ function typeCheck( record : Record, values : object ){
         }
 
         if( unknown ){
-            record._log( 'warn', 'UnknownAttrs', `undefined attributes ${ unknown.join(', ')} are ignored.`, { values } );
+            record._log( 'warn', 'Type-R:UnknownAttrs', `undefined attributes ${ unknown.join(', ')} are ignored.`, { values } );
         }
     }
 }

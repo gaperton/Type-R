@@ -79,7 +79,7 @@ export class AggregatedType extends AnyType {
         
         if( next instanceof this.type ){
             if( next._shared && !( next._shared & ItemsBehavior.persistent ) ) { // TODO: think more about shared types assignment compatibility. 
-                this._log( 'error', 'InvalidCollection', 'aggregated collection attribute is assigned with shared collection type', next, record );
+                this._log( 'error', 'Type-R:InvalidCollection', 'aggregated collection attribute is assigned with shared collection type', next, record );
             }
 
             // With explicit 'merge' option we need to clone an object if its previous value was 'null'.
@@ -116,7 +116,7 @@ export class AggregatedType extends AnyType {
         } 
         
         if( next && !aquire( record, next, this.name ) ){
-            this._log( 'error', 'InvalidOwner', 'aggregated attribute assigned with an object already having an owner', next, record );
+            this._log( 'error', 'Type-R:InvalidOwner', 'aggregated attribute assigned with an object already having an owner', next, record );
         }
     }
 }

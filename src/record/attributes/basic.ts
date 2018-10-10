@@ -91,7 +91,7 @@ export class NumericType extends PrimitiveType {
         const num = next == null ? next : this.type( next );
 
         if( num !== num ){
-            this._log( 'error', 'InvalidNumber', 'Number attribute is assigned with an invalid number', next, record );
+            this._log( 'error', 'Type-R:InvalidNumber', 'Number attribute is assigned with an invalid number', next, record );
         }
         
         return num;
@@ -144,7 +144,7 @@ export class ArrayType extends AnyType {
         // Fix incompatible constructor behaviour of Array...
         if( next == null || Array.isArray( next ) ) return next;
 
-        this._log( 'error', 'InvalidArray', 'Array attribute assigned with non-array value', next, record );
+        this._log( 'error', 'Type-R:InvalidArray', 'Array attribute assigned with non-array value', next, record );
 
         return [];
     }
@@ -162,7 +162,7 @@ export class ObjectType extends AnyType {
     convert( next, prev, record ) {
         if( next == null || typeof next === 'object' ) return next;
                 
-        this._log( 'error', 'InvalidObject', 'Object attribute is assigned with non-object value', next, record );
+        this._log( 'error', 'Type-R:InvalidObject', 'Object attribute is assigned with non-object value', next, record );
         return {};
     }
 }
@@ -181,7 +181,7 @@ export class FunctionType extends AnyType {
         // Fix incompatible constructor behaviour of Function...
         if( next == null || typeof next === 'function' ) return next;
 
-        this._log( 'error', 'InvalidFunction', 'Function attribute assigned with non-function value', next, record );
+        this._log( 'error', 'Type-R:InvalidFunction', 'Function attribute assigned with non-function value', next, record );
 
         return doNothing;
     }

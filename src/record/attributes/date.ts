@@ -26,7 +26,7 @@ export class DateType extends AnyType {
               timestamp = date.getTime();
 
         if( timestamp !== timestamp ){
-            this._log( 'error', 'InvalidDate', 'Date attribute assigned with invalid date', next, record );
+            this._log( 'error', 'Type-R:InvalidDate', 'Date attribute assigned with invalid date', next, record );
         }
 
         return date;

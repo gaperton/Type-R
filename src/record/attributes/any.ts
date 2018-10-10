@@ -169,7 +169,7 @@ export class AnyType implements AttributeUpdatePipeline {
     propagateChanges : boolean
 
     protected _log( level : LogLevel, code : string, text : string, value, record : AttributesContainer ){
-        log( level, 'record:' + code, `${record.getClassName()}.${ this.name } ${ text }`, {
+        log( level, code, `${record.getClassName()}.${ this.name } ${ text }`, {
             'New value' : value,
             'Prev. value' : record.attributes[ this.name ],
             'Attribute definition' : this,
