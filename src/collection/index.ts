@@ -566,8 +566,8 @@ export class Collection< R extends Record = Record> extends Transactional implem
         return next;
     }
 
-    _log( level : LogLevel, text : string, value ) : void {
-        log( level, 'collection:update', `${ this.model.prototype.getClassName() }.${ this.getClassName() }: ` + text, {
+    _log( level : LogLevel, topic : string, text : string, value ) : void {
+        log( level, topic, `${ this.model.prototype.getClassName() }.${ this.getClassName() }: ` + text, {
             Argument : value,
             'Attributes spec' : this.model.prototype._attributes
         });

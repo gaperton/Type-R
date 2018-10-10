@@ -78,7 +78,7 @@ export declare class Collection<R extends Record = Record> extends Transactional
     indexOf(modelOrId: any): number;
     modelId(attrs: {}): any;
     toggle(model: R, a_next?: boolean): boolean;
-    _log(level: LogLevel, text: string, value: any): void;
+    _log(level: LogLevel, topic: string, text: string, value: any): void;
     getClassName(): string;
 }
 export declare type LiveUpdatesOption = boolean | ((x: any) => boolean);

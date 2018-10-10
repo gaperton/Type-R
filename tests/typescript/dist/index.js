@@ -1254,7 +1254,7 @@
     function shouldBeAnObject(record, values) {
         if (values && values.constructor === Object)
             return true;
-        record._log('warn', 'typeError', 'update with non-object is ignored!', { values: values });
+        record._log('error', 'InvalidObject', 'update with non-object is ignored!', { values: values });
         return false;
     }
     var RecordTransaction = (function () {
@@ -1470,7 +1470,7 @@
                 return next;
             if (next instanceof this.type) {
                 if (next._shared && !(next._shared & ItemsBehavior.persistent)) {
-                    this._log('error', 'aggregation', 'aggregated collection attribute is assigned with shared collection type', next, record);
+                    this._log('error', 'InvalidCollection', 'aggregated collection attribute is assigned with shared collection type', next, record);
                 }
                 return options.merge ? next.clone() : next;
             }
@@ -1498,7 +1498,7 @@
                 options.unset || prev.dispose();
             }
             if (next && !aquire(record, next, this.name)) {
-                this._log('error', 'aggregation', 'aggregated attribute assigned with an object already having an owner', next, record);
+                this._log('error', 'InvalidOwner', 'aggregated attribute assigned with an object already having an owner', next, record);
             }
         };
         return AggregatedType;
@@ -1676,7 +1676,7 @@
                 return next;
             var date = new Date(next), timestamp = date.getTime();
             if (timestamp !== timestamp) {
-                this._log('error', 'typeError', 'Date attribute assigned with invalid date', next, record);
+                this._log('error', 'InvalidDate', 'Date attribute assigned with invalid date', next, record);
             }
             return date;
         };
@@ -1841,7 +1841,7 @@
         NumericType.prototype.convert = function (next, prev, record) {
             var num = next == null ? next : this.type(next);
             if (num !== num) {
-                this._log('error', 'typeError', 'Number attribute is assigned with an invalid number', next, record);
+                this._log('error', 'InvalidNumber', 'Number attribute is assigned with an invalid number', next, record);
             }
             return num;
         };
@@ -1872,7 +1872,7 @@
         ArrayType.prototype.convert = function (next, prev, record) {
             if (next == null || Array.isArray(next))
                 return next;
-            this._log('error', 'typeError', 'Array attribute assigned with non-array value', next, record);
+            this._log('error', 'InvalidArray', 'Array attribute assigned with non-array value', next, record);
             return [];
         };
         ArrayType.prototype.clone = function (value) {
@@ -1890,7 +1890,7 @@
         ObjectType.prototype.convert = function (next, prev, record) {
             if (next == null || typeof next === 'object')
                 return next;
-            this._log('error', 'typeError', 'Object attribute is assigned with non-object value', next, record);
+            this._log('error', 'InvalidObject', 'Object attribute is assigned with non-object value', next, record);
             return {};
         };
         return ObjectType;
@@ -1908,7 +1908,7 @@
         FunctionType.prototype.convert = function (next, prev, record) {
             if (next == null || typeof next === 'function')
                 return next;
-            this._log('error', 'typeError', 'Function attribute assigned with non-function value', next, record);
+            this._log('error', 'InvalidFunction', 'Function attribute assigned with non-function value', next, record);
             return doNothing;
         };
         FunctionType.prototype.clone = function (value) { return value; };
@@ -2226,7 +2226,7 @@
                 }
             }
             if (unknown) {
-                this._log('warn', 'typeError', "attributes " + unknown.join(', ') + " are not defined", {
+                this._log('warn', 'UnknownAttrs', "attributes " + unknown.join(', ') + " are not defined", {
                     attributes: attrs
                 });
             }
@@ -2401,7 +2401,7 @@
                 }
             }
             if (unknown) {
-                record._log('warn', 'typeError', "undefined attributes " + unknown.join(', ') + " are ignored.", { values: values });
+                record._log('warn', 'UnknownAttrs', "undefined attributes " + unknown.join(', ') + " are ignored.", { values: values });
             }
         }
     }
@@ -2458,7 +2458,7 @@
                     .asProp(proto, attrName);
             }
             else {
-                proto._log('error', 'Add import "reflect-metadata"; as the first line of your app.');
+                proto._log('error', 'MissingImport', 'Add import "reflect-metadata"; as the first line of your app.');
             }
         }
         else {
@@ -2581,7 +2581,7 @@
         return CollectionTransaction;
     }());
     function logAggregationError(collection) {
-        collection._log('error', 'aggregation', 'added records already have an owner', collection._aggregationError);
+        collection._log('error', 'InvalidOwner', 'added records already have an owner', collection._aggregationError);
         collection._aggregationError = void 0;
     }
 
@@ -3009,7 +3009,7 @@
             if (elements === void 0) { elements = []; }
             if (options === void 0) { options = {}; }
             if (options.add !== void 0) {
-                this._log('warn', "Collection.set doesn't support 'add' option, behaving as if options.add === true.", options);
+                this._log('warn', "InvalidOption", "Collection.set doesn't support 'add' option, behaving as if options.add === true.", options);
             }
             if (options.reset) {
                 this.reset(elements, options);
@@ -3173,8 +3173,8 @@
             }
             return next;
         };
-        Collection.prototype._log = function (level, text, value) {
-            log(level, 'collection:update', this.model.prototype.getClassName() + "." + this.getClassName() + ": " + text, {
+        Collection.prototype._log = function (level, topic, text, value) {
+            log(level, topic, this.model.prototype.getClassName() + "." + this.getClassName() + ": " + text, {
                 Argument: value,
                 'Attributes spec': this.model.prototype._attributes
             });
