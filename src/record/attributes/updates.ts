@@ -144,7 +144,7 @@ export const UpdateRecordMixin = {
             }
 
             if( unknown ){
-                // this._log( 'warn', `Undefined attributes ${ unknown.join(', ')} are ignored!`, values );
+                unknownAttrsWarning( this, unknown, { values } );
             }
         }
         
@@ -160,6 +160,10 @@ export const UpdateRecordMixin = {
         isRoot && commit( this );
     }
 };
+
+export function unknownAttrsWarning( record : AttributesContainer, unknown : string[], props ){
+    this._log( 'warn', 'Type-R:UnknownAttrs', `undefined attributes ${ unknown.join(', ')} are ignored.`, props );
+}
 
 // One of the main performance tricks of Type-R.
 // Create loop unrolled constructors for internal attribute hash,

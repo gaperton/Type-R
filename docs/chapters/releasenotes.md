@@ -123,6 +123,6 @@ In this example, all of the methods defined in the mixin, base class, and subcla
 ### Other changes
 
 - Update pipeline was rewritten to improve record's initialization speed (collection's fetch speed is improved by 30%).
-- Fixed bug which case dynamic type checks to be disabled in records constructors.
+- Fixed bug causing dynamic type checks to be disabled in records constructors.
 - New implementation of the `Collection.subsetOf` which both fixes some edge case bugs and is more efficient.
 - New logger handling NODE_ENV variable setting.

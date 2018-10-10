@@ -1,13 +1,13 @@
-# Validation
+# Type Safety and Validation
 
-## Overview
+Type-R records and collections are _dynamically type safe_. It's guaranteed that Type-R data structures will always conform to the declared shape.
+Records and collections will try to convert values to the declared types on assignment, and reject an update (logging an error in a console) if it cannot be done.
 
-Type-R validation mechanics based on following principles:
+In addition to that, Type-R supports validation API allowing developer to attach suphisticated validation rules to attributes, records, and collections. Type-R validation mechanics based on following principles:
 
 - Validation is performed recursively on the aggregation tree formed by nested records and collections. If an element at the bottom of the tree is not valid, the whole object tree is not valid.
-- Validation rules can be defined for record's attribute, record, and collection.
-- Validation happens automatically on the first read of the validation error. There's no special API to trigger the validation.
-- Validation results are cached across the aggregation tree, thus consequent validation error reads are fast. Changed parts of aggregation tree will be validated again when necessary.
+- Validation happens transparently on the first access to the validation error. There's no special API to trigger the validation.
+- Validation results are cached across the aggregation tree, thus consequent validation error reads are cheap. Only changed parts of aggregation tree will be revalidated when necessary.
 
 ## Record's attributes
 

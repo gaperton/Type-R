@@ -1063,14 +1063,14 @@ Any additional changes made to the collection or its items in event handlers wil
 <h3 id="messenger-dispose-">messenger.dispose()</h3>
 <p>Executes <code>messenger.stopListening()</code> and <code>messenger.off()</code>.</p>
 <p>Objects must be disposed to prevent memory leaks caused by subscribing for events from singletons.</p>
-<h1 id="validation">Validation</h1>
-<h2 id="overview">Overview</h2>
-<p>Type-R validation mechanics based on following principles:</p>
+<h1 id="type-safety-and-validation">Type Safety and Validation</h1>
+<p>Type-R records and collections are <em>dynamically type safe</em>. It&#39;s guaranteed that Type-R data structures will always conform to the declared shape.
+Records and collections will try to convert values to the declared types on assignment, and reject an update (logging an error in a console) if it cannot be done.</p>
+<p>In addition to that, Type-R supports validation API allowing developer to attach suphisticated validation rules to attributes, records, and collections. Type-R validation mechanics based on following principles:</p>
 <ul>
 <li>Validation is performed recursively on the aggregation tree formed by nested records and collections. If an element at the bottom of the tree is not valid, the whole object tree is not valid.</li>
-<li>Validation rules can be defined for record&#39;s attribute, record, and collection.</li>
-<li>Validation happens automatically on the first read of the validation error. There&#39;s no special API to trigger the validation.</li>
-<li>Validation results are cached across the aggregation tree, thus consequent validation error reads are fast. Changed parts of aggregation tree will be validated again when necessary.</li>
+<li>Validation happens transparently on the first access to the validation error. There&#39;s no special API to trigger the validation.</li>
+<li>Validation results are cached across the aggregation tree, thus consequent validation error reads are cheap. Only changed parts of aggregation tree will be revalidated when necessary.</li>
 </ul>
 <h2 id="record-s-attributes">Record&#39;s attributes</h2>
 <h3 id="attrdef-type-has-check-predicate-errormsg-"><code>attrDef</code> : Type.has.check( predicate, errorMsg? )</h3>
@@ -1312,7 +1312,7 @@ an existing Record subclass as a transport. This endpoint can be connected to th
 </code></pre>
 <h2 id="serialization">Serialization</h2>
 <p>Record and Collection has a portion of common API related to the I/O and serialization.</p>
-<h3 id="obj-tojson-">obj.toJSON()</h3>
+<h3 id="obj-tojson-options-">obj.toJSON( options? )</h3>
 <p>Serialize record or collection to JSON. Used internally by I/O methods. Can be overridden to customize serialization.</p>
 <p>Produces the JSON for the given record or collection and its aggregated members. Aggregation tree is serialized as nested JSON. Record corresponds to an object in JSON, while the collection is represented as an array of objects.</p>
 <p>If you override <code>toJSON()</code>, it usually means that you must override <code>parse()</code> as well, and vice versa.</p>
@@ -1358,7 +1358,7 @@ Parsing can be controlled on per-attribute level with <b>Type.has.parse()</b> de
 
 <h3 id="attrdef-type-has-tojson-false-"><code>attrDef</code> : Type.has.toJSON( false )</h3>
 <p>Do <em>not</em> serialize the specific attribute.</p>
-<h3 id="attrdef-type-has-tojson-value-name-json-"><code>attrDef</code> : Type.has.toJSON( ( value, name ) =&gt; json )</h3>
+<h3 id="attrdef-type-has-tojson-value-name-options-json-"><code>attrDef</code> : Type.has.toJSON( ( value, name, options ) =&gt; json )</h3>
 <p>Override the default serialization for the specific record&#39;s attribute.</p>
 <p>Attribute is not serialized when the function return <code>undefined</code>.</p>
 <h3 id="attrdef-type-has-parse-json-name-value-"><code>attrDef</code> : Type.has.parse( ( json, name ) =&gt; value )</h3>
@@ -1760,7 +1760,7 @@ Please note, that `restful` endpoint is not included with 2.0 release but is pla
 <h3 id="other-changes">Other changes</h3>
 <ul>
 <li>Update pipeline was rewritten to improve record&#39;s initialization speed (collection&#39;s fetch speed is improved by 30%).</li>
-<li>Fixed bug which case dynamic type checks to be disabled in records constructors.</li>
+<li>Fixed bug causing dynamic type checks to be disabled in records constructors.</li>
 <li>New implementation of the <code>Collection.subsetOf</code> which both fixes some edge case bugs and is more efficient.</li>
 <li>New logger handling NODE_ENV variable setting.</li>
 </ul>

@@ -30,6 +30,7 @@ export declare const UpdateRecordMixin: {
     forceAttributeChange(key: string, options?: TransactionOptions): void;
     _createTransaction(this: AttributesContainer, a_values: {}, options?: TransactionOptions): Transaction;
 };
+export declare function unknownAttrsWarning(record: AttributesContainer, unknown: string[], props: any): void;
 export declare function constructorsMixin(attrDefs: AttributesDescriptors): ConstructorsMixin;
 export declare function shouldBeAnObject(record: AttributesContainer, values: object): boolean;
 export declare class RecordTransaction implements Transaction {

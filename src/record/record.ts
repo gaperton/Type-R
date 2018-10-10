@@ -8,7 +8,7 @@ import { IOEndpoint, IOPromise } from '../io-tools';
 import { define, definitions, mixinRules, tools, log, LogLevel, isProduction } from '../object-plus';
 import { CloneOptions, Owner, Transaction, Transactional, TransactionalDefinition, TransactionOptions } from '../transactions';
 import { ChildrenErrors } from '../validation';
-import { AggregatedType, AnyType, AttributesConstructor, AttributesContainer, AttributesCopyConstructor, AttributesValues, setAttribute, shouldBeAnObject, UpdateRecordMixin } from './attributes';
+import { AggregatedType, AnyType, AttributesConstructor, AttributesContainer, AttributesCopyConstructor, AttributesValues, setAttribute, shouldBeAnObject, UpdateRecordMixin, unknownAttrsWarning } from './attributes';
 import { IORecord, IORecordMixin } from './io-mixin';
 
 const { assign, isEmpty } = tools;
@@ -229,9 +229,7 @@ export class Record extends Transactional implements IORecord, AttributesContain
         }
 
         if( unknown ){
-            this._log( 'warn', 'Type-R:UnknownAttrs', `attributes ${ unknown.join(', ')} are not defined`, {
-                attributes : attrs
-            } );
+            unknownAttrsWarning( this, unknown, { attributes : attrs } );
         }
     }
 
@@ -493,7 +491,7 @@ function typeCheck( record : Record, values : object ){
         }
 
         if( unknown ){
-            record._log( 'warn', 'Type-R:UnknownAttrs', `undefined attributes ${ unknown.join(', ')} are ignored.`, { values } );
+            unknownAttrsWarning( record, unknown, { values } );
         }
     }
 }

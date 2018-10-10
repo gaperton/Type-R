@@ -1232,6 +1232,9 @@
                         unknown.push("'" + name_1 + "'");
                     }
                 }
+                if (unknown) {
+                    unknownAttrsWarning(this, unknown, { values: values });
+                }
             }
             if (changes.length && markAsDirty(this, options)) {
                 return new RecordTransaction(this, isRoot, nested, changes);
@@ -1243,6 +1246,9 @@
             isRoot && commit(this);
         }
     };
+    function unknownAttrsWarning(record, unknown, props) {
+        this._log('warn', 'Type-R:UnknownAttrs', "undefined attributes " + unknown.join(', ') + " are ignored.", props);
+    }
     function constructorsMixin(attrDefs) {
         var attrs = Object.keys(attrDefs);
         var AttributesCopy = new Function('values', "\n        " + attrs.map(function (attr) { return "\n            this." + attr + " = values." + attr + ";\n        "; }).join('') + "\n    ");
@@ -2219,9 +2225,7 @@
                 }
             }
             if (unknown) {
-                this._log('warn', 'Type-R:UnknownAttrs', "attributes " + unknown.join(', ') + " are not defined", {
-                    attributes: attrs
-                });
+                unknownAttrsWarning(this, unknown, { attributes: attrs });
             }
         };
         Record.prototype.each = function (iteratee, context) {
@@ -2393,7 +2397,7 @@
                 }
             }
             if (unknown) {
-                record._log('warn', 'Type-R:UnknownAttrs', "undefined attributes " + unknown.join(', ') + " are ignored.", { values: values });
+                unknownAttrsWarning(record, unknown, { values: values });
             }
         }
     }
