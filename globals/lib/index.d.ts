@@ -1,11 +1,11 @@
 import { ChainableAttributeSpec } from "type-r";
-declare global  {
+declare global {
     interface DateConstructor {
         microsoft: ChainableAttributeSpec;
         timestamp: ChainableAttributeSpec;
     }
 }
-declare global  {
+declare global {
     interface Window {
         Integer: Function;
     }
