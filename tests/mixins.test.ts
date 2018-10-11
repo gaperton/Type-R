@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import { define, definitions, Mixable, mixinRules, mixins, predefine } from 'type-r';
 
 const M = {
@@ -25,12 +24,12 @@ describe( "Forward declarations", () =>{
 
         @predefine class X {
             static onExtend( BaseClass ){
-                expect( BaseClass ).to.eql( Object );
+                expect( BaseClass ).toBe( Object );
                 called++;
             }
         }
 
-        expect( called ).to.eql( 1 );
+        expect( called ).toBe( 1 );
     } );
 });
 
@@ -38,7 +37,7 @@ describe( "@define decorator", () =>{
     it( '@define makes plain class mixable', () =>{
         @define class X {}
 
-        expect( (X as any).define ).to.exist;
+        expect( (X as any).define ).toBeDefined();
     });
 
     it( '@define calls onDefine hook', () =>{
@@ -47,19 +46,19 @@ describe( "@define decorator", () =>{
         @define({ a : 1 }) class X {
             static onDefine( spec, BaseClass ){
                 called++;
-                expect( spec ).to.eql( {} );
-                expect( BaseClass ).to.eql( Object );
+                expect( spec ).toEqual( {} );
+                expect( BaseClass ).toBe( Object );
             }
         }
 
-        expect( (X as any).define ).to.exist;
-        expect( called ).to.eql( 1 );
+        expect( (X as any).define ).toBeDefined();
+        expect( called ).toBe( 1 );
     });
 
     it( '@define does nothing when extend mixable', () =>{
         @define class X extends Mixable {}
 
-        expect( X.__super__ ).to.eql( Mixable.prototype );
+        expect( X.__super__ ).toBe( Mixable.prototype );
     });
 
     it( '@define( props ) assign members to class proto', () =>{
@@ -71,8 +70,8 @@ describe( "@define decorator", () =>{
             a(){}
         }
 
-        expect( (X as any).prototype.b ).to.eql( 2 );
-        expect( (X as any).prototype.a ).to.eql( 1 );
+        expect( (X as any).prototype.b ).toBe( 2 );
+        expect( (X as any).prototype.a ).toBe( 1 );
     });
 
     it( 'Mixable.extend creates the subclass', () =>{
@@ -80,8 +79,8 @@ describe( "@define decorator", () =>{
         
         const x = new X();
 
-        expect( x.a ).to.eql( 5 );
-        expect( x ).to.be.instanceof( Mixable );
+        expect( x.a ).toBe( 5 );
+        expect( x ).toBeInstanceOf( Mixable );
     });
 
     it( 'allows toString() and valueOf() override', () =>{
@@ -98,10 +97,10 @@ describe( "@define decorator", () =>{
         const base = new Base(),
             sub = new Sub();
 
-        expect( base.toString() ).to.eql( 'base' );
-        expect( base.valueOf() ).to.eql( 'base' );
-        expect( sub.toString() ).to.eql( 'sub' );
-        expect( sub.valueOf() ).to.eql( 'sub' );
+        expect( base.toString() ).toBe( 'base' );
+        expect( base.valueOf() ).toBe( 'base' );
+        expect( sub.toString() ).toBe( 'sub' );
+        expect( sub.valueOf() ).toBe( 'sub' );
     } );
 
     it( 'allows toString() and valueOf() override with .extend()', () =>{
@@ -118,10 +117,10 @@ describe( "@define decorator", () =>{
         const base = new Base(),
             sub = new Sub();
 
-        expect( base.toString() ).to.eql( 'base' );
-        expect( base.valueOf() ).to.eql( 'base' );
-        expect( sub.toString() ).to.eql( 'sub' );
-        expect( sub.valueOf() ).to.eql( 'sub' );
+        expect( base.toString() ).toBe( 'base' );
+        expect( base.valueOf() ).toBe( 'base' );
+        expect( sub.toString() ).toBe( 'sub' );
+        expect( sub.valueOf() ).toBe( 'sub' );
     } );
 
     it( "gives priority to the class definition", () =>{
@@ -133,8 +132,8 @@ describe( "@define decorator", () =>{
             nul(){}
         }
 
-        expect( X.prototype.nul ).to.be.instanceof( Function );
-        expect( ( X.prototype as any ).undef ).to.be.eql( 1 );
+        expect( X.prototype.nul ).toBeInstanceOf( Function );
+        expect( ( X.prototype as any ).undef ).toBe( 1 );
     });
 });
 
@@ -145,7 +144,7 @@ describe( '@mixins', () =>{
         class X extends Mixable {
         }
 
-        expect( X.prototype ).to.contain( M );
+        expect( X.prototype ).toMatchObject( M );
     });
 
     it( "don't merge same mixin twice", () =>{
@@ -154,21 +153,21 @@ describe( '@mixins', () =>{
         class X extends Mixable {
         }
 
-        expect( X.mixins.appliedMixins.length ).to.equal( 1 );
+        expect( X.mixins.appliedMixins.length ).toBe( 1 );
 
         @define @mixins( M ) class Y extends X {
 
         }
 
-        expect( Y.mixins.appliedMixins.length ).to.equal( 1 );
+        expect( Y.mixins.appliedMixins.length ).toBe( 1 );
     });
 
     it( "mix in classes", () =>{
         @define @mixins( C ) class X {}
         const x = new X();
 
-        expect( ( X as any ).a ).to.eql( 1 );
-        expect( ( x as any ).b ).to.be.instanceof( Function );
+        expect( ( X as any ).a ).toBe( 1 );
+        expect( ( x as any ).b ).toBeInstanceOf( Function );
     } );
 
     it( "mix in sequence", () =>{
@@ -180,8 +179,8 @@ describe( '@mixins', () =>{
 
         const x : any = new X();
 
-        expect( x.a ).to.eql( 2 );
-        expect( x.b ).to.eql( 1 );
+        expect( x.a ).toBe( 2 );
+        expect( x.b ).toBe( 1 );
     });
 
     it( 'merge methods from mixin if they are not locally defined', () => {
@@ -198,8 +197,8 @@ describe( '@mixins', () =>{
             second(){}
         }
 
-        expect( Y.prototype.second ).to.not.eql( Mix.second );
-        expect( Y.prototype.first ).to.eql( Mix.first );
+        expect( Y.prototype.second ).not.toBe( Mix.second );
+        expect( Y.prototype.first ).toBe( Mix.first );
 
     });
 } );
@@ -218,10 +217,10 @@ describe( 'mixin rules', () => {
         const x = new X();
         const fwda = [], bcka = [];
         ( x as any).fwd( fwda );
-        (expect( fwda ).to.have as any).ordered.members([ "M", "C" ]);
+        expect( fwda ).toEqual([ "M", "C" ]);
         
         ( x as any ).bck( bcka );
-        (expect( bcka ).to.have as any).ordered.members([ "C", "M" ]);
+        expect( bcka ).toEqual([ "C", "M" ]);
     });
 
     it( 'chains function on inheritance', () =>{
@@ -239,10 +238,10 @@ describe( 'mixin rules', () => {
 
         const fwda = [], bcka = [];
         ( y as any).fwd( fwda );
-        (expect( fwda ).to.have as any).ordered.members([ "Y", "Z", "M", "C" ]);
+        expect( fwda ).toEqual([ "Y", "Z", "M", "C" ]);
         
         ( y as any ).bck( bcka );
-        (expect( bcka ).to.have as any).ordered.members([ "C", "M", "Z", "Y" ]);
+        expect( bcka ).toEqual([ "C", "M", "Z", "Y" ]);
     } );
 });
 
@@ -259,7 +258,7 @@ describe( '@definitions', ()=>{
             zzz : any;
 
             static onDefine( spec ){
-                expect( spec ).to.deep.equal({ a : 'a', b : { a : 1 }});
+                expect( spec ).toEqual({ a : 'a', b : { a : 1 }});
                 this.prototype.zzz = 'Hurrah!';
             }
         }
@@ -278,7 +277,7 @@ describe( '@definitions', ()=>{
             zzz : any;
 
             static onDefine( spec ){
-                expect( spec ).to.deep.equal({ a : 'a', b : { a : 1 }});
+                expect( spec ).toEqual({ a : 'a', b : { a : 1 }});
                 this.prototype.zzz = 'Hurrah!';
             }
         }
@@ -302,7 +301,7 @@ describe( '@definitions', ()=>{
             static b = { c : 1 };
 
             static onDefine( spec ){
-                expect( spec ).to.deep.equal({ a : 'a', b : { a : 1, b : 1, c : 1 }});
+                expect( spec ).toEqual({ a : 'a', b : { a : 1, b : 1, c : 1 }});
                 this.prototype.zzz = 'Hurrah!';
             }
         }
