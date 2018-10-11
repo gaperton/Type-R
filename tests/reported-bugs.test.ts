@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import "reflect-metadata";
 import { logger, attr, Collection, define, mixins, Record, type } from 'type-r';
 import { MinutesInterval } from './common';
@@ -16,7 +15,7 @@ describe( 'Bugs from Volicon Observer', () =>{
             }
     
             const t = new Test({ a : null }, { parse : true });
-            expect( t.a ).to.eql( 'bla-bla' );
+            expect( t.a ).toBe( 'bla-bla' );
         });    
     });
 
@@ -28,11 +27,11 @@ describe( 'Bugs from Volicon Observer', () =>{
             }
 
             const t = new Test();
-            expect( t.num ).to.eql( 5 );
-            expect( t.str ).to.eql( "5" );
+            expect( t.num ).toBe( 5 );
+            expect( t.str ).toBe( "5" );
 
             t.str = 6 as any;
-            expect( t.str ).to.eql( "6" );
+            expect( t.str ).toBe( "6" );
         } );
     } );
 
@@ -67,7 +66,7 @@ describe( 'Bugs from Volicon Observer', () =>{
             subclass.overriden = "b";
             subclass.namedWatcher = "t";
 
-            expect( calls ).to.eql( [ 'inherited', 'added', 'subclass', 'base', 'named' ] );
+            expect( calls ).toEqual( [ 'inherited', 'added', 'subclass', 'base', 'named' ] );
         } );
 
     } );
@@ -173,19 +172,19 @@ describe( 'Bugs from Volicon Observer', () =>{
             const p = new Placeholder(),
                 { subEncoders } = p;
 
-            expect( p.isValid() ).to.be.false;
-            expect( subEncoders.isValid() ).to.be.true;
+            expect( p.isValid() ).toBe( false );
+            expect( subEncoders.isValid() ).toBe( true );
             subEncoders.add( {} );
 
-            expect( p._validationError ).to.be.undefined;
-            expect( p.isValid() ).to.be.true;
+            expect( p._validationError ).not.toBeDefined();
+            expect( p.isValid() ).toBe( true );
 
             subEncoders.first().HistoryDepth.value = 2;
 
-            expect( p._validationError ).to.be.undefined;
-            expect( p.isValid() ).to.be.true;
-            expect( subEncoders.isValid() ).to.be.true;
-            expect( p._validationError ).not.to.be.undefined;
+            expect( p._validationError ).not.toBeDefined();
+            expect( p.isValid() ).toBe( true );
+            expect( subEncoders.isValid() ).toBe( true );
+            expect( p._validationError ).toBeDefined();
         } );
     });
 
@@ -202,11 +201,11 @@ describe( 'Bugs from Volicon Observer', () =>{
             const target = new Test(),
                 source = new Test({ inner : { name : "ron" } } );
     
-            expect( target.inner ).to.be.null;
+            expect( target.inner ).toBe( null );
     
             target.assignFrom( source );
     
-            expect( target.inner !== source.inner ).to.be.true;
+            expect( target.inner !== source.inner ).toBe( true );
         });
 
         it( 'assign object of similar shape', () =>{
@@ -243,8 +242,8 @@ describe( 'Bugs from Volicon Observer', () =>{
             const t = new Target();
             t.name = "1" as any;
 
-            expect( t.name ).to.eql( 1 );
-            expect( t.hi ).to.eql( 'hi' );
+            expect( t.name ).toBe( 1 );
+            expect( t.hi ).toBe( 'hi' );
         });
     });
 } );

@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import "isomorphic-fetch";
 import nock from 'nock';
 import "reflect-metadata";
@@ -25,8 +24,8 @@ describe( 'IO', function(){
             const users = new User.Collection();
             users.fetch()
                 .then( () => {
-                    expect( users.length ).to.eql( 1 );
-                    expect( ( users.first() as any ).name ).to.eql( 'John' );
+                    expect( users.length ).toBe( 1 );
+                    expect( ( users.first() as any ).name ).toBe( 'John' );
                     done();
                 });
         });
@@ -34,14 +33,14 @@ describe( 'IO', function(){
         it( 'create', done =>{
             const x = new User({ name : "test" });
             x.save().then( () => {
-                expect( x.id ).to.eql( "1" );
+                expect( x.id ).toBe( "1" );
                 done();
             });
         });
     
         it( 'read', done => {
             const x = ( new User({ id : "1" }) ).fetch().then( x => {
-                expect( x.name ).to.eql( "test" );
+                expect( x.name ).toBe( "test" );
                 done();
             });
         });
@@ -58,7 +57,7 @@ describe( 'IO', function(){
                     return y.fetch();
                 })
                 .then( y => {
-                    expect( y.name ).to.eql( 'Mike' );
+                    expect( y.name ).toBe( 'Mike' );
                     done();
                 });
         });
@@ -67,9 +66,9 @@ describe( 'IO', function(){
             const users = new User.Collection();
             users.fetch()
                 .then( () =>{
-                    expect( users.length ).to.eql( 2 );
-                    expect( ( users.first() as any ).name ).to.eql( "John" );
-                    expect( ( users.last() as any ).name ).to.eql( "Mike" );
+                    expect( users.length ).toBe( 2 );
+                    expect( ( users.first() as any ).name ).toBe( "John" );
+                    expect( ( users.last() as any ).name ).toBe( "Mike" );
                     done();
                 });
         });
@@ -82,8 +81,8 @@ describe( 'IO', function(){
                     return users.fetch();
                 })
                 .then( users => {
-                    expect( users.length ).to.eql( 1 );
-                    expect( users.first().name ).to.eql( "John" );
+                    expect( users.length ).toBe( 1 );
+                    expect( users.first().name ).toBe( "John" );
                     done();
                 });
         });
@@ -119,9 +118,9 @@ describe( 'IO', function(){
 
         const s = new TestStore();
         s.fetch().then( () => {
-            expect( s.a.first().id ).to.eql( "777" );
-            expect( s.b.first().id ).to.eql( 666 );
-            expect( s.c.first().id ).to.eql( "555" );
+            expect( s.a.first().id ).toBe( "777" );
+            expect( s.b.first().id ).toBe( 666 );
+            expect( s.c.first().id ).toBe( "555" );
 
             done();
         });
@@ -247,14 +246,14 @@ describe( 'IO', function(){
 
             it( 'resolves in simple case', done => {
                 root.store.fetch().then( () => {
-                    expect( root.store.name ).to.eql( 'something' )
+                    expect( root.store.name ).toBe( 'something' )
                     done()
                 } )
             } )
 
             it( 'resolves for collection', done => {
                 root.users.fetch().then( () => {
-                    expect( root.users.map( u => u.id ) ).deep.equal( [ 10, 11 ] )
+                    expect( root.users.map( u => u.id ) ).toEqual( [ 10, 11 ] )
                     done()
                 } )
             } )
@@ -262,7 +261,7 @@ describe( 'IO', function(){
             it( 'nested resolve', done => {
                 const {user} = root.store;
                 user.fetch().then( () => {
-                    expect( user.name ).to.equal( 'special' )
+                    expect( user.name ).toBe( 'special' )
                     done()
                 } )
             } )
@@ -278,23 +277,23 @@ describe( 'IO', function(){
             it("uses default options", () => {
                 let io = restfulIO(""),
                     options : RequestInit = (io as any).buildRequestOptions("get")
-                expect(options.cache).to.equal("force-cache")
-                expect(options.credentials).to.equal("omit")
-                expect(options.mode).to.equal("navigate")
-                expect(options.redirect).to.equal("manual")
+                expect(options.cache).toBe("force-cache")
+                expect(options.credentials).toBe("omit")
+                expect(options.mode).toBe("navigate")
+                expect(options.redirect).toBe("manual")
             })
 
             it("Overrides at ctor", () => {
                 let io = restfulIO("", {credentials: "include", cache:"reload"}),
                     options : RequestInit = (io as any).buildRequestOptions("get", )
-                expect(options.cache).to.equal("reload")
-                expect(options.credentials).to.equal("include")
+                expect(options.cache).toBe("reload")
+                expect(options.credentials).toBe("include")
             })
             it("Overrides at call", () => {
                 let io = restfulIO("", {credentials: "include", cache:"reload"}),
                     options : RequestInit = (io as any).buildRequestOptions("get", {cache: "no-store", credentials: "same-origin"} )
-                expect(options.cache).to.equal("no-store")
-                expect(options.credentials).to.equal("same-origin")
+                expect(options.cache).toBe("no-store")
+                expect(options.credentials).toBe("same-origin")
             })
         })
     } );
@@ -317,7 +316,7 @@ function testEndpoint( endpoint ){
             const x = new User({ name : "test" });
             x.save().then( () => {
                 generatedId = x.id;
-                expect( x.id ).to.be.not.empty;
+                expect( x.id ).toBeDefined();
                 done();
             });
         });
@@ -325,7 +324,7 @@ function testEndpoint( endpoint ){
         it( 'read', done => {
             const x = new User({ id : generatedId });
             x.fetch().then( () => {
-                expect( x.name ).to.eql( "test" );
+                expect( x.name ).toBe( "test" );
                 done();
             });
         });
@@ -342,7 +341,7 @@ function testEndpoint( endpoint ){
                     return y.fetch();
                 })
                 .then( y => {
-                    expect( y.name ).to.eql( 'Mike' );
+                    expect( y.name ).toBe( 'Mike' );
                     done();
                 });
         });
@@ -351,8 +350,8 @@ function testEndpoint( endpoint ){
             const users = new User.Collection();
             users.fetch()
                 .then( () =>{
-                    expect( users.length ).to.eql( 1 );
-                    expect( ( users.last() as any ).name ).to.eql( "Mike" );
+                    expect( users.length ).toBe( 1 );
+                    expect( ( users.last() as any ).name ).toBe( "Mike" );
                     done();
                 });
         });
@@ -365,7 +364,7 @@ function testEndpoint( endpoint ){
                     return users.fetch();
                 })
                 .then( users => {
-                    expect( users.length ).to.eql( 0 );
+                    expect( users.length ).toBe( 0 );
                     done();
                 });
         });
