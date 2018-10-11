@@ -26,11 +26,3 @@ export declare class ChainableAttributeSpec {
     static from(spec: any): ChainableAttributeSpec;
 }
 export declare function type(this: void, spec: ChainableAttributeSpec | Function): ChainableAttributeSpec;
-declare global {
-    interface Function {
-        value: (x: any) => ChainableAttributeSpec;
-        isRequired: ChainableAttributeSpec;
-        asProp: PropertyDecorator;
-        has: ChainableAttributeSpec;
-    }
-}

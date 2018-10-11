@@ -54,5 +54,5 @@ let toString = typeof window === 'undefined' ?
     }
     : x => x;
 
-export const logRouter = new Logger();
-export const log : typeof logRouter.trigger = logRouter.trigger.bind( logRouter );
+export const logger = new Logger();
+export const log : typeof logger.trigger = logger.trigger.bind( logger );

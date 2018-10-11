@@ -1,15 +1,56 @@
-import { Integer, MicrosoftDate, Timestamp } from "ext-types";
-import { ChainableAttributeSpec } from "type-r";
+import { Integer, MicrosoftDate, Timestamp } from "type-r/ext-types";
+import { type, ChainableAttributeSpec } from "type-r";
 
 /*
  * dates
  */
 declare global {
+    // Legacy has-notation
+    interface Function{
+        value : ( x : any ) => ChainableAttributeSpec;
+        isRequired : ChainableAttributeSpec;
+        asProp : PropertyDecorator
+        has : ChainableAttributeSpec;
+    }
+
+    // Date type extensions
     interface DateConstructor {
         microsoft : ChainableAttributeSpec
         timestamp : ChainableAttributeSpec
     }
+
+    // Integer type
+    interface Window {
+        Integer : Function;
+    }
+
+    interface NumberConstructor {
+        integer : typeof Integer
+    }
 }
+
+Function.prototype.value = function( x ) {
+    return new ChainableAttributeSpec( { type : this, value : x, hasCustomDefault : true } );
+};
+
+Object.defineProperty( Function.prototype, 'isRequired', {
+    get() { return this._isRequired || this.has.isRequired; },
+    set( x ){ this._isRequired = x; }
+});
+
+Object.defineProperty( Function.prototype, 'asProp', {
+    get() { return this.has.asProp; },
+});
+
+Object.defineProperty( Function.prototype, 'has', {
+    get() {
+        // workaround for sinon.js and other libraries overriding 'has'
+        return this._has || type( this );
+    },
+
+    set( value ) { this._has = value; }
+} );
+
 
 Object.defineProperties( Date, {
     microsoft: {
@@ -25,13 +66,8 @@ Object.defineProperties( Date, {
 /*
  * integer
  */
-declare global {
-    interface Window {
-        Integer : Function;
-    }
-}
 
-(Number as any).integer = Integer;
+Number.integer = Integer;
 
 if( typeof window !== 'undefined' ) {
     window.Integer = Integer;

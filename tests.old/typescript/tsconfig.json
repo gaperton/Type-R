@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module":"commonjs",
+    "importHelpers": true,
+    "sourceMap": true,
+    "allowJs": true,
+    "moduleResolution": "node",
+    "outDir": "./lib",
+    "noImplicitAny": false,
+    "removeComments":true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": ".",
+    "paths":{
+      "type-r":["../../lib"]
+    }
+  },
+  "files":[
+    "src/index.ts"
+  ]
+}

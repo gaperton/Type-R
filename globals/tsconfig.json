@@ -13,7 +13,7 @@
       "baseUrl": ".",
       "paths" : {
         "type-r":[ "../lib" ],
-        "ext-types": ["../ext-types/lib"]
+        "type-r/ext-types": ["../ext-types/lib"]
       }
     },
     "files":[

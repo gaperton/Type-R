@@ -10,5 +10,5 @@ export declare class Logger extends Messenger {
         [name in LogLevel]: LoggerEventHandler;
     } | LogLevel, handler?: LoggerEventHandler) => this;
 }
-export declare const logRouter: Logger;
-export declare const log: typeof logRouter.trigger;
+export declare const logger: Logger;
+export declare const log: typeof logger.trigger;

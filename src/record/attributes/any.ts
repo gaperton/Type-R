@@ -5,6 +5,7 @@ import { AttributesContainer, AttributeUpdatePipeline, RecordTransaction, setAtt
 
 const { notEqual, assign} = tools;
 
+
 declare global {
     interface Function {
         _attribute : typeof AnyType
