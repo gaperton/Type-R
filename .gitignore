@@ -4,6 +4,7 @@
 *.iml
 
 node_modules
+coverage/
 
 *.orig
 

@@ -1,8 +1,10 @@
 import { expect } from 'chai';
 import "reflect-metadata";
-import { attr, Collection, define, mixins, Record, type } from 'type-r';
+import { logger, attr, Collection, define, mixins, Record, type } from 'type-r';
 import { MinutesInterval } from './common';
-import "../globals/lib";
+import "type-r/globals";
+
+logger.off();
 
 describe( 'Bugs from Volicon Observer', () =>{
     describe( 'Attribute serialization', () => {

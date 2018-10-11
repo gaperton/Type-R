@@ -20,16 +20,12 @@
     "build:lib": "npm run compile:lib && npm run bundle:lib",
     "compile:lib": "node_modules/.bin/tsc",
     "bundle:lib": "node_modules/.bin/rollup --config",
-    "test": "npm run build:test && npm run run:test",
+    "test": "node_modules/.bin/jest",
     "build": "npm run build:lib && npm run build:endpoints && npm run build:ext-types && npm run build:globals && npm test",
     "docs": "node docs/build.js",
-    "run:test": "node_modules/.bin/mocha tests/typescript/lib",
     "build:endpoints": "cd endpoints/attributes && npm run build && cd ../localStorage && npm run build && cd ../memory && npm run build && cd ../restful && npm run build && cd ../proxy && npm run build",
     "build:ext-types": "cd ext-types && npm run build",
-    "build:globals": "cd globals && npm run build",
-    "build:test": "npm run compile:test && npm run bundle:test",
-    "compile:test": "cd tests/typescript && ../../node_modules/.bin/tsc",
-    "bundle:test": "cd tests/typescript && ../../node_modules/.bin/rollup --config"
+    "build:globals": "cd globals && npm run build"
   },
   "repository": {
     "type": "git",
@@ -67,6 +63,8 @@
     "rollup-plugin-paths": "*",
     "rollup-plugin-sourcemaps": "*",
     "rollup-plugin-uglify": "^6.0.0",
+    "sinon": "^6.3.5",
+    "sinon-chai": "^3.2.0",
     "ts-jest": "^23.10.4",
     "typescript": "^3.1.2",
     "underscore": "*"

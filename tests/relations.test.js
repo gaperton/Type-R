@@ -1,14 +1,10 @@
-    var Nested = require( '../../../dist/index' ),
-        sinon = require( 'sinon' ),
-        chai = require( 'chai'),
-        as_promised = require("chai-as-promised");
-
-require( '../../../globals/dist/index' );
+    var Nested = require( 'type-r' ),
+        chai = require( 'chai');
+        
+require( 'type-r/globals' );
 
     var Record = Nested.Record,
         Store = Nested.Store;
-
-    chai.use( as_promised );
 
     expect = chai.expect;
 

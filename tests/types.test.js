@@ -1,4 +1,4 @@
-    var Nested = require( '../../../dist/index' ),
+    var Nested = require( 'type-r' ),
         chai = require( 'chai' ),
         expect = chai.expect,
         sinon = require( 'sinon' ),
@@ -6,7 +6,9 @@
 
     chai.use( sinonChai );
 
-    require( '../../../globals/dist/index' );
+    Nested.logger.off();
+    
+    require( 'type-r/globals' );
     
     describe( 'Type specs', function(){
         describe( 'Constructor type spec', function(){
@@ -226,9 +228,8 @@
                 }
             });
 
-            before( function(){
-                user = new User();
-            });
+            
+            user = new User();
 
             it( 'create new Date object on construction', function(){
                 expect( user.created ).to.be.instanceOf( Date );

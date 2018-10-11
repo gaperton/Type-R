@@ -1,9 +1,14 @@
-    var Nested = require( '../../../dist/index' ),
-        expect = require( 'chai' ).expect,
+    var Nested = require( 'type-r' ),
+        chai = require( 'chai' ),
         _ = require( 'underscore' ),
-        sinon = require( 'sinon' );
+        sinon = require( 'sinon' ),
+        sinonChai = require( 'sinon-chai' );
 
-    require( '../../../globals/dist/index' );
+    chai.use(sinonChai);
+
+    const { expect } = chai;
+
+    require( 'type-r/globals' );
 
     describe( 'Nested Models and Collections', function(){
         function shouldFireChangeOnce( model, attr, todo ){

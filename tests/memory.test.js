@@ -1,8 +1,7 @@
-var Nested = require( '../../../dist/index' ),
-    expect = require( 'chai' ).expect,
-    sinon = require( 'sinon' );
+var Nested = require( 'type-r' ),
+    expect = require( 'chai' ).expect;
 
-require( '../../../globals/dist/index' );
+require( 'type-r/globals' );
 
 var Model = Nested.Model, Collection = Nested.Collection;
 
