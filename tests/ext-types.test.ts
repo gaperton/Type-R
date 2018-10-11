@@ -1,8 +1,7 @@
 import "reflect-metadata"
 import "isomorphic-fetch"
 import {Record} from 'type-r'
-import {expect} from 'chai'
-import {Timestamp, MicrosoftDate, Integer, Url, IPAddress, Email} from "../../../ext-types";
+import {Timestamp, MicrosoftDate, Integer, Url, IPAddress, Email} from "type-r/ext-types";
 
 describe( 'Extended Type specs', function () {
 
@@ -15,48 +14,49 @@ describe( 'Extended Type specs', function () {
             }
         } );
 
-        before( function () {
+        beforeEach( function () {
             user = new User();
         } );
 
         it( 'create new Date object on construction', function () {
-            expect( user.microsoft ).to.be.instanceOf( Date );
-            expect( user.timestamp ).to.be.instanceOf( Date );
+            expect( user.microsoft ).toBeInstanceOf( Date );
+            expect( user.timestamp ).toBeInstanceOf( Date );
         } );
 
         it( 'parse ISO dates in all browsers on assignment', function () {
             // parse Date from string
 
             user.timestamp = "2012-12-12T10:00Z";
-            expect( user.timestamp ).to.be.instanceof( Date );
-            expect( user.timestamp.toISOString() ).to.be.eql( '2012-12-12T10:00:00.000Z' );
+            expect( user.timestamp ).toBeInstanceOf( Date );
+            expect( user.timestamp.toISOString() ).toBe( '2012-12-12T10:00:00.000Z' );
 
             user.microsoft = "2012-12-12T10:00Z";
-            expect( user.microsoft ).to.be.instanceof( Date );
-            expect( user.microsoft.toISOString() ).to.be.eql( '2012-12-12T10:00:00.000Z' );
+            expect( user.microsoft ).toBeInstanceOf( Date );
+            expect( user.microsoft.toISOString() ).toBe( '2012-12-12T10:00:00.000Z' );
         } );
 
         it( 'parse integer time stamps on assignment', function () {
             // parse Date from timestamp
             user.timestamp = 1234567890123;
-            expect( user.timestamp ).to.be.instanceof( Date );
-            expect( user.timestamp.toISOString() ).to.be.eql( '2009-02-13T23:31:30.123Z' );
+            expect( user.timestamp ).toBeInstanceOf( Date );
+            expect( user.timestamp.toISOString() ).toBe( '2009-02-13T23:31:30.123Z' );
 
             user.microsoft = 1234567890123;
-            expect( user.microsoft ).to.be.instanceof( Date );
-            expect( user.microsoft.toISOString() ).to.be.eql( '2009-02-13T23:31:30.123Z' );
+            expect( user.microsoft ).toBeInstanceOf( Date );
+            expect( user.microsoft.toISOString() ).toBe( '2009-02-13T23:31:30.123Z' );
         } );
 
         it( 'parse MS time stamps on assignment', function () {
             user.microsoft = "/Date(1234567890123)/";
-            expect( user.microsoft ).to.be.instanceof( Date );
-            expect( user.microsoft.toISOString() ).to.be.eql( '2009-02-13T23:31:30.123Z' );
+            expect( user.microsoft ).toBeInstanceOf( Date );
+            expect( user.microsoft.toISOString() ).toBe( '2009-02-13T23:31:30.123Z' );
         } );
 
         it( 'is serialized to ISO date', function () {
+            const user = new User({ timestamp : 1234567890123, microsoft : '/Date(1234567890123)/' }, { parse : true });
             var json = user.toJSON();
-            expect( json.timestamp ).to.be.eql( 1234567890123 );
-            expect( json.microsoft ).to.be.eql( '/Date(1234567890123)/' );
+            expect( json.timestamp ).toBe( 1234567890123 );
+            expect( json.microsoft ).toBe( '/Date(1234567890123)/' );
         } );
     } );
 
@@ -66,20 +66,21 @@ describe( 'Extended Type specs', function () {
                 url: Url
             }
         } )
-        before( function () {
+        
+        beforeEach( function () {
             user = new User();
         } );
 
         it( 'create new URL string on construction', function () {
-            expect( user.url ).to.be.eq( '' );
+            expect( user.url ).toBe( '' );
         } );
         it( 'checks for invalid urls', function () {
             user.url = 'asd123'
-            expect( user.isValid() ).to.be.false;
-            expect( user.getValidationError( 'url' ) ).to.eq( 'Not valid URL' )
+            expect( user.isValid() ).toBe( false );
+            expect( user.getValidationError( 'url' ) ).toBe( 'Not valid URL' )
 
             user.url = 'http://test.com?x=y'
-            expect( user.isValid() ).to.be.true;
+            expect( user.isValid() ).toBe( true );
         } )
     } )
     describe( "Email", function () {
@@ -88,20 +89,21 @@ describe( 'Extended Type specs', function () {
                 email: Email
             }
         } )
-        before( function () {
+        
+        beforeEach( function () {
             user = new User();
         } );
 
         it( 'create new email string on construction', function () {
-            expect( user.email ).to.be.eq( '' );
+            expect( user.email ).toBe( '' );
         } );
         it( 'checks for invalid emails', function () {
             user.email = 'asd123'
-            expect( user.isValid() ).to.be.false;
-            expect( user.getValidationError( 'email' ) ).to.eq( 'Not valid email' )
+            expect( user.isValid() ).toBe( false );
+            expect( user.getValidationError( 'email' ) ).toBe( 'Not valid email' )
 
             user.email = 'my@mail.com'
-            expect( user.isValid() ).to.be.true;
+            expect( user.isValid() ).toBe( true );
         } )
     } )
 
@@ -111,20 +113,21 @@ describe( 'Extended Type specs', function () {
                 ip: IPAddress
             }
         } )
-        before( function () {
+        
+        beforeEach( function () {
             user = new User();
         } );
 
         it( 'create new ip string on construction', function () {
-            expect( user.ip ).to.be.eq( '' );
+            expect( user.ip ).toBe( '' );
         } );
         it( 'checks for invalid ip', function () {
             user.ip = 'asd123'
-            expect( user.isValid() ).to.be.false;
-            expect( user.getValidationError( 'ip' ) ).to.eq( 'Not valid IP address' )
+            expect( user.isValid() ).toBe( false );
+            expect( user.getValidationError( 'ip' ) ).toBe( 'Not valid IP address' )
 
             user.ip = '222.111.123.001'
-            expect( user.isValid() ).to.be.true;
+            expect( user.isValid() ).toBe( true );
         } )
     } )
 
@@ -134,25 +137,28 @@ describe( 'Extended Type specs', function () {
                 int: Integer
             }
         } )
-        before( function () {
+        
+        beforeEach( function () {
             user = new User();
         } );
 
         it( 'create new int string on construction', function () {
-            expect( user.int ).to.be.eq( 0 );
+            expect( user.int ).toBe( 0 );
         } );
         it( 'rounding and conversion', function () {
             user.int = 3.2
-            expect( user.int ).to.be.a( 'number' ).and.be.eq( 3 );
+            expect( typeof user.int ).toBe( 'number' );
+            expect( user.int ).toBe( 3 );
 
             user.int = "25.7";
-            expect( user.int ).to.be.a( 'number' ).and.equal( 26 );
+            expect( typeof user.int ).toBe( 'number' );
+            expect( user.int ).toBe( 26 );
         } )
 
         it( 'can be set with null', function(){
             user.int = null;
-            expect( user.int ).to.be.null;
-            expect( user.isValid() ).to.be.true;
+            expect( user.int ).toBe( null );
+            expect( user.isValid() ).toBe( true );
         });
     } )
 

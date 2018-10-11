@@ -1,5 +1,4 @@
 var Nested = require( 'type-r' );
-
 require("type-r/globals");
 
 var Model = Nested.Model, Collection = Nested.Collection;
