@@ -240,10 +240,10 @@ msg.transaction( <span class="hljs-function"><span class="hljs-params">()</span>
     <span class="hljs-keyword">static</span> attributes = {
         <span class="hljs-attr">firstName</span> : <span class="hljs-string">''</span>, <span class="hljs-comment">// ⟵ String type is inferred from the default value</span>
         lastName  : <span class="hljs-built_in">String</span>, <span class="hljs-comment">// ⟵ Or you can just mention its constructor</span>
-        email     : <span class="hljs-built_in">String</span>.value( <span class="hljs-literal">null</span> ), <span class="hljs-comment">//⟵ Or you can provide both</span>
+        email     : type( <span class="hljs-built_in">String</span> ).value( <span class="hljs-literal">null</span> ), <span class="hljs-comment">//⟵ Or you can provide both</span>
         createdAt : <span class="hljs-built_in">Date</span>, <span class="hljs-comment">// ⟵ And it works for any constructor.</span>
         <span class="hljs-comment">// And you can attach ⤹ metadata to fine-tune attribute's behavior</span>
-        lastLogin : <span class="hljs-built_in">Date</span>.value( <span class="hljs-literal">null</span> ).has.toJSON( <span class="hljs-literal">false</span> ) <span class="hljs-comment">// ⟵ not serializable</span>
+        lastLogin : type( <span class="hljs-built_in">Date</span> ).value( <span class="hljs-literal">null</span> ).toJSON( <span class="hljs-literal">false</span> ) <span class="hljs-comment">// ⟵ not serializable</span>
     }
 }
 
@@ -288,9 +288,9 @@ Unlike in the majority of the JS state management framework, Record is <b>not th
 <p>Record&#39;s attributes definition. Lists attribute names along with their types, default values, and metadata controlling different aspects of attribute behavior.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">name</span>    : <span class="hljs-built_in">String</span>.value( <span class="hljs-string">'John Dow'</span> ),
-        <span class="hljs-attr">email</span>   : <span class="hljs-string">'john.dow@mail.com'</span>, <span class="hljs-comment">// Same as String.value( 'john.dow@mail.com' )</span>
-        address : <span class="hljs-built_in">String</span>, <span class="hljs-comment">// Same as String.value( '' )</span>
+        <span class="hljs-attr">name</span>    : type( <span class="hljs-built_in">String</span> ).value( <span class="hljs-string">'John Dow'</span> ),
+        <span class="hljs-attr">email</span>   : <span class="hljs-string">'john.dow@mail.com'</span>, <span class="hljs-comment">// Same as type( String ).value( 'john.dow@mail.com' )</span>
+        address : <span class="hljs-built_in">String</span>, <span class="hljs-comment">// Same as type( String ).value( '' )</span>
     }
 }
 </code></pre>
@@ -322,25 +322,25 @@ alert(<span class="hljs-string">"Cake id: "</span> + cake.id);
 </code></pre>
 <h3 id="attrdef-defaultvalue"><code>attrDef</code> : defaultValue</h3>
 <p>When value of other type than function is used as <code>attrDef</code> it&#39;s treated as attribute&#39;s default value. Attribute&#39;s type is being inferred from the value.</p>
-<p>Use the general form of attribute definition for attributes of <code>Function</code> type: <code>Function.value( theFunction )</code>.</p>
+<p>Use the general form of attribute definition for attributes of <code>Function</code> type: <code>type( Function ).value( theFunction )</code>.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">GridColumn</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
         <span class="hljs-attr">name</span> : <span class="hljs-string">''</span>, <span class="hljs-comment">// String attribute which is '' by default.</span>
-        render : <span class="hljs-built_in">Function</span>.value( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x ),
+        render : type( <span class="hljs-built_in">Function</span> ).value( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x ),
         ...
     }
 }
 </code></pre>
-<h3 id="attrdef-type-value-defaultvalue-"><code>attrDef</code> : Type.value( defaultValue )</h3>
-<p>The general form of attribute definition is <code>Type.value( defaultValue )</code>, where the <code>Type</code> is the corresponding constructor function.</p>
+<h3 id="attrdef-type-t-value-defaultvalue-"><code>attrDef</code> : type( T ).value( defaultValue )</h3>
+<p>Declare an attribute with type T having the custom <code>defaultValue</code>.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">phone</span> : <span class="hljs-built_in">String</span>.value( <span class="hljs-literal">null</span> ) <span class="hljs-comment">// String attribute which is null by default.</span>
+        <span class="hljs-attr">phone</span> : type( <span class="hljs-built_in">String</span> ).value( <span class="hljs-literal">null</span> ) <span class="hljs-comment">// String attribute which is null by default.</span>
         ...
     }
 }
 </code></pre>
-<p>The record is <em>recursive</em> if it&#39;s uses the type of itself in its attribute definition.</p>
+<p>If record needs to reference itself in its attributes definition, <code>@predefine</code> decorator with subsequent <code>MyRecord.define()</code> needs to be used.</p>
 <h3 id="attrdef-date"><code>attrDef</code> : Date</h3>
 <p>Date attribute initialized as <code>new Date()</code>. Represented in JSON as string or number depending on the type:</p>
 <ul>
@@ -363,15 +363,14 @@ alert(<span class="hljs-string">"Cake id: "</span> + cake.id);
     }
 }
 </code></pre>
-<h3 id="attrdef-type-has-and-type-type-"><code>attrDef</code> Type.has and type( Type )</h3>
+<h3 id="attrdef-type-type-"><code>attrDef</code> type( Type )</h3>
 <p>Attribute definition can have different metadata attached which affects various aspects of attribute&#39;s behavior. Metadata is attached with
-a chain of calls after the <code>Ctor.has</code> property or <code>type( Ctor )</code> call. Attribute&#39;s default value is the most common example of such a metadata and is the single option which can be applied to the constructor function directly.</p>
+a chain of calls after the <code>type( Ctor )</code> call. Attribute&#39;s default value is the most common example of such a metadata and is the single option which can be applied to the constructor function directly.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, type, Record }
 
 @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Dummy</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">a</span> : <span class="hljs-built_in">String</span>.has.value( <span class="hljs-string">"a"</span> ), <span class="hljs-comment">// Same as String.value( "a" )</span>
-        b : type( <span class="hljs-built_in">String</span> ).value( <span class="hljs-string">"a"</span> ) <span class="hljs-comment">// Same as above</span>
+        <span class="hljs-attr">a</span> : type( <span class="hljs-built_in">String</span> ).value( <span class="hljs-string">"a"</span> ), <span class="hljs-comment">// Same as "a"</span>
     }
 }
 </code></pre>
@@ -393,9 +392,9 @@ Doesn&#39;t require <code>reflect-metadata</code> package.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, attr, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
 @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    @attr( <span class="hljs-built_in">String</span>.value( <span class="hljs-number">5</span> ) ) name : string
+    @attr( <span class="hljs-built_in">String</span> ) name : string
     @attr( <span class="hljs-string">"5"</span> ) name : string <span class="hljs-comment">// String type is infered from the default value.</span>
-    @attr( <span class="hljs-built_in">String</span>.has.toJSON( <span class="hljs-literal">false</span> ) ) email : string
+    @attr( type( <span class="hljs-built_in">String</span> ).value( <span class="hljs-number">5</span> ) ) email : string
 }
 </code></pre>
 <h3 id="decorator-type-ctor-as"><code>decorator</code> @type( Ctor ).as</h3>
@@ -520,9 +519,9 @@ Any additional changes made to the record in <code>change:attr</code> event hand
 }); <span class="hljs-comment">// `change` event is triggered.</span>
 </code></pre>
 <p>Manual transactions with attribute assignments are superior to <code>record.set()</code> in terms of both performance and flexibility.</p>
-<h3 id="attrdef-type-has-get-hook-"><code>attrDef</code> : Type.has.get( <code>hook</code> )</h3>
+<h3 id="attrdef-type-type-get-hook-"><code>attrDef</code> : type( Type ).get( <code>hook</code> )</h3>
 <p>Attach get hook to the record&#39;s attribute. <code>hook</code> is the function of signature <code>( value, attr ) =&gt; value</code> which is used to transform the attribute&#39;s value <em>before it will be read</em>. Hook is executed in the context of the record.</p>
-<h3 id="attrdef-type-has-set-hook-"><code>attrDef</code> : Type.has.set( <code>hook</code> )</h3>
+<h3 id="attrdef-type-type-set-hook-"><code>attrDef</code> : type( Type ).set( <code>hook</code> )</h3>
 <p>Attach the set hook to the record&#39;s attribute. <code>hook</code> is the function of signature <code>( value, attr ) =&gt; value</code> which is used to transform the attribute&#39;s value <em>before it will be assigned</em>. Hook is executed in the context of the record.</p>
 <p>If set hook will return <code>undefined</code>, it will cancel attribute update.</p>
 <h2 id="nested-records-and-collections">Nested records and collections</h2>
@@ -827,11 +826,11 @@ book.author.name = <span class="hljs-string">'John Smith'</span>;
 <p>Triggered by the record at the end of the attributes update transaction in case if there were any changes applied.</p>
 <h3 id="event-change-attrname-record-value-"><code>event</code> &quot;change:attrName&quot; ( record, value )</h3>
 <p>Triggered by the record during the attributes update transaction for every changed attribute.</p>
-<h3 id="attrdef-type-has-watcher-watcher-"><code>attrDef</code> : Type.has.watcher( watcher )</h3>
+<h3 id="attrdef-type-type-watcher-watcher-"><code>attrDef</code> : type( Type ).watcher( watcher )</h3>
 <p>Attach <code>change:attr</code> event listener to the particular record&#39;s attribute. <code>watcher</code> can either be the record&#39;s method name or the function <code>( newValue, attr ) =&gt; void</code>. Watcher is always executed in the context of the record.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span>.has.watcher( <span class="hljs-string">'onNameChange'</span> ),
+        <span class="hljs-attr">name</span> : type( <span class="hljs-built_in">String</span> ).watcher( <span class="hljs-string">'onNameChange'</span> ),
         <span class="hljs-attr">isAdmin</span> : <span class="hljs-built_in">Boolean</span>,
     }
 
@@ -841,10 +840,10 @@ book.author.name = <span class="hljs-string">'John Smith'</span>;
     }
 }
 </code></pre>
-<h3 id="attrdef-type-has-changeevents-false-"><code>attrDef</code> : Type.has.changeEvents( false )</h3>
+<h3 id="attrdef-type-type-changeevents-false-"><code>attrDef</code> : type( Type ).changeEvents( false )</h3>
 <p>Turn off changes observation for nested records or collections.</p>
 <p>Record automatically listens to change events of all nested records and collections, triggering appropriate change events for its attributes. This declaration turns it off for the specific attribute.</p>
-<h3 id="attrdef-type-has-events-eventname-handler-"><code>attrDef</code> : Type.has.events({ eventName : handler, ... })</h3>
+<h3 id="attrdef-type-type-events-eventname-handler-"><code>attrDef</code> : type( Type ).events({ eventName : handler, ... })</h3>
 <p>Automatically manage custom event subscription for the attribute. <code>handler</code> is either the method name or the handler function.</p>
 <h3 id="record-changed">record.changed</h3>
 <p>The <code>changed</code> property is the internal hash containing all the attributes that have changed during its last transaction.
@@ -1073,7 +1072,7 @@ Records and collections will try to convert values to the declared types on assi
 <li>Validation results are cached across the aggregation tree, thus consequent validation error reads are cheap. Only changed parts of aggregation tree will be revalidated when necessary.</li>
 </ul>
 <h2 id="record-s-attributes">Record&#39;s attributes</h2>
-<h3 id="attrdef-type-has-check-predicate-errormsg-"><code>attrDef</code> : Type.has.check( predicate, errorMsg? )</h3>
+<h3 id="attrdef-type-type-check-predicate-errormsg-"><code>attrDef</code> : type( Type ).check( predicate, errorMsg? )</h3>
 <p>Attribute-level validator.</p>
 <ul>
 <li><code>predicate : value =&gt; boolean</code> is the function taking attribute&#39;s value and returning <code>true</code> whenever the value is valid.</li>
@@ -1088,11 +1087,11 @@ isAge.error = <span class="hljs-string">"Age must be between 0 and 200"</span>;
 </code></pre>
 <p>Attribute may have any number of checks attached, which are execute in sequence. Validation stops when first check in sequence fails.</p>
 <pre><code class="highlight javascript"><span class="hljs-comment">// Define new attribute metatype encapsulating validation checks.</span>
-<span class="hljs-keyword">const</span> Age = <span class="hljs-built_in">Number</span>.has
+<span class="hljs-keyword">const</span> Age = type( <span class="hljs-built_in">Number</span> )
                 .check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x &gt;= <span class="hljs-number">0</span>, <span class="hljs-string">'I guess you are a bit older'</span> )
                 .check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x &lt; <span class="hljs-number">200</span>, <span class="hljs-string">'No way man can be that old'</span> );
 </code></pre>
-<h3 id="attrdef-type-isrequired"><code>attrDef</code> : Type.isRequired</h3>
+<h3 id="attrdef-type-type-isrequired"><code>attrDef</code> : type( Type ).isRequired</h3>
 <p>The special case of attribute-level check cutting out empty values. Attribute value must be truthy to pass, <code>&quot;Required&quot;</code> is used as validation error.</p>
 <p><code>isRequired</code> is the first validator to check, no matter in which order validators were attached.</p>
 <h3 id="rec-isvalid-attrname-">rec.isValid( attrName )</h3>
@@ -1153,10 +1152,10 @@ users
 <h3 id="static-endpoint"><code>static</code> endpoint</h3>
 <p>I/O endpoint declaration which should be used in Record or Collection definition to enable I/O API.</p>
 <p>If an endpoint is defined for the <code>MyRecord</code>, it&#39;s automatically defined for the corresponding <code>MyRecord.Collection</code> as well.</p>
-<h3 id="attrdef-type-has-endpoint-endpoint-"><code>attrDef</code> : Type.has.endpoint( <code>endpoint</code> )</h3>
+<h3 id="attrdef-type-type-endpoint-endpoint-"><code>attrDef</code> : type( Type ).endpoint( <code>endpoint</code> )</h3>
 <p>Override or define an I/O endpoint for the specific record&#39;s attribute.</p>
 <h3 id="obj-getendpoint-">obj.getEndpoint()</h3>
-<p>Returns an object&#39;s IO endpoint. Normally, this is an endpoint which is defined in object&#39;s <code>static endpoint = ...</code> declaration, but it might be overridden by the parent&#39;s record using <code>Type.has.endpoint( ... )</code> attribute declaration.</p>
+<p>Returns an object&#39;s IO endpoint. Normally, this is an endpoint which is defined in object&#39;s <code>static endpoint = ...</code> declaration, but it might be overridden by the parent&#39;s record using <code>type( Type ).endpoint( ... )</code> attribute declaration.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> endpoint = restfulIO( <span class="hljs-string">'/api/users'</span> );
     ...
@@ -1166,7 +1165,7 @@ users
     <span class="hljs-keyword">static</span> endpoint = restfulIO( <span class="hljs-string">'/api/roles'</span> );
     <span class="hljs-keyword">static</span> attributes = {
         <span class="hljs-comment">// Use the relative path '/api/roles/:id/users'</span>
-        users : User.Collection.has.endpoint( restfulIO( <span class="hljs-string">'./users'</span> ) ),
+        users : type( User.Collection ).endpoint( restfulIO( <span class="hljs-string">'./users'</span> ) ),
         ...
     }
 }
@@ -1221,7 +1220,7 @@ No built-in I/O enpoints support that functionality yet.
 
     <span class="hljs-keyword">static</span> attributes = {
         <span class="hljs-comment">// Roles collection here has relative url /api/users/:user_id/roles/</span>
-        roles : Role.Collection.has.endpoint( restfulIO( <span class="hljs-string">'./roles'</span> ) ), 
+        roles : type( Role.Collection ).endpoint( restfulIO( <span class="hljs-string">'./roles'</span> ) ), 
         ...
     }
 }
@@ -1317,7 +1316,7 @@ an existing Record subclass as a transport. This endpoint can be connected to th
 <p>Produces the JSON for the given record or collection and its aggregated members. Aggregation tree is serialized as nested JSON. Record corresponds to an object in JSON, while the collection is represented as an array of objects.</p>
 <p>If you override <code>toJSON()</code>, it usually means that you must override <code>parse()</code> as well, and vice versa.</p>
 <aside class="notice">
-Serialization can be controlled on per-attribute level with <b>Type.has.toJSON()</b> declaration.
+Serialization can be controlled on per-attribute level with <b>type( Type ).toJSON()</b> declaration.
 </aside>
 
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Comment</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
@@ -1353,19 +1352,19 @@ book.set( bestSeller.toJSON(), { <span class="hljs-attr">parse</span> : <span cl
 <p>Optional hook called to transform the JSON when it&#39;s passes to the record or collection with <code>set( json, { parse : true })</code> call. Used internally by I/O methods.</p>
 <p>If you override <code>toJSON()</code>, it usually means that you must override <code>parse()</code> as well, and vice versa.</p>
 <aside class="notice">
-Parsing can be controlled on per-attribute level with <b>Type.has.parse()</b> declaration.
+Parsing can be controlled on per-attribute level with <b>type( Type ).parse()</b> declaration.
 </aside>
 
-<h3 id="attrdef-type-has-tojson-false-"><code>attrDef</code> : Type.has.toJSON( false )</h3>
+<h3 id="attrdef-type-type-tojson-false-"><code>attrDef</code> : type( Type ).toJSON( false )</h3>
 <p>Do <em>not</em> serialize the specific attribute.</p>
-<h3 id="attrdef-type-has-tojson-value-name-options-json-"><code>attrDef</code> : Type.has.toJSON( ( value, name, options ) =&gt; json )</h3>
+<h3 id="attrdef-type-type-tojson-value-name-options-json-"><code>attrDef</code> : type( Type ).toJSON( ( value, name, options ) =&gt; json )</h3>
 <p>Override the default serialization for the specific record&#39;s attribute.</p>
 <p>Attribute is not serialized when the function return <code>undefined</code>.</p>
-<h3 id="attrdef-type-has-parse-json-name-value-"><code>attrDef</code> : Type.has.parse( ( json, name ) =&gt; value )</h3>
+<h3 id="attrdef-type-type-parse-json-name-value-"><code>attrDef</code> : type( Type ).parse( ( json, name ) =&gt; value )</h3>
 <p>Transform the data before it will be assigned to the record&#39;s attribute.</p>
 <p>Invoked when the <code>{ parse : true }</code> option is set.</p>
 <pre><code class="highlight javascript"><span class="hljs-comment">// Define custom boolean attribute type which is serialized as 0 or 1.</span>
-<span class="hljs-keyword">const</span> MyWeirdBool = <span class="hljs-built_in">Boolean</span>.has
+<span class="hljs-keyword">const</span> MyWeirdBool = type( <span class="hljs-built_in">Boolean</span> )
                       .parse( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x === <span class="hljs-number">1</span> )
                       .toJSON( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x ? <span class="hljs-number">1</span> : <span class="hljs-number">0</span> );
 </code></pre>
@@ -1703,12 +1702,12 @@ store.fetch().then( <span class="hljs-function"><span class="hljs-params">()</sp
     <span class="hljs-comment">// render your page</span>
 });
 </code></pre>
-<p>It&#39;s possible to define or override the defined endpoint for the nested model or collection using <code>has.endpoint</code> type-R attribute annotation.</p>
+<p>It&#39;s possible to define or override the defined endpoint for the nested model or collection using <code>type().endpoint()</code> type-R attribute annotation.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PageStore</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Store</span> </span>{
     <span class="hljs-keyword">static</span> endpoint = attributesIO();
     <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">users</span> : User.Collection.has.endpoint( restful( <span class="hljs-string">'/api/users'</span> ) ),
-        <span class="hljs-attr">roles</span> : UserRole.Collection.has.endpoint( restful( <span class="hljs-string">'/api/userroles'</span> ) ),
+        <span class="hljs-attr">users</span> : type( User.Collection ).endpoint( restful( <span class="hljs-string">'/api/users'</span> ) ),
+        <span class="hljs-attr">roles</span> : type( UserRole.Collection ).endpoint( restful( <span class="hljs-string">'/api/userroles'</span> ) ),
         ...
     }
 }

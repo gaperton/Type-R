@@ -57,14 +57,14 @@ store.fetch().then( () =>{
 });
 ```
 
-It's possible to define or override the defined endpoint for the nested model or collection using `has.endpoint` type-R attribute annotation.
+It's possible to define or override the defined endpoint for the nested model or collection using `type().endpoint()` type-R attribute annotation.
 
 ```javascript
 @define class PageStore extends Store {
     static endpoint = attributesIO();
     static attributes = {
-        users : User.Collection.has.endpoint( restful( '/api/users' ) ),
-        roles : UserRole.Collection.has.endpoint( restful( '/api/userroles' ) ),
+        users : type( User.Collection ).endpoint( restful( '/api/users' ) ),
+        roles : type( UserRole.Collection ).endpoint( restful( '/api/userroles' ) ),
         ...
     }
 }

@@ -32,13 +32,13 @@ I/O endpoint declaration which should be used in Record or Collection definition
 
 If an endpoint is defined for the `MyRecord`, it's automatically defined for the corresponding `MyRecord.Collection` as well.
 
-### `attrDef` : Type.has.endpoint( `endpoint` )
+### `attrDef` : type( Type ).endpoint( `endpoint` )
 
 Override or define an I/O endpoint for the specific record's attribute.
 
 ### obj.getEndpoint()
 
-Returns an object's IO endpoint. Normally, this is an endpoint which is defined in object's `static endpoint = ...` declaration, but it might be overridden by the parent's record using `Type.has.endpoint( ... )` attribute declaration.
+Returns an object's IO endpoint. Normally, this is an endpoint which is defined in object's `static endpoint = ...` declaration, but it might be overridden by the parent's record using `type( Type ).endpoint( ... )` attribute declaration.
 
 ```javascript
 @define class User extends Record {
@@ -50,7 +50,7 @@ Returns an object's IO endpoint. Normally, this is an endpoint which is defined 
     static endpoint = restfulIO( '/api/roles' );
     static attributes = {
         // Use the relative path '/api/roles/:id/users'
-        users : User.Collection.has.endpoint( restfulIO( './users' ) ),
+        users : type( User.Collection ).endpoint( restfulIO( './users' ) ),
         ...
     }
 }
@@ -128,7 +128,7 @@ import { restfulIO } from 'type-r/endpoints/restful'
     
     static attributes = {
         // Roles collection here has relative url /api/users/:user_id/roles/
-        roles : Role.Collection.has.endpoint( restfulIO( './roles' ) ), 
+        roles : type( Role.Collection ).endpoint( restfulIO( './roles' ) ), 
         ...
     }
 }
@@ -276,7 +276,7 @@ Produces the JSON for the given record or collection and its aggregated members.
 If you override `toJSON()`, it usually means that you must override `parse()` as well, and vice versa.
 
 <aside class="notice">
-Serialization can be controlled on per-attribute level with <b>Type.has.toJSON()</b> declaration.
+Serialization can be controlled on per-attribute level with <b>type( Type ).toJSON()</b> declaration.
 </aside>
 
 ```javascript
@@ -321,20 +321,20 @@ Optional hook called to transform the JSON when it's passes to the record or col
 If you override `toJSON()`, it usually means that you must override `parse()` as well, and vice versa.
 
 <aside class="notice">
-Parsing can be controlled on per-attribute level with <b>Type.has.parse()</b> declaration.
+Parsing can be controlled on per-attribute level with <b>type( Type ).parse()</b> declaration.
 </aside>
 
-### `attrDef` : Type.has.toJSON( false )
+### `attrDef` : type( Type ).toJSON( false )
 
 Do _not_ serialize the specific attribute.
 
-### `attrDef` : Type.has.toJSON( ( value, name, options ) => json )
+### `attrDef` : type( Type ).toJSON( ( value, name, options ) => json )
 
 Override the default serialization for the specific record's attribute.
 
 Attribute is not serialized when the function return `undefined`.
 
-### `attrDef` : Type.has.parse( ( json, name ) => value )
+### `attrDef` : type( Type ).parse( ( json, name ) => value )
 
 Transform the data before it will be assigned to the record's attribute.
 
@@ -342,7 +342,7 @@ Invoked when the `{ parse : true }` option is set.
 
 ```javascript
 // Define custom boolean attribute type which is serialized as 0 or 1.
-const MyWeirdBool = Boolean.has
+const MyWeirdBool = type( Boolean )
                       .parse( x => x === 1 )
                       .toJSON( x => x ? 1 : 0 );
 ```

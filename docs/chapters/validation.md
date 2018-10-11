@@ -11,7 +11,7 @@ In addition to that, Type-R supports validation API allowing developer to attach
 
 ## Record's attributes
 
-### `attrDef` : Type.has.check( predicate, errorMsg? )
+### `attrDef` : type( Type ).check( predicate, errorMsg? )
 
 Attribute-level validator.
 
@@ -32,12 +32,12 @@ Attribute may have any number of checks attached, which are execute in sequence.
 
 ```javascript
 // Define new attribute metatype encapsulating validation checks.
-const Age = Number.has
+const Age = type( Number )
                 .check( x => x >= 0, 'I guess you are a bit older' )
                 .check( x => x < 200, 'No way man can be that old' );
 ```
 
-### `attrDef` : Type.isRequired
+### `attrDef` : type( Type ).isRequired
 
 The special case of attribute-level check cutting out empty values. Attribute value must be truthy to pass, `"Required"` is used as validation error.
 

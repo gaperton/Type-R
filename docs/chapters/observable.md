@@ -42,14 +42,14 @@ Triggered by the record at the end of the attributes update transaction in case 
 
 Triggered by the record during the attributes update transaction for every changed attribute.
 
-### `attrDef` : Type.has.watcher( watcher )
+### `attrDef` : type( Type ).watcher( watcher )
 
 Attach `change:attr` event listener to the particular record's attribute. `watcher` can either be the record's method name or the function `( newValue, attr ) => void`. Watcher is always executed in the context of the record.
 
 ```javascript
 @define class User extends Record {
     static attributes = {
-        name : String.has.watcher( 'onNameChange' ),
+        name : type( String ).watcher( 'onNameChange' ),
         isAdmin : Boolean,
     }
 
@@ -60,13 +60,13 @@ Attach `change:attr` event listener to the particular record's attribute. `watch
 }
 ```
 
-### `attrDef` : Type.has.changeEvents( false )
+### `attrDef` : type( Type ).changeEvents( false )
 
 Turn off changes observation for nested records or collections.
 
 Record automatically listens to change events of all nested records and collections, triggering appropriate change events for its attributes. This declaration turns it off for the specific attribute.
 
-### `attrDef` : Type.has.events({ eventName : handler, ... })
+### `attrDef` : type( Type ).events({ eventName : handler, ... })
 
 Automatically manage custom event subscription for the attribute. `handler` is either the method name or the handler function.
 

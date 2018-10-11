@@ -11,10 +11,10 @@ import { define, Record } from 'type-r'
     static attributes = {
         firstName : '', // ⟵ String type is inferred from the default value
         lastName  : String, // ⟵ Or you can just mention its constructor
-        email     : String.value( null ), //⟵ Or you can provide both
+        email     : type( String ).value( null ), //⟵ Or you can provide both
         createdAt : Date, // ⟵ And it works for any constructor.
         // And you can attach ⤹ metadata to fine-tune attribute's behavior
-        lastLogin : Date.value( null ).has.toJSON( false ) // ⟵ not serializable
+        lastLogin : type( Date ).value( null ).toJSON( false ) // ⟵ not serializable
     }
 }
 
@@ -72,9 +72,9 @@ Record's attributes definition. Lists attribute names along with their types, de
 ```javascript
 @define class User extends Record {
     static attributes = {
-        name    : String.value( 'John Dow' ),
-        email   : 'john.dow@mail.com', // Same as String.value( 'john.dow@mail.com' )
-        address : String, // Same as String.value( '' )
+        name    : type( String ).value( 'John Dow' ),
+        email   : 'john.dow@mail.com', // Same as type( String ).value( 'john.dow@mail.com' )
+        address : String, // Same as type( String ).value( '' )
     }
 }
 ```
@@ -119,32 +119,32 @@ When the function is used as `attrDef`, it's treated as the constructor function
 
 When value of other type than function is used as `attrDef` it's treated as attribute's default value. Attribute's type is being inferred from the value.
 
-Use the general form of attribute definition for attributes of `Function` type: `Function.value( theFunction )`.
+Use the general form of attribute definition for attributes of `Function` type: `type( Function ).value( theFunction )`.
 
 ```javascript
 @define class GridColumn extends Record {
     static attributes = {
         name : '', // String attribute which is '' by default.
-        render : Function.value( x => x ),
+        render : type( Function ).value( x => x ),
         ...
     }
 }
 ```
 
-### `attrDef` : Type.value( defaultValue )
+### `attrDef` : type( T ).value( defaultValue )
 
-The general form of attribute definition is `Type.value( defaultValue )`, where the `Type` is the corresponding constructor function.
+Declare an attribute with type T having the custom `defaultValue`.
 
 ```javascript
 @define class Person extends Record {
     static attributes = {
-        phone : String.value( null ) // String attribute which is null by default.
+        phone : type( String ).value( null ) // String attribute which is null by default.
         ...
     }
 }
 ```
 
-The record is _recursive_ if it's uses the type of itself in its attribute definition.
+If record needs to reference itself in its attributes definition, `@predefine` decorator with subsequent `MyRecord.define()` needs to be used.
 
 ### `attrDef` : Date
 
@@ -174,18 +174,17 @@ May be explicitly assigned in record's definition with custom collection class.
 }
 ```
 
-### `attrDef` Type.has and type( Type )
+### `attrDef` type( Type )
 
 Attribute definition can have different metadata attached which affects various aspects of attribute's behavior. Metadata is attached with
-a chain of calls after the `Ctor.has` property or `type( Ctor )` call. Attribute's default value is the most common example of such a metadata and is the single option which can be applied to the constructor function directly.
+a chain of calls after the `type( Ctor )` call. Attribute's default value is the most common example of such a metadata and is the single option which can be applied to the constructor function directly.
 
 ```javascript
 import { define, type, Record }
 
 @define class Dummy extends Record {
     static attributes = {
-        a : String.has.value( "a" ), // Same as String.value( "a" )
-        b : type( String ).value( "a" ) // Same as above
+        a : type( String ).value( "a" ), // Same as "a"
     }
 }
 ```
@@ -218,9 +217,9 @@ Doesn't require `reflect-metadata` package.
 import { define, attr, Record } from 'type-r'
 
 @define class User extends Record {
-    @attr( String.value( 5 ) ) name : string
+    @attr( String ) name : string
     @attr( "5" ) name : string // String type is infered from the default value.
-    @attr( String.has.toJSON( false ) ) email : string
+    @attr( type( String ).value( 5 ) ) email : string
 }
 ```
 
@@ -395,11 +394,11 @@ some.record.transaction( record => {
 
 Manual transactions with attribute assignments are superior to `record.set()` in terms of both performance and flexibility.
 
-### `attrDef` : Type.has.get( `hook` )
+### `attrDef` : type( Type ).get( `hook` )
 
 Attach get hook to the record's attribute. `hook` is the function of signature `( value, attr ) => value` which is used to transform the attribute's value _before it will be read_. Hook is executed in the context of the record.
 
-### `attrDef` : Type.has.set( `hook` )
+### `attrDef` : type( Type ).set( `hook` )
 
 Attach the set hook to the record's attribute. `hook` is the function of signature `( value, attr ) => value` which is used to transform the attribute's value _before it will be assigned_. Hook is executed in the context of the record.
 
