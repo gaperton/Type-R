@@ -45,7 +45,7 @@ import "reflect-metadata" // Required for @attr without arguments
 
     // You have to pass type explicitly if reflect-metadata is not used.
     @attr( String ) email : string
-    
+
     // Type cannot be inferred for null default values, and needs to be specified explicitly
     @attr( type( String ).value( null ) ) email : string
     // Or, as a shorter form...
@@ -139,9 +139,9 @@ const cake = new Meal({ _id: 1, name: "Cake" });
 alert("Cake id: " + cake.id);
 ```
 
-### `attrDef` : Type
+### `attrDef` : Constructor
 
-When the function is used as `attrDef`, it's treated as the constructor function. Any constructor function which behaves as _converting constructor_ (like `new Date( msecs )`) may be used as an attribute type.
+Constructor function is the simplest form of attribute definition. Any constructor function which behaves as _converting constructor_ (like `new Date( msecs )`) may be used as an attribute type.
 
 ```javascript
 @define class Person extends Record {
@@ -155,9 +155,10 @@ When the function is used as `attrDef`, it's treated as the constructor function
 
 ### `attrDef` : defaultValue
 
-When value of other type than function is used as `attrDef` it's treated as attribute's default value. Attribute's type is being inferred from the value.
+Any non-function value used as attribute definition is treated as an attribute's default value. Attribute's type is being inferred from the value.
 
-Use the general form of attribute definition for attributes of `Function` type: `type( Function ).value( theFunction )`.
+Type cannot be properly inferred from the `null` values and functions.
+Use the general form of attribute definition in such cases: `type( Function ).value( theFunction )`, `type( Boolean ).value( null )`.
 
 ```javascript
 @define class GridColumn extends Record {
@@ -169,7 +170,7 @@ Use the general form of attribute definition for attributes of `Function` type: 
 }
 ```
 
-### `attrDef` : type( T ).value( defaultValue )
+### `attrDef` : type( Constructor ).value( defaultValue )
 
 Declare an attribute with type T having the custom `defaultValue`.
 
@@ -186,11 +187,12 @@ If record needs to reference itself in its attributes definition, `@predefine` d
 
 ### `attrDef` : Date
 
-Date attribute initialized as `new Date()`. Represented in JSON as string or number depending on the type:
+Date attribute initialized as `new Date()`, and represented in JSON as UTC ISO string.
 
-* `Date` - as ISO date string.
-* `Date.microsoft` - as Microsoft's `"/Date(msecs)/"` string.
-* `Date.timestamp` - as UNIX integer timestamp.
+There are other popular Date serialization options available in `type-r/ext-types` package.
+
+* `MicrosoftDate` - Date serialized as Microsoft's `"/Date(msecs)/"` string.
+* `Timestamp` - Date serializaed as UNIX integer timestamp (`date.getTime()`).
 
 ### `static` Collection
 
@@ -229,13 +231,13 @@ import { define, type, Record }
 
 ## Definitions in TypeScript
 
-Type-R implements experimental support for TypeScript record definitions.
+Type-R supports several options to define record attributes.
 
 ### `decorator` @attr
 
-The simplest form of attribute definition. Requires `reflect-metadata` npm package and `emitDecoratorMetadata` option set to true in the `tsconfig.json`.
+Turns TypeScript class property definition to the record's attribute, automatically extracting attribute type from the TypeScript type annotation. Requires `reflect-metadata` npm package and `emitDecoratorMetadata` option set to true in the `tsconfig.json`.
 
-No metadata can be attached.
+No attribute metadata can be attached.
 
 ```javascript
 import { define, attr, Record } from 'type-r'
@@ -248,7 +250,7 @@ import { define, attr, Record } from 'type-r'
 
 ### `decorator` @attr( attrDef )
 
-Long form of the attribute definition. Accepts arbitraty Type-R attribute definition as a parameter. Could be used if metadata must be attached to an attributed.
+Turns class property to an attribute accipting arbitraty Type-R attribute definition as an argument. Should be used if metadata must be attached to an attribute.
 Doesn't require `reflect-metadata` package.
 
 ```javascript
@@ -263,8 +265,7 @@ import { define, attr, Record } from 'type-r'
 
 ### `decorator` @type( Ctor ).as
 
-Attribute definition has `.as` property which converts the definition to the attribute's decorator. Can be used in conjunction with `type()` function to provide an 
-alternative syntax for attribute definitions.
+Attribute definition creates the TypeScript property decorator when appended with `.as` suffix. It's an alternative syntax to `@attr( attrDef )`.
 
 ```javascript
 import { define, type, Record } from 'type-r'

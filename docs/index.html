@@ -346,8 +346,8 @@ If you&#39;re directly communicating with a backend (CouchDB, MongoDB) that uses
 <span class="hljs-keyword">const</span> cake = <span class="hljs-keyword">new</span> Meal({ <span class="hljs-attr">_id</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">name</span>: <span class="hljs-string">"Cake"</span> });
 alert(<span class="hljs-string">"Cake id: "</span> + cake.id);
 </code></pre>
-<h3 id="attrdef-type"><code>attrDef</code> : Type</h3>
-<p>When the function is used as <code>attrDef</code>, it&#39;s treated as the constructor function. Any constructor function which behaves as <em>converting constructor</em> (like <code>new Date( msecs )</code>) may be used as an attribute type.</p>
+<h3 id="attrdef-constructor"><code>attrDef</code> : Constructor</h3>
+<p>Constructor function is the simplest form of attribute definition. Any constructor function which behaves as <em>converting constructor</em> (like <code>new Date( msecs )</code>) may be used as an attribute type.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
         <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span> <span class="hljs-comment">// String attribute which is "" by default.</span>
@@ -357,8 +357,9 @@ alert(<span class="hljs-string">"Cake id: "</span> + cake.id);
 }
 </code></pre>
 <h3 id="attrdef-defaultvalue"><code>attrDef</code> : defaultValue</h3>
-<p>When value of other type than function is used as <code>attrDef</code> it&#39;s treated as attribute&#39;s default value. Attribute&#39;s type is being inferred from the value.</p>
-<p>Use the general form of attribute definition for attributes of <code>Function</code> type: <code>type( Function ).value( theFunction )</code>.</p>
+<p>Any non-function value used as attribute definition is treated as an attribute&#39;s default value. Attribute&#39;s type is being inferred from the value.</p>
+<p>Type cannot be properly inferred from the <code>null</code> values and functions.
+Use the general form of attribute definition in such cases: <code>type( Function ).value( theFunction )</code>, <code>type( Boolean ).value( null )</code>.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">GridColumn</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
         <span class="hljs-attr">name</span> : <span class="hljs-string">''</span>, <span class="hljs-comment">// String attribute which is '' by default.</span>
@@ -367,7 +368,7 @@ alert(<span class="hljs-string">"Cake id: "</span> + cake.id);
     }
 }
 </code></pre>
-<h3 id="attrdef-type-t-value-defaultvalue-"><code>attrDef</code> : type( T ).value( defaultValue )</h3>
+<h3 id="attrdef-type-constructor-value-defaultvalue-"><code>attrDef</code> : type( Constructor ).value( defaultValue )</h3>
 <p>Declare an attribute with type T having the custom <code>defaultValue</code>.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
@@ -378,11 +379,11 @@ alert(<span class="hljs-string">"Cake id: "</span> + cake.id);
 </code></pre>
 <p>If record needs to reference itself in its attributes definition, <code>@predefine</code> decorator with subsequent <code>MyRecord.define()</code> needs to be used.</p>
 <h3 id="attrdef-date"><code>attrDef</code> : Date</h3>
-<p>Date attribute initialized as <code>new Date()</code>. Represented in JSON as string or number depending on the type:</p>
+<p>Date attribute initialized as <code>new Date()</code>, and represented in JSON as UTC ISO string.</p>
+<p>There are other popular Date serialization options available in <code>type-r/ext-types</code> package.</p>
 <ul>
-<li><code>Date</code> - as ISO date string.</li>
-<li><code>Date.microsoft</code> - as Microsoft&#39;s <code>&quot;/Date(msecs)/&quot;</code> string.</li>
-<li><code>Date.timestamp</code> - as UNIX integer timestamp.</li>
+<li><code>MicrosoftDate</code> - Date serialized as Microsoft&#39;s <code>&quot;/Date(msecs)/&quot;</code> string.</li>
+<li><code>Timestamp</code> - Date serializaed as UNIX integer timestamp (<code>date.getTime()</code>).</li>
 </ul>
 <h3 id="static-collection"><code>static</code> Collection</h3>
 <p>The default record&#39;s collection class automatically defined for every Record subclass. Can be referenced as <code>Record.Collection</code>.</p>
@@ -411,10 +412,10 @@ a chain of calls after the <code>type( Ctor )</code> call. Attribute&#39;s defau
 }
 </code></pre>
 <h2 id="definitions-in-typescript">Definitions in TypeScript</h2>
-<p>Type-R implements experimental support for TypeScript record definitions.</p>
+<p>Type-R supports several options to define record attributes.</p>
 <h3 id="decorator-attr"><code>decorator</code> @attr</h3>
-<p>The simplest form of attribute definition. Requires <code>reflect-metadata</code> npm package and <code>emitDecoratorMetadata</code> option set to true in the <code>tsconfig.json</code>.</p>
-<p>No metadata can be attached.</p>
+<p>Turns TypeScript class property definition to the record&#39;s attribute, automatically extracting attribute type from the TypeScript type annotation. Requires <code>reflect-metadata</code> npm package and <code>emitDecoratorMetadata</code> option set to true in the <code>tsconfig.json</code>.</p>
+<p>No attribute metadata can be attached.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, attr, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
 @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
@@ -423,7 +424,7 @@ a chain of calls after the <code>type( Ctor )</code> call. Attribute&#39;s defau
 }
 </code></pre>
 <h3 id="decorator-attr-attrdef-"><code>decorator</code> @attr( attrDef )</h3>
-<p>Long form of the attribute definition. Accepts arbitraty Type-R attribute definition as a parameter. Could be used if metadata must be attached to an attributed.
+<p>Turns class property to an attribute accipting arbitraty Type-R attribute definition as an argument. Should be used if metadata must be attached to an attribute.
 Doesn&#39;t require <code>reflect-metadata</code> package.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, attr, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
@@ -434,8 +435,7 @@ Doesn&#39;t require <code>reflect-metadata</code> package.</p>
 }
 </code></pre>
 <h3 id="decorator-type-ctor-as"><code>decorator</code> @type( Ctor ).as</h3>
-<p>Attribute definition has <code>.as</code> property which converts the definition to the attribute&#39;s decorator. Can be used in conjunction with <code>type()</code> function to provide an 
-alternative syntax for attribute definitions.</p>
+<p>Attribute definition creates the TypeScript property decorator when appended with <code>.as</code> suffix. It&#39;s an alternative syntax to <code>@attr( attrDef )</code>.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, type, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
 @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
