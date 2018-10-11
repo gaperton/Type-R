@@ -4,7 +4,8 @@ import sourcemaps from 'rollup-plugin-sourcemaps';
 
 export default {
     input : 'lib/index.js',
-    external : ["type-r", "ext-types"],
+    // FIXME: need to build UMD bundle properly so ext-types will be included.
+    external : ["type-r", "type-r/ext-types"],
 
     output : {
         file   : 'dist/index.js',
@@ -13,8 +14,8 @@ export default {
         sourcemap: true,
         globals : {
             "type-r":"Nested",
-            "ext-types": "ExtTypes"
-        }    
+            "type-r/ext-types": "ExtTypes"
+        }
     },
     plugins: [
         resolve(), //for support of `import X from "directory"` rather than verbose `import X from "directory/index"`
