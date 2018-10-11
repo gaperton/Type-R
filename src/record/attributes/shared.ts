@@ -1,7 +1,7 @@
-import { AnyType } from './any'
-import { AttributesContainer, ConstructorOptions } from './updates'
-import { ItemsBehavior, Owner, transactionApi, Transactional, TransactionOptions } from '../../transactions' 
-import { tools, eventsApi } from '../../object-plus'
+import { eventsApi } from '../../object-plus';
+import { ItemsBehavior, Transactional, transactionApi, TransactionOptions } from '../../transactions';
+import { AnyType } from './any';
+import { AttributesContainer, ConstructorOptions } from './updates';
 
 const { on, off } = eventsApi,
     { free, aquire } = transactionApi;

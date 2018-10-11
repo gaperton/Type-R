@@ -1,18 +1,17 @@
-import { tools as _, eventsApi } from '../../object-plus'
+import { IOEndpoint } from '../../io-tools';
+import { eventsApi, tools as _ } from '../../object-plus';
+import { CompiledReference } from '../../traversable';
+import { AnyType } from './any';
+import { ChainableAttributeSpec } from './attrDef';
+import { ConstructorsMixin, constructorsMixin } from './updates';
 
-export * from './any'
-export * from './owned'
-export * from './date'
-export * from './basic'
-export * from './shared'
-export * from './updates'
-export * from './attrDef'
-
-import { AnyType } from './any'
-import { ConstructorsMixin, constructorsMixin } from './updates'
-import { ChainableAttributeSpec } from './attrDef'
-import { CompiledReference } from '../../traversable'
-import { IOEndpoint } from '../../io-tools'
+export * from './any';
+export * from './attrDef';
+export * from './basic';
+export * from './date';
+export * from './owned';
+export * from './shared';
+export * from './updates';
 
 export interface RecordAttributesMixin extends ConstructorsMixin {
     // Attributes descriptors

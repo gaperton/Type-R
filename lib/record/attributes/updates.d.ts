@@ -1,4 +1,4 @@
-import { Transactional, Transaction, TransactionOptions, Owner } from "../../transactions";
+import { Owner, Transaction, Transactional, TransactionOptions } from "../../transactions";
 export interface ConstructorsMixin {
     Attributes: AttributesConstructor;
     AttributesCopy: AttributesCopyConstructor;

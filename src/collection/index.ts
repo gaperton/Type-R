@@ -1,5 +1,5 @@
 import { IOPromise, startIO } from '../io-tools';
-import { define, definitions, EventMap, eventsApi, EventsDefinition, Mixable, mixinRules, tools, log, LogLevel } from '../object-plus';
+import { define, definitions, EventMap, eventsApi, EventsDefinition, log, LogLevel, Mixable, mixinRules, tools } from '../object-plus';
 import { AggregatedType, createSharedTypeSpec, Record, SharedType } from '../record';
 import { CloneOptions, ItemsBehavior, Transactional, TransactionalDefinition, transactionApi, TransactionOptions } from '../transactions';
 import { AddOptions, addTransaction } from './add';
@@ -8,9 +8,9 @@ import { removeMany, removeOne } from './remove';
 import { emptySetTransaction, setTransaction } from './set';
 
 
-const { trigger2, on, off } = eventsApi,
+const { trigger2 } = eventsApi,
     { begin, commit, markAsDirty } = transactionApi,
-    { omit, assign, defaults, assignToClassProto } = tools;
+    { assign, defaults } = tools;
 
 let _count = 0;
 
@@ -112,7 +112,6 @@ export class Collection< R extends Record = Record> extends Transactional implem
     _byId : { [ id : string ] : R }
 
     set comparator( x : GenericComparator ){
-        let compare;
 
         switch( typeof x ){
             case 'string' :
@@ -207,8 +206,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
     }
 
     filter( iteratee : Predicate<R>, context? : any ) : R[] {
-        const fun = toPredicateFunction( iteratee, context ),
-            { models } = this;
+        const fun = toPredicateFunction( iteratee, context );
 
         return this.map( ( x, i ) => fun( x, i ) ? x : void 0 );
     }

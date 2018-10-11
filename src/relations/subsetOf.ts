@@ -1,11 +1,8 @@
-import { Collection, CollectionOptions } from '../collection'
-import { tools, eventsApi, define } from '../object-plus'
-import { Record, AggregatedType } from '../record'
-import { parseReference, CollectionReference } from './commons'
-import { ChainableAttributeSpec } from '../record'
-import { Transactional, ItemsBehavior, TransactionOptions, transactionApi } from '../transactions'
-
-const { fastDefaults } = tools;
+import { Collection } from '../collection';
+import { define, tools } from '../object-plus';
+import { AggregatedType, ChainableAttributeSpec, Record } from '../record';
+import { ItemsBehavior, transactionApi } from '../transactions';
+import { CollectionReference, parseReference } from './commons';
 
 type RecordsIds = ( string | number )[];
 

@@ -1,5 +1,5 @@
-import { Mixable, MixableConstructor, MixinsState } from './mixins';
 import { EventMap, EventsDefinition, EventSource, HandlersByEvent } from './eventsource';
+import { Mixable, MixableConstructor, MixinsState } from './mixins';
 export { EventMap, EventsDefinition };
 export interface MessengerDefinition {
     _localEvents?: EventMap;

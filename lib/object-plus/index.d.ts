@@ -1,7 +1,7 @@
-import * as tools from './tools';
-export { tools };
-export * from './mixins';
-export * from './events';
 import * as eventsApi from './eventsource';
-export { eventsApi };
+import * as tools from './tools';
+export * from './events';
 export * from './logging';
+export * from './mixins';
+export { tools };
+export { eventsApi };

@@ -4,13 +4,9 @@
  * Implements validation, cross-browser compatibility fixes, variety of Date serialization formats,
  * and optimized update pipeline.
  */
-import { AnyType } from './any'
-import { tools } from '../../object-plus'
-import { AttributesContainer } from './updates'
-import { TransactionOptions } from '../../transactions'
-import { ChainableAttributeSpec } from './attrDef'
-
-const DateProto = Date.prototype;
+import { TransactionOptions } from '../../transactions';
+import { AnyType } from './any';
+import { AttributesContainer } from './updates';
 
 // Date Attribute
 /** @private */

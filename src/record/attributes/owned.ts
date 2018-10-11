@@ -1,8 +1,7 @@
-import { AnyType } from './any'
-import { Owner, transactionApi, Transactional, ItemsBehavior, TransactionOptions } from '../../transactions'
-import { tools } from '../../object-plus'
-import { AttributesContainer, ConstructorOptions } from './updates'
-import { ValidationError } from '../../validation'
+import { ItemsBehavior, Transactional, transactionApi, TransactionOptions } from '../../transactions';
+import { ValidationError } from '../../validation';
+import { AnyType } from './any';
+import { AttributesContainer, ConstructorOptions } from './updates';
 
 const { free, aquire } = transactionApi;
 

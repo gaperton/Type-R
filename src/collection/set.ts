@@ -1,6 +1,6 @@
-import { Transaction, transactionApi } from '../transactions'
-import { CollectionTransaction, logAggregationError, IdIndex, convertAndAquire, free, sortElements, CollectionOptions, addIndex, CollectionCore, Elements, freeAll } from './commons'
-import { Record } from '../record'
+import { Record } from '../record';
+import { Transaction, transactionApi } from '../transactions';
+import { addIndex, CollectionCore, CollectionOptions, CollectionTransaction, convertAndAquire, Elements, free, freeAll, IdIndex, logAggregationError, sortElements } from './commons';
 
 const { begin, commit, markAsDirty } = transactionApi;
 

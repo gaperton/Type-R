@@ -1,11 +1,10 @@
-import { Record } from '../record'
-import { Owner, Transaction, ItemsBehavior,
-        TransactionOptions, Transactional, transactionApi } from '../transactions'
+import { eventsApi } from '../object-plus';
+import { Record } from '../record';
+import { ItemsBehavior, Owner, Transaction, Transactional, transactionApi, TransactionOptions } from '../transactions';
 
-import { eventsApi, tools } from '../object-plus'
 
-const { EventMap, trigger2, trigger3, on, off } = eventsApi,
-      { commit, markAsDirty } = transactionApi,
+const { trigger2, trigger3, on, off } = eventsApi,
+      { commit } = transactionApi,
       _aquire = transactionApi.aquire, _free = transactionApi.free;
 
 /** @private */

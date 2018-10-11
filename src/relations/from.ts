@@ -1,9 +1,6 @@
-import { AnyType, AttributeOptions } from '../record'
-import { parseReference, CollectionReference } from './commons'
-import { Collection } from '../collection'
-import { Record } from '../record'
+import { AnyType, ChainableAttributeSpec, Record } from '../record';
+import { CollectionReference, parseReference } from './commons';
 
-import { ChainableAttributeSpec } from '../record'
 
 /********
  * Reference to model by id.

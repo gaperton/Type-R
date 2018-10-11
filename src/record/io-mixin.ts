@@ -1,4 +1,4 @@
-import { getOwnerEndpoint, startIO, IOOptions, IOEndpoint, IOPromise, IONode } from '../io-tools'
+import { IOEndpoint, IONode, IOOptions, IOPromise, startIO } from '../io-tools';
 
 export interface IORecord extends IONode {
     getEndpoint() : IOEndpoint

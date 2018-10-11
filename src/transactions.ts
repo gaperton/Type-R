@@ -1,10 +1,9 @@
-import { Messenger, CallbacksByEvents, MessengersByCid, MixinsState, MixinMergeRules, MessengerDefinition, tools, mixins, mixinRules, definitions, eventsApi, define, Subclass } from './object-plus'
-import { ValidationError, Validatable, ChildrenErrors } from './validation'
-import { Traversable, resolveReference } from './traversable'
-import { IOEndpoint, IOPromise, IONode, abortIO } from './io-tools'
+import { abortIO, IOEndpoint, IONode, IOPromise } from './io-tools';
+import { CallbacksByEvents, define, definitions, eventsApi, Messenger, MessengerDefinition, MessengersByCid, mixinRules, mixins, MixinsState } from './object-plus';
+import { resolveReference, Traversable } from './traversable';
+import { ChildrenErrors, Validatable, ValidationError } from './validation';
 
-const { assign } = tools,
-      { trigger2, trigger3, on, off } = eventsApi;
+const { trigger3, on, off } = eventsApi;
 /***
  * Abstract class implementing ownership tree, tho-phase transactions, and validation. 
  * 1. createTransaction() - apply changes to an object tree, and if there are some events to send, transaction object is created.

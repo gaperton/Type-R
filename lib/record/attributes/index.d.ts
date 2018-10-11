@@ -1,14 +1,14 @@
+import { IOEndpoint } from '../../io-tools';
 import { eventsApi } from '../../object-plus';
-export * from './any';
-export * from './owned';
-export * from './date';
-export * from './basic';
-export * from './shared';
-export * from './updates';
-export * from './attrDef';
 import { AnyType } from './any';
 import { ConstructorsMixin } from './updates';
-import { IOEndpoint } from '../../io-tools';
+export * from './any';
+export * from './attrDef';
+export * from './basic';
+export * from './date';
+export * from './owned';
+export * from './shared';
+export * from './updates';
 export interface RecordAttributesMixin extends ConstructorsMixin {
     _attributes: AttributeDescriptors;
     _attributesArray: AnyType[];

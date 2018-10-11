@@ -2,11 +2,11 @@
  * Type spec engine. Declare attributes using chainable syntax,
  * and returns object with spec.
  */
-import { Transactional } from '../../transactions'
-import { ChangeAttrHandler, AttributeOptions, Parse } from './any'
-import {  AttributesContainer } from './updates'
-import { EventMap, EventsDefinition, definitionDecorator, tools } from '../../object-plus'
-import { IOEndpoint } from '../../io-tools'
+import { IOEndpoint } from '../../io-tools';
+import { definitionDecorator, EventMap, EventsDefinition, tools } from '../../object-plus';
+import { Transactional } from '../../transactions';
+import { AttributeOptions, Parse } from './any';
+import { AttributesContainer } from './updates';
 
 const { assign } = tools;
 

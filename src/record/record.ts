@@ -5,10 +5,10 @@
 
 import { Collection } from '../collection';
 import { IOEndpoint, IOPromise } from '../io-tools';
-import { define, definitions, mixinRules, tools, log, LogLevel, isProduction } from '../object-plus';
+import { define, definitions, isProduction, log, LogLevel, mixinRules, tools } from '../object-plus';
 import { CloneOptions, Owner, Transaction, Transactional, TransactionalDefinition, TransactionOptions } from '../transactions';
 import { ChildrenErrors } from '../validation';
-import { AggregatedType, AnyType, AttributesConstructor, AttributesContainer, AttributesCopyConstructor, AttributesValues, setAttribute, shouldBeAnObject, UpdateRecordMixin, unknownAttrsWarning } from './attributes';
+import { AggregatedType, AnyType, AttributesConstructor, AttributesContainer, AttributesCopyConstructor, AttributesValues, setAttribute, shouldBeAnObject, unknownAttrsWarning, UpdateRecordMixin } from './attributes';
 import { IORecord, IORecordMixin } from './io-mixin';
 
 const { assign, isEmpty } = tools;

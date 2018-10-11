@@ -1,6 +1,6 @@
+import { TransactionOptions } from '../../transactions';
 import { AnyType } from './any';
 import { AttributesContainer } from './updates';
-import { TransactionOptions } from '../../transactions';
 export declare class DateType extends AnyType {
     create(): Date;
     convert(next: any, a: any, record: any): any;

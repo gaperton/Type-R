@@ -1,4 +1,4 @@
-import './from'
-import './subsetOf'
+import './from';
+import './subsetOf';
 
-export * from './store'
+export * from './store';

@@ -1,7 +1,7 @@
-import { Messenger, CallbacksByEvents, MessengersByCid, MixinsState, MessengerDefinition, eventsApi } from './object-plus';
-import { ValidationError, Validatable, ChildrenErrors } from './validation';
+import { IOEndpoint, IONode, IOPromise } from './io-tools';
+import { CallbacksByEvents, eventsApi, Messenger, MessengerDefinition, MessengersByCid, MixinsState } from './object-plus';
 import { Traversable } from './traversable';
-import { IOEndpoint, IOPromise, IONode } from './io-tools';
+import { ChildrenErrors, Validatable, ValidationError } from './validation';
 export interface TransactionalDefinition extends MessengerDefinition {
     endpoint?: IOEndpoint;
 }

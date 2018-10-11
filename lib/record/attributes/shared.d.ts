@@ -1,6 +1,6 @@
+import { Transactional, TransactionOptions } from '../../transactions';
 import { AnyType } from './any';
 import { AttributesContainer, ConstructorOptions } from './updates';
-import { Transactional, TransactionOptions } from '../../transactions';
 export declare class SharedType extends AnyType {
     type: typeof Transactional;
     doInit(value: any, record: AttributesContainer, options: ConstructorOptions): any;

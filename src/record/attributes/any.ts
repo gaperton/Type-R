@@ -1,5 +1,5 @@
 import { IOEndpoint } from '../../io-tools';
-import { tools, log, LogLevel } from '../../object-plus';
+import { log, LogLevel, tools } from '../../object-plus';
 import { TransactionOptions } from '../../transactions';
 import { AttributesContainer, AttributeUpdatePipeline, RecordTransaction, setAttribute } from './updates';
 

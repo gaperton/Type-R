@@ -1,12 +1,11 @@
-import { Record, RecordDefinition } from './record'
-import { Mixable, tools, predefine, define, MixinsState } from '../object-plus'
-import compile, { ChainableAttributeSpec, type } from './attributes'
-import { Transactional } from '../transactions'
+import { predefine, tools } from '../object-plus';
+import { Transactional } from '../transactions';
+import compile, { AggregatedType, ChainableAttributeSpec, createSharedTypeSpec, SharedType, type } from './attributes';
+import { Record, RecordDefinition } from './record';
 
-import { createSharedTypeSpec, AggregatedType, NumericType, SharedType } from './attributes'
 
-export * from './attributes'
-export { Record }
+export * from './attributes';
+export { Record };
 
 const { assign, defaults, omit, getBaseClass } = tools;
 
