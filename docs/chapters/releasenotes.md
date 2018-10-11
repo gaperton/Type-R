@@ -1,5 +1,30 @@
 # Release Notes
 
+## 3.0.0
+
+### Breaking changes
+
+Type-R does not modify built-in global objects starting from version 3. Following attribute types moved to the `type-r/ext-types` package:
+
+- `Date.timestamp` -> `import { Timestamp } from 'type-r/ext-types'`
+- `Date.microsoft` -> `import { MicrosoftDate } from 'type-r/ext-types'`
+- global `Integer` and `Number.integer` -> `import { Integer } from 'type-r/ext-types'`
+
+Function extensions used for attribute annotations are deprecated.
+
+- `Constructor.has` -> `type( Constructor )`
+- `Constructor.value( default )` -> `type( Constructor ).value( default )`
+- `Constructor.isRequired` -> `type( Constructor ).required`
+
+There's `type-r/globals` package for old code compatibility, which must be imported once with `import 'type-r/globals'`.
+You're advised to use new syntax for any new work.
+
+# New features
+
+- New logger which easy to override or turn off.
+- Improved error messages.
+- New TypeScript friendly `type( T )` attribute metadata notation.
+
 ## 2.1.0
 
 This release adds long-awaited HTTP REST endpoint.

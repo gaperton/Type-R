@@ -92,6 +92,7 @@ export function startIO( self : IONode, promise : IOPromise<any>, options : IOOp
 
             console.error( err );
             
+            // Overlaps with a new `error` event.
             triggerAndBubble( self, 'error', self, err, options );
             
             throw err;

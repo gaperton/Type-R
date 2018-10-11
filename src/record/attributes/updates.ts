@@ -162,7 +162,7 @@ export const UpdateRecordMixin = {
 };
 
 export function unknownAttrsWarning( record : AttributesContainer, unknown : string[], props ){
-    this._log( 'warn', 'Type-R:UnknownAttrs', `undefined attributes ${ unknown.join(', ')} are ignored.`, props );
+    record._log( 'warn', 'Type-R:UnknownAttrs', `undefined attributes ${ unknown.join(', ')} are ignored.`, props );
 }
 
 // One of the main performance tricks of Type-R.

@@ -5,7 +5,7 @@
 
 import { Collection } from '../collection';
 import { IOEndpoint, IOPromise } from '../io-tools';
-import { define, definitions, isProduction, log, LogLevel, mixinRules, tools } from '../object-plus';
+import { define, definitions, isProduction, LogLevel, mixinRules, tools } from '../object-plus';
 import { CloneOptions, Owner, Transaction, Transactional, TransactionalDefinition, TransactionOptions } from '../transactions';
 import { ChildrenErrors } from '../validation';
 import { AggregatedType, AnyType, AttributesConstructor, AttributesContainer, AttributesCopyConstructor, AttributesValues, setAttribute, shouldBeAnObject, unknownAttrsWarning, UpdateRecordMixin } from './attributes';
@@ -428,7 +428,7 @@ export class Record extends Transactional implements IORecord, AttributesContain
     }
 
     _log( level : LogLevel, topic: string, text : string, props : object ) : void {
-        log( level, topic, text, {
+        super._log( level, topic, text, {
             ...props,
             'Record' : this,
             'Attributes definition:' : this._attributes

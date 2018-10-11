@@ -12,6 +12,7 @@ export declare class ChainableAttributeSpec {
     readonly asProp: (proto: object, name: string) => void;
     readonly as: (proto: object, name: string) => void;
     readonly isRequired: ChainableAttributeSpec;
+    readonly required: ChainableAttributeSpec;
     endpoint(endpoint: IOEndpoint): ChainableAttributeSpec;
     watcher(ref: string | ((value: any, key: string) => void)): ChainableAttributeSpec;
     parse(fun: Parse): ChainableAttributeSpec;

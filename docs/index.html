@@ -1717,6 +1717,21 @@ x.componentWillMount();
 <h3 id="rule-mixinrules-some"><code>rule</code> mixinRules.some</h3>
 <p>Same as <code>every</code>, but return true when at least one function from mixins returns true.</p>
 <h1 id="release-notes">Release Notes</h1>
+<h2 id="3-0-0">3.0.0</h2>
+<p>Starting from version 3, Type-R does not modify built-in global objects. Following attribute types moved to the <code>type-r/ext-types</code> package:</p>
+<ul>
+<li><code>Date.timestamp</code> -&gt; <code>import { Timestamp } from &#39;type-r/ext-types&#39;</code></li>
+<li><code>Date.microsoft</code> -&gt; <code>import { MicrosoftDate } from &#39;type-r/ext-types&#39;</code></li>
+<li>global <code>Integer</code> and <code>Number.integer</code> -&gt; <code>import { Integer } from &#39;type-r/ext-types&#39;</code></li>
+</ul>
+<p>Function extensions used for attribute annotations are deprecated.</p>
+<ul>
+<li><code>Constructor.has</code> -&gt; <code>type( Constructor )</code></li>
+<li><code>Constructor.value( default )</code> -&gt; <code>type( Constructor ).value( default )</code></li>
+<li><code>Constructor.isRequired</code> -&gt; <code>type( Constructor ).required</code></li>
+</ul>
+<p>There&#39;s <code>type-r/globals</code> package for old code compatibility, which must be included once with <code>import &#39;type-r/globals&#39;</code>.
+You&#39;re advised to use new syntax for any new work.</p>
 <h2 id="2-1-0">2.1.0</h2>
 <p>This release adds long-awaited HTTP REST endpoint.</p>
 <ul>

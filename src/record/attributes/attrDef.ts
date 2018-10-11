@@ -50,6 +50,10 @@ export class ChainableAttributeSpec {
     get as(){ return this.asProp; }
 
     get isRequired() : ChainableAttributeSpec {
+        return this.required;
+    }
+
+    get required() : ChainableAttributeSpec {
         return this.metadata({ isRequired : true }); 
     }
 

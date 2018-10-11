@@ -1,5 +1,5 @@
 import { abortIO, IOEndpoint, IONode, IOPromise } from './io-tools';
-import { CallbacksByEvents, define, definitions, eventsApi, Messenger, MessengerDefinition, MessengersByCid, mixinRules, mixins, MixinsState } from './object-plus';
+import { CallbacksByEvents, define, definitions, eventsApi, Messenger, MessengerDefinition, MessengersByCid, mixinRules, mixins, MixinsState, log, LogLevel } from './object-plus';
 import { resolveReference, Traversable } from './traversable';
 import { ChildrenErrors, Validatable, ValidationError } from './validation';
 
@@ -334,7 +334,14 @@ export abstract class Transactional implements Messenger, IONode, Validatable, T
     }
 
     // Logging interface for run time errors and warnings.
-    abstract _log( level : string, topic : string, text : string, value : any ) : void;
+    _log( level : LogLevel, topic : string, text : string, value : any ) : void {
+        // Bubble log event up by the ownership chain.
+        for( let p : Transactional = this; p; p = this._owner as unknown as Transactional ){
+            trigger3( p, level, topic, text, value );
+        }
+
+        log( level, topic, text, value );
+    }
 }
 
 export interface CloneOptions {
