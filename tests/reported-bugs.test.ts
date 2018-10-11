@@ -1,7 +1,6 @@
 import "reflect-metadata";
 import { logger, attr, Collection, define, mixins, Record, type } from 'type-r';
 import { MinutesInterval } from './common';
-import "type-r/globals";
 
 logger.off();
 
@@ -49,10 +48,10 @@ describe( 'Bugs from Volicon Observer', () =>{
             }
 
             @define class Subclass extends Base {
-                @attr( String.has.watcher( x => calls.push( 'added' ) ) )
+                @type( String ).watcher( x => calls.push( 'added' ) ).as
                 added : string;
 
-                @attr( String.has.watcher( x => calls.push( 'subclass') ) )
+                @type( String ).watcher( x => calls.push( 'subclass') ).as
                 overriden : string;
 
                 onNamedWatcher(){
@@ -75,7 +74,7 @@ describe( 'Bugs from Volicon Observer', () =>{
         it( 'performs validation if collection item is changed', ()=>{
             var BitrateModel = Record.extend({
                 defaults: {
-                    bitrate: Number.value(512)
+                    bitrate: type( Number ).value(512)
                 },
             
                 properties: {
@@ -123,7 +122,7 @@ describe( 'Bugs from Volicon Observer', () =>{
                     BitrateAsString: null,
                     ResolutionHeight: Number,
                     ResolutionWidth: Number,
-                    resolution: String.has.toJSON(false)
+                    resolution: type( String ).toJSON( false )
                 },
     
                collection : {
@@ -163,9 +162,7 @@ describe( 'Bugs from Volicon Observer', () =>{
             
             const Placeholder = Record.extend({
                 attributes : {
-                    subEncoders : SubEncoder.Collection.has.check( function(x){
-                        return x.length > 0;
-                    },'ccccc')
+                    subEncoders : type( SubEncoder.Collection ).check( x => x.length > 0, 'ccccc' )
                 }
             });
 
@@ -195,7 +192,7 @@ describe( 'Bugs from Volicon Observer', () =>{
             }
     
             @define class Test extends Record {
-                @attr( Inner.value( null ) ) inner : Inner;
+                @type( Inner ).value( null ).as inner : Inner;
             }
     
             const target = new Test(),

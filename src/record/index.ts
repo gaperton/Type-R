@@ -1,6 +1,6 @@
 import { Record, RecordDefinition } from './record'
 import { Mixable, tools, predefine, define, MixinsState } from '../object-plus'
-import compile, { ChainableAttributeSpec } from './attributes'
+import compile, { ChainableAttributeSpec, type } from './attributes'
 import { Transactional } from '../transactions'
 
 import { createSharedTypeSpec, AggregatedType, NumericType, SharedType } from './attributes'
@@ -76,9 +76,7 @@ export function attr( proto, attrName? : string ) : any {
     if( attrName ){
         // Called without the spec. Extract the type.
         if( typeof Reflect !== 'undefined' && Reflect.getMetadata ){
-            Reflect
-                .getMetadata( "design:type", proto, attrName )
-                .asProp( proto, attrName );
+            type( Reflect.getMetadata( "design:type", proto, attrName ) ).asProp( proto, attrName );
         }
         else{
             proto._log( 'error', 'Type-R:MissingImport', 'Add import "reflect-metadata"; as the first line of your app.' );

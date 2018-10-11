@@ -1,5 +1,4 @@
-import { Model } from 'type-r';
-import "type-r/globals";
+import { Model, type } from 'type-r';
 
 export const SecondsInterval = Model.extend({
     units: [
@@ -14,7 +13,7 @@ export const SecondsInterval = Model.extend({
 
     defaults: {
         value: 1,
-        interval: String.value('months')
+        interval: type( String ).value('months')
     },
 
     properties: {
