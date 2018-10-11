@@ -232,7 +232,7 @@ msg.transaction( <span class="hljs-function"><span class="hljs-params">()</span>
 
 <h1 id="record">Record</h1>
 <p>Record is the serializable class with typed attributes, observable changes, and custom validation checks. It is the main building block for managing the application state; component local state, stores, and collection elements are all subclasses of the <code>Record</code>.</p>
-<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, type, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
 <span class="hljs-comment">// ⤹ required to make magic work  </span>
 @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
@@ -254,6 +254,42 @@ msg.transaction( <span class="hljs-function"><span class="hljs-params">()</span>
 users.on( <span class="hljs-string">'changes'</span>, () =&gt; updateUI( users ) ); <span class="hljs-comment">// ⟵ listen to the changes.</span>
 
 users.set( json, { <span class="hljs-attr">parse</span> : <span class="hljs-literal">true</span> } ); <span class="hljs-comment">// ⟵ parse raw JSON from the server.</span>
+users.updateEach( <span class="hljs-function"><span class="hljs-params">user</span> =&gt;</span> user.firstName = <span class="hljs-string">''</span> ); <span class="hljs-comment">// ⟵ bulk update triggering 'changes' once</span>
+</code></pre>
+<pre><code class="highlight typescript"><span class="hljs-keyword">import</span> { define, attr, <span class="hljs-keyword">type</span>, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
+<span class="hljs-keyword">import</span> <span class="hljs-string">"reflect-metadata"</span> <span class="hljs-comment">// Required for @attr without arguments</span>
+
+<span class="hljs-comment">// ⤹ required to make the magic work  </span>
+<span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> User <span class="hljs-keyword">extends</span> Record {
+    <span class="hljs-comment">// ⤹ attribute's declaration</span>
+    <span class="hljs-comment">// IMPORTANT: declared attributes will be instantiated with their default values.</span>
+    <span class="hljs-meta">@attr</span> lastName  : <span class="hljs-built_in">string</span> <span class="hljs-comment">// ⟵ @attr decorator extracts type from the Reflect metadata</span>
+    <span class="hljs-meta">@attr</span> createdAt : <span class="hljs-built_in">Date</span> <span class="hljs-comment">// ⟵ It works for any constructor.</span>
+
+    <span class="hljs-comment">// In case of primitive types you can pass nun-null default values as an argument to attr.</span>
+    <span class="hljs-meta">@attr</span>( <span class="hljs-string">'somestring'</span> ) firstName : <span class="hljs-built_in">string</span>,
+    <span class="hljs-meta">@attr</span> firstName : <span class="hljs-built_in">string</span> = <span class="hljs-string">"125"</span> <span class="hljs-comment">// This will work as well, but is less efficient. You *cannot* omit type.</span>
+
+    <span class="hljs-comment">// You have to pass type explicitly if reflect-metadata is not used.</span>
+    <span class="hljs-meta">@attr</span>( <span class="hljs-built_in">String</span> ) email : <span class="hljs-built_in">string</span>
+
+    <span class="hljs-comment">// Type cannot be inferred for null default values, and needs to be specified explicitly</span>
+    <span class="hljs-meta">@attr</span>( <span class="hljs-keyword">type</span>( <span class="hljs-built_in">String</span> ).value( <span class="hljs-literal">null</span> ) ) email : <span class="hljs-built_in">string</span>
+    <span class="hljs-comment">// Or, as a shorter form...</span>
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).value( <span class="hljs-literal">null</span> ).as email2 : <span class="hljs-built_in">string</span> 
+
+    <span class="hljs-comment">// You can attach ⤹ metadata to fine-tune attribute's behavior</span>
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">Date</span> ).value( <span class="hljs-literal">null</span> ).toJSON( <span class="hljs-literal">false</span> ).as
+    lastLogin : <span class="hljs-built_in">Date</span><span class="hljs-comment">// ⟵ not serializable</span>
+}
+
+<span class="hljs-keyword">const</span> user = <span class="hljs-keyword">new</span> User();
+<span class="hljs-built_in">console</span>.log( user.createdAt ); <span class="hljs-comment">// ⟵ this is an instance of Date created for you.</span>
+
+<span class="hljs-keyword">const</span> users : Collection&lt;User&gt; = <span class="hljs-keyword">new</span> User.Collection(); <span class="hljs-comment">// ⟵ Collections are defined automatically.</span>
+users.on( <span class="hljs-string">'changes'</span>, <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> updateUI( users ) ); <span class="hljs-comment">// ⟵ listen to the changes.</span>
+
+users.set( json, { parse : <span class="hljs-literal">true</span> } ); <span class="hljs-comment">// ⟵ parse raw JSON from the server.</span>
 users.updateEach( <span class="hljs-function"><span class="hljs-params">user</span> =&gt;</span> user.firstName = <span class="hljs-string">''</span> ); <span class="hljs-comment">// ⟵ bulk update triggering 'changes' once</span>
 </code></pre>
 <h2 id="definition">Definition</h2>
@@ -622,6 +658,27 @@ Comment.define({
     <span class="hljs-keyword">static</span> attributes = {
         <span class="hljs-attr">artist</span> : Author
     }
+}
+</code></pre>
+<pre><code class="highlight typescript"><span class="hljs-comment">// Implicitly defined collection.</span>
+<span class="hljs-keyword">const</span> books : Collection&lt;Book&gt; = <span class="hljs-keyword">new</span> Book.Collection();
+
+<span class="hljs-meta">@define</span>
+<span class="hljs-keyword">class</span> ComicsShelve <span class="hljs-keyword">extends</span> Book.Collection {
+    <span class="hljs-keyword">static</span> itemEvents = {
+        <span class="hljs-comment">// List of records's events we want to be triggered on the collection</span>
+        <span class="hljs-string">'change:inMyReadingList'</span> : <span class="hljs-literal">true</span>,
+        <span class="hljs-string">'customEvent'</span> : <span class="hljs-literal">true</span>
+    }
+}
+
+<span class="hljs-meta">@define</span>
+<span class="hljs-keyword">class</span> Comics <span class="hljs-keyword">extends</span> Book {
+    <span class="hljs-comment">// Use custom collection instead of the implicitly created one</span>
+    <span class="hljs-keyword">static</span> Collection = ComicsShelve;
+
+    <span class="hljs-comment">// Extend record's attributes</span>
+    <span class="hljs-meta">@attr</span> artist : Author
 }
 </code></pre>
 <h2 id="definition">Definition</h2>

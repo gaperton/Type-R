@@ -3,7 +3,7 @@
 Record is the serializable class with typed attributes, observable changes, and custom validation checks. It is the main building block for managing the application state; component local state, stores, and collection elements are all subclasses of the `Record`.
 
 ```javascript
-import { define, Record } from 'type-r'
+import { define, type, Record } from 'type-r'
 
 // ⤹ required to make magic work  
 @define class User extends Record {
@@ -22,6 +22,44 @@ const user = new User();
 console.log( user.createdAt ); // ⟵ this is an instance of Date created for you.
 
 const users = new User.Collection(); // ⟵ Collections are defined automatically.
+users.on( 'changes', () => updateUI( users ) ); // ⟵ listen to the changes.
+
+users.set( json, { parse : true } ); // ⟵ parse raw JSON from the server.
+users.updateEach( user => user.firstName = '' ); // ⟵ bulk update triggering 'changes' once
+```
+
+```typescript
+import { define, attr, type, Record } from 'type-r'
+import "reflect-metadata" // Required for @attr without arguments
+
+// ⤹ required to make the magic work  
+@define class User extends Record {
+    // ⤹ attribute's declaration
+    // IMPORTANT: declared attributes will be instantiated with their default values.
+    @attr lastName  : string // ⟵ @attr decorator extracts type from the Reflect metadata
+    @attr createdAt : Date // ⟵ It works for any constructor.
+
+    // In case of primitive types you can pass nun-null default values as an argument to attr.
+    @attr( 'somestring' ) firstName : string,
+    @attr firstName : string = "125" // This will work as well, but is less efficient. You *cannot* omit type.
+
+    // You have to pass type explicitly if reflect-metadata is not used.
+    @attr( String ) email : string
+    
+    // Type cannot be inferred for null default values, and needs to be specified explicitly
+    @attr( type( String ).value( null ) ) email : string
+    // Or, as a shorter form...
+    @type( String ).value( null ).as email2 : string 
+        
+    // You can attach ⤹ metadata to fine-tune attribute's behavior
+    @type( Date ).value( null ).toJSON( false ).as
+    lastLogin : Date// ⟵ not serializable
+}
+
+const user = new User();
+console.log( user.createdAt ); // ⟵ this is an instance of Date created for you.
+
+const users : Collection<User> = new User.Collection(); // ⟵ Collections are defined automatically.
 users.on( 'changes', () => updateUI( users ) ); // ⟵ listen to the changes.
 
 users.set( json, { parse : true } ); // ⟵ parse raw JSON from the server.

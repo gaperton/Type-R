@@ -27,6 +27,29 @@ class Comics extends Book {
 }
 ```
 
+```typescript
+// Implicitly defined collection.
+const books : Collection<Book> = new Book.Collection();
+
+@define
+class ComicsShelve extends Book.Collection {
+    static itemEvents = {
+        // List of records's events we want to be triggered on the collection
+        'change:inMyReadingList' : true,
+        'customEvent' : true
+    }
+}
+
+@define
+class Comics extends Book {
+    // Use custom collection instead of the implicitly created one
+    static Collection = ComicsShelve;
+
+    // Extend record's attributes
+    @attr artist : Author
+}
+```
+
 ## Definition
 
 ### RecordClass.Collection
