@@ -8,4 +8,4 @@ export function isEmail( x : string ) {
 
 (isEmail as AttributeCheck).error = 'Not valid email';
 
-export const Email = type( String ).check( isEmail, void 0 );
+export const Email = type( String ).check( isEmail );

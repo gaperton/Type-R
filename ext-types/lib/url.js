@@ -4,5 +4,5 @@ export function isUrl(x) {
     return !x || urlPattern.test(x);
 }
 isUrl.error = 'Not valid URL';
-export var Url = type(String).check(isUrl, void 0);
+export var Url = type(String).check(isUrl);
 //# sourceMappingURL=url.js.map

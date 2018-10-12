@@ -1,5 +1,5 @@
 import * as tslib_1 from "tslib";
-import { DateType, ChainableAttributeSpec } from "type-r";
+import { DateType, ChainableAttributeSpec, type } from "type-r";
 var msDatePattern = /\/Date\(([0-9]+)\)\//;
 var MicrosoftDateType = (function (_super) {
     tslib_1.__extends(MicrosoftDateType, _super);
@@ -19,21 +19,9 @@ var MicrosoftDateType = (function (_super) {
     return MicrosoftDateType;
 }(DateType));
 export { MicrosoftDateType };
-var TimestampType = (function (_super) {
-    tslib_1.__extends(TimestampType, _super);
-    function TimestampType() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    TimestampType.prototype.toJSON = function (value) { return value && value.getTime(); };
-    return TimestampType;
-}(DateType));
-export { TimestampType };
 export var MicrosoftDate = new ChainableAttributeSpec({
     type: Date,
     _attribute: MicrosoftDateType
 });
-export var Timestamp = new ChainableAttributeSpec({
-    type: Date,
-    _attribute: TimestampType
-});
+export var Timestamp = type(Date).toJSON(function (x) { return x && x.getTime(); });
 //# sourceMappingURL=dates.js.map

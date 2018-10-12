@@ -1,4 +1,4 @@
-import {DateType, ChainableAttributeSpec} from "type-r";
+import {DateType, ChainableAttributeSpec, type} from "type-r";
 
 const msDatePattern  = /\/Date\(([0-9]+)\)\//;
 
@@ -17,17 +17,9 @@ export class MicrosoftDateType extends DateType {
     toJSON( value ) { return value && `/Date(${ value.getTime() })/`; }
 }
 
-
-export class TimestampType extends DateType {
-    toJSON( value ) { return value && value.getTime(); }
-}
-
 export const MicrosoftDate = new ChainableAttributeSpec({
     type      : Date,
     _attribute: MicrosoftDateType
 })
 
-export const Timestamp = new ChainableAttributeSpec({
-    type      : Date,
-    _attribute: TimestampType
-})
+export const Timestamp = type( Date ).toJSON( x => x && x.getTime() );

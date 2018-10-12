@@ -8,4 +8,4 @@ export function isUrl( x : string ) {
 
 (isUrl as AttributeCheck).error = 'Not valid URL'
 
-export const Url : ChainableAttributeSpec = type( String ).check( isUrl, void 0 );
+export const Url : ChainableAttributeSpec = type( String ).check( isUrl );

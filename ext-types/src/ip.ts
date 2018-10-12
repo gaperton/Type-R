@@ -8,4 +8,4 @@ export function isIPAddress( x : string ) {
 
 (isIPAddress as AttributeCheck).error = 'Not valid IP address'
 
-export const IPAddress : ChainableAttributeSpec = type( String ).check( isIPAddress, void 0 );
+export const IPAddress : ChainableAttributeSpec = type( String ).check( isIPAddress );

@@ -4,5 +4,5 @@ export function isIPAddress(x) {
     return !x || ipPattern.test(x);
 }
 isIPAddress.error = 'Not valid IP address';
-export var IPAddress = type(String).check(isIPAddress, void 0);
+export var IPAddress = type(String).check(isIPAddress);
 //# sourceMappingURL=ip.js.map

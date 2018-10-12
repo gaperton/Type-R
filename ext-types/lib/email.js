@@ -4,5 +4,5 @@ export function isEmail(x) {
     return !x || !!x.match(emailPattern);
 }
 isEmail.error = 'Not valid email';
-export var Email = type(String).check(isEmail, void 0);
+export var Email = type(String).check(isEmail);
 //# sourceMappingURL=email.js.map
