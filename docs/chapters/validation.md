@@ -1,15 +1,15 @@
 # Type Safety and Validation
 
 Type-R records and collections are _dynamically type safe_. It's guaranteed that Type-R data structures will always conform to the declared shape.
-Records and collections will try to convert values to the declared types on assignment, and reject an update (logging an error in a console) if it cannot be done.
+Records and collections convert values to the declared types on assignment, and reject an update (logging an error in a console) if it cannot be done.
 
-In addition to that, Type-R supports validation API allowing developer to attach suphisticated validation rules to attributes, records, and collections. Type-R validation mechanics based on following principles:
+In addition to that, Type-R supports validation API allowing developer to attach custom validation rules to attributes, records, and collections. Type-R validation mechanics based on following principles:
 
-- Validation is performed recursively on the aggregation tree formed by nested records and collections. If an element at the bottom of the tree is not valid, the whole object tree is not valid.
 - Validation happens transparently on the first access to the validation error. There's no special API to trigger the validation.
+- Validation is performed recursively on the aggregation tree formed by nested records and collections. If an element at the bottom of the tree is not valid, the whole object tree is not valid.
 - Validation results are cached across the aggregation tree, thus consequent validation error reads are cheap. Only changed parts of aggregation tree will be revalidated when necessary.
 
-## Record's attributes
+## Attribute-level checks
 
 ### `attrDef` : type( Type ).check( predicate, errorMsg? )
 
@@ -28,20 +28,33 @@ function isAge( years ){
 isAge.error = "Age must be between 0 and 200";
 ```
 
-Attribute may have any number of checks attached, which are execute in sequence. Validation stops when first check in sequence fails.
+Attribute may have any number of checks attached which are being executed in a sequence. Validation stops when first check in sequence fails.
+It can be used to define reusable attribute types as demonstrated below:
 
 ```javascript
-// Define new attribute metatype encapsulating validation checks.
+// Define new attribute metatypes encapsulating validation checks.
 const Age = type( Number )
-                .check( x => x >= 0, 'I guess you are a bit older' )
-                .check( x => x < 200, 'No way man can be that old' );
+                .check( x => x == null || x >= 0, 'I guess you are a bit older' )
+                .check( x => x == null || x < 200, 'No way man can be that old' );
+
+const Word = type( String ).check( x => indexOf( ' ' ) < 0, 'No spaces allowed' );
+
+@define class Person extends Record {
+    static attributes = {
+        firstName : Word,
+        lastName : Word,
+        age : Age
+    }
+}
 ```
 
-### `attrDef` : type( Type ).isRequired
+### `attrDef` : type( Type ).required
 
 The special case of attribute-level check cutting out empty values. Attribute value must be truthy to pass, `"Required"` is used as validation error.
 
 `isRequired` is the first validator to check, no matter in which order validators were attached.
+
+## Record
 
 ### rec.isValid( attrName )
 

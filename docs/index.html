@@ -1121,14 +1121,14 @@ Any additional changes made to the collection or its items in event handlers wil
 <p>Objects must be disposed to prevent memory leaks caused by subscribing for events from singletons.</p>
 <h1 id="type-safety-and-validation">Type Safety and Validation</h1>
 <p>Type-R records and collections are <em>dynamically type safe</em>. It&#39;s guaranteed that Type-R data structures will always conform to the declared shape.
-Records and collections will try to convert values to the declared types on assignment, and reject an update (logging an error in a console) if it cannot be done.</p>
-<p>In addition to that, Type-R supports validation API allowing developer to attach suphisticated validation rules to attributes, records, and collections. Type-R validation mechanics based on following principles:</p>
+Records and collections convert values to the declared types on assignment, and reject an update (logging an error in a console) if it cannot be done.</p>
+<p>In addition to that, Type-R supports validation API allowing developer to attach custom validation rules to attributes, records, and collections. Type-R validation mechanics based on following principles:</p>
 <ul>
-<li>Validation is performed recursively on the aggregation tree formed by nested records and collections. If an element at the bottom of the tree is not valid, the whole object tree is not valid.</li>
 <li>Validation happens transparently on the first access to the validation error. There&#39;s no special API to trigger the validation.</li>
+<li>Validation is performed recursively on the aggregation tree formed by nested records and collections. If an element at the bottom of the tree is not valid, the whole object tree is not valid.</li>
 <li>Validation results are cached across the aggregation tree, thus consequent validation error reads are cheap. Only changed parts of aggregation tree will be revalidated when necessary.</li>
 </ul>
-<h2 id="record-s-attributes">Record&#39;s attributes</h2>
+<h2 id="attribute-level-checks">Attribute-level checks</h2>
 <h3 id="attrdef-type-type-check-predicate-errormsg-"><code>attrDef</code> : type( Type ).check( predicate, errorMsg? )</h3>
 <p>Attribute-level validator.</p>
 <ul>
@@ -1142,15 +1142,27 @@ Records and collections will try to convert values to the declared types on assi
 
 isAge.error = <span class="hljs-string">"Age must be between 0 and 200"</span>;
 </code></pre>
-<p>Attribute may have any number of checks attached, which are execute in sequence. Validation stops when first check in sequence fails.</p>
-<pre><code class="highlight javascript"><span class="hljs-comment">// Define new attribute metatype encapsulating validation checks.</span>
+<p>Attribute may have any number of checks attached which are being executed in a sequence. Validation stops when first check in sequence fails.
+It can be used to define reusable attribute types as demonstrated below:</p>
+<pre><code class="highlight javascript"><span class="hljs-comment">// Define new attribute metatypes encapsulating validation checks.</span>
 <span class="hljs-keyword">const</span> Age = type( <span class="hljs-built_in">Number</span> )
-                .check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x &gt;= <span class="hljs-number">0</span>, <span class="hljs-string">'I guess you are a bit older'</span> )
-                .check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x &lt; <span class="hljs-number">200</span>, <span class="hljs-string">'No way man can be that old'</span> );
+                .check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x == <span class="hljs-literal">null</span> || x &gt;= <span class="hljs-number">0</span>, <span class="hljs-string">'I guess you are a bit older'</span> )
+                .check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x == <span class="hljs-literal">null</span> || x &lt; <span class="hljs-number">200</span>, <span class="hljs-string">'No way man can be that old'</span> );
+
+<span class="hljs-keyword">const</span> Word = type( <span class="hljs-built_in">String</span> ).check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> indexOf( <span class="hljs-string">' '</span> ) &lt; <span class="hljs-number">0</span>, <span class="hljs-string">'No spaces allowed'</span> );
+
+@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">firstName</span> : Word,
+        <span class="hljs-attr">lastName</span> : Word,
+        <span class="hljs-attr">age</span> : Age
+    }
+}
 </code></pre>
-<h3 id="attrdef-type-type-isrequired"><code>attrDef</code> : type( Type ).isRequired</h3>
+<h3 id="attrdef-type-type-required"><code>attrDef</code> : type( Type ).required</h3>
 <p>The special case of attribute-level check cutting out empty values. Attribute value must be truthy to pass, <code>&quot;Required&quot;</code> is used as validation error.</p>
 <p><code>isRequired</code> is the first validator to check, no matter in which order validators were attached.</p>
+<h2 id="record">Record</h2>
 <h3 id="rec-isvalid-attrname-">rec.isValid( attrName )</h3>
 <p>Returns <code>true</code> if the specified record&#39;s attribute is valid.</p>
 <h3 id="rec-getvalidationerror-attrname-">rec.getValidationError( attrName )</h3>
@@ -1718,7 +1730,8 @@ x.componentWillMount();
 <p>Same as <code>every</code>, but return true when at least one function from mixins returns true.</p>
 <h1 id="release-notes">Release Notes</h1>
 <h2 id="3-0-0">3.0.0</h2>
-<p>Starting from version 3, Type-R does not modify built-in global objects. Following attribute types moved to the <code>type-r/ext-types</code> package:</p>
+<h3 id="breaking-changes">Breaking changes</h3>
+<p>Type-R does not modify built-in global objects starting from version 3. Following attribute types moved to the <code>type-r/ext-types</code> package:</p>
 <ul>
 <li><code>Date.timestamp</code> -&gt; <code>import { Timestamp } from &#39;type-r/ext-types&#39;</code></li>
 <li><code>Date.microsoft</code> -&gt; <code>import { MicrosoftDate } from &#39;type-r/ext-types&#39;</code></li>
@@ -1730,8 +1743,14 @@ x.componentWillMount();
 <li><code>Constructor.value( default )</code> -&gt; <code>type( Constructor ).value( default )</code></li>
 <li><code>Constructor.isRequired</code> -&gt; <code>type( Constructor ).required</code></li>
 </ul>
-<p>There&#39;s <code>type-r/globals</code> package for old code compatibility, which must be included once with <code>import &#39;type-r/globals&#39;</code>.
+<p>There&#39;s <code>type-r/globals</code> package for old code compatibility, which must be imported once with <code>import &#39;type-r/globals&#39;</code>.
 You&#39;re advised to use new syntax for any new work.</p>
+<h1 id="new-features">New features</h1>
+<ul>
+<li>New logger which easy to override or turn off.</li>
+<li>Improved error messages.</li>
+<li>New TypeScript friendly <code>type( T )</code> attribute metadata notation.</li>
+</ul>
 <h2 id="2-1-0">2.1.0</h2>
 <p>This release adds long-awaited HTTP REST endpoint.</p>
 <ul>
