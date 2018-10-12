@@ -1,4 +1,4 @@
-import { eventsApi } from '../object-plus';
+import { eventsApi, Logger } from '../object-plus';
 import { Record } from '../record';
 import { ItemsBehavior, Owner, Transaction, Transactional, transactionApi, TransactionOptions } from '../transactions';
 
@@ -19,7 +19,7 @@ export interface CollectionCore extends Transactional, Owner {
     _shared : number
     _aggregationError : Record[]
 
-    _log( level : string, topic : string, text : string, value : any ) : void
+    _log( level : string, topic : string, text : string, value : any, logger : Logger ) : void
 }
 
 // Collection's manipulation methods elements
@@ -179,7 +179,7 @@ export class CollectionTransaction implements Transaction {
         }
 
         if( object._aggregationError ){
-            logAggregationError( object );
+            logAggregationError( object, _isDirty );
         }
 
         // Just trigger 'change' on collection, it must be already triggered for models during nested commits.
@@ -215,7 +215,7 @@ export class CollectionTransaction implements Transaction {
     }
 }
 
-export function logAggregationError( collection : CollectionCore ){
-    collection._log( 'error', 'Type-R:InvalidOwner', 'added records already have an owner', collection._aggregationError );
+export function logAggregationError( collection : CollectionCore, options : TransactionOptions ){
+    collection._log( 'error', 'Type-R:InvalidOwner', 'added records already have an owner', collection._aggregationError, options.logger );
     collection._aggregationError = void 0;
 }

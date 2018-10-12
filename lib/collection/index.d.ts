@@ -1,5 +1,5 @@
 import { IOPromise } from '../io-tools';
-import { EventMap, EventsDefinition, LogLevel } from '../object-plus';
+import { EventMap, EventsDefinition, LogLevel, Logger } from '../object-plus';
 import { AggregatedType, Record } from '../record';
 import { CloneOptions, Transactional, TransactionalDefinition, TransactionOptions } from '../transactions';
 import { AddOptions } from './add';
@@ -78,7 +78,7 @@ export declare class Collection<R extends Record = Record> extends Transactional
     indexOf(modelOrId: any): number;
     modelId(attrs: {}): any;
     toggle(model: R, a_next?: boolean): boolean;
-    _log(level: LogLevel, topic: string, text: string, value: any): void;
+    _log(level: LogLevel, topic: string, text: string, value: object, a_logger?: Logger): void;
     getClassName(): string;
 }
 export declare type LiveUpdatesOption = boolean | ((x: any) => boolean);

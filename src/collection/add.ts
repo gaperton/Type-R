@@ -21,7 +21,7 @@ export function addTransaction( collection : CollectionCore, items : any[], opti
             return new CollectionTransaction( collection, isRoot, added, [], nested, needSort );
         }
 
-        if( collection._aggregationError ) logAggregationError( collection );
+        if( collection._aggregationError ) logAggregationError( collection, options );
     }
 
     // No changes...

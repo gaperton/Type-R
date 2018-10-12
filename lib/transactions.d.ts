@@ -1,5 +1,5 @@
 import { IOEndpoint, IONode, IOPromise } from './io-tools';
-import { CallbacksByEvents, eventsApi, Messenger, MessengerDefinition, MessengersByCid, MixinsState, LogLevel } from './object-plus';
+import { CallbacksByEvents, eventsApi, Messenger, MessengerDefinition, MessengersByCid, MixinsState, LogLevel, Logger } from './object-plus';
 import { Traversable } from './traversable';
 import { ChildrenErrors, Validatable, ValidationError } from './validation';
 export interface TransactionalDefinition extends MessengerDefinition {
@@ -81,7 +81,7 @@ export declare abstract class Transactional implements Messenger, IONode, Valida
     valueOf(): Object;
     toString(): string;
     getClassName(): string;
-    _log(level: LogLevel, topic: string, text: string, value: any): void;
+    abstract _log(level: LogLevel, topic: string, text: string, value: any, logger?: Logger): void;
 }
 export interface CloneOptions {
     pinStore?: boolean;
@@ -97,6 +97,7 @@ export interface Transaction {
 }
 export interface TransactionOptions {
     parse?: boolean;
+    logger?: Logger;
     silent?: boolean;
     merge?: boolean;
     remove?: boolean;

@@ -1,5 +1,5 @@
 import { IOPromise, startIO } from '../io-tools';
-import { define, definitions, EventMap, eventsApi, EventsDefinition, LogLevel, Mixable, mixinRules, tools } from '../object-plus';
+import { define, definitions, EventMap, eventsApi, EventsDefinition, LogLevel, Mixable, mixinRules, tools, Logger, logger } from '../object-plus';
 import { AggregatedType, createSharedTypeSpec, Record, SharedType } from '../record';
 import { CloneOptions, ItemsBehavior, Transactional, TransactionalDefinition, transactionApi, TransactionOptions } from '../transactions';
 import { AddOptions, addTransaction } from './add';
@@ -564,8 +564,8 @@ export class Collection< R extends Record = Record> extends Transactional implem
         return next;
     }
 
-    _log( level : LogLevel, topic : string, text : string, value ) : void {
-        super._log( level, topic, `${ this.model.prototype.getClassName() }.${ this.getClassName() }: ` + text, {
+    _log( level : LogLevel, topic : string, text : string, value : object, a_logger? : Logger ) : void {
+        ( a_logger || logger ).trigger( level, topic, `${ this.model.prototype.getClassName() }.${ this.getClassName() }: ` + text, {
             Argument : value,
             'Attributes spec' : this.model.prototype._attributes
         });

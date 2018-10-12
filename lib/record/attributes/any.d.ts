@@ -1,5 +1,5 @@
 import { IOEndpoint } from '../../io-tools';
-import { LogLevel } from '../../object-plus';
+import { LogLevel, Logger } from '../../object-plus';
 import { TransactionOptions } from '../../transactions';
 import { AttributesContainer, AttributeUpdatePipeline, RecordTransaction } from './updates';
 declare global {
@@ -52,7 +52,7 @@ export declare class AnyType implements AttributeUpdatePipeline {
     doInit(value: any, record: AttributesContainer, options: TransactionOptions): any;
     doUpdate(value: any, record: AttributesContainer, options: TransactionOptions, nested?: RecordTransaction[]): boolean;
     propagateChanges: boolean;
-    protected _log(level: LogLevel, code: string, text: string, value: any, record: AttributesContainer): void;
+    protected _log(level: LogLevel, code: string, text: string, value: any, record: AttributesContainer, logger: Logger): void;
     defaultValue(): any;
     constructor(name: string, a_options: AttributeOptions);
     getHook: (value: any, key: string) => any;

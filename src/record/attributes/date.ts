@@ -15,14 +15,14 @@ export class DateType extends AnyType {
         return new Date();
     }
     
-    convert( next : any, a, record ){
+    convert( next : any, a, record, options ){
         if( next == null || next instanceof Date ) return next;
 
         const date = new Date( next ),
               timestamp = date.getTime();
 
         if( timestamp !== timestamp ){
-            this._log( 'error', 'Type-R:InvalidDate', 'Date attribute assigned with invalid date', next, record );
+            this._log( 'error', 'Type-R:InvalidDate', 'Date attribute assigned with invalid date', next, record, options.logger );
         }
 
         return date;

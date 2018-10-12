@@ -1,5 +1,6 @@
 import { Messenger } from './events'
 import { define } from './mixins';
+import { trigger } from 'type-r';
 
 export type LogLevel = 'error' | 'warn' | 'debug' | 'info' | 'log';
 export type LoggerEventHandler = ( topic : string, msg : string, props : object )  => void;
@@ -30,6 +31,7 @@ export class Logger extends Messenger {
     }
 
     trigger : ( level : LogLevel, topic : string, message : string, props? : object ) => this;
+    
     off : ( event? : LogLevel ) => this;
     on : ( handlers : { [ name in LogLevel ] : LoggerEventHandler } | LogLevel, handler? : LoggerEventHandler ) => this
 }

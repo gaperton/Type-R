@@ -1,5 +1,5 @@
 import { IOEndpoint } from '../../io-tools';
-import { LogLevel, tools } from '../../object-plus';
+import { LogLevel, tools, Logger } from '../../object-plus';
 import { TransactionOptions } from '../../transactions';
 import { AttributesContainer, AttributeUpdatePipeline, RecordTransaction, setAttribute } from './updates';
 
@@ -169,11 +169,11 @@ export class AnyType implements AttributeUpdatePipeline {
 
     propagateChanges : boolean
 
-    protected _log( level : LogLevel, code : string, text : string, value, record : AttributesContainer ){
+    protected _log( level : LogLevel, code : string, text : string, value, record : AttributesContainer, logger : Logger ){
         record._log( level, code, `${record.getClassName()}.${ this.name } ${ text }`, {
             'New value' : value,
             'Prev. value' : record.attributes[ this.name ]
-        });
+        }, logger );
     }
 
     defaultValue(){

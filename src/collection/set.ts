@@ -21,7 +21,7 @@ export function emptySetTransaction( collection : CollectionCore, items : Elemen
             return new CollectionTransaction( collection, isRoot, added.slice(), [], [], needSort );
         }
 
-        if( collection._aggregationError ) logAggregationError( collection );
+        if( collection._aggregationError ) logAggregationError( collection, options );
     }
 
     // No changes...
@@ -51,7 +51,7 @@ export function setTransaction( collection, items, options ){
             return new CollectionTransaction( collection, isRoot, added, removed, nested, sorted );
         }
 
-        if( collection._aggregationError ) logAggregationError( collection );
+        if( collection._aggregationError ) logAggregationError( collection, options );
     }
 
     isRoot && commit( collection );

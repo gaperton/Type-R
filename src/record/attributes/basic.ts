@@ -87,11 +87,11 @@ export class NumericType extends PrimitiveType {
         return 0;
     }
 
-    convert( next, prev?, record? ) {
+    convert( next, prev?, record?, options? ) {
         const num = next == null ? next : this.type( next );
 
         if( num !== num ){
-            this._log( 'error', 'Type-R:InvalidNumber', 'Number attribute is assigned with an invalid number', next, record );
+            this._log( 'error', 'Type-R:InvalidNumber', 'Number attribute is assigned with an invalid number', next, record, options.logger );
         }
         
         return num;
@@ -116,11 +116,11 @@ export class ArrayType extends AnyType {
     dispose(){}
     create(){ return []; }
 
-    convert( next, prev, record ) {
+    convert( next, prev, record, options ) {
         // Fix incompatible constructor behaviour of Array...
         if( next == null || Array.isArray( next ) ) return next;
 
-        this._log( 'error', 'Type-R:InvalidArray', 'Array attribute assigned with non-array value', next, record );
+        this._log( 'error', 'Type-R:InvalidArray', 'Array attribute assigned with non-array value', next, record, options.logger );
 
         return [];
     }
@@ -135,10 +135,10 @@ Array._attribute = ArrayType;
 export class ObjectType extends AnyType {
     create(){ return {}; }
 
-    convert( next, prev, record ) {
+    convert( next, prev, record, options ) {
         if( next == null || typeof next === 'object' ) return next;
                 
-        this._log( 'error', 'Type-R:InvalidObject', 'Object attribute is assigned with non-object value', next, record );
+        this._log( 'error', 'Type-R:InvalidObject', 'Object attribute is assigned with non-object value', next, record, options.logger );
         return {};
     }
 }
@@ -153,11 +153,11 @@ export class FunctionType extends AnyType {
     create(){ return doNothing; }
     dispose(){}
 
-    convert( next, prev, record ) {
+    convert( next, prev, record, options ) {
         // Fix incompatible constructor behaviour of Function...
         if( next == null || typeof next === 'function' ) return next;
 
-        this._log( 'error', 'Type-R:InvalidFunction', 'Function attribute assigned with non-function value', next, record );
+        this._log( 'error', 'Type-R:InvalidFunction', 'Function attribute assigned with non-function value', next, record, options.logger );
 
         return doNothing;
     }

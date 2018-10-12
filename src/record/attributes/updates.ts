@@ -1,4 +1,4 @@
-import { eventsApi } from '../../object-plus';
+import { eventsApi, Logger } from '../../object-plus';
 import { Owner, Transaction, Transactional, transactionApi, TransactionOptions } from "../../transactions";
 const { begin : _begin, markAsDirty : _markAsDirty, commit } = transactionApi;
 
@@ -128,7 +128,7 @@ export const UpdateRecordMixin = {
 
         let unknown;
 
-        if( shouldBeAnObject( this, values ) ){
+        if( shouldBeAnObject( this, values, options ) ){
             for( let name in values ){
                 const spec = _attributes[ name ];
 
@@ -144,7 +144,7 @@ export const UpdateRecordMixin = {
             }
 
             if( unknown ){
-                unknownAttrsWarning( this, unknown, { values } );
+                unknownAttrsWarning( this, unknown, { values }, options );
             }
         }
         
@@ -161,8 +161,8 @@ export const UpdateRecordMixin = {
     }
 };
 
-export function unknownAttrsWarning( record : AttributesContainer, unknown : string[], props ){
-    record._log( 'warn', 'Type-R:UnknownAttrs', `undefined attributes ${ unknown.join(', ')} are ignored.`, props );
+export function unknownAttrsWarning( record : AttributesContainer, unknown : string[], props, options ){
+    record._log( 'warn', 'Type-R:UnknownAttrs', `undefined attributes ${ unknown.join(', ')} are ignored.`, props, options.logger );
 }
 
 // One of the main performance tricks of Type-R.
@@ -193,10 +193,10 @@ export function constructorsMixin( attrDefs : AttributesDescriptors ) : Construc
     return { Attributes, AttributesCopy };
 }
 
-export function shouldBeAnObject( record : AttributesContainer, values : object ){
+export function shouldBeAnObject( record : AttributesContainer, values : object, options ){
     if( values && values.constructor === Object ) return true;
 
-    record._log( 'error', 'Type-R:InvalidObject', 'update with non-object is ignored!', { values } );
+    record._log( 'error', 'Type-R:InvalidObject', 'update with non-object is ignored!', { values }, options.logger );
     return false;
 }
 

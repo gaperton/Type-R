@@ -5,7 +5,7 @@
 
 import { Collection } from '../collection';
 import { IOEndpoint, IOPromise } from '../io-tools';
-import { define, definitions, isProduction, LogLevel, mixinRules, tools } from '../object-plus';
+import { define, definitions, isProduction, LogLevel, mixinRules, tools, Logger, logger } from '../object-plus';
 import { CloneOptions, Owner, Transaction, Transactional, TransactionalDefinition, TransactionOptions } from '../transactions';
 import { ChildrenErrors } from '../validation';
 import { AggregatedType, AnyType, AttributesConstructor, AttributesContainer, AttributesCopyConstructor, AttributesValues, setAttribute, shouldBeAnObject, unknownAttrsWarning, UpdateRecordMixin } from './attributes';
@@ -229,7 +229,7 @@ export class Record extends Transactional implements IORecord, AttributesContain
         }
 
         if( unknown ){
-            unknownAttrsWarning( this, unknown, { attributes : attrs } );
+            unknownAttrsWarning( this, unknown, { attributes : attrs }, {} );
         }
     }
 
@@ -283,7 +283,7 @@ export class Record extends Transactional implements IORecord, AttributesContain
         const options = a_options || {},
               values = ( options.parse ? this.parse( a_values, options ) :  a_values ) || {};
 
-        isProduction || typeCheck( this, values );
+        isProduction || typeCheck( this, values, options );
 
         this._previousAttributes = this.attributes = new this.Attributes( this, values, options );
 
@@ -427,8 +427,8 @@ export class Record extends Transactional implements IORecord, AttributesContain
         super.dispose();
     }
 
-    _log( level : LogLevel, topic: string, text : string, props : object ) : void {
-        super._log( level, topic, text, {
+    _log( level : LogLevel, topic: string, text : string, props : object, a_logger? : Logger ) : void {
+        ( a_logger || logger ).trigger( level, topic, text, {
             ...props,
             'Record' : this,
             'Attributes definition:' : this._attributes
@@ -478,8 +478,8 @@ Record.prototype._attributesArray = [ IdAttribute ];
 Record._attribute = AggregatedType;
 
 
-function typeCheck( record : Record, values : object ){
-    if( shouldBeAnObject( record, values ) ){
+function typeCheck( record : Record, values : object, options ){
+    if( shouldBeAnObject( record, values, options ) ){
         const { _attributes } = record;
         let unknown : string[];
 
@@ -491,7 +491,7 @@ function typeCheck( record : Record, values : object ){
         }
 
         if( unknown ){
-            unknownAttrsWarning( record, unknown, { values } );
+            unknownAttrsWarning( record, unknown, { values }, options );
         }
     }
 }
