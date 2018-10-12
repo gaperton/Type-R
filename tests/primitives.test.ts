@@ -1,8 +1,15 @@
 import "reflect-metadata";
-import { logger, attr, Collection, define, predefine, Record } from "type-r";
+import { logger, Logger, attr, Collection, define, predefine, Record } from "type-r";
 import "type-r/globals";
 
-logger.off();
+logger.off()
+    .throwOn( 'error' )
+    .throwOn( 'warn' );
+
+function createLogger(){
+    const logger = new Logger();
+    return logger.count( 'error' ).count( 'warn' );
+}
 
 describe( 'Record', () =>{
     it( "can be instantiated", ()=>{
@@ -44,6 +51,8 @@ describe( 'Record', () =>{
             } );
 
             it( "convert values to defined type in 'new'", () =>{
+                const logger = createLogger();
+
                 const m = new M( {
                     s : 55,
                     n : "1",
@@ -51,8 +60,9 @@ describe( 'Record', () =>{
                     o : "not an object",
                     a : "not an array",
                     d : 678678678
-                } );
+                }, { logger } );
 
+                expect( logger.counter.error ).toBe( 2 );
                 expect( m.s ).toBe( '55' );
                 expect( m.n ).toBe( 1 );
                 expect( m.b ).toBe( true );
@@ -64,12 +74,17 @@ describe( 'Record', () =>{
             it( "convert values to defined types on assignment", () =>{
                 const m = new M();
 
+                // No way to pass custom logger, so we disable the global one.
+                logger.off();
+
                 m.s = 55 as any;
                 m.n = "1" as any;
                 m.b = 'not bool' as any;
                 m.o = "not an object" as any;
                 m.a = "not an array" as any;
                 m.d = 678678678  as any;
+
+                logger.throwOn( 'error' ).throwOn( 'warn' );
 
                 expect( m.s ).toBe( '55' );
                 expect( m.n ).toBe( 1 );
@@ -80,7 +95,8 @@ describe( 'Record', () =>{
             } );
 
             it( "convert values to defined types on set", () =>{
-                const m = new M();
+                const m = new M(),
+                    logger = createLogger();
 
                 m.set({
                     s : 55,
@@ -89,8 +105,9 @@ describe( 'Record', () =>{
                     o : "not an object",
                     a : "not an array",
                     d : 678678678
-                });
+                }, { logger });
 
+                expect( logger.counter.error ).toBe( 2 );
                 expect( m.s ).toBe( '55' );
                 expect( m.n ).toBe( 1 );
                 expect( m.b ).toBe( true );
@@ -157,8 +174,10 @@ describe( 'Record', () =>{
                     d : Date                    
                 }
 
-                const m = new M();
+                const logger = createLogger();
+                const m = new M( void 0 , { logger });
 
+                expect( logger.counter.error ).toBe( 2 );
                 expect( m.s ).toBe( '55' );
                 expect( m.n ).toBe( 1 );
                 expect( m.b ).toBe( true );
