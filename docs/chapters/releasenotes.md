@@ -19,7 +19,7 @@ Function extensions used for attribute annotations are deprecated.
 There's `type-r/globals` package for old code compatibility, which must be imported once with `import 'type-r/globals'`.
 You're advised to use new syntax for any new work.
 
-# New features
+### New features
 
 - New logger which easy to override or turn off.
 - Improved error messages.
