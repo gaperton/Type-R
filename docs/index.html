@@ -74,73 +74,84 @@
     <div class="page-wrapper">
         <div class="content">
           <h1 id="getting-started">Getting started</h1>
-<p>Type-R is the modern JS state framework supporting observable changes, state validation, JSON serialization and promised I/O. It&#39;s designed to meet the requirements of the complex JS data layer on both front-end and back-end.</p>
-<p>Features:</p>
+<h2 id="overview">Overview</h2>
+<p>Type-R is the JS model framework helping to define and manage the complex state as a combination of reusable parts. Type-R cover the needs of business logic and data layers in 3-tier application architecture, provinding the presentation layer with the unified technique to handle the UI and domain state. Type-R data structures looks and feels (and, in some aspects, behaves) more like classes in the statically typed languages.</p>
+<p>Type-R in unopinionated on the way how an application state should be managed (&quot;single source of truth&quot; or &quot;distributed state&quot;). It can support all approaches equally well being not dependent on singletons and having the powerful capabilities for state synchronization.</p>
+<p><img src="images/3-layer-client.png" alt="overview"></p>
+<p>State is defined as a superposition of typed records and collections. Record is a class with known set of attributes of predefined types possibly holding other records and collections in its attributes, describing the data structure of an arbitrary complexity. Record with its attributes forms an aggregation tree with deeply observable attributes changes. Attribute types are checked on assignments and invalid changes are being rejected, therefore it is guaranteed that the application state will preserve the valid shape.</p>
+<p>Application state defined with Type-R is serializable to JSON by default. Aggregation tree of records and collections is mapped in JSON as a tree of plain objects and arrays. Normalized data represented as a set of collections of records cross-referencing each other are supported as first-class serialization scenario.</p>
+<p>Record may have an associated IOEndpont representing the I/O protocol for CRUD and collection fetch operations which enables the persistence API for the particual record/collection class pair. Some useful endpoints (<code>restfulIO</code>, <code>localStorageIO</code>, etc) are provided by <code>type-r/endpoints/*</code> packages, and developers can define their own I/O endpoints implementing any particular persistence transport or API.</p>
+<p>Record attributes may have custom validation rules attached to them. Validation is being triggered transparently on demand and its result is cached across the record/collection aggregation tree, making subsequent calls to the validation API extremily cheap.</p>
+<p>All aspects of record behavior including serialization and validation can be controlled on attribute level with declarative definitions combining attribute types with metadata. Attribute definitions (&quot;metatypes&quot;) can be reused across different models forming the domain-specific language of model declarations. Some useful attribute metatypes (<code>Email</code>, <code>Url</code>, <code>MicrosoftDate</code>, etc) are provided by <code>type-r/ext-types</code> package.</p>
+<h2 id="features-by-example">Features by example</h2>
+<h3 id="persistent-domain-state">Persistent domain state</h3>
+<p>The basic building block is the <code>Record</code> class. To fetch data from the server, a developer creates the subclass of the <code>Record</code> describing its attribute types and attaches the <code>restfulIO</code> endpoint. It enables the persistence API allowing the developer to fetch the collection from the server. <code>restfulIO</code> expects the server to implement the standard RESTful API expected by BackboneJS models.</p>
 <ul>
-<li><em>Deeply observable changes</em><ul>
-<li>The series of updates can be grouped to transactions emitting the single change event.</li>
-<li>There are fine-grained change events allowing the cascade of reactions executed as a single transaction.</li>
+<li><code>GET /api/users</code> - fetch all the users</li>
+<li><code>POST /api/users</code> - create the user</li>
+<li><code>GET /api/users/:id</code> - fetch the user with a given id</li>
+<li><code>PUT /api/users/:id</code> - update the user with a given id</li>
+<li><code>DELETE /api/users/:id</code> - delete the user with a given id</li>
 </ul>
-</li>
-<li><em>Serialization and persistence</em><ul>
-<li>Type-R data structures are serializable to JSON by default.</li>
-<li>Support for both nested JSON and relationship by id.</li>
-<li>JSON mapping can be customized for every particular attribute or class.</li>
-<li>I/O endpoints abstract out the persistence protocol.</li>
-</ul>
-</li>
-<li><em>Lazily evaluated validation</em><ul>
-<li>The validation is performed on the first access to the validation error field.</li>
-<li>Validation results are cached and never computed twice for unchanged data.</li>
-</ul>
-</li>
-<li><em>Dynamic type safety</em><ul>
-<li>Types are asserted every </li>
-<li>The shape of both data structures and generated JSON is guaranteed to match the definitions.</li>
-</ul>
-</li>
-<li><em>Performance</em><ul>
-<li>Type-R data structures are designed to handle large collections (10K elements and more) with sub-second delays.</li>
-<li>Updates are about 10 times more efficient than BackboneJS models and collections.</li>
-</ul>
-</li>
-</ul>
-<p><img src="images/overview.png" alt="overview"></p>
-<p>Type-R is completely unopinionated on the client-server transport protocol and the view layer technology. It&#39;s your perfect M and VM in modern MVVM or MVC architecture.</p>
-<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
-
-<span class="hljs-comment">// Define email attribute type with encapsulated validation check.</span>
-<span class="hljs-keyword">const</span> Email = <span class="hljs-built_in">String</span>.has.check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x! || x.indexOf( <span class="hljs-string">'@'</span> ) &gt;= <span class="hljs-number">0</span>, <span class="hljs-string">'Invalid email'</span> );
-
-@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+<p>Record and collection are seralizable to and can be parsed from JSON with no additional effort, and can be customized for collections, records, and individual attributes. The Record checks all updates and cast attribute values to declared attribute types, protecting the state strucure from the protocol incompatibilities and improper assignments.</p>
+<pre><code class="highlight javascript">@define User extends Record {
+    <span class="hljs-keyword">static</span> endpoint = restfulIO( <span class="hljs-string">'/api/users'</span> );
     <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">name</span>  : <span class="hljs-built_in">String</span>.isRequired, <span class="hljs-comment">// should not be empty for the record to be valid.</span>
-        email : Email.isRequired
+        <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span>,
+        <span class="hljs-attr">email</span> : <span class="hljs-built_in">String</span>,
+        <span class="hljs-attr">createdAt</span> : <span class="hljs-built_in">Date</span>
     }
 }
 
-@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Message</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
+<span class="hljs-keyword">const</span> users = <span class="hljs-keyword">new</span> User.Collection();
+<span class="hljs-keyword">await</span> users.fetch();
+
+expect( users.first().createdAt ).toBeInstanceOf( <span class="hljs-built_in">Date</span> );
+expect( <span class="hljs-keyword">typeof</span> users.toJSON()[ <span class="hljs-number">0</span> ].createdAt ).toBe( <span class="hljs-string">"string"</span> );
+</code></pre>
+<h3 id="ui-state-and-observable-changes">UI state and observable changes</h3>
+<p>Type-R provides the universal technique to working with the UI and domain state. To define the UI state, a developer creates the subclass of the <code>Record</code> with attributes holding all the necessary state data possibly along with the presistent data which can become the part of the same local UI state. The UI state itself can be a part of some particular view or UI component, it can be managed as a singleton (&quot;single source of truth&quot;), or both at the same time. Type-R is unopinionated on the application state structure leaving this decision to the developer.</p>
+<p>Records and collections forms an aggregation tree with deeply observable changes, so it&#39;s enough to subscribe to the single <code>change</code> event from the <code>UIState</code> to get updates on both data arrival and local changes of the state attributes. Records and collections can be indefinitely nested to describe a state of an arbitrary complexity. Developer can attach reactions on changes to the records, their individual attributes, and collections. Additional changes made in reactions will be executed in the scope of the same &quot;change transaction&quot; and won&#39;t trigger additional change events.</p>
+<pre><code class="highlight javascript">@define UIState extends Record {
     <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">created</span> : <span class="hljs-built_in">Date</span> <span class="hljs-comment">//  = new Date()</span>
-        author  : User, <span class="hljs-comment">// aggregated User record.</span>
-        to      : User.Collection, <span class="hljs-comment">// aggregating collection of users</span>
-        subject : <span class="hljs-string">''</span>,
-        <span class="hljs-attr">body</span>    : <span class="hljs-string">''</span>
+        <span class="hljs-attr">users</span> : User.Collection,
+        <span class="hljs-attr">selectedUser</span> : User.from( <span class="hljs-string">'users'</span> )
     }
 }
 
-<span class="hljs-keyword">const</span> msg = <span class="hljs-keyword">new</span> Message();
-assert( !msg.isValid() ); <span class="hljs-comment">// Is not valid because msg.author has empty attributes</span>
+<span class="hljs-keyword">const</span> uiState = <span class="hljs-keyword">new</span> UIState();
 
-<span class="hljs-comment">// Listen for the changes in aggregation tree...</span>
-msg.on( <span class="hljs-string">'change'</span>, () =&gt; <span class="hljs-built_in">console</span>.log( <span class="hljs-string">'change!!!'</span> ) );
+uiState.on( <span class="hljs-string">'change'</span>, () =&gt; {
+    <span class="hljs-built_in">console</span>.log( <span class="hljs-string">'Something is changed'</span> );
+    updateUI();
+});
 
-msg.transaction( <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> { <span class="hljs-comment">// Prepare to make the sequence of changes on msg</span>
-    msg.author.name = <span class="hljs-string">'John Dee'</span>; <span class="hljs-comment">// No 'change' event yet as we're in the transaction. </span>
-    msg.author.email = <span class="hljs-string">'dee@void.com'</span>; 
+uiState.users.fetch();
+</code></pre>
+<h3 id="validation">Validation</h3>
+<p>Type-R supports validation as attribute-level checks attached to attribute definitions as a metadata. Attribute type together with checks forms an &quot;attribute metatype&quot;, which can be defined separately and reused across multiple record definitions.</p>
+<p>Validation rules are evaluated recursively on the aggregation tree on first access to the validation API, and validations results are cached in records and collections across the tree till the next update. The validation is automatic, subsequent calls to the validation API are cheap, and developer don&#39;t need to manually trigger the validation on data changes.</p>
+<p>The majority of checks in a real application will be a part of attribute &quot;metatypes&quot;, while the custom validation can be also defined on the <code>Record</code> and <code>Collection</code> level to check data integrity and cross-attributes dependencies.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">const</span> Email = type( <span class="hljs-built_in">String</span> )
+    .check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> !x || x.indexOf( <span class="hljs-string">'@'</span> ) &gt;= <span class="hljs-number">0</span>, <span class="hljs-string">"Doesn't look like an email"</span> );
 
-    assert( msg.isValid() ); <span class="hljs-comment">// Now msg is valid as all of its attributes are valid.</span>
-}); <span class="hljs-comment">// Got single 'change!!!' message in the console.</span>
+@define User extends Record {
+    <span class="hljs-keyword">static</span> endpoint = restfulIO( <span class="hljs-string">'/api/users'</span> );
+    <span class="hljs-keyword">static</span> attributes = {
+        <span class="hljs-attr">name</span> : type( <span class="hljs-built_in">String</span> ).required,
+        <span class="hljs-attr">email</span> : type( Email ).required,
+        <span class="hljs-attr">createdAt</span> : type( <span class="hljs-built_in">Date</span> ).check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x.getTime() &lt;= <span class="hljs-built_in">Date</span>.now() )
+    }
+}
+
+<span class="hljs-keyword">const</span> users = <span class="hljs-keyword">new</span> User.Collection();
+users.add({ <span class="hljs-attr">email</span> : <span class="hljs-string">'john'</span> });
+expect( users.isValid() ).toBe( <span class="hljs-literal">false</span> );
+expect( users.first().isValid() ).toBe( <span class="hljs-literal">false</span> );
+
+users.first().name = <span class="hljs-string">"John"</span>;
+users.first().email = <span class="hljs-string">"john@ny.com"</span>;
+expect( users.isValid() ).toBe( <span class="hljs-literal">true</span> );
 </code></pre>
 <h2 id="installation-and-requirements">Installation and requirements</h2>
 <p>Is packed as UMD and ES6 module. No peer dependencies are required.</p>
@@ -149,23 +160,17 @@ msg.transaction( <span class="hljs-function"><span class="hljs-params">()</span>
 
 <aside class="warning">IE9 and Opera may work but has not been tested. IE8 won't work.</aside>
 
-<h2 id="how-the-type-r-compares-with-x-">How the Type-R compares with X?</h2>
-<p>Type-R started to develop in 2014 as the modern substitution for BackboneJS, which would retain the spirit of the BackboneJS simplicity but would be an order of magnitude faster and superior to Ember Data in its capabilities to describe complex data.</p>
-<p>The closest things to the Type-R are <a href="https://guides.emberjs.com/v2.2.0/models/">Ember Data</a>, <a href="http://backbonejs.org/#Model">BackboneJS models and collections</a>, and <a href="https://github.com/mobxjs/mobx">mobx</a>.</p>
-<p>There are both similarities and differences:</p>
+<h2 id="how-type-r-compares-to-x-">How Type-R compares to X?</h2>
+<p>Type-R (former &quot;NestedTypes&quot;) project was started in 2014 in Volicon as a modern successor to BackboneJS models, which would match Ember Data in its capabilities to work with a complex state, while retaining the BackboneJS simplicity, modularity, and the some degree of backward API compatibility. It replaced BackboneJS in the model layer, and it was the key technology in Volicon&#39;s strategy to gradually move from BackboneJS Views to React in the view layer.</p>
+<p><a href="https://guides.emberjs.com/v2.2.0/models/">Ember Data</a> is the closest thing to Type-R by its capabilities, with <a href="http://backbonejs.org/#Model">BackboneJS models and collections</a> being the closest thing by the API and the general spirit, and <a href="https://github.com/mobxjs/mobx">mobx</a> being pretty close in the way how the UI state is managed.</p>
+<p>Type-R, however, takes very different approach to all three of them:</p>
 <ul>
+<li>Type-R distinguishes aggregation and the object references being built on the concept of <em>aggregation trees</em> formed by nested records and collections. Operations like <code>clone()</code>, <code>dispose()</code>, <code>isValid()</code> and <code>toJSON()</code> are performed recursively on elements of aggregation tree gracefully handling the references to shared objects.</li>
+<li>In contract to BackboneJS, Record is <em>not an object hash</em> but the class with statically typed and dynamically checked attributes.</li>
 <li>In contrast to mobx, Type-R detects <em>deeply nested changes</em>.</li>
-<li>Records and Collections resembles Backbone&#39;s Models/Collections, but Record is <em>not an object hash</em> but class and it&#39;s updates are ~10 times faster.</li>
-<li>Data validation is comparable to one in Ember Data, but it&#39;s lazily evaluated and cached.</li>
-<li>id-relationship resembles one in <a href="https://guides.emberjs.com/v2.2.0/models/relationships/">Ember Data</a>, which was used a source of inspiration. But Type-R supports the first-class aggregation as well.</li>
-<li>Like Ember Data, Type-R supports abstract data adapters (I/O endpoints).</li>
-<li>Unlike Ember and Backbone, Type-R is unopinionated on the view layer and routing. Like in mobx, there are React bindings.</li>
-</ul>
-<p>Speaking of the distinguishing differences,</p>
-<ul>
-<li>Type-R encourages using of the <em>layered application state</em> instead of the global singleton store. In Type-R, the stores are the special kind of records which can participate in dynamically configured lookup chains. There might be as many dynamically created and disposed stores as you need, starting with no stores at all.</li>
-<li>Type-R&#39;s records are protected from improper assignment with run-time type assertions and conversions.</li>
-<li>Type-R distinguishes aggregation and the plain association operating with <em>aggregation trees</em> formed by nested records and collections. Aggregation tree is serialized as nested JSON. Operations like <code>clone()</code>, <code>dispose()</code>, <code>isValid()</code> and <code>toJSON()</code> are performed recursively on elements of aggregation tree gracefully handling the references to shared objects.</li>
+<li>In contrast to Ember Data, Type-R is built around the concept of aggregation trees and self-contained data structures, and it doesn&#39;t require the singleton global store.</li>
+<li>Type-R is one of very few data frameworks where the store is not required to be a singleton. In Type-R, stores are a special kind of records. There might be as many dynamically created and disposed stores as you need, starting with no stores at all.</li>
+<li>In contrast to all of them, Type-R models looks and feels more like classes in the statically typed language.</li>
 </ul>
 <table>
 <thead>
