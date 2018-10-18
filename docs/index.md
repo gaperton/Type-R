@@ -1,6 +1,10 @@
 ---
 title: Type-R 3.0 API Reference
 
+language_tabs:
+  - javascript
+  - typescript
+
 logoTitle: Type-R 3.0
 
 toc_footers:
@@ -72,6 +76,23 @@ expect( users.first().createdAt ).toBeInstanceOf( Date );
 expect( typeof users.toJSON()[ 0 ].createdAt ).toBe( "string" );
 ```
 
+```typescript
+@define User extends Record {
+	static endpoint = restfulIO( '/api/users' );
+    
+    // Type-R can infer attribute types from TypeScript type annotations.
+	@attr name : string
+	@attr email : string
+	@attr createdAt : Date
+}
+
+const users : Collection<User> = new User.Collection();
+await users.fetch();
+
+expect( users.first().createdAt ).toBeInstanceOf( Date );
+expect( typeof users.toJSON()[ 0 ].createdAt ).toBe( "string" );
+```
+
 ### UI state and observable changes
 
 Type-R provides the universal technique to working with the UI and domain state. To define the UI state, a developer creates the subclass of the `Record` with attributes holding all the necessary state data possibly along with the presistent data which can become the part of the same local UI state. The UI state itself can be a part of some particular view or UI component, it can be managed as a singleton ("single source of truth"), or both at the same time. Type-R is unopinionated on the application state structure leaving this decision to the developer.
@@ -85,6 +106,26 @@ Records and collections forms an aggregation tree with deeply observable changes
 		users : User.Collection,
 		selectedUser : User.from( 'users' )
 	}
+}
+
+const uiState = new UIState();
+
+uiState.on( 'change', () => {
+	console.log( 'Something is changed' );
+	updateUI();
+});
+
+uiState.users.fetch();
+```
+
+```typescript
+@define UIState extends Record {
+    // For collections and more complex types attribute type must be provided explicitly
+    @attr( User.Collection )
+    users : Collection<User>
+
+    @attr( User.from( 'users' ) )
+    selectedUser : User
 }
 
 const uiState = new UIState();
@@ -128,6 +169,34 @@ users.first().email = "john@ny.com";
 expect( users.isValid() ).toBe( true );
 ```
 
+```typescript
+const Email = type( String )
+    .check( x => !x || x.indexOf( '@' ) >= 0, "Doesn't look like an email" );
+
+@define User extends Record {
+	static endpoint = restfulIO( '/api/users' );
+    
+    // @type(...).as converts Type-R attribute type definition to the TypeScript decorator.
+    @type( String ).required
+    .as name : string
+
+    @type( Email ).required
+    .as email : string
+
+    @type( Date ).check( x => x.getTime() <= Date.now() )
+    .as createdAt : Date
+}
+
+const users = new User.Collection();
+users.add({ email : 'john' });
+expect( users.isValid() ).toBe( false );
+expect( users.first().isValid() ).toBe( false );
+
+users.first().name = "John";
+users.first().email = "john@ny.com";
+expect( users.isValid() ).toBe( true );
+```
+
 ## Installation and requirements
 
 Is packed as UMD and ES6 module. No peer dependencies are required.
@@ -146,6 +215,12 @@ Is packed as UMD and ES6 module. No peer dependencies are required.
 - [two-way data binding](https://volicon.github.io/React-MVx/#link) for UI and domain state.
 - Hassle-free form validation (due to the combination of features of Type-R and NestedLink).
 - [Type-R type annotation](https://volicon.github.io/Type-R/#definition) used to define component [props](https://volicon.github.io/React-MVx/#props) and [context](https://volicon.github.io/React-MVx/#context).
+
+## Usage with NodeJS
+
+Type-R can be used at the server side to build the business logic layer by defining the custom I/O endpoints to store data in database. Type-R dynamic type safety features are particularly advantageous when schema-less JSON databases (like Couchbase) are being used.
+
+![server](images/3-layer-server.png)
 
 ## How Type-R compares to X?
 

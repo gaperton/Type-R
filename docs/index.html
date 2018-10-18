@@ -35,6 +35,8 @@
       <script>
         $(function() {
           var langs = [];
+            langs.push("javascript");
+            langs.push("typescript");
           setupLanguages( langs );
         });
       </script>
@@ -57,6 +59,8 @@
         
       </div>
         <div class="lang-selector">
+              <a href="#" data-language-name="javascript">javascript</a>
+              <a href="#" data-language-name="typescript">typescript</a>
         </div>
         <div class="search">
           <input type="text" class="search" id="input-search" placeholder="Search">
@@ -109,6 +113,21 @@
 expect( users.first().createdAt ).toBeInstanceOf( <span class="hljs-built_in">Date</span> );
 expect( <span class="hljs-keyword">typeof</span> users.toJSON()[ <span class="hljs-number">0</span> ].createdAt ).toBe( <span class="hljs-string">"string"</span> );
 </code></pre>
+<pre><code class="highlight typescript"><span class="hljs-meta">@define</span> User <span class="hljs-keyword">extends</span> Record {
+    <span class="hljs-keyword">static</span> endpoint = restfulIO( <span class="hljs-string">'/api/users'</span> );
+
+    <span class="hljs-comment">// Type-R can infer attribute types from TypeScript type annotations.</span>
+    <span class="hljs-meta">@attr</span> name : <span class="hljs-built_in">string</span>
+    <span class="hljs-meta">@attr</span> email : <span class="hljs-built_in">string</span>
+    <span class="hljs-meta">@attr</span> createdAt : <span class="hljs-built_in">Date</span>
+}
+
+<span class="hljs-keyword">const</span> users : Collection&lt;User&gt; = <span class="hljs-keyword">new</span> User.Collection();
+<span class="hljs-keyword">await</span> users.fetch();
+
+expect( users.first().createdAt ).toBeInstanceOf( <span class="hljs-built_in">Date</span> );
+expect( <span class="hljs-keyword">typeof</span> users.toJSON()[ <span class="hljs-number">0</span> ].createdAt ).toBe( <span class="hljs-string">"string"</span> );
+</code></pre>
 <h3 id="ui-state-and-observable-changes">UI state and observable changes</h3>
 <p>Type-R provides the universal technique to working with the UI and domain state. To define the UI state, a developer creates the subclass of the <code>Record</code> with attributes holding all the necessary state data possibly along with the presistent data which can become the part of the same local UI state. The UI state itself can be a part of some particular view or UI component, it can be managed as a singleton (&quot;single source of truth&quot;), or both at the same time. Type-R is unopinionated on the application state structure leaving this decision to the developer.</p>
 <p>Records and collections forms an aggregation tree with deeply observable changes, so it&#39;s enough to subscribe to the single <code>change</code> event from the <code>UIState</code> to get updates on both data arrival and local changes of the state attributes. Records and collections can be indefinitely nested to describe a state of an arbitrary complexity. Developer can attach reactions on changes to the records, their individual attributes, and collections. Additional changes made in reactions will be executed in the scope of the same &quot;change transaction&quot; and won&#39;t trigger additional change events.</p>
@@ -122,6 +141,24 @@ expect( <span class="hljs-keyword">typeof</span> users.toJSON()[ <span class="hl
 <span class="hljs-keyword">const</span> uiState = <span class="hljs-keyword">new</span> UIState();
 
 uiState.on( <span class="hljs-string">'change'</span>, () =&gt; {
+    <span class="hljs-built_in">console</span>.log( <span class="hljs-string">'Something is changed'</span> );
+    updateUI();
+});
+
+uiState.users.fetch();
+</code></pre>
+<pre><code class="highlight typescript"><span class="hljs-meta">@define</span> UIState <span class="hljs-keyword">extends</span> Record {
+    <span class="hljs-comment">// For collections and more complex types attribute type must be provided explicitly</span>
+    <span class="hljs-meta">@attr</span>( User.Collection )
+    users : Collection&lt;User&gt;
+
+    <span class="hljs-meta">@attr</span>( User.from( <span class="hljs-string">'users'</span> ) )
+    selectedUser : User
+}
+
+<span class="hljs-keyword">const</span> uiState = <span class="hljs-keyword">new</span> UIState();
+
+uiState.on( <span class="hljs-string">'change'</span>, <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
     <span class="hljs-built_in">console</span>.log( <span class="hljs-string">'Something is changed'</span> );
     updateUI();
 });
@@ -153,6 +190,32 @@ users.first().name = <span class="hljs-string">"John"</span>;
 users.first().email = <span class="hljs-string">"john@ny.com"</span>;
 expect( users.isValid() ).toBe( <span class="hljs-literal">true</span> );
 </code></pre>
+<pre><code class="highlight typescript"><span class="hljs-keyword">const</span> Email = <span class="hljs-keyword">type</span>( <span class="hljs-built_in">String</span> )
+    .check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> !x || x.indexOf( <span class="hljs-string">'@'</span> ) &gt;= <span class="hljs-number">0</span>, <span class="hljs-string">"Doesn't look like an email"</span> );
+
+<span class="hljs-meta">@define</span> User <span class="hljs-keyword">extends</span> Record {
+    <span class="hljs-keyword">static</span> endpoint = restfulIO( <span class="hljs-string">'/api/users'</span> );
+
+    <span class="hljs-comment">// @type(...).as converts Type-R attribute type definition to the TypeScript decorator.</span>
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).required
+    .as name : <span class="hljs-built_in">string</span>
+
+    <span class="hljs-meta">@type</span>( Email ).required
+    .as email : <span class="hljs-built_in">string</span>
+
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">Date</span> ).check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x.getTime() &lt;= <span class="hljs-built_in">Date</span>.now() )
+    .as createdAt : <span class="hljs-built_in">Date</span>
+}
+
+<span class="hljs-keyword">const</span> users = <span class="hljs-keyword">new</span> User.Collection();
+users.add({ email : <span class="hljs-string">'john'</span> });
+expect( users.isValid() ).toBe( <span class="hljs-literal">false</span> );
+expect( users.first().isValid() ).toBe( <span class="hljs-literal">false</span> );
+
+users.first().name = <span class="hljs-string">"John"</span>;
+users.first().email = <span class="hljs-string">"john@ny.com"</span>;
+expect( users.isValid() ).toBe( <span class="hljs-literal">true</span> );
+</code></pre>
 <h2 id="installation-and-requirements">Installation and requirements</h2>
 <p>Is packed as UMD and ES6 module. No peer dependencies are required.</p>
 <p><code>npm install type-r --save-dev</code></p>
@@ -168,6 +231,9 @@ expect( users.isValid() ).toBe( <span class="hljs-literal">true</span> );
 <li>Hassle-free form validation (due to the combination of features of Type-R and NestedLink).</li>
 <li><a href="https://volicon.github.io/Type-R/#definition">Type-R type annotation</a> used to define component <a href="https://volicon.github.io/React-MVx/#props">props</a> and <a href="https://volicon.github.io/React-MVx/#context">context</a>.</li>
 </ul>
+<h2 id="usage-with-nodejs">Usage with NodeJS</h2>
+<p>Type-R can be used at the server side to build the business logic layer by defining the custom I/O endpoints to store data in database. Type-R dynamic type safety features are particularly advantageous when schema-less JSON databases (like Couchbase) are being used.</p>
+<p><img src="images/3-layer-server.png" alt="server"></p>
 <h2 id="how-type-r-compares-to-x-">How Type-R compares to X?</h2>
 <p>Type-R (former &quot;NestedTypes&quot;) project was started in 2014 in Volicon as a modern successor to BackboneJS models, which would match Ember Data in its capabilities to work with a complex state, while retaining the BackboneJS simplicity, modularity, and the some degree of backward API compatibility. It replaced BackboneJS in the model layer, and it was the key technology in Volicon&#39;s strategy to gradually move from BackboneJS Views to React in the view layer.</p>
 <p><a href="https://guides.emberjs.com/v2.2.0/models/">Ember Data</a> is the closest thing to Type-R by its capabilities, with <a href="http://backbonejs.org/#Model">BackboneJS models and collections</a> being the closest thing by the API and the general spirit, and <a href="https://github.com/mobxjs/mobx">mobx</a> being pretty close in the way how the UI state is managed.</p>

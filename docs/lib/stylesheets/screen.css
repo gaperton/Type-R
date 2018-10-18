@@ -373,7 +373,7 @@ html, body {
 }
 
 .tocify-wrapper .lang-selector {
-    display: none
+    display: inline-block;
 }
 
 .tocify-wrapper .lang-selector a {
