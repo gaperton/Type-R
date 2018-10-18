@@ -29,9 +29,9 @@ search: true
 
 ## Overview
 
-Type-R is the JS model framework helping to define and manage the complex application state as a combination of reusable parts. Type-R cover the needs of business logic and data layers in 3-tier application architecture, provinding the presentation layer with the unified technique to handle the UI and domain state. Type-R data structures looks and feels (and, in some aspects, behaves) more like classes in the statically typed languages.
+Type-R is the JS model framework helping to define and manage the complex application state as a combination of reusable parts. Type-R cover the needs of business logic and data layers in 3-tier application architecture, providing the presentation layer with the unified technique to handle the UI and domain state. Type-R data structures look and feel (and, in some aspects, behaves) more like classes in the statically typed languages.
 
-Type-R in unopinionated on the way how an application state should be managed ("single source of truth" or "distributed state"). It can support all approaches equally well being not dependent on singletons and having the powerful capabilities for state synchronization.
+Type-R in unopinionated on the way how an application state should be managed ("single source of truth" or "distributed state"). It can support all approaches equally well being not dependent on singletons and having powerful capabilities for state synchronization.
 
 ![overview](images/3-layer-client.png)
 
