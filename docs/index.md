@@ -45,7 +45,33 @@ Record attributes may have custom validation rules attached to them. Validation 
 
 All aspects of record behavior including serialization and validation can be controlled on attribute level with declarative definitions combining attribute types with metadata. Attribute definitions ("metatypes") can be reused across different models forming the domain-specific language of model declarations. Some useful attribute metatypes (`Email`, `Url`, `MicrosoftDate`, etc) are provided by `type-r/ext-types` package.
 
+## How Type-R compares to X?
+
+Type-R (former "NestedTypes") project was started in 2014 in Volicon as a modern successor to BackboneJS models, which would match Ember Data in its capabilities to work with a complex state, while retaining the BackboneJS simplicity, modularity, and the some degree of backward API compatibility. It replaced BackboneJS in the model layer, and it was the key technology in Volicon's strategy to gradually move from BackboneJS Views to React in the view layer.
+
+[Ember Data](https://guides.emberjs.com/v2.2.0/models/) is the closest thing to Type-R by its capabilities, with [BackboneJS models and collections](http://backbonejs.org/#Model) being the closest thing by the API, and [mobx](https://github.com/mobxjs/mobx) being pretty close in the way how the UI state is managed.
+
+Type-R, however, takes very different approach to all of them:
+
+- Type-R models looks and feels more like classes in a statically typed language with the majority of features being controlled by attribute metadata.
+- Type-R is built around the concept of _aggregation trees_ formed by nested records and collections and it knows how to clone, serialize, and validate complex objects with cross-references properly.
+- In contract to BackboneJS, Record is _not an object hash_ but the class with statically typed and dynamically checked attributes.
+- In contrast to mobx, Type-R detects _deeply nested changes_.
+- In contrast to Ember Data, Type-R doesn't require the singleton global store. In Type-R, stores are a special kind of records and there might be as many dynamically created and disposed stores as you need, starting with no stores at all.
+
+Feature | Type-R | Backbone Models | Ember Data | mobx
+-|-|-|-|-
+Observable changes in object graph | ✓ | - | - | ✓
+JSON Serialization | ✓ | ✓ | ✓ | -
+Validation | ✓ | ✓ | ✓ | -
+Dynamic Type Safety | ✓ | - | for serialization only | -
+Aggregation | ✓ | - | - | -
+Relations by id | ✓ | - | ✓ | - 
+Generalized I/O | ✓ | sync function | ✓ | - 
+
 ## Features by example
+
+Here's the brief overview of features groped by application purpose.
 
 ### Persistent domain state
 
@@ -222,27 +248,3 @@ Type-R can be used at the server side to build the business logic layer by defin
 
 ![server](images/3-layer-server.png)
 
-## How Type-R compares to X?
-
-Type-R (former "NestedTypes") project was started in 2014 in Volicon as a modern successor to BackboneJS models, which would match Ember Data in its capabilities to work with a complex state, while retaining the BackboneJS simplicity, modularity, and the some degree of backward API compatibility. It replaced BackboneJS in the model layer, and it was the key technology in Volicon's strategy to gradually move from BackboneJS Views to React in the view layer.
-
-[Ember Data](https://guides.emberjs.com/v2.2.0/models/) is the closest thing to Type-R by its capabilities, with [BackboneJS models and collections](http://backbonejs.org/#Model) being the closest thing by the API and the general spirit, and [mobx](https://github.com/mobxjs/mobx) being pretty close in the way how the UI state is managed.
-
-Type-R, however, takes very different approach to all three of them:
-
-- Type-R distinguishes aggregation and the object references being built on the concept of _aggregation trees_ formed by nested records and collections. Operations like `clone()`, `dispose()`, `isValid()` and `toJSON()` are performed recursively on elements of aggregation tree gracefully handling the references to shared objects.
-- In contract to BackboneJS, Record is _not an object hash_ but the class with statically typed and dynamically checked attributes.
-- In contrast to mobx, Type-R detects _deeply nested changes_.
-- In contrast to Ember Data, Type-R is built around the concept of aggregation trees and self-contained data structures, and it doesn't require the singleton global store.
-- Type-R is one of very few data frameworks where the store is not required to be a singleton. In Type-R, stores are a special kind of records. There might be as many dynamically created and disposed stores as you need, starting with no stores at all.
-- In contrast to all of them, Type-R models looks and feels more like classes in the statically typed language.
-
-Feature | Type-R | Backbone Models | Ember Data | mobx
--|-|-|-|-
-Observable changes in object graph | ✓ | - | - | ✓
-JSON Serialization | ✓ | ✓ | ✓ | -
-Validation | ✓ | ✓ | ✓ | -
-Dynamic Type Safety | ✓ | - | for serialization only | -
-Aggregation | ✓ | - | - | -
-Relations by id | ✓ | - | ✓ | - 
-Generalized I/O | ✓ | sync function | ✓ | - 

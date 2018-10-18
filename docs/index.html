@@ -87,7 +87,81 @@
 <p>Record may have an associated IOEndpont representing the I/O protocol for CRUD and collection fetch operations which enables the persistence API for the particual record/collection class pair. Some useful endpoints (<code>restfulIO</code>, <code>localStorageIO</code>, etc) are provided by <code>type-r/endpoints/*</code> packages, and developers can define their own I/O endpoints implementing any particular persistence transport or API.</p>
 <p>Record attributes may have custom validation rules attached to them. Validation is being triggered transparently on demand and its result is cached across the record/collection aggregation tree, making subsequent calls to the validation API extremily cheap.</p>
 <p>All aspects of record behavior including serialization and validation can be controlled on attribute level with declarative definitions combining attribute types with metadata. Attribute definitions (&quot;metatypes&quot;) can be reused across different models forming the domain-specific language of model declarations. Some useful attribute metatypes (<code>Email</code>, <code>Url</code>, <code>MicrosoftDate</code>, etc) are provided by <code>type-r/ext-types</code> package.</p>
+<h2 id="how-type-r-compares-to-x-">How Type-R compares to X?</h2>
+<p>Type-R (former &quot;NestedTypes&quot;) project was started in 2014 in Volicon as a modern successor to BackboneJS models, which would match Ember Data in its capabilities to work with a complex state, while retaining the BackboneJS simplicity, modularity, and the some degree of backward API compatibility. It replaced BackboneJS in the model layer, and it was the key technology in Volicon&#39;s strategy to gradually move from BackboneJS Views to React in the view layer.</p>
+<p><a href="https://guides.emberjs.com/v2.2.0/models/">Ember Data</a> is the closest thing to Type-R by its capabilities, with <a href="http://backbonejs.org/#Model">BackboneJS models and collections</a> being the closest thing by the API, and <a href="https://github.com/mobxjs/mobx">mobx</a> being pretty close in the way how the UI state is managed.</p>
+<p>Type-R, however, takes very different approach to all of them:</p>
+<ul>
+<li>Type-R models looks and feels more like classes in a statically typed language with the majority of features being controlled by attribute metadata.</li>
+<li>Type-R is built around the concept of <em>aggregation trees</em> formed by nested records and collections and it knows how to clone, serialize, and validate complex objects with cross-references properly.</li>
+<li>In contract to BackboneJS, Record is <em>not an object hash</em> but the class with statically typed and dynamically checked attributes.</li>
+<li>In contrast to mobx, Type-R detects <em>deeply nested changes</em>.</li>
+<li>In contrast to Ember Data, Type-R doesn&#39;t require the singleton global store. In Type-R, stores are a special kind of records and there might be as many dynamically created and disposed stores as you need, starting with no stores at all.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Type-R</th>
+<th>Backbone Models</th>
+<th>Ember Data</th>
+<th>mobx</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Observable changes in object graph</td>
+<td>✓</td>
+<td>-</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>JSON Serialization</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Validation</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Dynamic Type Safety</td>
+<td>✓</td>
+<td>-</td>
+<td>for serialization only</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Aggregation</td>
+<td>✓</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Relations by id</td>
+<td>✓</td>
+<td>-</td>
+<td>✓</td>
+<td>- </td>
+</tr>
+<tr>
+<td>Generalized I/O</td>
+<td>✓</td>
+<td>sync function</td>
+<td>✓</td>
+<td>- </td>
+</tr>
+</tbody>
+</table>
 <h2 id="features-by-example">Features by example</h2>
+<p>Here&#39;s the brief overview of features groped by application purpose.</p>
 <h3 id="persistent-domain-state">Persistent domain state</h3>
 <p>The basic building block is the <code>Record</code> class. To fetch data from the server, a developer creates the subclass of the <code>Record</code> describing its attribute types and attaches the <code>restfulIO</code> endpoint. It enables the persistence API allowing the developer to fetch the collection from the server. <code>restfulIO</code> expects the server to implement the standard RESTful API expected by BackboneJS models.</p>
 <ul>
@@ -234,80 +308,6 @@ expect( users.isValid() ).toBe( <span class="hljs-literal">true</span> );
 <h2 id="usage-with-nodejs">Usage with NodeJS</h2>
 <p>Type-R can be used at the server side to build the business logic layer by defining the custom I/O endpoints to store data in database. Type-R dynamic type safety features are particularly advantageous when schema-less JSON databases (like Couchbase) are being used.</p>
 <p><img src="images/3-layer-server.png" alt="server"></p>
-<h2 id="how-type-r-compares-to-x-">How Type-R compares to X?</h2>
-<p>Type-R (former &quot;NestedTypes&quot;) project was started in 2014 in Volicon as a modern successor to BackboneJS models, which would match Ember Data in its capabilities to work with a complex state, while retaining the BackboneJS simplicity, modularity, and the some degree of backward API compatibility. It replaced BackboneJS in the model layer, and it was the key technology in Volicon&#39;s strategy to gradually move from BackboneJS Views to React in the view layer.</p>
-<p><a href="https://guides.emberjs.com/v2.2.0/models/">Ember Data</a> is the closest thing to Type-R by its capabilities, with <a href="http://backbonejs.org/#Model">BackboneJS models and collections</a> being the closest thing by the API and the general spirit, and <a href="https://github.com/mobxjs/mobx">mobx</a> being pretty close in the way how the UI state is managed.</p>
-<p>Type-R, however, takes very different approach to all three of them:</p>
-<ul>
-<li>Type-R distinguishes aggregation and the object references being built on the concept of <em>aggregation trees</em> formed by nested records and collections. Operations like <code>clone()</code>, <code>dispose()</code>, <code>isValid()</code> and <code>toJSON()</code> are performed recursively on elements of aggregation tree gracefully handling the references to shared objects.</li>
-<li>In contract to BackboneJS, Record is <em>not an object hash</em> but the class with statically typed and dynamically checked attributes.</li>
-<li>In contrast to mobx, Type-R detects <em>deeply nested changes</em>.</li>
-<li>In contrast to Ember Data, Type-R is built around the concept of aggregation trees and self-contained data structures, and it doesn&#39;t require the singleton global store.</li>
-<li>Type-R is one of very few data frameworks where the store is not required to be a singleton. In Type-R, stores are a special kind of records. There might be as many dynamically created and disposed stores as you need, starting with no stores at all.</li>
-<li>In contrast to all of them, Type-R models looks and feels more like classes in the statically typed language.</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>Feature</th>
-<th>Type-R</th>
-<th>Backbone Models</th>
-<th>Ember Data</th>
-<th>mobx</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Observable changes in object graph</td>
-<td>✓</td>
-<td>-</td>
-<td>-</td>
-<td>✓</td>
-</tr>
-<tr>
-<td>JSON Serialization</td>
-<td>✓</td>
-<td>✓</td>
-<td>✓</td>
-<td>-</td>
-</tr>
-<tr>
-<td>Validation</td>
-<td>✓</td>
-<td>✓</td>
-<td>✓</td>
-<td>-</td>
-</tr>
-<tr>
-<td>Dynamic Type Safety</td>
-<td>✓</td>
-<td>-</td>
-<td>for serialization only</td>
-<td>-</td>
-</tr>
-<tr>
-<td>Aggregation</td>
-<td>✓</td>
-<td>-</td>
-<td>-</td>
-<td>-</td>
-</tr>
-<tr>
-<td>Relations by id</td>
-<td>✓</td>
-<td>-</td>
-<td>✓</td>
-<td>- </td>
-</tr>
-<tr>
-<td>Generalized I/O</td>
-<td>✓</td>
-<td>sync function</td>
-<td>✓</td>
-<td>- </td>
-</tr>
-</tbody>
-</table>
 
 <h1 id="record">Record</h1>
 <p>Record is the serializable class with typed attributes, observable changes, and custom validation checks. It is the main building block for managing the application state; component local state, stores, and collection elements are all subclasses of the <code>Record</code>.</p>
