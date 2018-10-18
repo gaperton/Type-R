@@ -160,6 +160,14 @@ expect( users.isValid() ).toBe( <span class="hljs-literal">true</span> );
 
 <aside class="warning">IE9 and Opera may work but has not been tested. IE8 won't work.</aside>
 
+<h2 id="reactjs-bindings">ReactJS bindings</h2>
+<p><a href="https://volicon.github.io/React-MVx/">React-MVx</a> is an glue framework which uses Type-R to manage the UI state in React and the <a href="https://github.com/Volicon/NestedLink">NestedLink</a> library to implement two-way data binding. React-MVx provides the complete MVVM solution on top of ReactJS, featuring:</p>
+<ul>
+<li>Type-R <a href="https://volicon.github.io/Type-R/#record">Record</a> to manage the local <a href="https://volicon.github.io/React-MVx/#state">component&#39;s state</a>.</li>
+<li><a href="https://volicon.github.io/React-MVx/#link">two-way data binding</a> for UI and domain state.</li>
+<li>Hassle-free form validation (due to the combination of features of Type-R and NestedLink).</li>
+<li><a href="https://volicon.github.io/Type-R/#definition">Type-R type annotation</a> used to define component <a href="https://volicon.github.io/React-MVx/#props">props</a> and <a href="https://volicon.github.io/React-MVx/#context">context</a>.</li>
+</ul>
 <h2 id="how-type-r-compares-to-x-">How Type-R compares to X?</h2>
 <p>Type-R (former &quot;NestedTypes&quot;) project was started in 2014 in Volicon as a modern successor to BackboneJS models, which would match Ember Data in its capabilities to work with a complex state, while retaining the BackboneJS simplicity, modularity, and the some degree of backward API compatibility. It replaced BackboneJS in the model layer, and it was the key technology in Volicon&#39;s strategy to gradually move from BackboneJS Views to React in the view layer.</p>
 <p><a href="https://guides.emberjs.com/v2.2.0/models/">Ember Data</a> is the closest thing to Type-R by its capabilities, with <a href="http://backbonejs.org/#Model">BackboneJS models and collections</a> being the closest thing by the API and the general spirit, and <a href="https://github.com/mobxjs/mobx">mobx</a> being pretty close in the way how the UI state is managed.</p>
@@ -1556,18 +1564,59 @@ Store.global = <span class="hljs-keyword">new</span> MyStore();
 <h3 id="recordorcollection-clone-pinstore-true-">recordOrCollection.clone({ pinStore : true })</h3>
 <p>Make the cloned object to preserve the reference to its original store.</p>
 <p>Cloned objects don&#39;t have an owner by default, thus they loose the reference to their store as no ownership chain can be traversed. <code>pinStore</code> option should be used in such a cases.</p>
-<h1 id="reactjs-bindings">ReactJS bindings</h1>
-<p><a href="https://volicon.github.io/React-MVx/">React-MVx</a> is an MVVM application frameworks which uses Type-R to manage a multi-layer application state.</p>
-<ul>
-<li>React-MVx adds <a href="https://volicon.github.io/React-MVx/#link">two-way data binding</a> capabilities to both Record and Collection. Data-binding is based on the <a href="https://medium.com/@gaperton/managing-state-and-forms-with-react-part-1-12eacb647112">&quot;value link&quot; pattern</a> and implemented with Link class from <a href="https://github.com/Volicon/NestedLink">NestedLink</a> library taking the value and validation error directly from the Record.</li>
-<li><a href="https://volicon.github.io/Type-R/#record">Record</a> class is used to manage <a href="https://volicon.github.io/React-MVx/#state">component&#39;s state</a>.</li>
-<li>The subset of the <a href="https://volicon.github.io/Type-R/#definition">Record attributes type annotation</a> is used to define component <a href="https://volicon.github.io/React-MVx/#props">props</a> and <a href="https://volicon.github.io/React-MVx/#context">context</a>.</li>
-<li><a href="https://volicon.github.io/Type-R/#store">Store</a> class is used to represent <a href="https://volicon.github.io/React-MVx/#store">component&#39;s store</a> (also called &quot;local store&quot;), which is typically used in the root component of SPA page associated with a route. The state of the children components uses upper component&#39;s stores to resolve id-references.</li>
-<li>Type-R <a href="https://volicon.github.io/Type-R/#-static-store-global">global store</a> may be used as a store for the data shared by application pages. This store is used to resolve id-references in case if local stores lookup failed.</li>
-</ul>
-<aside class="warning">
-The meaning of the Store in Type-R and React-Mvx is very different to that in other frameworks. The sole reason you need the store is to have collections of records which are being used to resolve id-references. If you don't have <a href="https://volicon.github.io/Type-R/#normalized-data">id-references</a> in JSON, you don't need stores. Use state instead.
-</aside><h1 id="class-definitions-and-mixins">Class definitions and mixins</h1>
+<h1 id="tools">Tools</h1>
+<h2 id="logging">Logging</h2>
+<p>Type-r doesn&#39;t attempt to manage logs. Instead, it treat logs as an event stream and uses the <code>logger</code> singleton as a log router.</p>
+<p>By default, the <code>logger</code> has the default listener writing events to the console.</p>
+<h3 id="log-level-topic-msg-props-">log( level, topic, msg, props? )</h3>
+<p>Method used to trigger the log event. Same as <code>logger.trigger( level, topic, msg, props? )</code>.</p>
+<p>The <code>level</code> corresponds to the logging methods of the <code>console</code> object: <code>error</code>, <code>warn</code>, <code>info</code>, <code>log</code>, <code>debug</code>.</p>
+<p><code>topic</code> is the short string used to denote the log source source and functional area. Type-R topics are prefixed with <code>TR</code>, and looks like <code>TR:TypeError</code>.
+If you want to use Type-R</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { log } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
+
+log( <span class="hljs-string">'error'</span>, <span class="hljs-string">'client-api:users'</span>, <span class="hljs-string">'No user with the given id'</span>, { user } );
+</code></pre>
+<h3 id="logger-off-">logger.off()</h3>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { logger } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
+
+<span class="hljs-comment">// Remove all the listeners</span>
+logger.off();
+
+<span class="hljs-comment">// Remove specific log level listeners (corresponds to the console methods, like console.log, console.warn, etc)</span>
+logger.off( <span class="hljs-string">'warn'</span> );
+</code></pre>
+<h3 id="logger-throwon-level-">logger.throwOn( level )</h3>
+<p>Sometimes (for instance, in a test suite) developer would like Type-R to throw exceptions on type errors instead of the console warnings.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { logger } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
+
+logger.off().throwOn( <span class="hljs-string">'error'</span> ).throwOn( <span class="hljs-string">'warn'</span> );
+</code></pre>
+<p>Or, there might be a need to throw exceptions on error in the specific situation (e.g. throw if the incoming HTTP request is not valid to respond with 500 HTTP code).</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { Logger } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
+
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">processRequest</span>(<span class="hljs-params"> ... </span>)</span>{
+    <span class="hljs-comment">// Create an empty logger</span>
+    <span class="hljs-keyword">const</span> logger = <span class="hljs-keyword">new</span> Logger();
+
+    <span class="hljs-comment">// Tell it to throw exceptions.</span>
+    logger.throwOn( <span class="hljs-string">'error'</span> ).throwOn( <span class="hljs-string">'warn'</span> );
+
+    <span class="hljs-comment">// Override the default logger with option. Constructor will throw on error or warning.</span>
+    <span class="hljs-keyword">const</span> request = <span class="hljs-keyword">new</span> RequestBody( json, { <span class="hljs-attr">parse</span> : <span class="hljs-literal">true</span>, logger });
+    ...
+}
+</code></pre>
+<h3 id="logger-on-level-handler-">logger.on( level, handler )</h3>
+<p>Type-R log message is the regular event. It&#39;s easy to attach custom listeners to integrate third-party log management libraries.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { logger } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
+
+logger
+    .off()
+    .on( <span class="hljs-string">'error'</span>, ( topic, msg, props ) =&gt; {
+        <span class="hljs-comment">// Log errors with bunyan</span>
+    } );
+</code></pre>
 <h2 id="class-definitions">Class Definitions</h2>
 <p>Type-R mechanic is based on class transformations at the moment of module load. These transformations are controlled by <em>definitions</em> in static class members.</p>
 <h3 id="decorator-definitions-propname-rule-"><code>decorator</code> @definitions({ propName : <code>rule</code>, ... })</h3>

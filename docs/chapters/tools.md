@@ -1,4 +1,79 @@
-# Class definitions and mixins
+# Tools
+
+## Logging
+
+Type-r doesn't attempt to manage logs. Instead, it treat logs as an event stream and uses the `logger` singleton as a log router.
+
+By default, the `logger` has the default listener writing events to the console.
+
+### log( level, topic, msg, props? )
+
+Method used to trigger the log event. Same as `logger.trigger( level, topic, msg, props? )`.
+
+The `level` corresponds to the logging methods of the `console` object: `error`, `warn`, `info`, `log`, `debug`.
+
+`topic` is the short string used to denote the log source source and functional area. Type-R topics are prefixed with `TR`, and looks like `TR:TypeError`.
+If you want to use Type-R
+
+```javascript
+import { log } from 'type-r'
+
+log( 'error', 'client-api:users', 'No user with the given id', { user } );
+```
+
+### logger.off()
+
+```javascript
+import { logger } from 'type-r'
+
+// Remove all the listeners
+logger.off();
+
+// Remove specific log level listeners (corresponds to the console methods, like console.log, console.warn, etc)
+logger.off( 'warn' );
+```
+
+### logger.throwOn( level )
+
+Sometimes (for instance, in a test suite) developer would like Type-R to throw exceptions on type errors instead of the console warnings.
+
+```javascript
+import { logger } from 'type-r'
+
+logger.off().throwOn( 'error' ).throwOn( 'warn' );
+```
+
+Or, there might be a need to throw exceptions on error in the specific situation (e.g. throw if the incoming HTTP request is not valid to respond with 500 HTTP code).
+
+```javascript
+import { Logger } from 'type-r'
+
+async function processRequest( ... ){
+    // Create an empty logger
+    const logger = new Logger();
+
+    // Tell it to throw exceptions.
+    logger.throwOn( 'error' ).throwOn( 'warn' );
+
+    // Override the default logger with option. Constructor will throw on error or warning.
+    const request = new RequestBody( json, { parse : true, logger });
+    ...
+}
+```
+
+### logger.on( level, handler )
+
+Type-R log message is the regular event. It's easy to attach custom listeners to integrate third-party log management libraries.
+
+```javascript
+import { logger } from 'type-r'
+
+logger
+    .off()
+    .on( 'error', ( topic, msg, props ) => {
+        // Log errors with bunyan
+    } );
+```
 
 ## Class Definitions
 
@@ -132,8 +207,6 @@ It calls static `onExtend( BaseClass )` function if it's defined. It assumes tha
 Finalized the class definition started with `@predefine` decorator. Has the same effect as the `@define` decorator excepts it assumes that `Class.onExtend()` static function was called already.
 
 ## Mixins
-
-
 
 ### `decorator` @mixins( mixinA, mixinB, ... ) class X ...
 

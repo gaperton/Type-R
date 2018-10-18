@@ -15,8 +15,7 @@ includes:
   - observable
   - validation
   - io
-  - react-binding
-  - mixins
+  - tools
   - releasenotes
 
 search: true
@@ -138,6 +137,15 @@ Is packed as UMD and ES6 module. No peer dependencies are required.
 <aside class="success">IE10+, Edge, Safari, Chrome, and Firefox are supported</aside>
 
 <aside class="warning">IE9 and Opera may work but has not been tested. IE8 won't work.</aside>
+
+## ReactJS bindings
+
+[React-MVx](https://volicon.github.io/React-MVx/) is an glue framework which uses Type-R to manage the UI state in React and the [NestedLink](https://github.com/Volicon/NestedLink) library to implement two-way data binding. React-MVx provides the complete MVVM solution on top of ReactJS, featuring:
+
+- Type-R [Record](https://volicon.github.io/Type-R/#record) to manage the local [component's state](https://volicon.github.io/React-MVx/#state).
+- [two-way data binding](https://volicon.github.io/React-MVx/#link) for UI and domain state.
+- Hassle-free form validation (due to the combination of features of Type-R and NestedLink).
+- [Type-R type annotation](https://volicon.github.io/Type-R/#definition) used to define component [props](https://volicon.github.io/React-MVx/#props) and [context](https://volicon.github.io/React-MVx/#context).
 
 ## How Type-R compares to X?
 
