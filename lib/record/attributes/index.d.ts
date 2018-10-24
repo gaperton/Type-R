@@ -1,10 +1,5 @@
-import { AnyType } from './any';
 export * from './any';
-export * from './attrDef';
 export * from './basic';
 export * from './date';
-export * from './mixin';
 export * from './owned';
 export * from './shared';
-export * from './updates';
-export declare function createSharedTypeSpec(Constructor: Function, Attribute: typeof AnyType): void;

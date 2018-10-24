@@ -1,6 +1,6 @@
 import { TransactionOptions } from '../../transactions';
 import { AnyType } from './any';
-import { AttributesContainer } from './updates';
+import { AttributesContainer } from '../updates';
 export declare class PrimitiveType extends AnyType {
     type: NumberConstructor | StringConstructor | BooleanConstructor;
     dispose(): void;

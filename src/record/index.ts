@@ -1,10 +1,13 @@
 import { predefine, tools } from '../object-plus';
 import { Transactional } from '../transactions';
-import { createAttributesMixin, AggregatedType, ChainableAttributeSpec, createSharedTypeSpec, SharedType, type } from './attributes';
+import { ChainableAttributeSpec, createSharedTypeSpec, type } from './attrDef';
+import { AggregatedType, SharedType } from './attributes';
+import { createAttributesMixin } from './mixin';
 import { Record, RecordDefinition } from './record';
 
-
 export * from './attributes';
+export * from './attrDef'
+
 export { Record };
 
 const { assign, defaults, omit, getBaseClass } = tools;

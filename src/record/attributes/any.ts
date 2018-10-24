@@ -1,7 +1,7 @@
 import { IOEndpoint } from '../../io-tools';
 import { LogLevel, tools, Logger } from '../../object-plus';
 import { TransactionOptions } from '../../transactions';
-import { AttributesContainer, AttributeUpdatePipeline, RecordTransaction, setAttribute } from './updates';
+import { AttributesContainer, AttributeUpdatePipeline, RecordTransaction, setAttribute } from '../updates';
 
 const { notEqual, assign} = tools;
 

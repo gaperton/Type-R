@@ -6,7 +6,7 @@
 
 import { TransactionOptions } from '../../transactions';
 import { AnyType } from './any';
-import { AttributesContainer } from './updates';
+import { AttributesContainer } from '../updates';
 
 /**
  * Custom class must be immutable class which implements toJSON() method

@@ -1,7 +1,7 @@
 import { ItemsBehavior, Transactional, transactionApi, TransactionOptions } from '../../transactions';
 import { ValidationError } from '../../validation';
 import { AnyType } from './any';
-import { AttributesContainer, ConstructorOptions } from './updates';
+import { AttributesContainer, ConstructorOptions } from '../updates';
 
 const { free, aquire } = transactionApi;
 

@@ -1,7 +1,7 @@
 import { IOEndpoint } from '../../io-tools';
 import { LogLevel, Logger } from '../../object-plus';
 import { TransactionOptions } from '../../transactions';
-import { AttributesContainer, AttributeUpdatePipeline, RecordTransaction } from './updates';
+import { AttributesContainer, AttributeUpdatePipeline, RecordTransaction } from '../updates';
 declare global {
     interface Function {
         _attribute: typeof AnyType;

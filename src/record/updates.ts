@@ -1,5 +1,5 @@
-import { eventsApi, Logger } from '../../object-plus';
-import { Owner, Transaction, Transactional, transactionApi, TransactionOptions } from "../../transactions";
+import { eventsApi } from '../object-plus';
+import { Owner, Transaction, Transactional, transactionApi, TransactionOptions } from "../transactions";
 const { begin : _begin, markAsDirty : _markAsDirty, commit } = transactionApi;
 
 const { trigger3 } = eventsApi;

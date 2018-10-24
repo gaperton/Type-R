@@ -2,10 +2,10 @@
  * Type spec engine. Declare attributes using chainable syntax,
  * and returns object with spec.
  */
-import { IOEndpoint } from '../../io-tools';
-import { definitionDecorator, EventMap, EventsDefinition, tools } from '../../object-plus';
-import { Transactional } from '../../transactions';
-import { AttributeOptions, Parse } from './any';
+import { IOEndpoint } from '../io-tools';
+import { definitionDecorator, EventMap, EventsDefinition, tools } from '../object-plus';
+import { Transactional } from '../transactions';
+import { AttributeOptions, Parse, AnyType } from './attributes';
 import { AttributesContainer } from './updates';
 
 const { assign } = tools;
@@ -182,5 +182,19 @@ function inferType( value : {} ) : Function {
             return void 0;
         case 'object' :
             return value ? <any> value.constructor : void 0;
+    }
+}
+
+export function createSharedTypeSpec( Constructor : Function, Attribute : typeof AnyType ){
+    if( !Constructor.hasOwnProperty( 'shared' ) ){
+        Object.defineProperty( Constructor, 'shared', {
+            get(){
+                return new ChainableAttributeSpec({
+                    value : null,
+                    type : Constructor,
+                    _attribute : Attribute
+                });
+            }
+        });
     }
 }

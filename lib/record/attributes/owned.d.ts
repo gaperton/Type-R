@@ -1,7 +1,7 @@
 import { Transactional, TransactionOptions } from '../../transactions';
 import { ValidationError } from '../../validation';
 import { AnyType } from './any';
-import { AttributesContainer, ConstructorOptions } from './updates';
+import { AttributesContainer, ConstructorOptions } from '../updates';
 export declare class AggregatedType extends AnyType {
     type: typeof Transactional;
     clone(value: Transactional): Transactional;
