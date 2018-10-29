@@ -195,7 +195,7 @@ export function createSharedTypeSpec( Constructor : Function, Attribute : typeof
                 return new ChainableAttributeSpec({
                     value : null,
                     type : Constructor,
-                    _attribute : Attribute
+                    _metatype : Attribute
                 });
             }
         });

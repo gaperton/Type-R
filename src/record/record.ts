@@ -54,7 +54,7 @@ export interface RecordDefinition extends TransactionalDefinition {
     idAttribute : mixinRules.protoValue
 })
 export class Record extends Transactional implements IORecord, AttributesContainer {
-    static _attribute = AggregatedType;
+    static _metatype = AggregatedType;
 
     // Hack
     static onDefine( definition, BaseClass ){}

@@ -9,7 +9,7 @@ export type Transform = ( this : AnyType, next : any, prev : any, record : Attri
 export type ChangeHandler = ( this : AnyType, next : any, prev : any, record : AttributesContainer, options : TransactionOptions ) => void;
 
 export interface AttributeOptions {
-    _attribute? : typeof AnyType
+    _metatype? : typeof AnyType
     validate? : ( record : AttributesContainer, value : any, key : string ) => any
     isRequired? : boolean
     changeEvents? : boolean

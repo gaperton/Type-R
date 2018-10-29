@@ -28,7 +28,7 @@ function defineSubsetCollection( CollectionConstructor : typeof Collection ) {
         refs : any[];
         resolvedWith : Collection = null;
 
-        _attribute : AggregatedType
+        _metatype : AggregatedType
 
         get __inner_state__(){ return this.refs || this.models; }
 

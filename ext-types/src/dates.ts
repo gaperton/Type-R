@@ -19,7 +19,7 @@ export class MicrosoftDateType extends DateType {
 
 export const MicrosoftDate = new ChainableAttributeSpec({
     type      : Date,
-    _attribute: MicrosoftDateType
+    _metatype: MicrosoftDateType
 })
 
 export const Timestamp = type( Date ).toJSON( x => x && x.getTime() );

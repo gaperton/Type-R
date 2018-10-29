@@ -5,7 +5,7 @@ import { AttributesContainer, AttributeUpdatePipeline, RecordTransaction } from 
 export declare type Transform = (this: AnyType, next: any, prev: any, record: AttributesContainer, options: TransactionOptions) => any;
 export declare type ChangeHandler = (this: AnyType, next: any, prev: any, record: AttributesContainer, options: TransactionOptions) => void;
 export interface AttributeOptions {
-    _attribute?: typeof AnyType;
+    _metatype?: typeof AnyType;
     validate?: (record: AttributesContainer, value: any, key: string) => any;
     isRequired?: boolean;
     changeEvents?: boolean;

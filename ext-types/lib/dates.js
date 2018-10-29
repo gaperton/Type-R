@@ -21,7 +21,7 @@ var MicrosoftDateType = (function (_super) {
 export { MicrosoftDateType };
 export var MicrosoftDate = new ChainableAttributeSpec({
     type: Date,
-    _attribute: MicrosoftDateType
+    _metatype: MicrosoftDateType
 });
 export var Timestamp = type(Date).toJSON(function (x) { return x && x.getTime(); });
 //# sourceMappingURL=dates.js.map

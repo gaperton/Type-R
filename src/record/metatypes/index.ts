@@ -8,16 +8,22 @@ export * from './date';
 export * from './owned';
 export * from './shared';
 
+/**
+ * Every record attribute type has the corresponding metatype controlling its behavior.
+ * For built-in types, Type-R uses the predefined list to resolve metatype in order to avoid global objects modifications.
+ * For user-defined types, static `_metatype` constructor member is used.
+ */
+
 const builtins : Function[] = [ String, Number, Boolean, Date, Object, Array, Function ],
       metatypes = [ PrimitiveType, NumericType, PrimitiveType, DateType, ObjectType, ArrayType, FunctionType ];
 
 export function getMetatype( Ctor : Function ){
-    return ( Ctor as any )._attribute || resolveBuiltins( Ctor );
+    return ( Ctor as any )._metatype || resolveBuiltins( Ctor );
 }
 
 AnyType.create = ( options : AttributeOptions, name : string ) => {
     const type = options.type,
-          AttributeCtor = options._attribute || ( type ? getMetatype( type ): AnyType );
+          AttributeCtor = options._metatype || ( type ? getMetatype( type ): AnyType );
 
     return new AttributeCtor( name, options );
 }

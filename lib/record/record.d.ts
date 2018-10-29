@@ -16,7 +16,7 @@ export interface RecordDefinition extends TransactionalDefinition {
     Collection?: typeof Transactional;
 }
 export declare class Record extends Transactional implements IORecord, AttributesContainer {
-    static _attribute: typeof AggregatedType;
+    static _metatype: typeof AggregatedType;
     static onDefine(definition: any, BaseClass: any): void;
     static Collection: typeof Collection;
     static DefaultCollection: typeof Collection;

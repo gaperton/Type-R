@@ -75,7 +75,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
         Mixable.mixins.populate( RefsCollection );
         
         RefsCollection.prototype = this.prototype;
-        RefsCollection._attribute = CollectionRefsType;
+        RefsCollection._metatype = CollectionRefsType;
 
         this.Refs = this.Subset = <any>RefsCollection;
 
@@ -477,7 +477,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
         }
     }
 
-    static _attribute = AggregatedType;
+    static _metatype = AggregatedType;
 
     /***********************************
      * Collection manipulation methods

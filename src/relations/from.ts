@@ -43,7 +43,7 @@ Record.from = function from( masterCollection : CollectionReference ) : Chainabl
 
     const typeSpec = new ChainableAttributeSpec({
         value : null,
-        _attribute : RecordRefType
+        _metatype : RecordRefType
     });
     
     return typeSpec
