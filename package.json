@@ -56,6 +56,7 @@
     "jest": "^23.6.0",
     "marked": "^0.3.19",
     "nock": "^9.6.1",
+    "node-qunit": "^1.0.0",
     "reflect-metadata": "^0.1.12",
     "rollup": "^0.66.6",
     "rollup-plugin-commonjs": "^9.2.0",

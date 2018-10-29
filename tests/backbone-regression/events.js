@@ -1,6 +1,4 @@
-(function() {
-
-  QUnit.module("Backbone.Events");
+QUnit.module("Backbone.Events");
 
   QUnit.test("on and trigger", function(assert) {
     assert.expect(2);
@@ -110,7 +108,7 @@
 
     obj.off().on({
         a: function() {
-            strictEqual(this, context, 'will not override explicit `context` param');
+            assert.strictEqual(this, context, 'will not override explicit `context` param');
         }
     }, this, context).trigger('a');
   });
@@ -682,5 +680,3 @@
     two.trigger('y', 2);
     two.trigger('y', 2);
   });
-
-})();
