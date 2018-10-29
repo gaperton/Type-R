@@ -15,7 +15,7 @@ export interface CollectionDefinition extends TransactionalDefinition {
     itemEvents?: EventsDefinition;
     _itemEvents?: EventMap;
 }
-export declare class Collection<R extends Record = Record> extends Transactional implements CollectionCore {
+export declare class Collection<R extends Record = Record> extends Transactional implements CollectionCore, Iterable<R> {
     _shared: number;
     _aggregationError: R[];
     static Subset: typeof Collection;
@@ -39,6 +39,9 @@ export declare class Collection<R extends Record = Record> extends Transactional
     get(objOrId: string | R | Object): R;
     each(iteratee: (val: R, key: number) => void, context?: any): void;
     forEach(iteratee: (val: R, key?: number) => void, context?: any): void;
+    [Symbol.iterator](): IterableIterator<R>;
+    values(): IterableIterator<R>;
+    entries(): IterableIterator<[number, R]>;
     every(iteratee: Predicate<R>, context?: any): boolean;
     filter(iteratee: Predicate<R>, context?: any): R[];
     find(iteratee: Predicate<R>, context?: any): R;

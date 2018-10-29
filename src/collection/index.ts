@@ -47,7 +47,7 @@ class CollectionRefsType extends SharedType {
     model : mixinRules.protoValue,
     itemEvents : mixinRules.merge
 })
-export class Collection< R extends Record = Record> extends Transactional implements CollectionCore {
+export class Collection< R extends Record = Record> extends Transactional implements CollectionCore, Iterable<R> {
     _shared : number
     _aggregationError : R[]
 
@@ -192,6 +192,18 @@ export class Collection< R extends Record = Record> extends Transactional implem
 
     forEach( iteratee : ( val : R, key? : number ) => void, context? : any ){
         return this.each( iteratee, context );
+    }
+    
+    [ Symbol.iterator ]() : IterableIterator<R> {
+        return this.models[ Symbol.iterator ]();
+    }
+
+    values() : IterableIterator<R> {
+        return this.models[ Symbol.iterator ]();
+    }
+
+    entries() : IterableIterator<[ number, R ]>{
+        return this.models.entries();
     }
 
     every( iteratee : Predicate<R>, context? : any ) : boolean {
@@ -608,5 +620,4 @@ function toPredicateFunction<R>( iteratee : Predicate<R>, context : any ){
     }
     
     return bindContext( iteratee, context );
-
 }

@@ -330,4 +330,52 @@ describe( 'Record', () =>{
             } );
         } );
     } );
+
+    describe( 'Iterables', () => {
+        @define class Person extends Record {
+            @attr name : string
+            @attr email : string
+        }
+
+        it( 'can iterate through collections', ()=>{
+            const persons = new Person.Collection<Person>([ { name : "1" } , { name : "2" }]);
+            let counter = 0;
+
+            for( let rec of persons ){
+                expect( rec.name ).toBe( String( ++counter ) ) ;
+            }
+        });
+
+        it( 'can iterate through collections.values', ()=>{
+            const persons = new Person.Collection<Person>([ { name : "1" } , { name : "2" }]);
+
+            expect( persons.values().next().value.name ).toBe( "1" );
+        });
+
+        it( 'can iterate through collections.entries', ()=>{
+            const persons = new Person.Collection<Person>([ { name : "1" } , { name : "2" }]);
+
+            expect( persons.entries().next().value[ 1 ].name ).toBe( "1" );
+        });
+
+
+        it( 'can iterate through records', ()=>{
+            const persons = new Person({ name : "1", email : "2", id : "3" });
+            let counter = 0;
+
+            for( let [ name, value ] of persons ){
+                expect( persons[ name ] ).toBeTruthy;
+                expect( value ).toBe( String( ++counter ) ) ;
+            }
+        });
+
+        it( 'can iterate through records entries', ()=>{
+            const person = new Person({ name : "1", email : "2" }),
+                  entries = person.entries();
+
+            expect( entries.next().value[ 1 ] ).toBe( String( "1" ) ) ;
+            expect( entries.next().value[ 0 ] ).toBe( "email" ) ;
+        });
+
+    });
 } );

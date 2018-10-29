@@ -53,7 +53,7 @@ export interface RecordDefinition extends TransactionalDefinition {
     Collection : mixinRules.value,
     idAttribute : mixinRules.protoValue
 })
-export class Record extends Transactional implements IORecord, AttributesContainer {
+export class Record extends Transactional implements IORecord, AttributesContainer, Iterable<any> {
     static _metatype = AggregatedType;
 
     // Hack
@@ -245,6 +245,14 @@ export class Record extends Transactional implements IORecord, AttributesContain
             const value = attributes[ key ];
             if( value !== void 0 ) fun( value, key );
         }
+    }
+
+    [ Symbol.iterator ](){
+        return new RecordEntriesIterator( this );
+    }
+
+    entries(){
+        return new RecordEntriesIterator( this );
     }
 
     // Get array of attribute keys (Record) or record ids (Collection) 
@@ -495,5 +503,21 @@ function typeCheck( record : Record, values : object, options ){
         if( unknown ){
             unknownAttrsWarning( record, unknown, { values }, options );
         }
+    }
+}
+
+export class RecordEntriesIterator implements Iterator<[string, any]> {
+    private idx = 0;
+    
+    constructor( private readonly record : Record){}
+
+    next() : IteratorResult<[string, any]> {
+        const { record } = this,
+            metatype = record._attributesArray[ this.idx++ ];
+
+        return {
+            done : !metatype,
+            value : metatype ? [ metatype.name, record[ metatype.name ] ] : void 0
+        };
     }
 }

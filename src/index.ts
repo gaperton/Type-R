@@ -1,5 +1,8 @@
-// Polyfill for IE10. Should fix problems with babel and statics inheritance.
-// Exported module itself is the global event bus.
+// Dummy polyfill to prevent exception in IE.
+if( typeof Symbol === 'undefined' ){
+    Object.defineProperty( window, 'Symbol', { value : { iterator : 'Symbol.iterator' }, configurable : true  });
+}
+
 import { define, Events, Mixable as Class } from './object-plus/';
 // Define synonims for NestedTypes backward compatibility.
 import { ChainableAttributeSpec, Record as Model } from './record';

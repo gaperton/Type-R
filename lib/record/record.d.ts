@@ -15,7 +15,7 @@ export interface RecordDefinition extends TransactionalDefinition {
     collection?: object;
     Collection?: typeof Transactional;
 }
-export declare class Record extends Transactional implements IORecord, AttributesContainer {
+export declare class Record extends Transactional implements IORecord, AttributesContainer, Iterable<any> {
     static _metatype: typeof AggregatedType;
     static onDefine(definition: any, BaseClass: any): void;
     static Collection: typeof Collection;
@@ -52,6 +52,8 @@ export declare class Record extends Transactional implements IORecord, Attribute
     AttributesCopy: AttributesCopyConstructor;
     forEachAttr(attrs: {}, iteratee: (value: any, key?: string, spec?: AnyType) => void): void;
     each(iteratee: (value?: any, key?: string) => void, context?: any): void;
+    [Symbol.iterator](): RecordEntriesIterator;
+    entries(): RecordEntriesIterator;
     keys(): string[];
     values(): any[];
     defaults(values?: {}): {};
@@ -72,4 +74,10 @@ export declare class Record extends Transactional implements IORecord, Attribute
     _createTransaction(values: object, options: TransactionOptions): Transaction;
     forceAttributeChange: (key: string, options: TransactionOptions) => void;
     _onChildrenChange: (child: Transactional, options: TransactionOptions) => void;
+}
+export declare class RecordEntriesIterator implements Iterator<[string, any]> {
+    private readonly record;
+    private idx;
+    constructor(record: Record);
+    next(): IteratorResult<[string, any]>;
 }
