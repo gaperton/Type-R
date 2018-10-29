@@ -1,5 +1,5 @@
-# Deprecated features list
+# Type-R tests suite
 
-- .trigger( "a b c ") is deprecated.
-- 'replace:attr' event is deprecated.
-- Array attribute casts wrong types to an empty array, and prints the warning.
+- `./*.test.ts` - Modern TypeScript tests written with JEST.
+- `backbone-regression` - QUnit tests suite from BackboneJS (Events, Model, Collection). Can be run from the browser and console.
+- `nestedtypes-regression` - Mocha regression tests being run from the console with JEST.
