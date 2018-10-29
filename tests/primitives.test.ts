@@ -360,11 +360,12 @@ describe( 'Record', () =>{
 
 
         it( 'can iterate through records', ()=>{
-            const persons = new Person({ name : "1", email : "2" });
+            const persons = new Person({ name : "1", email : "2", id : "3" });
             let counter = 0;
 
-            for( let attr of persons ){
-                expect( attr ).toBe( String( ++counter ) ) ;
+            for( let [ name, value ] of persons ){
+                expect( persons[ name ] ).toBeTruthy;
+                expect( value ).toBe( String( ++counter ) ) ;
             }
         });
 

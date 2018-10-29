@@ -248,7 +248,7 @@ export class Record extends Transactional implements IORecord, AttributesContain
     }
 
     [ Symbol.iterator ](){
-        return new RecordValIterator( this );
+        return new RecordEntriesIterator( this );
     }
 
     entries(){
@@ -507,41 +507,17 @@ function typeCheck( record : Record, values : object, options ){
 }
 
 export class RecordEntriesIterator implements Iterator<[string, any]> {
-    private readonly keys : string[];
     private idx = 0;
     
-    constructor( private readonly record : Record){
-        this.keys = record.keys();
-    }
+    constructor( private readonly record : Record){}
 
     next() : IteratorResult<[string, any]> {
-        const { keys, record, idx } = this,
-            done = idx === keys.length;
-        
-        if( done ) return { done, value : void 0 };
-
-        this.idx++;        
-
-        const key = keys[ idx ];
+        const { record } = this,
+            metatype = record._attributesArray[ this.idx++ ];
 
         return {
-            done,
-            value : [ key, record[ key ] ]
-        }
-    }        
-}
-
-export class RecordValIterator implements Iterator<any>{
-    private entries : RecordEntriesIterator;
-
-    constructor( record : Record){
-        this.entries = new RecordEntriesIterator( record )
-    }
-
-    next() : IteratorResult<any> {
-        const { done, value } = this.entries.next();
-        return done
-            ? { done, value }
-            : { done, value: value[ 1 ] }
+            done : !metatype,
+            value : metatype ? [ metatype.name, record[ metatype.name ] ] : void 0
+        };
     }
 }

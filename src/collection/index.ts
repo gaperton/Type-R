@@ -194,13 +194,17 @@ export class Collection< R extends Record = Record> extends Transactional implem
         return this.each( iteratee, context );
     }
     
-    [ Symbol.iterator ]() : CollectionValIterator<R>{
-        return new CollectionValIterator<R>( this );
+    [ Symbol.iterator ]() : IterableIterator<R> {
+        return this.models[ Symbol.iterator ]();
     }
 
-    values(){ return new CollectionValIterator<R>( this ); }
+    values() : IterableIterator<R> {
+        return this.models[ Symbol.iterator ]();
+    }
 
-    entries(){ return new CollectionEntryIterator<R>( this ); }
+    entries() : IterableIterator<[ number, R ]>{
+        return this.models.entries();
+    }
 
     every( iteratee : Predicate<R>, context? : any ) : boolean {
         const fun = toPredicateFunction( iteratee, context ),
@@ -616,40 +620,4 @@ function toPredicateFunction<R>( iteratee : Predicate<R>, context : any ){
     }
     
     return bindContext( iteratee, context );
-
-}
-
-export class CollectionEntryIterator<R extends Record> implements Iterator<[ number, R ]> {
-    private idx = 0;
-    private models : R[]
-
-    constructor( collection : Collection<R> ) {
-        this.models = collection.models;
-    }
-
-    next() : IteratorResult<[ number, R ]> {
-        const {models, idx} = this;
-
-        if( idx === models.length ) return {done: true, value: void 0};
-
-        this.idx++;
-
-        return {done: false, value: [ idx, models[ idx ] ]};
-    }
-}
-
-export class CollectionValIterator<R extends Record> implements Iterator<R> {
-
-    private entries : CollectionEntryIterator<R>
-
-    constructor( collection : Collection<R> ) {
-        this.entries = new CollectionEntryIterator( collection )
-    }
-
-    next() : IteratorResult<R> {
-        const { done, value } = this.entries.next();
-        return done
-            ? { done, value: void 0 }
-            : { done, value: value[ 1 ] }
-    }
 }

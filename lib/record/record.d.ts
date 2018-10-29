@@ -52,7 +52,7 @@ export declare class Record extends Transactional implements IORecord, Attribute
     AttributesCopy: AttributesCopyConstructor;
     forEachAttr(attrs: {}, iteratee: (value: any, key?: string, spec?: AnyType) => void): void;
     each(iteratee: (value?: any, key?: string) => void, context?: any): void;
-    [Symbol.iterator](): RecordValIterator;
+    [Symbol.iterator](): RecordEntriesIterator;
     entries(): RecordEntriesIterator;
     keys(): string[];
     values(): any[];
@@ -77,13 +77,7 @@ export declare class Record extends Transactional implements IORecord, Attribute
 }
 export declare class RecordEntriesIterator implements Iterator<[string, any]> {
     private readonly record;
-    private readonly keys;
     private idx;
     constructor(record: Record);
     next(): IteratorResult<[string, any]>;
-}
-export declare class RecordValIterator implements Iterator<any> {
-    private entries;
-    constructor(record: Record);
-    next(): IteratorResult<any>;
 }
