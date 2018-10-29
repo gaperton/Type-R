@@ -2,9 +2,13 @@
 
 ## 3.0.0
 
+Starting from version 3.X, Type-R does not modify built-in global JS objects. New `type(T)` attribute definition notation is introduced to replace `T.has.`
+
+`type-r/globals` package provides 100% backward compatibility with a version 2.X `T.has` API, allowing a gradual migration to the `type(T)`.
+
 ### Breaking changes
 
-Type-R does not modify built-in global objects starting from version 3. Following attribute types moved to the `type-r/ext-types` package:
+Following attribute types moved to the `type-r/ext-types` package:
 
 - `Date.timestamp` -> `import { Timestamp } from 'type-r/ext-types'`
 - `Date.microsoft` -> `import { MicrosoftDate } from 'type-r/ext-types'`

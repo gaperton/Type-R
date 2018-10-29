@@ -1,6 +1,6 @@
 {
   "name": "type-r",
-  "version": "3.0.0",
+  "version": "3.0.0-a01",
   "description": "Reactive serializable data layer for modern JS applications",
   "main": "./dist/index.js",
   "jsnext:main": "./lib/index.js",
@@ -25,6 +25,8 @@
     "test": "npm run test:backbone && npm run test:type-r",
     "build": "npm run build:lib && npm run build:endpoints && npm run build:ext-types && npm run build:globals && npm test",
     "docs": "node docs/build.js",
+    "publish:alpha" : "npm publish --tag alpha",
+    "publish:beta" : "npm publish --tag beta",
     "build:endpoints": "cd endpoints/attributes && npm run build && cd ../localStorage && npm run build && cd ../memory && npm run build && cd ../restful && npm run build && cd ../proxy && npm run build",
     "build:ext-types": "cd ext-types && npm run build",
     "build:globals": "cd globals && npm run build"

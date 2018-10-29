@@ -79,8 +79,8 @@
         <div class="content">
           <h1 id="getting-started">Getting started</h1>
 <h2 id="overview">Overview</h2>
-<p>Type-R is the JS model framework helping to define and manage the complex application state as a combination of reusable parts. Type-R cover the needs of business logic and data layers in 3-tier application architecture, provinding the presentation layer with the unified technique to handle the UI and domain state. Type-R data structures looks and feels (and, in some aspects, behaves) more like classes in the statically typed languages.</p>
-<p>Type-R in unopinionated on the way how an application state should be managed (&quot;single source of truth&quot; or &quot;distributed state&quot;). It can support all approaches equally well being not dependent on singletons and having the powerful capabilities for state synchronization.</p>
+<p>Type-R is the JS model framework helping to define and manage the complex application state as a combination of reusable parts. Type-R cover the needs of business logic and data layers in 3-tier application architecture, providing the presentation layer with the unified technique to handle the UI and domain state. Type-R data structures look and feel (and, in some aspects, behaves) more like classes in the statically typed languages.</p>
+<p>Type-R in unopinionated on the way how an application state should be managed (&quot;single source of truth&quot; or &quot;distributed state&quot;). It can support all approaches equally well being not dependent on singletons and having powerful capabilities for state synchronization.</p>
 <p><img src="images/3-layer-client.png" alt="overview"></p>
 <p>State is defined as a superposition of typed records and collections. Record is a class with known set of attributes of predefined types possibly holding other records and collections in its attributes, describing the data structure of an arbitrary complexity. Record with its attributes forms an aggregation tree with deeply observable attributes changes. Attribute types are checked on assignments and invalid changes are being rejected, therefore it is guaranteed that the application state will preserve the valid shape.</p>
 <p>Application state defined with Type-R is serializable to JSON by default. Aggregation tree of records and collections is mapped in JSON as a tree of plain objects and arrays. Normalized data represented as a set of collections of records cross-referencing each other are supported as first-class serialization scenario.</p>
@@ -1850,8 +1850,10 @@ x.componentWillMount();
 <p>Same as <code>every</code>, but return true when at least one function from mixins returns true.</p>
 <h1 id="release-notes">Release Notes</h1>
 <h2 id="3-0-0">3.0.0</h2>
+<p>Starting from version 3.X, Type-R does not modify built-in global JS objects. New <code>type(T)</code> attribute definition notation is introduced to replace <code>T.has.</code></p>
+<p><code>type-r/globals</code> package provides 100% backward compatibility with a version 2.X <code>T.has</code> API, allowing a gradual migration to the <code>type(T)</code>.</p>
 <h3 id="breaking-changes">Breaking changes</h3>
-<p>Type-R does not modify built-in global objects starting from version 3. Following attribute types moved to the <code>type-r/ext-types</code> package:</p>
+<p>Following attribute types moved to the <code>type-r/ext-types</code> package:</p>
 <ul>
 <li><code>Date.timestamp</code> -&gt; <code>import { Timestamp } from &#39;type-r/ext-types&#39;</code></li>
 <li><code>Date.microsoft</code> -&gt; <code>import { MicrosoftDate } from &#39;type-r/ext-types&#39;</code></li>
