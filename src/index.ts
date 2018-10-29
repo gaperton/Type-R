@@ -1,41 +1,27 @@
-// Polyfill for IE10. Should fix problems with babel and statics inheritance.
-import { tools } from './object-plus'
-
-declare global {
-    interface ObjectConstructor {
-        setPrototypeOf( target : Object, proto : Object );
-    }
-}
-
 // Dummy polyfill to prevent exception in IE.
 if( typeof Symbol === 'undefined' ){
     Object.defineProperty( window, 'Symbol', { value : { iterator : 'Symbol.iterator' }, configurable : true  });
 }
 
-Object.setPrototypeOf || ( Object.setPrototypeOf = tools.defaults );
+import { define, Events, Mixable as Class } from './object-plus/';
+// Define synonims for NestedTypes backward compatibility.
+import { ChainableAttributeSpec, Record as Model } from './record';
 
 /**
  * Export everything 
  */
+export * from './collection';
+export * from './io-tools';
+export * from './object-plus';
+export * from './record';
+export * from './relations';
+export * from './transactions';
+export { Model, Class };
 
-export * from './object-plus'
-export * from './collection'
-export * from './relations'
-export * from './record'
-export * from './transactions'
 
-export * from './io-tools'
-
-// Exported module itself is the global event bus.
-import { Events } from './object-plus/'
 export const { on, off, trigger, once, listenTo, stopListening, listenToOnce } = <any>Events;
 
-import { Collection } from './collection'
 
-// Define synonims for NestedTypes backward compatibility.
-import { Record as Model } from './record' 
-import { define, Mixable as Class } from './object-plus/'
-export { Model, Class };
 
 export function attributes( attrDefs ) : typeof Model {
     @define class DefaultRecord extends Model {
@@ -45,7 +31,6 @@ export function attributes( attrDefs ) : typeof Model {
     return DefaultRecord;
 }
 
-import { ChainableAttributeSpec } from './record'
 
 /** Typeless attribute declaration with default value. */ 
 export function value( x : any ) : ChainableAttributeSpec {

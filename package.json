@@ -1,6 +1,6 @@
 {
   "name": "type-r",
-  "version": "2.1.5",
+  "version": "3.0.0-a01",
   "description": "Reactive serializable data layer for modern JS applications",
   "main": "./dist/index.js",
   "jsnext:main": "./lib/index.js",
@@ -10,7 +10,8 @@
     "dist",
     "lib",
     "src",
-    "endpoints"
+    "endpoints",
+    "ext-types"
   ],
   "directories": {
     "test": "tests"
@@ -19,14 +20,16 @@
     "build:lib": "npm run compile:lib && npm run bundle:lib",
     "compile:lib": "node_modules/.bin/tsc",
     "bundle:lib": "node_modules/.bin/rollup --config",
-    "test": "npm run build:test && npm run run:test",
-    "build": "npm run build:lib && npm run build:endpoints && npm test",
+    "test:backbone":"node_modules/.bin/qunit 'tests/backbone-regression/*.tst.js'",
+    "test:type-r": "node_modules/.bin/jest",
+    "test": "npm run test:backbone && npm run test:type-r",
+    "build": "npm run build:lib && npm run build:endpoints && npm run build:ext-types && npm run build:globals && npm test",
     "docs": "node docs/build.js",
-    "run:test": "node_modules/.bin/mocha tests/nestedtypes/functionality && node_modules/.bin/mocha tests/typescript/dist",
+    "publish:alpha" : "npm publish --tag alpha",
+    "publish:beta" : "npm publish --tag beta",
     "build:endpoints": "cd endpoints/attributes && npm run build && cd ../localStorage && npm run build && cd ../memory && npm run build && cd ../restful && npm run build && cd ../proxy && npm run build",
-    "build:test": "npm run compile:test && npm run bundle:test",
-    "compile:test": "cd tests/typescript && ../../node_modules/.bin/tsc",
-    "bundle:test": "cd tests/typescript && ../../node_modules/.bin/rollup --config"
+    "build:ext-types": "cd ext-types && npm run build",
+    "build:globals": "cd globals && npm run build"
   },
   "repository": {
     "type": "git",
@@ -50,31 +53,28 @@
   },
   "homepage": "https://github.com/gaperton/TransactionalJS#readme",
   "devDependencies": {
-    "@types/chai": "^4.1.2",
-    "@types/mocha": "^2.2.48",
-    "@types/sinon-chai": "^2.7.29",
-    "chai": "^4.1.2",
-    "chai-as-promised": "*",
-    "handlebars": "^4.0.11",
-    "highlight.js": "^9.12.0",
+    "@types/jest": "^23.3.8",
+    "handlebars": "^4.0.12",
+    "highlight.js": "^9.13.1",
     "isomorphic-fetch": "^2.2.1",
+    "jest": "^23.6.0",
     "marked": "^0.3.19",
-    "mocha": "^3.5.3",
-    "nock": "^9.2.5",
+    "nock": "^9.6.1",
+    "qunit": "^2.7.1",
     "reflect-metadata": "^0.1.12",
-    "rollup": "^0.50.1",
-    "rollup-plugin-commonjs": "^8.4.1",
-    "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup": "^0.66.6",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "*",
     "rollup-plugin-paths": "*",
-    "rollup-plugin-sourcemaps": "^0.4.2",
-    "rollup-plugin-uglify": "^2.0.1",
-    "sinon": "*",
-    "sinon-chai": "^3.0.0",
-    "ts-node": "^3.3.0",
-    "typescript": "^2.8.1",
+    "rollup-plugin-sourcemaps": "*",
+    "rollup-plugin-uglify": "^6.0.0",
+    "sinon": "^6.3.5",
+    "sinon-chai": "^3.2.0",
+    "ts-jest": "^23.10.4",
+    "typescript": "^3.1.3",
     "underscore": "*"
   },
   "dependencies": {
-    "tslib": "^1.9.0"
+    "tslib": "*"
   }
 }

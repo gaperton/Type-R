@@ -1,16 +1,16 @@
-import { define, tools, eventsApi, EventMap, definitions, mixinRules, EventsDefinition, Mixable } from '../object-plus'
-import { ItemsBehavior, transactionApi, Transactional, CloneOptions, Transaction, TransactionOptions, TransactionalDefinition, Owner } from '../transactions'
-import { Record, SharedType, AggregatedType, createSharedTypeSpec } from '../record'
+import { IOPromise, startIO } from '../io-tools';
+import { define, definitions, EventMap, eventsApi, EventsDefinition, LogLevel, Mixable, mixinRules, tools, Logger, logger } from '../object-plus';
+import { AggregatedType, createSharedTypeSpec, Record, SharedType } from '../record';
+import { CloneOptions, ItemsBehavior, Transactional, TransactionalDefinition, transactionApi, TransactionOptions } from '../transactions';
+import { AddOptions, addTransaction } from './add';
+import { CollectionCore, CollectionTransaction, Elements, free, sortElements, updateIndex } from './commons';
+import { removeMany, removeOne } from './remove';
+import { emptySetTransaction, setTransaction } from './set';
 
-import { IdIndex, free, sortElements, dispose, Elements, CollectionCore, addIndex, removeIndex, updateIndex, Comparator, CollectionTransaction } from './commons'
-import { addTransaction, AddOptions } from './add'
-import { setTransaction, emptySetTransaction } from './set'
-import { removeOne, removeMany } from './remove'
-import { IOPromise, startIO } from '../io-tools'
 
-const { trigger2, on, off } = eventsApi,
+const { trigger2 } = eventsApi,
     { begin, commit, markAsDirty } = transactionApi,
-    { omit, log, assign, defaults, assignToClassProto } = tools;
+    { assign, defaults } = tools;
 
 let _count = 0;
 
@@ -75,7 +75,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
         Mixable.mixins.populate( RefsCollection );
         
         RefsCollection.prototype = this.prototype;
-        RefsCollection._attribute = CollectionRefsType;
+        RefsCollection._metatype = CollectionRefsType;
 
         this.Refs = this.Subset = <any>RefsCollection;
 
@@ -112,7 +112,6 @@ export class Collection< R extends Record = Record> extends Transactional implem
     _byId : { [ id : string ] : R }
 
     set comparator( x : GenericComparator ){
-        let compare;
 
         switch( typeof x ){
             case 'string' :
@@ -215,8 +214,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
     }
 
     filter( iteratee : Predicate<R>, context? : any ) : R[] {
-        const fun = toPredicateFunction( iteratee, context ),
-            { models } = this;
+        const fun = toPredicateFunction( iteratee, context );
 
         return this.map( ( x, i ) => fun( x, i ) ? x : void 0 );
     }
@@ -328,14 +326,14 @@ export class Collection< R extends Record = Record> extends Transactional implem
         return copy;
     }
 
-    toJSON() : Object[] {
-        return this.models.map( model => model.toJSON() );
+    toJSON( options? : object ) : any {
+        return this.models.map( model => model.toJSON( options ) );
     }
 
     // Apply bulk in-place object update in scope of ad-hoc transaction 
     set( elements : ElementsArg = [], options : TransactionOptions = {} ) : this {
         if( (<any>options).add !== void 0 ){
-            this._log( 'warn', "Collection.set doesn't support 'add' option, behaving as if options.add === true.", options );
+            this._log( 'warn', "Type-R:InvalidOption", "Collection.set doesn't support 'add' option, behaving as if options.add === true.", options );
         }
 
         // Handle reset option here - no way it will be populated from the top as nested transaction.
@@ -487,7 +485,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
         }
     }
 
-    static _attribute = AggregatedType;
+    static _metatype = AggregatedType;
 
     /***********************************
      * Collection manipulation methods
@@ -574,8 +572,8 @@ export class Collection< R extends Record = Record> extends Transactional implem
         return next;
     }
 
-    _log( level : tools.LogLevel, text : string, value ) : void {
-        tools.log( level, `[Collection Update] ${ this.model.prototype.getClassName() }.${ this.getClassName() }: ` + text, {
+    _log( level : LogLevel, topic : string, text : string, value : object, a_logger? : Logger ) : void {
+        ( a_logger || logger ).trigger( level, topic, `${ this.model.prototype.getClassName() }.${ this.getClassName() }: ` + text, {
             Argument : value,
             'Attributes spec' : this.model.prototype._attributes
         });

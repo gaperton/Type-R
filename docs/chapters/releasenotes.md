@@ -1,5 +1,34 @@
 # Release Notes
 
+## 3.0.0
+
+Starting from version 3.X, Type-R does not modify built-in global JS objects. New `type(T)` attribute definition notation is introduced to replace `T.has.`
+
+`type-r/globals` package provides 100% backward compatibility with a version 2.X `T.has` API, allowing a gradual migration to the `type(T)`.
+
+### Breaking changes
+
+Following attribute types moved to the `type-r/ext-types` package:
+
+- `Date.timestamp` -> `import { Timestamp } from 'type-r/ext-types'`
+- `Date.microsoft` -> `import { MicrosoftDate } from 'type-r/ext-types'`
+- global `Integer` and `Number.integer` -> `import { Integer } from 'type-r/ext-types'`
+
+Function extensions used for attribute annotations are deprecated.
+
+- `Constructor.has` -> `type( Constructor )`
+- `Constructor.value( default )` -> `type( Constructor ).value( default )`
+- `Constructor.isRequired` -> `type( Constructor ).required`
+
+There's `type-r/globals` package for old code compatibility, which must be imported once with `import 'type-r/globals'`.
+You're advised to use new syntax for any new work.
+
+### New features
+
+- New logger which easy to override or turn off.
+- Improved error messages.
+- New TypeScript friendly `type( T )` attribute metadata notation.
+
 ## 2.1.0
 
 This release adds long-awaited HTTP REST endpoint.
@@ -57,14 +86,14 @@ store.fetch().then( () =>{
 });
 ```
 
-It's possible to define or override the defined endpoint for the nested model or collection using `has.endpoint` type-R attribute annotation.
+It's possible to define or override the defined endpoint for the nested model or collection using `type().endpoint()` type-R attribute annotation.
 
 ```javascript
 @define class PageStore extends Store {
     static endpoint = attributesIO();
     static attributes = {
-        users : User.Collection.has.endpoint( restful( '/api/users' ) ),
-        roles : UserRole.Collection.has.endpoint( restful( '/api/userroles' ) ),
+        users : type( User.Collection ).endpoint( restful( '/api/users' ) ),
+        roles : type( UserRole.Collection ).endpoint( restful( '/api/userroles' ) ),
         ...
     }
 }
@@ -123,6 +152,6 @@ In this example, all of the methods defined in the mixin, base class, and subcla
 ### Other changes
 
 - Update pipeline was rewritten to improve record's initialization speed (collection's fetch speed is improved by 30%).
-- Fixed bug which case dynamic type checks to be disabled in records constructors.
+- Fixed bug causing dynamic type checks to be disabled in records constructors.
 - New implementation of the `Collection.subsetOf` which both fixes some edge case bugs and is more efficient.
 - New logger handling NODE_ENV variable setting.

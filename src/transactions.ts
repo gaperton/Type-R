@@ -1,10 +1,9 @@
-import { Messenger, CallbacksByEvents, MessengersByCid, MixinsState, MixinMergeRules, MessengerDefinition, tools, mixins, mixinRules, definitions, eventsApi, define, Subclass } from './object-plus'
-import { ValidationError, Validatable, ChildrenErrors } from './validation'
-import { Traversable, resolveReference } from './traversable'
-import { IOEndpoint, IOPromise, IONode, abortIO } from './io-tools'
+import { abortIO, IOEndpoint, IONode, IOPromise } from './io-tools';
+import { CallbacksByEvents, define, definitions, eventsApi, Messenger, MessengerDefinition, MessengersByCid, mixinRules, mixins, MixinsState, log, LogLevel, Logger } from './object-plus';
+import { resolveReference, Traversable } from './traversable';
+import { ChildrenErrors, Validatable, ValidationError } from './validation';
 
-const { assign } = tools,
-      { trigger2, trigger3, on, off } = eventsApi;
+const { trigger3, on, off } = eventsApi;
 /***
  * Abstract class implementing ownership tree, tho-phase transactions, and validation. 
  * 1. createTransaction() - apply changes to an object tree, and if there are some events to send, transaction object is created.
@@ -206,7 +205,7 @@ export abstract class Transactional implements Messenger, IONode, Validatable, T
     parse( data : any, options? : TransactionOptions ) : any { return data }
 
     // Convert object to the serializable JSON structure
-    abstract toJSON() : {}
+    abstract toJSON( options? : object ) : {}
 
     /*******************
      * Traversals and member access
@@ -335,7 +334,7 @@ export abstract class Transactional implements Messenger, IONode, Validatable, T
     }
 
     // Logging interface for run time errors and warnings.
-    abstract _log( level : string, text : string, value : any ) : void;
+    abstract _log( level : LogLevel, topic : string, text : string, value : any, logger? : Logger ) : void
 }
 
 export interface CloneOptions {
@@ -368,6 +367,9 @@ export interface Transaction {
 export interface TransactionOptions {
     // Invoke parsing 
     parse? : boolean
+
+    // Optional logger
+    logger? : Logger
 
     // Suppress change notifications and update triggers
     silent? : boolean

@@ -1,9 +1,9 @@
-import { tools, EventMap, EventsDefinition } from '../object-plus';
-import { Transactional, CloneOptions, TransactionOptions, TransactionalDefinition } from '../transactions';
-import { Record, AggregatedType } from '../record';
-import { CollectionCore, CollectionTransaction } from './commons';
-import { AddOptions } from './add';
 import { IOPromise } from '../io-tools';
+import { EventMap, EventsDefinition, LogLevel, Logger } from '../object-plus';
+import { AggregatedType, Record } from '../record';
+import { CloneOptions, Transactional, TransactionalDefinition, TransactionOptions } from '../transactions';
+import { AddOptions } from './add';
+import { CollectionCore, CollectionTransaction } from './commons';
 export declare type GenericComparator = string | ((x: Record) => number) | ((a: Record, b: Record) => number);
 export interface CollectionOptions extends TransactionOptions {
     comparator?: GenericComparator;
@@ -39,7 +39,7 @@ export declare class Collection<R extends Record = Record> extends Transactional
     get(objOrId: string | R | Object): R;
     each(iteratee: (val: R, key: number) => void, context?: any): void;
     forEach(iteratee: (val: R, key?: number) => void, context?: any): void;
-    [ Symbol.iterator ](): CollectionValIterator<R>;
+    [Symbol.iterator](): CollectionValIterator<R>;
     values(): CollectionValIterator<R>;
     entries(): CollectionEntryIterator<R>;
     every(iteratee: Predicate<R>, context?: any): boolean;
@@ -57,7 +57,7 @@ export declare class Collection<R extends Record = Record> extends Transactional
     last(): R;
     at(a_index: number): R;
     clone(options?: CloneOptions): this;
-    toJSON(): Object[];
+    toJSON(options?: object): any;
     set(elements?: ElementsArg, options?: TransactionOptions): this;
     liveUpdates(enabled: LiveUpdatesOption): IOPromise<this>;
     _liveUpdates: object;
@@ -69,7 +69,7 @@ export declare class Collection<R extends Record = Record> extends Transactional
     add(a_elements: ElementsArg, options?: AddOptions): Record[];
     remove(recordsOrIds: any, options?: CollectionOptions): R[] | R;
     _createTransaction(a_elements: ElementsArg, options?: TransactionOptions): CollectionTransaction | void;
-    static _attribute: typeof AggregatedType;
+    static _metatype: typeof AggregatedType;
     pluck(key: keyof R): any[];
     sort(options?: TransactionOptions): this;
     push(model: ElementsArg, options: CollectionOptions): Record[];
@@ -81,7 +81,7 @@ export declare class Collection<R extends Record = Record> extends Transactional
     indexOf(modelOrId: any): number;
     modelId(attrs: {}): any;
     toggle(model: R, a_next?: boolean): boolean;
-    _log(level: tools.LogLevel, text: string, value: any): void;
+    _log(level: LogLevel, topic: string, text: string, value: object, a_logger?: Logger): void;
     getClassName(): string;
 }
 export declare type LiveUpdatesOption = boolean | ((x: any) => boolean);

@@ -1,4 +1,4 @@
-import { Transactional, Transaction, TransactionOptions, Owner } from "../../transactions";
+import { Owner, Transaction, Transactional, TransactionOptions } from "../../transactions";
 export interface ConstructorsMixin {
     Attributes: AttributesConstructor;
     AttributesCopy: AttributesCopyConstructor;
@@ -30,8 +30,9 @@ export declare const UpdateRecordMixin: {
     forceAttributeChange(key: string, options?: TransactionOptions): void;
     _createTransaction(this: AttributesContainer, a_values: {}, options?: TransactionOptions): Transaction;
 };
+export declare function unknownAttrsWarning(record: AttributesContainer, unknown: string[], props: any, options: any): void;
 export declare function constructorsMixin(attrDefs: AttributesDescriptors): ConstructorsMixin;
-export declare function shouldBeAnObject(record: AttributesContainer, values: object): boolean;
+export declare function shouldBeAnObject(record: AttributesContainer, values: object, options: any): boolean;
 export declare class RecordTransaction implements Transaction {
     object: AttributesContainer;
     isRoot: boolean;

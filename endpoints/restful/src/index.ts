@@ -92,11 +92,11 @@ export class RestfulEndpoint implements IOEndpoint {
     }
 
     protected buildRequestOptions( method : string, options? : RequestInit, body? ) : RequestInit {
-        const mergedOptions : RequestInit = Object.assign( {},
-            RestfulEndpoint.defaultFetchOptions,
-            this.fetchOptions,
-            options
-        );
+        const mergedOptions : RequestInit = {
+            ...RestfulEndpoint.defaultFetchOptions,
+            ...this.fetchOptions,
+            ...options
+        };
 
         const {headers, ...rest}          = mergedOptions,
               resultOptions : RequestInit = {

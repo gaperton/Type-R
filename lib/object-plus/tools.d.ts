@@ -1,13 +1,4 @@
 export declare function defaults<T>(dest: T, ...sources: Object[]): T;
-export declare type Logger = (level: LogLevel, error: string, props?: object) => void;
-export declare type LogLevel = 'none' | 'error' | 'warn' | 'info' | 'debug' | 'log';
-export interface Log extends Logger {
-    level: number;
-    throw: number;
-    stop: number;
-    logger: Logger;
-}
-export declare const log: Log;
 export declare function isValidJSON(value: any): boolean;
 export declare function getBaseClass(Class: Function): any;
 export declare function assignToClassProto<T, K extends keyof T>(Class: any, definition: T, ...names: K[]): void;

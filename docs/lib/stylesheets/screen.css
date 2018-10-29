@@ -367,13 +367,13 @@ html, body {
     left: 0;
     bottom: 0;
     width: 320px;
-    background-color: #393939;
+    background-color: #232729;
     font-size: 13px;
     font-weight: bold
 }
 
 .tocify-wrapper .lang-selector {
-    display: none
+    display: inline-block;
 }
 
 .tocify-wrapper .lang-selector a {

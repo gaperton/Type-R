@@ -3,21 +3,17 @@
  * The root of all definitions. 
  */
 
-import { tools, eventsApi, Mixable, definitions, mixins,  mixinRules, define } from '../object-plus'
+import { Collection } from '../collection';
+import { IOEndpoint, IOPromise } from '../io-tools';
+import { define, definitions, isProduction, Logger, logger, LogLevel, mixinRules, tools } from '../object-plus';
+import { CloneOptions, Owner, Transaction, Transactional, TransactionalDefinition, TransactionOptions } from '../transactions';
+import { ChildrenErrors } from '../validation';
+import { AggregatedType, AnyType } from './metatypes';
+import { IORecord, IORecordMixin } from './io-mixin';
+import { AttributesConstructor, AttributesContainer, AttributesCopyConstructor, AttributesValues, setAttribute, shouldBeAnObject, unknownAttrsWarning, UpdateRecordMixin } from './updates';
 
-import { CloneOptions, Transactional, TransactionalDefinition, Transaction, TransactionOptions, Owner } from '../transactions'
-import { ChildrenErrors } from '../validation'
 
-import { Collection } from '../collection'
-
-import { AnyType, AggregatedType, setAttribute, UpdateRecordMixin, 
-    AttributesValues, AttributesContainer,
-    ConstructorsMixin, AttributesConstructor, AttributesCopyConstructor } from './attributes'
-
-import { IORecord, IORecordMixin } from './io-mixin'
-import { IOPromise, IOEndpoint } from '../io-tools'
-
-const { assign, isEmpty, log } = tools;
+const { assign, isEmpty } = tools;
 
 /*******************************************************
  * Record core implementation
@@ -58,6 +54,8 @@ export interface RecordDefinition extends TransactionalDefinition {
     idAttribute : mixinRules.protoValue
 })
 export class Record extends Transactional implements IORecord, AttributesContainer, Iterable<any> {
+    static _metatype = AggregatedType;
+
     // Hack
     static onDefine( definition, BaseClass ){}
 
@@ -235,9 +233,7 @@ export class Record extends Transactional implements IORecord, AttributesContain
         }
 
         if( unknown ){
-            this._log( 'warn', `attributes ${ unknown.join(', ')} are not defined`,{
-                attributes : attrs
-            } );
+            unknownAttrsWarning( this, unknown, { attributes : attrs }, {} );
         }
     }
 
@@ -273,12 +269,6 @@ export class Record extends Transactional implements IORecord, AttributesContain
         return this.map( value => value );
     }
 
-    // Attributes-level serialization
-    _toJSON(){ return {}; }
-
-    // Attributes-level parse
-    _parse( data ){ return data; }
-
     // Create record default values, optionally augmenting given values.
     defaults( values = {} ){
         const defaults = {},
@@ -305,7 +295,7 @@ export class Record extends Transactional implements IORecord, AttributesContain
         const options = a_options || {},
               values = ( options.parse ? this.parse( a_values, options ) :  a_values ) || {};
 
-        if( log.level > 1 ) typeCheck( this, values );
+        isProduction || typeCheck( this, values, options );
 
         this._previousAttributes = this.attributes = new this.Attributes( this, values, options );
 
@@ -355,14 +345,14 @@ export class Record extends Transactional implements IORecord, AttributesContain
      */
 
     // Default record-level serializer, to be overriden by subclasses 
-    toJSON() : Object {
+    toJSON( options? : object ) : any {
         const json = {};
 
         this.forEachAttr( this.attributes, ( value, key : string, { toJSON } ) =>{
             // If attribute serialization is not disabled, and its value is not undefined...
             if( value !== void 0 ){
                 // ...serialize it according to its spec.
-                const asJson = toJSON.call( this, value, key );
+                const asJson = toJSON.call( this, value, key, options );
 
                 // ...skipping undefined values. Such an attributes are excluded.
                 if( asJson !== void 0 ) json[ key ] = asJson; 
@@ -374,9 +364,11 @@ export class Record extends Transactional implements IORecord, AttributesContain
     
     // Default record-level parser, to be overriden by the subclasses.
     parse( data, options? : TransactionOptions ){
-        // Call dynamically compiled loop-unrolled attribute-level parse function.
-        return this._parse( data );
+        return data;
     }
+
+    // DEPRECATED: Attributes-level parse. Is moved to attribute descriptors.
+    _parse( data ){ return data; }
 
     /**
      * Transactional control
@@ -447,11 +439,11 @@ export class Record extends Transactional implements IORecord, AttributesContain
         super.dispose();
     }
 
-    _log( level : tools.LogLevel, text : string, props : object ) : void {
-        tools.log( level, '[Record] ' + text, {
+    _log( level : LogLevel, topic: string, text : string, props : object, a_logger? : Logger ) : void {
+        ( a_logger || logger ).trigger( level, topic, text, {
+            ...props,
             'Record' : this,
-            'Attributes definition:' : this._attributes,
-            ...props
+            'Attributes definition:' : this._attributes
         });
     }
 
@@ -495,12 +487,9 @@ Record.prototype.AttributesCopy = BaseRecordAttributesCopy;
 const IdAttribute = AnyType.create({ value : void 0 }, 'id' );
 Record.prototype._attributes = { id : IdAttribute };
 Record.prototype._attributesArray = [ IdAttribute ];
-Record._attribute = AggregatedType;
 
-import { shouldBeAnObject } from './attributes'
-
-function typeCheck( record : Record, values : object ){
-    if( shouldBeAnObject( record, values ) ){
+function typeCheck( record : Record, values : object, options ){
+    if( shouldBeAnObject( record, values, options ) ){
         const { _attributes } = record;
         let unknown : string[];
 
@@ -512,7 +501,7 @@ function typeCheck( record : Record, values : object ){
         }
 
         if( unknown ){
-            record._log( 'warn', `undefined attributes ${ unknown.join(', ')} are ignored.`, { values } );
+            unknownAttrsWarning( record, unknown, { values }, options );
         }
     }
 }

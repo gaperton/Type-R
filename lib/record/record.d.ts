@@ -1,10 +1,11 @@
-import { tools } from '../object-plus';
-import { CloneOptions, Transactional, TransactionalDefinition, Transaction, TransactionOptions, Owner } from '../transactions';
-import { ChildrenErrors } from '../validation';
 import { Collection } from '../collection';
-import { AnyType, AttributesValues, AttributesContainer, AttributesConstructor, AttributesCopyConstructor } from './attributes';
+import { IOEndpoint, IOPromise } from '../io-tools';
+import { Logger, LogLevel } from '../object-plus';
+import { CloneOptions, Owner, Transaction, Transactional, TransactionalDefinition, TransactionOptions } from '../transactions';
+import { ChildrenErrors } from '../validation';
+import { AggregatedType, AnyType } from './metatypes';
 import { IORecord } from './io-mixin';
-import { IOPromise, IOEndpoint } from '../io-tools';
+import { AttributesConstructor, AttributesContainer, AttributesCopyConstructor, AttributesValues } from './updates';
 export interface ConstructorOptions extends TransactionOptions {
     clone?: boolean;
 }
@@ -15,6 +16,7 @@ export interface RecordDefinition extends TransactionalDefinition {
     Collection?: typeof Transactional;
 }
 export declare class Record extends Transactional implements IORecord, AttributesContainer, Iterable<any> {
+    static _metatype: typeof AggregatedType;
     static onDefine(definition: any, BaseClass: any): void;
     static Collection: typeof Collection;
     static DefaultCollection: typeof Collection;
@@ -50,12 +52,10 @@ export declare class Record extends Transactional implements IORecord, Attribute
     AttributesCopy: AttributesCopyConstructor;
     forEachAttr(attrs: {}, iteratee: (value: any, key?: string, spec?: AnyType) => void): void;
     each(iteratee: (value?: any, key?: string) => void, context?: any): void;
-    [ Symbol.iterator ](): RecordValIterator;
+    [Symbol.iterator](): RecordValIterator;
     entries(): RecordEntriesIterator;
     keys(): string[];
     values(): any[];
-    _toJSON(): {};
-    _parse(data: any): any;
     defaults(values?: {}): {};
     constructor(a_values?: {}, a_options?: ConstructorOptions);
     initialize(values?: any, options?: any): void;
@@ -63,12 +63,13 @@ export declare class Record extends Transactional implements IORecord, Attribute
     deepClone(): this;
     _validateNested(errors: ChildrenErrors): number;
     get(key: string): any;
-    toJSON(): Object;
+    toJSON(options?: object): any;
     parse(data: any, options?: TransactionOptions): any;
+    _parse(data: any): any;
     deepSet(name: string, value: any, options?: any): this;
     readonly collection: any;
     dispose(): void;
-    _log(level: tools.LogLevel, text: string, props: object): void;
+    _log(level: LogLevel, topic: string, text: string, props: object, a_logger?: Logger): void;
     getClassName(): string;
     _createTransaction(values: object, options: TransactionOptions): Transaction;
     forceAttributeChange: (key: string, options: TransactionOptions) => void;

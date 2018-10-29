@@ -1,14 +1,14 @@
-import { Messenger, CallbacksByEvents, MessengersByCid, MixinsState, MessengerDefinition, eventsApi } from './object-plus';
-import { ValidationError, Validatable, ChildrenErrors } from './validation';
+import { IOEndpoint, IONode, IOPromise } from './io-tools';
+import { CallbacksByEvents, eventsApi, Messenger, MessengerDefinition, MessengersByCid, MixinsState, LogLevel, Logger } from './object-plus';
 import { Traversable } from './traversable';
-import { IOEndpoint, IOPromise, IONode } from './io-tools';
+import { ChildrenErrors, Validatable, ValidationError } from './validation';
 export interface TransactionalDefinition extends MessengerDefinition {
     endpoint?: IOEndpoint;
 }
 export declare enum ItemsBehavior {
     share = 1,
     listen = 2,
-    persistent = 4,
+    persistent = 4
 }
 export declare abstract class Transactional implements Messenger, IONode, Validatable, Traversable {
     static endpoint: IOEndpoint;
@@ -19,10 +19,10 @@ export declare abstract class Transactional implements Messenger, IONode, Valida
     static onDefine(definitions: TransactionalDefinition, BaseClass: typeof Transactional): void;
     static onExtend(BaseClass: typeof Transactional): void;
     static create(a: any, b?: any): Transactional;
-    on: (events: string | CallbacksByEvents, callback, context?) => this;
-    once: (events: string | CallbacksByEvents, callback, context?) => this;
-    off: (events?: string | CallbacksByEvents, callback?, context?) => this;
-    trigger: (name: string, a?, b?, c?, d?, e?) => this;
+    on: (events: string | CallbacksByEvents, callback: any, context?: any) => this;
+    once: (events: string | CallbacksByEvents, callback: any, context?: any) => this;
+    off: (events?: string | CallbacksByEvents, callback?: any, context?: any) => this;
+    trigger: (name: string, a?: any, b?: any, c?: any, d?: any, e?: any) => this;
     stopListening: (source?: Messenger, a?: string | CallbacksByEvents, b?: Function) => this;
     listenTo: (source: Messenger, a: string | CallbacksByEvents, b?: Function) => this;
     listenToOnce: (source: Messenger, a: string | CallbacksByEvents, b?: Function) => this;
@@ -54,7 +54,7 @@ export declare abstract class Transactional implements Messenger, IONode, Valida
     assignFrom(source: Transactional | Object): this;
     abstract _createTransaction(values: any, options?: TransactionOptions): Transaction | void;
     parse(data: any, options?: TransactionOptions): any;
-    abstract toJSON(): {};
+    abstract toJSON(options?: object): {};
     abstract get(key: string): any;
     deepGet(reference: string): any;
     getOwner(): Owner;
@@ -81,7 +81,7 @@ export declare abstract class Transactional implements Messenger, IONode, Valida
     valueOf(): Object;
     toString(): string;
     getClassName(): string;
-    abstract _log(level: string, text: string, value: any): void;
+    abstract _log(level: LogLevel, topic: string, text: string, value: any, logger?: Logger): void;
 }
 export interface CloneOptions {
     pinStore?: boolean;
@@ -97,6 +97,7 @@ export interface Transaction {
 }
 export interface TransactionOptions {
     parse?: boolean;
+    logger?: Logger;
     silent?: boolean;
     merge?: boolean;
     remove?: boolean;

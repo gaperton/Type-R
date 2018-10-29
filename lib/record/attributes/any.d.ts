@@ -1,12 +1,7 @@
-import { AttributesContainer, AttributeUpdatePipeline, RecordTransaction } from './updates';
-import { tools } from '../../object-plus';
-import { TransactionOptions } from '../../transactions';
 import { IOEndpoint } from '../../io-tools';
-declare global  {
-    interface Function {
-        _attribute: typeof AnyType;
-    }
-}
+import { LogLevel, Logger } from '../../object-plus';
+import { TransactionOptions } from '../../transactions';
+import { AttributesContainer, AttributeUpdatePipeline, RecordTransaction } from '../updates';
 export declare type Transform = (this: AnyType, next: any, prev: any, record: AttributesContainer, options: TransactionOptions) => any;
 export declare type ChangeHandler = (this: AnyType, next: any, prev: any, record: AttributesContainer, options: TransactionOptions) => void;
 export interface AttributeOptions {
@@ -32,7 +27,7 @@ export declare type AttributeParse = (value: any, key: string) => any;
 export declare type ChangeAttrHandler = ((value: any, attr: string) => void) | string;
 export declare class AnyType implements AttributeUpdatePipeline {
     name: string;
-    static create(options: AttributeOptions, name: string): AnyType;
+    static create: (options: AttributeOptions, name: string) => AnyType;
     canBeUpdated(prev: any, next: any, options: TransactionOptions): any;
     transform(next: any, prev: any, model: AttributesContainer, options: TransactionOptions): any;
     convert(next: any, prev: any, model: AttributesContainer, options: TransactionOptions): any;
@@ -41,8 +36,8 @@ export declare class AnyType implements AttributeUpdatePipeline {
     create(): any;
     clone(value: any, record: AttributesContainer): any;
     dispose(record: AttributesContainer, value: any): void;
-    validate(record: AttributesContainer, value: any, key: string): void;
-    toJSON(value: any, key: any): any;
+    validate(record: AttributesContainer, value: any, key: string): any;
+    toJSON(value: any, key: any, options?: object): any;
     createPropertyDescriptor(): PropertyDescriptor | void;
     value: any;
     static defaultValue: any;
@@ -52,10 +47,9 @@ export declare class AnyType implements AttributeUpdatePipeline {
     doInit(value: any, record: AttributesContainer, options: TransactionOptions): any;
     doUpdate(value: any, record: AttributesContainer, options: TransactionOptions, nested?: RecordTransaction[]): boolean;
     propagateChanges: boolean;
-    _log(level: tools.LogLevel, text: string, value: any, record: AttributesContainer): void;
+    protected _log(level: LogLevel, code: string, text: string, value: any, record: AttributesContainer, logger: Logger): void;
     defaultValue(): any;
-    parse: Parse;
     constructor(name: string, a_options: AttributeOptions);
-    getHook: (value, key: string) => any;
-    get: (value, key: string) => any;
+    getHook: (value: any, key: string) => any;
+    get: (value: any, key: string) => any;
 }

@@ -3,7 +3,7 @@
 Record is the serializable class with typed attributes, observable changes, and custom validation checks. It is the main building block for managing the application state; component local state, stores, and collection elements are all subclasses of the `Record`.
 
 ```javascript
-import { define, Record } from 'type-r'
+import { define, type, Record } from 'type-r'
 
 // ⤹ required to make magic work  
 @define class User extends Record {
@@ -11,10 +11,10 @@ import { define, Record } from 'type-r'
     static attributes = {
         firstName : '', // ⟵ String type is inferred from the default value
         lastName  : String, // ⟵ Or you can just mention its constructor
-        email     : String.value( null ), //⟵ Or you can provide both
+        email     : type( String ).value( null ), //⟵ Or you can provide both
         createdAt : Date, // ⟵ And it works for any constructor.
         // And you can attach ⤹ metadata to fine-tune attribute's behavior
-        lastLogin : Date.value( null ).has.toJSON( false ) // ⟵ not serializable
+        lastLogin : type( Date ).value( null ).toJSON( false ) // ⟵ not serializable
     }
 }
 
@@ -22,6 +22,44 @@ const user = new User();
 console.log( user.createdAt ); // ⟵ this is an instance of Date created for you.
 
 const users = new User.Collection(); // ⟵ Collections are defined automatically.
+users.on( 'changes', () => updateUI( users ) ); // ⟵ listen to the changes.
+
+users.set( json, { parse : true } ); // ⟵ parse raw JSON from the server.
+users.updateEach( user => user.firstName = '' ); // ⟵ bulk update triggering 'changes' once
+```
+
+```typescript
+import { define, attr, type, Record } from 'type-r'
+import "reflect-metadata" // Required for @attr without arguments
+
+// ⤹ required to make the magic work  
+@define class User extends Record {
+    // ⤹ attribute's declaration
+    // IMPORTANT: declared attributes will be instantiated with their default values.
+    @attr lastName  : string // ⟵ @attr decorator extracts type from the Reflect metadata
+    @attr createdAt : Date // ⟵ It works for any constructor.
+
+    // In case of primitive types you can pass nun-null default values as an argument to attr.
+    @attr( 'somestring' ) firstName : string,
+    @attr firstName : string = "125" // This will work as well, but is less efficient. You *cannot* omit type.
+
+    // You have to pass type explicitly if reflect-metadata is not used.
+    @attr( String ) email : string
+
+    // Type cannot be inferred for null default values, and needs to be specified explicitly
+    @attr( type( String ).value( null ) ) email : string
+    // Or, as a shorter form...
+    @type( String ).value( null ).as email2 : string 
+        
+    // You can attach ⤹ metadata to fine-tune attribute's behavior
+    @type( Date ).value( null ).toJSON( false ).as
+    lastLogin : Date// ⟵ not serializable
+}
+
+const user = new User();
+console.log( user.createdAt ); // ⟵ this is an instance of Date created for you.
+
+const users : Collection<User> = new User.Collection(); // ⟵ Collections are defined automatically.
 users.on( 'changes', () => updateUI( users ) ); // ⟵ listen to the changes.
 
 users.set( json, { parse : true } ); // ⟵ parse raw JSON from the server.
@@ -72,9 +110,9 @@ Record's attributes definition. Lists attribute names along with their types, de
 ```javascript
 @define class User extends Record {
     static attributes = {
-        name    : String.value( 'John Dow' ),
-        email   : 'john.dow@mail.com', // Same as String.value( 'john.dow@mail.com' )
-        address : String, // Same as String.value( '' )
+        name    : type( String ).value( 'John Dow' ),
+        email   : 'john.dow@mail.com', // Same as type( String ).value( 'john.dow@mail.com' )
+        address : String, // Same as type( String ).value( '' )
     }
 }
 ```
@@ -101,9 +139,9 @@ const cake = new Meal({ _id: 1, name: "Cake" });
 alert("Cake id: " + cake.id);
 ```
 
-### `attrDef` : Type
+### `attrDef` : Constructor
 
-When the function is used as `attrDef`, it's treated as the constructor function. Any constructor function which behaves as _converting constructor_ (like `new Date( msecs )`) may be used as an attribute type.
+Constructor function is the simplest form of attribute definition. Any constructor function which behaves as _converting constructor_ (like `new Date( msecs )`) may be used as an attribute type.
 
 ```javascript
 @define class Person extends Record {
@@ -117,42 +155,44 @@ When the function is used as `attrDef`, it's treated as the constructor function
 
 ### `attrDef` : defaultValue
 
-When value of other type than function is used as `attrDef` it's treated as attribute's default value. Attribute's type is being inferred from the value.
+Any non-function value used as attribute definition is treated as an attribute's default value. Attribute's type is being inferred from the value.
 
-Use the general form of attribute definition for attributes of `Function` type: `Function.value( theFunction )`.
+Type cannot be properly inferred from the `null` values and functions.
+Use the general form of attribute definition in such cases: `type( Function ).value( theFunction )`, `type( Boolean ).value( null )`.
 
 ```javascript
 @define class GridColumn extends Record {
     static attributes = {
         name : '', // String attribute which is '' by default.
-        render : Function.value( x => x ),
+        render : type( Function ).value( x => x ),
         ...
     }
 }
 ```
 
-### `attrDef` : Type.value( defaultValue )
+### `attrDef` : type( Constructor ).value( defaultValue )
 
-The general form of attribute definition is `Type.value( defaultValue )`, where the `Type` is the corresponding constructor function.
+Declare an attribute with type T having the custom `defaultValue`.
 
 ```javascript
 @define class Person extends Record {
     static attributes = {
-        phone : String.value( null ) // String attribute which is null by default.
+        phone : type( String ).value( null ) // String attribute which is null by default.
         ...
     }
 }
 ```
 
-The record is _recursive_ if it's uses the type of itself in its attribute definition.
+If record needs to reference itself in its attributes definition, `@predefine` decorator with subsequent `MyRecord.define()` needs to be used.
 
 ### `attrDef` : Date
 
-Date attribute initialized as `new Date()`. Represented in JSON as string or number depending on the type:
+Date attribute initialized as `new Date()`, and represented in JSON as UTC ISO string.
 
-* `Date` - as ISO date string.
-* `Date.microsoft` - as Microsoft's `"/Date(msecs)/"` string.
-* `Date.timestamp` - as UNIX integer timestamp.
+There are other popular Date serialization options available in `type-r/ext-types` package.
+
+* `MicrosoftDate` - Date serialized as Microsoft's `"/Date(msecs)/"` string.
+* `Timestamp` - Date serializaed as UNIX integer timestamp (`date.getTime()`).
 
 ### `static` Collection
 
@@ -174,31 +214,30 @@ May be explicitly assigned in record's definition with custom collection class.
 }
 ```
 
-### `attrDef` Type.has and type( Type )
+### `attrDef` type( Type )
 
 Attribute definition can have different metadata attached which affects various aspects of attribute's behavior. Metadata is attached with
-a chain of calls after the `Ctor.has` property or `type( Ctor )` call. Attribute's default value is the most common example of such a metadata and is the single option which can be applied to the constructor function directly.
+a chain of calls after the `type( Ctor )` call. Attribute's default value is the most common example of such a metadata and is the single option which can be applied to the constructor function directly.
 
 ```javascript
 import { define, type, Record }
 
 @define class Dummy extends Record {
     static attributes = {
-        a : String.has.value( "a" ), // Same as String.value( "a" )
-        b : type( String ).value( "a" ) // Same as above
+        a : type( String ).value( "a" ), // Same as "a"
     }
 }
 ```
 
 ## Definitions in TypeScript
 
-Type-R implements experimental support for TypeScript record definitions.
+Type-R supports several options to define record attributes.
 
 ### `decorator` @attr
 
-The simplest form of attribute definition. Requires `reflect-metadata` npm package and `emitDecoratorMetadata` option set to true in the `tsconfig.json`.
+Turns TypeScript class property definition to the record's attribute, automatically extracting attribute type from the TypeScript type annotation. Requires `reflect-metadata` npm package and `emitDecoratorMetadata` option set to true in the `tsconfig.json`.
 
-No metadata can be attached.
+No attribute metadata can be attached.
 
 ```javascript
 import { define, attr, Record } from 'type-r'
@@ -211,23 +250,22 @@ import { define, attr, Record } from 'type-r'
 
 ### `decorator` @attr( attrDef )
 
-Long form of the attribute definition. Accepts arbitraty Type-R attribute definition as a parameter. Could be used if metadata must be attached to an attributed.
+Turns class property to an attribute accipting arbitraty Type-R attribute definition as an argument. Should be used if metadata must be attached to an attribute.
 Doesn't require `reflect-metadata` package.
 
 ```javascript
 import { define, attr, Record } from 'type-r'
 
 @define class User extends Record {
-    @attr( String.value( 5 ) ) name : string
+    @attr( String ) name : string
     @attr( "5" ) name : string // String type is infered from the default value.
-    @attr( String.has.toJSON( false ) ) email : string
+    @attr( type( String ).value( 5 ) ) email : string
 }
 ```
 
 ### `decorator` @type( Ctor ).as
 
-Attribute definition has `.as` property which converts the definition to the attribute's decorator. Can be used in conjunction with `type()` function to provide an 
-alternative syntax for attribute definitions.
+Attribute definition creates the TypeScript property decorator when appended with `.as` suffix. It's an alternative syntax to `@attr( attrDef )`.
 
 ```javascript
 import { define, type, Record } from 'type-r'
@@ -395,11 +433,11 @@ some.record.transaction( record => {
 
 Manual transactions with attribute assignments are superior to `record.set()` in terms of both performance and flexibility.
 
-### `attrDef` : Type.has.get( `hook` )
+### `attrDef` : type( Type ).get( `hook` )
 
 Attach get hook to the record's attribute. `hook` is the function of signature `( value, attr ) => value` which is used to transform the attribute's value _before it will be read_. Hook is executed in the context of the record.
 
-### `attrDef` : Type.has.set( `hook` )
+### `attrDef` : type( Type ).set( `hook` )
 
 Attach the set hook to the record's attribute. `hook` is the function of signature `( value, attr ) => value` which is used to transform the attribute's value _before it will be assigned_. Hook is executed in the context of the record.
 

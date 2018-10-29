@@ -1,3 +1,5 @@
-Old regression tests from `nestedtypes` and new tests from `typescript` are being executed automatically during the build.
+# Type-R tests suite
 
-Add new tests to `typescript` folder.
+- `./*.test.ts` - Modern TypeScript tests written with JEST.
+- `backbone-regression` - QUnit tests suite from BackboneJS (Events, Model, Collection). Can be run from the browser and console.
+- `nestedtypes-regression` - Mocha regression tests being run from the console with JEST.
