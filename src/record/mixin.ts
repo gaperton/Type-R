@@ -2,7 +2,7 @@ import { IOEndpoint } from '../io-tools';
 import { eventsApi, tools as _ } from '../object-plus';
 import { CompiledReference } from '../traversable';
 import { ChainableAttributeSpec } from './attrDef';
-import { AnyType } from './attributes';
+import { AnyType } from './metatypes';
 import { ConstructorsMixin, constructorsMixin } from './updates';
 
 export interface RecordAttributesMixin extends ConstructorsMixin {

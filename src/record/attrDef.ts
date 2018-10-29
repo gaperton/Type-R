@@ -5,7 +5,7 @@
 import { IOEndpoint } from '../io-tools';
 import { definitionDecorator, EventMap, EventsDefinition, tools } from '../object-plus';
 import { Transactional } from '../transactions';
-import { AttributeOptions, Parse, AnyType, getMetatype } from './attributes';
+import { AttributeOptions, Parse, AnyType, getMetatype } from './metatypes';
 import { AttributesContainer } from './updates';
 
 const { assign } = tools;

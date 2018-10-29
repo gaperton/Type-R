@@ -1,6 +1,6 @@
 import { IOEndpoint } from '../io-tools';
 import { EventsDefinition } from '../object-plus';
-import { AttributeOptions, Parse, AnyType } from './attributes';
+import { AttributeOptions, Parse, AnyType } from './metatypes';
 export interface AttributeCheck {
     (value: any, key: string): boolean;
     error?: any;

@@ -3,7 +3,7 @@ import { IOEndpoint, IOPromise } from '../io-tools';
 import { Logger, LogLevel } from '../object-plus';
 import { CloneOptions, Owner, Transaction, Transactional, TransactionalDefinition, TransactionOptions } from '../transactions';
 import { ChildrenErrors } from '../validation';
-import { AggregatedType, AnyType } from './attributes';
+import { AggregatedType, AnyType } from './metatypes';
 import { IORecord } from './io-mixin';
 import { AttributesConstructor, AttributesContainer, AttributesCopyConstructor, AttributesValues } from './updates';
 export interface ConstructorOptions extends TransactionOptions {

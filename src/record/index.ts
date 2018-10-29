@@ -1,11 +1,11 @@
 import { predefine, tools } from '../object-plus';
 import { Transactional } from '../transactions';
 import { ChainableAttributeSpec, createSharedTypeSpec, type } from './attrDef';
-import { AggregatedType, SharedType } from './attributes';
+import { AggregatedType, SharedType } from './metatypes';
 import { createAttributesMixin } from './mixin';
 import { Record, RecordDefinition } from './record';
 
-export * from './attributes';
+export * from './metatypes';
 export * from './attrDef'
 
 export { Record };

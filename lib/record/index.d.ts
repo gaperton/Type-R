@@ -1,5 +1,5 @@
 import { Record } from './record';
-export * from './attributes';
+export * from './metatypes';
 export * from './attrDef';
 export { Record };
 export declare function attr(proto: object, attrName: string): void;
