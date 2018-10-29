@@ -54,6 +54,8 @@ export interface RecordDefinition extends TransactionalDefinition {
     idAttribute : mixinRules.protoValue
 })
 export class Record extends Transactional implements IORecord, AttributesContainer {
+    static _attribute = AggregatedType;
+    
     // Hack
     static onDefine( definition, BaseClass ){}
 
@@ -477,8 +479,6 @@ Record.prototype.AttributesCopy = BaseRecordAttributesCopy;
 const IdAttribute = AnyType.create({ value : void 0 }, 'id' );
 Record.prototype._attributes = { id : IdAttribute };
 Record.prototype._attributesArray = [ IdAttribute ];
-Record._attribute = AggregatedType;
-
 
 function typeCheck( record : Record, values : object, options ){
     if( shouldBeAnObject( record, values, options ) ){

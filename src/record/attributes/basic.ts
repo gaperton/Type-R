@@ -12,7 +12,7 @@ import { AttributesContainer } from '../updates';
  * Custom class must be immutable class which implements toJSON() method
  * with a constructor taking json.
  */
-class ImmutableClassType extends AnyType {
+export class ImmutableClassType extends AnyType {
     type : new ( value? : any ) => {}
 
     create(){
@@ -35,8 +35,6 @@ class ImmutableClassType extends AnyType {
         return a !== b;
     }
 }
-
-Function.prototype._attribute = ImmutableClassType;
 
 /**
  * Optimized attribute of primitive type.
@@ -76,8 +74,6 @@ export class PrimitiveType extends AnyType {
     }
 }
 
-Boolean._attribute = String._attribute = PrimitiveType;
-
 // Number type with special validation algothim.
 /** @private */ 
 export class NumericType extends PrimitiveType {
@@ -105,8 +101,6 @@ export class NumericType extends PrimitiveType {
     }
 }
 
-Number._attribute = NumericType;
-
 /**
  * Compatibility wrapper for Array type.
  * @private
@@ -130,8 +124,6 @@ export class ArrayType extends AnyType {
     }
 }
 
-Array._attribute = ArrayType;
-
 export class ObjectType extends AnyType {
     create(){ return {}; }
 
@@ -142,8 +134,6 @@ export class ObjectType extends AnyType {
         return {};
     }
 }
-
-Object._attribute = ObjectType;
 
 export function doNothing(){}
 
@@ -165,5 +155,3 @@ export class FunctionType extends AnyType {
     // Functions are not cloned.
     clone( value ){ return value; }
 }
-
-Function._attribute = FunctionType;

@@ -26,5 +26,5 @@ export declare class ChainableAttributeSpec {
     value(x: any): ChainableAttributeSpec;
     static from(spec: any): ChainableAttributeSpec;
 }
-export declare function type(this: void, spec: ChainableAttributeSpec | Function): ChainableAttributeSpec;
+export declare function type(this: void, type: ChainableAttributeSpec | Function): ChainableAttributeSpec;
 export declare function createSharedTypeSpec(Constructor: Function, Attribute: typeof AnyType): void;

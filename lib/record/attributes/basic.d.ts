@@ -1,6 +1,14 @@
 import { TransactionOptions } from '../../transactions';
 import { AnyType } from './any';
 import { AttributesContainer } from '../updates';
+export declare class ImmutableClassType extends AnyType {
+    type: new (value?: any) => {};
+    create(): {};
+    convert(next: any): any;
+    toJSON(value: any, key?: string, options?: object): any;
+    clone(value: any): {};
+    isChanged(a: any, b: any): boolean;
+}
 export declare class PrimitiveType extends AnyType {
     type: NumberConstructor | StringConstructor | BooleanConstructor;
     dispose(): void;

@@ -5,7 +5,7 @@
 import { IOEndpoint } from '../io-tools';
 import { definitionDecorator, EventMap, EventsDefinition, tools } from '../object-plus';
 import { Transactional } from '../transactions';
-import { AttributeOptions, Parse, AnyType } from './attributes';
+import { AttributeOptions, Parse, AnyType, getMetatype } from './attributes';
 import { AttributesContainer } from './updates';
 
 const { assign } = tools;
@@ -162,11 +162,14 @@ export class ChainableAttributeSpec {
 
 function emptyFunction(){}
 
-export function type( this : void, spec : ChainableAttributeSpec | Function ) : ChainableAttributeSpec {
-    return spec instanceof ChainableAttributeSpec ? spec : new ChainableAttributeSpec( {
-        type : spec,
-        value : spec._attribute.defaultValue,
-        hasCustomDefault : spec._attribute.defaultValue !== void 0
+export function type( this : void, type : ChainableAttributeSpec | Function ) : ChainableAttributeSpec {
+    if( type instanceof ChainableAttributeSpec ) return type;
+
+    const { defaultValue } = getMetatype( type );
+    return new ChainableAttributeSpec( {
+        type,
+        value : defaultValue,
+        hasCustomDefault : defaultValue !== void 0
     } );
 }
 

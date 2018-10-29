@@ -56,7 +56,6 @@ Record.onDefine = function( definition : RecordDefinition, BaseClass : typeof Re
     if( definition.endpoint ) this.Collection.prototype._endpoint = definition.endpoint;    
 }
 
-Record._attribute = AggregatedType;
 createSharedTypeSpec( Record, SharedType );
 
 function getAttributes({ defaults, attributes, idAttribute } : RecordDefinition ) {

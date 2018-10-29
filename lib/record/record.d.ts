@@ -3,7 +3,7 @@ import { IOEndpoint, IOPromise } from '../io-tools';
 import { Logger, LogLevel } from '../object-plus';
 import { CloneOptions, Owner, Transaction, Transactional, TransactionalDefinition, TransactionOptions } from '../transactions';
 import { ChildrenErrors } from '../validation';
-import { AnyType } from './attributes';
+import { AggregatedType, AnyType } from './attributes';
 import { IORecord } from './io-mixin';
 import { AttributesConstructor, AttributesContainer, AttributesCopyConstructor, AttributesValues } from './updates';
 export interface ConstructorOptions extends TransactionOptions {
@@ -16,6 +16,7 @@ export interface RecordDefinition extends TransactionalDefinition {
     Collection?: typeof Transactional;
 }
 export declare class Record extends Transactional implements IORecord, AttributesContainer {
+    static _attribute: typeof AggregatedType;
     static onDefine(definition: any, BaseClass: any): void;
     static Collection: typeof Collection;
     static DefaultCollection: typeof Collection;

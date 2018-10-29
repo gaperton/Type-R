@@ -2,11 +2,6 @@ import { IOEndpoint } from '../../io-tools';
 import { LogLevel, Logger } from '../../object-plus';
 import { TransactionOptions } from '../../transactions';
 import { AttributesContainer, AttributeUpdatePipeline, RecordTransaction } from '../updates';
-declare global {
-    interface Function {
-        _attribute: typeof AnyType;
-    }
-}
 export declare type Transform = (this: AnyType, next: any, prev: any, record: AttributesContainer, options: TransactionOptions) => any;
 export declare type ChangeHandler = (this: AnyType, next: any, prev: any, record: AttributesContainer, options: TransactionOptions) => void;
 export interface AttributeOptions {
@@ -32,7 +27,7 @@ export declare type AttributeParse = (value: any, key: string) => any;
 export declare type ChangeAttrHandler = ((value: any, attr: string) => void) | string;
 export declare class AnyType implements AttributeUpdatePipeline {
     name: string;
-    static create(options: AttributeOptions, name: string): AnyType;
+    static create: (options: AttributeOptions, name: string) => AnyType;
     canBeUpdated(prev: any, next: any, options: TransactionOptions): any;
     transform(next: any, prev: any, model: AttributesContainer, options: TransactionOptions): any;
     convert(next: any, prev: any, model: AttributesContainer, options: TransactionOptions): any;

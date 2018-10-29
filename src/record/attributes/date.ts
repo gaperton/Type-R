@@ -57,8 +57,6 @@ export class DateType extends AnyType {
     dispose(){}
 }
 
-Date._attribute = DateType;
-
 // If ISO date is not supported by date constructor (such as in Safari), polyfill it.
 function supportsDate( date ){
     return !isNaN( ( new Date( date ) ).getTime() );

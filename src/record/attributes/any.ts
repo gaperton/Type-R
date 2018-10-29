@@ -5,13 +5,6 @@ import { AttributesContainer, AttributeUpdatePipeline, RecordTransaction, setAtt
 
 const { notEqual, assign} = tools;
 
-
-declare global {
-    interface Function {
-        _attribute : typeof AnyType
-    }
-}
-
 export type Transform = ( this : AnyType, next : any, prev : any, record : AttributesContainer, options : TransactionOptions ) => any;
 export type ChangeHandler = ( this : AnyType, next : any, prev : any, record : AttributesContainer, options : TransactionOptions ) => void;
 
@@ -51,12 +44,8 @@ const emptyOptions : TransactionOptions = {};
  */
 export class AnyType implements AttributeUpdatePipeline {
     // Factory method to create attribute from options 
-    static create( options : AttributeOptions, name : string ) : AnyType {
-        const type = options.type,
-              AttributeCtor = options._attribute || ( type ? type._attribute : AnyType );
-
-        return new AttributeCtor( name, options );
-    }
+    static create : ( options : AttributeOptions, name : string ) => AnyType;
+    
     /**
      * Update pipeline functions
      * =========================
