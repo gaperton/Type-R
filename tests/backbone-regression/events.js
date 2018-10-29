@@ -1,4 +1,5 @@
-QUnit.module("Backbone.Events");
+(function(){
+  QUnit.module("Backbone.Events");
 
   QUnit.test("on and trigger", function(assert) {
     assert.expect(2);
@@ -680,3 +681,4 @@ QUnit.module("Backbone.Events");
     two.trigger('y', 2);
     two.trigger('y', 2);
   });
+})();
