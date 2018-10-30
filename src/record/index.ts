@@ -1,16 +1,15 @@
 import { predefine, tools } from '../object-plus';
 import { Transactional } from '../transactions';
 import { ChainableAttributeSpec, createSharedTypeSpec, type } from './attrDef';
-import { AggregatedType, SharedType } from './metatypes';
+import { SharedType } from './metatypes';
 import { createAttributesMixin } from './mixin';
 import { Record, RecordDefinition } from './record';
 
+export * from './attrDef';
 export * from './metatypes';
-export * from './attrDef'
-
 export { Record };
 
-const { assign, defaults, omit, getBaseClass } = tools;
+const { assign, defaults } = tools;
 
 Record.onExtend = function( this : typeof Record, BaseClass : typeof Record ){
     Transactional.onExtend.call( this, BaseClass );

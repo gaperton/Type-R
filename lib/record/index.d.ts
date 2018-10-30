@@ -1,6 +1,6 @@
 import { Record } from './record';
-export * from './metatypes';
 export * from './attrDef';
+export * from './metatypes';
 export { Record };
 export declare function attr(proto: object, attrName: string): void;
 export declare function attr(spec: any): PropertyDecorator;

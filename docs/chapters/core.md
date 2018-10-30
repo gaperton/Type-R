@@ -346,26 +346,26 @@ Due to the nature of _aggregation_, an object may have one and only one owner.
 
 Return the collection which aggregates the record, or `null` if there are no one.
 
-### `attrDef` : RecordOrCollection.shared
+### `attrDef` : shared( RecordOrCollection )
 
 Non-serializable reference to the record or collection possibly from the different aggregation tree. Initialized with `null`. Is not recursively cloned, serialized, validated, or disposed.
 
 All changes in shared records or collections are detected and cause change events of the containing record.
 
-<aside class="notice">The type of <code>attrDef</code>{ name : defaultValue } is inferred as `Type.shared` if it extends Record or Collection</aside>
+<aside class="notice">The type of <code>attrDef</code>{ name : defaultValue } is inferred as `shared( Type )` if it extends Record or Collection</aside>
 
 ```javascript
 @define class UsersListState extends Record {
     static attributes = {
         users : User.Collection,
-        selected : User.shared // Can be assigned with the user from this.users
+        selected : shared( User ) // Can be assigned with the user from this.users
     }
 }
 ```
 
 ### `attrDef` : Collection.Refs
 
-Non-aggregating collection. Collection of references to shared records which itself is _aggregated_ by the record, but _does not aggregate_ its elements. In contrast to the `Collection.shared`, `Collection.Refs` creates an instance of collection which _is the part the parent record_.
+Non-aggregating collection. Collection of references to shared records which itself is _aggregated_ by the record, but _does not aggregate_ its elements. In contrast to the `shared( Collection )`, `Collection.Refs` creates an instance of collection which _is the part the parent record_.
 
 The collection itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, serialized, or disposed.
 
@@ -376,7 +376,7 @@ All changes in the collection and its elements are detected and cause change eve
 ```javascript
     @define class MyRecord extends Record {
         static attributes = {
-            notCloned : SomeCollection.shared, // Reference to the _shared collection_ object.
+            notCloned : shared( SomeCollection ), // Reference to the _shared collection_ object.
             cloned : SomeCollection.Refs // _Aggregated_ collection of references to the _shared records_.
     }
 ```

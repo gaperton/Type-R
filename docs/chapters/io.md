@@ -388,7 +388,7 @@ Type-R has first-class support for working with normalized data represented as a
 
 `Store` class is the special record class which serves as a placeholder for the set of interlinked collections of normalized records. Id-references are defined as record attributes of the special type representing the serializable reference to the records from the specified master collection.
 
-### `attrDef` : Record.from( `sourceCollection` )
+### `attrDef` : from( `sourceCollection` )
 
 Serializable reference to the record from the particular collection.
 Initialized as `null` and serialized as `record.id`. Is not recursively cloned, validated, or disposed. Used to model one-to-many relationships.
@@ -405,19 +405,19 @@ Changes in shared record are not detected.
 ```javascript
     @define class State extends Record {
         items : Item.Collection,
-        selected : Record.from( 'items' ) // Will resolve to `this.items`
+        selected : from( 'items' ) // Will resolve to `this.items`
     }
 ```
 
 <aside class="info">It's recommended to use ~paths and stores instead of ^paths.</aside>
 
-### `attrDef` : Collection.subsetOf( `sourceCollection` )
+### `attrDef` : subsetOf( `sourceCollection`, CollectionCtor? )
 
 Serializable non-aggregating collection which is the subset of the particular collection. Serialized as an array of record ids. Used to model many-to-many relationships.
 
 The collection itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, or disposed.
 
-`sourceCollection` is the same reference as used by `Record.from()`.
+`sourceCollection` is the same reference as used by `from( sourceCollection )`.
 
 ```javascript
 @define class Role extends Record {
@@ -430,7 +430,7 @@ The collection itself is recursively created and cloned. However, its records ar
 @define class User extends Record {
     static attributes = {
         name : String,
-        roles : Role.Collection.subsetOf( '~roles' )
+        roles : subsetOf( '~roles', Role.Collection )
     }
 }
 
@@ -442,9 +442,9 @@ The collection itself is recursively created and cloned. However, its records ar
 }
 ```
 
-### collection.createSubset( records?, options? )
+### sourceCollection.createSubset( records?, options? )
 
-Create an instance of `Collection.subsetOf( collection )` type (non-aggregating serializable collection) which is the subset of the given collection. Takes the same arguments as the collection's constructor.
+Create an instance of `subsetOf( sourceCollection, CollectionCtor )` type (non-aggregating serializable collection) which is the subset of the given collection. Takes the same arguments as the collection's constructor.
 
 <aside class="notice">
 Records in the collection must have an `id` attribute populated to work properly with subsets.

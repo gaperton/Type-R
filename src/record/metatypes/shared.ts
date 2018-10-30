@@ -146,3 +146,7 @@ export class SharedType extends AnyType {
 }
 
 function ignore(){}
+
+export function shared( T : typeof Transactional ){
+    return T.shared;
+}

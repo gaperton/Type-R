@@ -28,6 +28,12 @@ You're advised to use new syntax for any new work.
 - Collection proxies Array methods
 - New logger which easy to override or turn off.
 - Improved error messages.
+- new ownership notation:
+    - `Collection.subsetOf( '~users' )` -> `subsetOf( '~users' )`
+    - `Users.Collection.subsetOf( '~users' )` -> `subsetOf( '~users', Users.Collection )` (If you need to inherit custom Users.Collection methods)
+    - `Record.from( '~users' )` -> `from( '~users' )`
+    - `User.from( '~users' )` -> `from( '~users', User )` (No real difference with the previous item, so don't bother)
+    - `User.shared` -> `shared( User )`
 
 ## 2.1.0
 

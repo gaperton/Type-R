@@ -5,6 +5,8 @@ require( 'type-r/globals' );
 
 var Model = Nested.Model, Collection = Nested.Collection;
 
+var { shared, subsetOf, from } = Nested;
+
 describe( 'Memory management', function(){
     var M = Model.extend();
     
@@ -12,10 +14,10 @@ describe( 'Memory management', function(){
         attributes : {
             x : Number.integer,
             agg : M.value( null ),
-            ref : M.shared,
+            ref : shared( M ),
             col : M.Collection,
-            refs : M.Collection.shared,
-            ids : M.Collection.subsetOf( 'col' ) 
+            refs : shared( M.Collection ),
+            ids : subsetOf( 'col', M.Collection )
         }
     });
 

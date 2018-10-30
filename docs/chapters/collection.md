@@ -67,7 +67,7 @@ By default, the collection aggregates its elements, which are treated as an inte
 `Collection.Refs` doesn't aggregate its elements, and it's not mapped to JSON. It is useful for the local application state only.
 
 <aside class="notice">
-Use the <code>Collection.subsetOf()</code> attribute definition and the <code>collection.createSubset()</code> factory method to create the collection which should be mapped to JSON.
+Use the <code>subsetOf( collectionRef )</code> attribute definition and the <code>collection.createSubset()</code> factory method to create the collection which should be mapped to JSON.
 </aside>
 
 ### `static` model = RecordConstructor

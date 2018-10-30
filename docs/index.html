@@ -676,27 +676,27 @@ One object can have single owner. The record with its aggregated attributes form
 <p>Due to the nature of <em>aggregation</em>, an object may have one and only one owner.</p>
 <h3 id="record-collection">record.collection</h3>
 <p>Return the collection which aggregates the record, or <code>null</code> if there are no one.</p>
-<h3 id="attrdef-recordorcollection-shared"><code>attrDef</code> : RecordOrCollection.shared</h3>
+<h3 id="attrdef-shared-recordorcollection-"><code>attrDef</code> : shared( RecordOrCollection )</h3>
 <p>Non-serializable reference to the record or collection possibly from the different aggregation tree. Initialized with <code>null</code>. Is not recursively cloned, serialized, validated, or disposed.</p>
 <p>All changes in shared records or collections are detected and cause change events of the containing record.</p>
-<aside class="notice">The type of <code>attrDef</code>{ name : defaultValue } is inferred as `Type.shared` if it extends Record or Collection</aside>
+<aside class="notice">The type of <code>attrDef</code>{ name : defaultValue } is inferred as `shared( Type )` if it extends Record or Collection</aside>
 
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UsersListState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
         <span class="hljs-attr">users</span> : User.Collection,
-        <span class="hljs-attr">selected</span> : User.shared <span class="hljs-comment">// Can be assigned with the user from this.users</span>
+        <span class="hljs-attr">selected</span> : shared( User ) <span class="hljs-comment">// Can be assigned with the user from this.users</span>
     }
 }
 </code></pre>
 <h3 id="attrdef-collection-refs"><code>attrDef</code> : Collection.Refs</h3>
-<p>Non-aggregating collection. Collection of references to shared records which itself is <em>aggregated</em> by the record, but <em>does not aggregate</em> its elements. In contrast to the <code>Collection.shared</code>, <code>Collection.Refs</code> creates an instance of collection which <em>is the part the parent record</em>.</p>
+<p>Non-aggregating collection. Collection of references to shared records which itself is <em>aggregated</em> by the record, but <em>does not aggregate</em> its elements. In contrast to the <code>shared( Collection )</code>, <code>Collection.Refs</code> creates an instance of collection which <em>is the part the parent record</em>.</p>
 <p>The collection itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, serialized, or disposed.</p>
 <p>All changes in the collection and its elements are detected and cause change events of the containing record.</p>
 <aside class="notice"><code>Collection.Refs</code> is the constructor and can be used to create non-aggregating collection with `new` operator.</aside>
 
 <pre><code class="highlight javascript">    @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyRecord</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
         <span class="hljs-keyword">static</span> attributes = {
-            <span class="hljs-attr">notCloned</span> : SomeCollection.shared, <span class="hljs-comment">// Reference to the _shared collection_ object.</span>
+            <span class="hljs-attr">notCloned</span> : shared( SomeCollection ), <span class="hljs-comment">// Reference to the _shared collection_ object.</span>
             cloned : SomeCollection.Refs <span class="hljs-comment">// _Aggregated_ collection of references to the _shared records_.</span>
     }
 </code></pre>
@@ -769,7 +769,7 @@ Comment.define({
 <p>By default, the collection aggregates its elements, which are treated as an integral part of the collection (serialized, cloned, disposed, and validated recursively). An aggregation means the <em>single owner</em>, as the single object cannot be an integral part of two distinct things.</p>
 <p><code>Collection.Refs</code> doesn&#39;t aggregate its elements, and it&#39;s not mapped to JSON. It is useful for the local application state only.</p>
 <aside class="notice">
-Use the <code>Collection.subsetOf()</code> attribute definition and the <code>collection.createSubset()</code> factory method to create the collection which should be mapped to JSON.
+Use the <code>subsetOf( collectionRef )</code> attribute definition and the <code>collection.createSubset()</code> factory method to create the collection which should be mapped to JSON.
 </aside>
 
 <h3 id="static-model-recordconstructor"><code>static</code> model = RecordConstructor</h3>
@@ -1549,7 +1549,7 @@ Parsing can be controlled on per-attribute level with <b>type( Type ).parse()</b
 <h2 id="normalized-data">Normalized data</h2>
 <p>Type-R has first-class support for working with normalized data represented as a set of collections with cross-references by record id. References are represented as record ids in JSON, and being transparently resolved to record instances on the first access.</p>
 <p><code>Store</code> class is the special record class which serves as a placeholder for the set of interlinked collections of normalized records. Id-references are defined as record attributes of the special type representing the serializable reference to the records from the specified master collection.</p>
-<h3 id="attrdef-record-from-sourcecollection-"><code>attrDef</code> : Record.from( <code>sourceCollection</code> )</h3>
+<h3 id="attrdef-from-sourcecollection-"><code>attrDef</code> : from( <code>sourceCollection</code> )</h3>
 <p>Serializable reference to the record from the particular collection.
 Initialized as <code>null</code> and serialized as <code>record.id</code>. Is not recursively cloned, validated, or disposed. Used to model one-to-many relationships.</p>
 <p>Changes in shared record are not detected.</p>
@@ -1565,15 +1565,15 @@ Initialized as <code>null</code> and serialized as <code>record.id</code>. Is no
 </ul>
 <pre><code class="highlight javascript">    @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">State</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
         items : Item.Collection,
-        <span class="hljs-attr">selected</span> : Record.from( <span class="hljs-string">'items'</span> ) <span class="hljs-comment">// Will resolve to `this.items`</span>
+        <span class="hljs-attr">selected</span> : <span class="hljs-keyword">from</span>( <span class="hljs-string">'items'</span> ) <span class="hljs-comment">// Will resolve to `this.items`</span>
     }
 </code></pre>
 <aside class="info">It's recommended to use ~paths and stores instead of ^paths.</aside>
 
-<h3 id="attrdef-collection-subsetof-sourcecollection-"><code>attrDef</code> : Collection.subsetOf( <code>sourceCollection</code> )</h3>
+<h3 id="attrdef-subsetof-sourcecollection-collectionctor-"><code>attrDef</code> : subsetOf( <code>sourceCollection</code>, CollectionCtor? )</h3>
 <p>Serializable non-aggregating collection which is the subset of the particular collection. Serialized as an array of record ids. Used to model many-to-many relationships.</p>
 <p>The collection itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, or disposed.</p>
-<p><code>sourceCollection</code> is the same reference as used by <code>Record.from()</code>.</p>
+<p><code>sourceCollection</code> is the same reference as used by <code>from( sourceCollection )</code>.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Role</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
         <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span>,
@@ -1584,7 +1584,7 @@ Initialized as <code>null</code> and serialized as <code>record.id</code>. Is no
 @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
         <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span>,
-        <span class="hljs-attr">roles</span> : Role.Collection.subsetOf( <span class="hljs-string">'~roles'</span> )
+        <span class="hljs-attr">roles</span> : subsetOf( <span class="hljs-string">'~roles'</span>, Role.Collection )
     }
 }
 
@@ -1595,8 +1595,8 @@ Initialized as <code>null</code> and serialized as <code>record.id</code>. Is no
     }
 }
 </code></pre>
-<h3 id="collection-createsubset-records-options-">collection.createSubset( records?, options? )</h3>
-<p>Create an instance of <code>Collection.subsetOf( collection )</code> type (non-aggregating serializable collection) which is the subset of the given collection. Takes the same arguments as the collection&#39;s constructor.</p>
+<h3 id="sourcecollection-createsubset-records-options-">sourceCollection.createSubset( records?, options? )</h3>
+<p>Create an instance of <code>subsetOf( sourceCollection, CollectionCtor )</code> type (non-aggregating serializable collection) which is the subset of the given collection. Takes the same arguments as the collection&#39;s constructor.</p>
 <aside class="notice">
 Records in the collection must have an `id` attribute populated to work properly with subsets.
 </aside>
@@ -1872,6 +1872,14 @@ You&#39;re advised to use new syntax for any new work.</p>
 <li>Collection proxies Array methods</li>
 <li>New logger which easy to override or turn off.</li>
 <li>Improved error messages.</li>
+<li>new ownership notation:<ul>
+<li><code>Collection.subsetOf( &#39;~users&#39; )</code> -&gt; <code>subsetOf( &#39;~users&#39; )</code></li>
+<li><code>Users.Collection.subsetOf( &#39;~users&#39; )</code> -&gt; <code>subsetOf( &#39;~users&#39;, Users.Collection )</code> (If you need to inherit custom Users.Collection methods)</li>
+<li><code>Record.from( &#39;~users&#39; )</code> -&gt; <code>from( &#39;~users&#39; )</code></li>
+<li><code>User.from( &#39;~users&#39; )</code> -&gt; <code>from( &#39;~users&#39;, User )</code> (No real difference with the previous item, so don&#39;t bother)</li>
+<li><code>User.shared</code> -&gt; <code>shared( User )</code></li>
+</ul>
+</li>
 </ul>
 <h2 id="2-1-0">2.1.0</h2>
 <p>This release adds long-awaited HTTP REST endpoint.</p>

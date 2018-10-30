@@ -16,3 +16,4 @@ export declare class SharedType extends AnyType {
     _onChange: (child: Transactional, options: TransactionOptions, initiator: Transactional) => void;
     initialize(options: any): void;
 }
+export declare function shared(T: typeof Transactional): any;

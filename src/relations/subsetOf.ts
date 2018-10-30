@@ -21,6 +21,10 @@ Collection.subsetOf = function subsetOf( masterCollection : CollectionReference 
     );
 };
 
+export function subsetOf( path : string, T = Collection ){
+    return T.subsetOf( path );
+}
+
 const subsetOfBehavior = ItemsBehavior.share | ItemsBehavior.persistent;
 
 function defineSubsetCollection( CollectionConstructor : typeof Collection ) {
