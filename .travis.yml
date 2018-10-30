@@ -3,6 +3,3 @@ node_js:
   - "node"
 install:
   - npm install
-  - cd tests/nestedtypes/
-  - npm install
-  - cd ../../
