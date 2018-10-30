@@ -2,11 +2,11 @@
 
 ## 3.0.0
 
+### Breaking changes
+
 Starting from version 3.X, Type-R does not modify built-in global JS objects. New `type(T)` attribute definition notation is introduced to replace `T.has.`
 
 `type-r/globals` package provides 100% backward compatibility with a version 2.X `T.has` API, allowing a gradual migration to the `type(T)`.
-
-### Breaking changes
 
 Following attribute types moved to the `type-r/ext-types` package:
 
@@ -25,9 +25,9 @@ You're advised to use new syntax for any new work.
 
 ### New features
 
+- Collection proxies Array methods
 - New logger which easy to override or turn off.
 - Improved error messages.
-- New TypeScript friendly `type( T )` attribute metadata notation.
 
 ## 2.1.0
 

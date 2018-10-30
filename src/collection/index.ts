@@ -561,9 +561,18 @@ export class Collection< R extends Record = Record> extends Transactional implem
         return this.models.every( toPredicateFunction( iteratee ), context );
     }
 
+    includes( idOrObj : string | Partial<R> ){
+        return Boolean( this.get( idOrObj ) );
+    }
+
     // Map members to an array
     map<T>( iteratee : ( val : R, key : number ) => T, context? : any ) : T[]{
         return this.models.map( iteratee, context );
+    }
+
+    
+    reduce<T>( iteratee : (previousValue: any, currentValue: R, currentIndex: number ) => T, init? : any ) : T {
+        return this.models.reduce( iteratee, init );
     }
 }
 

@@ -1850,9 +1850,9 @@ x.componentWillMount();
 <p>Same as <code>every</code>, but return true when at least one function from mixins returns true.</p>
 <h1 id="release-notes">Release Notes</h1>
 <h2 id="3-0-0">3.0.0</h2>
+<h3 id="breaking-changes">Breaking changes</h3>
 <p>Starting from version 3.X, Type-R does not modify built-in global JS objects. New <code>type(T)</code> attribute definition notation is introduced to replace <code>T.has.</code></p>
 <p><code>type-r/globals</code> package provides 100% backward compatibility with a version 2.X <code>T.has</code> API, allowing a gradual migration to the <code>type(T)</code>.</p>
-<h3 id="breaking-changes">Breaking changes</h3>
 <p>Following attribute types moved to the <code>type-r/ext-types</code> package:</p>
 <ul>
 <li><code>Date.timestamp</code> -&gt; <code>import { Timestamp } from &#39;type-r/ext-types&#39;</code></li>
@@ -1869,9 +1869,9 @@ x.componentWillMount();
 You&#39;re advised to use new syntax for any new work.</p>
 <h3 id="new-features">New features</h3>
 <ul>
+<li>Collection proxies Array methods</li>
 <li>New logger which easy to override or turn off.</li>
 <li>Improved error messages.</li>
-<li>New TypeScript friendly <code>type( T )</code> attribute metadata notation.</li>
 </ul>
 <h2 id="2-1-0">2.1.0</h2>
 <p>This release adds long-awaited HTTP REST endpoint.</p>
