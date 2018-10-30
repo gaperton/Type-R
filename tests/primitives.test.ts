@@ -346,12 +346,6 @@ describe( 'Record', () =>{
             }
         });
 
-        it( 'can iterate through collections.values', ()=>{
-            const persons = new Person.Collection<Person>([ { name : "1" } , { name : "2" }]);
-
-            expect( persons.values().next().value.name ).toBe( "1" );
-        });
-
         it( 'can iterate through collections.entries', ()=>{
             const persons = new Person.Collection<Person>([ { name : "1" } , { name : "2" }]);
 

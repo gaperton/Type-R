@@ -9,7 +9,7 @@ export interface CollectionOptions extends TransactionOptions {
     comparator?: GenericComparator;
     model?: typeof Record;
 }
-export declare type Predicate<R> = (val: R, key: number) => boolean | object;
+export declare type Predicate<R> = ((val: R, key: number) => boolean) | Partial<R>;
 export interface CollectionDefinition extends TransactionalDefinition {
     model?: typeof Record;
     itemEvents?: EventsDefinition;
@@ -36,23 +36,14 @@ export declare class Collection<R extends Record = Record> extends Transactional
     _store: Transactional;
     _comparator: (a: R, b: R) => number;
     _onChildrenChange(record: R, options?: TransactionOptions, initiator?: Transactional): void;
-    get(objOrId: string | R | Object): R;
+    get(objOrId: string | object): R;
     each(iteratee: (val: R, key: number) => void, context?: any): void;
-    forEach(iteratee: (val: R, key?: number) => void, context?: any): void;
-    [Symbol.iterator](): IterableIterator<R>;
-    values(): IterableIterator<R>;
-    entries(): IterableIterator<[number, R]>;
-    every(iteratee: Predicate<R>, context?: any): boolean;
-    filter(iteratee: Predicate<R>, context?: any): R[];
-    find(iteratee: Predicate<R>, context?: any): R;
-    some(iteratee: Predicate<R>, context?: any): boolean;
-    map<T>(iteratee: (val: R, key: number) => T, context?: any): T[];
+    updateEach(iteratee: (val: any, key: string | number) => void, options?: TransactionOptions): void;
     _validateNested(errors: {}): number;
     model: typeof Record;
     idAttribute: string;
     constructor(records?: (R | {})[], options?: CollectionOptions, shared?: number);
     initialize(): void;
-    readonly length: number;
     first(): R;
     last(): R;
     at(a_index: number): R;
@@ -72,17 +63,27 @@ export declare class Collection<R extends Record = Record> extends Transactional
     static _metatype: typeof AggregatedType;
     pluck(key: keyof R): any[];
     sort(options?: TransactionOptions): this;
-    push(model: ElementsArg, options: CollectionOptions): Record[];
-    pop(options: CollectionOptions): R;
     unset(modelOrId: R | string, options?: any): R;
-    unshift(model: ElementsArg, options: CollectionOptions): Record[];
-    shift(options?: CollectionOptions): R;
-    slice(): R[];
-    indexOf(modelOrId: any): number;
     modelId(attrs: {}): any;
     toggle(model: R, a_next?: boolean): boolean;
     _log(level: LogLevel, topic: string, text: string, value: object, a_logger?: Logger): void;
     getClassName(): string;
+    readonly length: number;
+    push(model: ElementsArg, options: CollectionOptions): Record[];
+    pop(options: CollectionOptions): R;
+    unshift(model: ElementsArg, options: CollectionOptions): Record[];
+    shift(options?: CollectionOptions): R;
+    slice(begin: number, end?: number): R[];
+    indexOf(modelOrId: string | Partial<R>): number;
+    filter(iteratee: Predicate<R>, context?: any): R[];
+    find(iteratee: Predicate<R>, context?: any): R;
+    some(iteratee: Predicate<R>, context?: any): boolean;
+    forEach(iteratee: (val: R, key?: number) => void, context?: any): void;
+    [Symbol.iterator](): IterableIterator<R>;
+    values(): IterableIterator<R>;
+    entries(): IterableIterator<[number, R]>;
+    every(iteratee: Predicate<R>, context?: any): boolean;
+    map<T>(iteratee: (val: R, key: number) => T, context?: any): T[];
 }
 export declare type LiveUpdatesOption = boolean | ((x: any) => boolean);
 export declare type ElementsArg = Object | Record | Object[] | Record[];

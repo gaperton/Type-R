@@ -160,24 +160,6 @@ export abstract class Transactional implements Messenger, IONode, Validatable, T
         isRoot && transactionApi.commit( this );
     }
 
-    // Loop through the members in the scope of transaction.
-    // Transactional version of each()
-    updateEach( iteratee : ( val : any, key : string | number ) => void, options? : TransactionOptions ){
-        const isRoot = transactionApi.begin( this );
-        this.each( iteratee );
-        isRoot && transactionApi.commit( this );
-    }
-
-    // Apply bulk in-place object update in scope of ad-hoc transaction 
-    set( values : any, options? : TransactionOptions ) : this {
-        if( values ){ 
-            const transaction = this._createTransaction( values, options );
-            transaction && transaction.commit();
-        } 
-
-        return this;
-    }
-
     // Assign transactional object "by value", copying aggregated items.
     assignFrom( source : Transactional | Object ) : this {
         // Need to delay change events until change token willl by synced.
@@ -200,6 +182,10 @@ export abstract class Transactional implements Messenger, IONode, Validatable, T
     // Returns null if there are no any changes.
     /** @private */  
     abstract _createTransaction( values : any, options? : TransactionOptions ) : Transaction | void
+
+    // Apply bulk in-place object update in scope of ad-hoc transaction 
+    abstract set( values : any, options? : TransactionOptions ) : this;
+
     
     // Parse function applied when 'parse' option is set for transaction.
     parse( data : any, options? : TransactionOptions ) : any { return data }
@@ -242,20 +228,6 @@ export abstract class Transactional implements Messenger, IONode, Validatable, T
      */
 
     // Loop through the members. Must be efficiently implemented in container class.
-    abstract each( iteratee : ( val : any, key : string | number ) => void, context? : any )
-
-    // Map members to an array
-    map<T>( iteratee : ( val : any, key : string | number ) => T, context? : any ) : T[]{
-        const arr : T[] = [],
-              fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee;
-        
-        this.each( ( val, key ) => {
-            const result = fun( val, key );
-            if( result !== void 0 ) arr.push( result );
-        } );
-
-        return arr;
-    }
 
     _endpoint : IOEndpoint
     _ioPromise : IOPromise<this>
@@ -266,19 +238,6 @@ export abstract class Transactional implements Messenger, IONode, Validatable, T
 
     getEndpoint() : IOEndpoint {
         return getOwnerEndpoint( this ) || this._endpoint;
-    }
-
-    // Map members to an object
-    mapObject<T>( iteratee : ( val : any, key : string | number ) => T, context? : any ) : { [ key : string ] : T }{
-        const obj : { [ key : string ] : T } = {},
-            fun = context !== void 0 ? ( v, k ) => iteratee.call( context, v, k ) : iteratee;
-        
-        this.each( ( val, key ) => {
-            const result = iteratee( val, key );
-            if( result !== void 0 ) obj[ key ] = result;
-        } );
-
-        return obj;
     }
     
     /*********************************

@@ -21,7 +21,7 @@ export interface CollectionOptions extends TransactionOptions {
     model? : typeof Record
 }
 
-export type Predicate<R> = ( val : R, key : number ) => boolean | object;
+export type Predicate<R> = ( ( val : R, key : number ) => boolean ) | Partial<R>;
 
 export interface CollectionDefinition extends TransactionalDefinition {
     model? : typeof Record,
@@ -169,7 +169,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
         isRoot && commit( this );
     }
 
-    get( objOrId : string | R | Object ) : R {
+    get( objOrId : string | object ) : R {
         if( objOrId == null ) return;
 
         if( typeof objOrId === 'object' ){
@@ -181,78 +181,16 @@ export class Collection< R extends Record = Record> extends Transactional implem
         }        
     }
 
-    each( iteratee : ( val : R, key : number ) => void, context? : any ){
-        const fun = bindContext( iteratee, context ),
-            { models } = this;
-
-        for( let i = 0; i < models.length; i++ ){
-            fun( models[ i ], i ); 
-        }
+    each( iteratee : ( val : R, key : number ) => void, context? : any ) : void {
+        this.models.forEach( iteratee, context );
     }
 
-    forEach( iteratee : ( val : R, key? : number ) => void, context? : any ){
-        return this.each( iteratee, context );
-    }
-    
-    [ Symbol.iterator ]() : IterableIterator<R> {
-        return this.models[ Symbol.iterator ]();
-    }
-
-    values() : IterableIterator<R> {
-        return this.models[ Symbol.iterator ]();
-    }
-
-    entries() : IterableIterator<[ number, R ]>{
-        return this.models.entries();
-    }
-
-    every( iteratee : Predicate<R>, context? : any ) : boolean {
-        const fun = toPredicateFunction( iteratee, context ),
-            { models } = this;
-
-        for( let i = 0; i < models.length; i++ ){
-            if( !fun( models[ i ], i ) ) return false;
-        }
-
-        return true;
-    }
-
-    filter( iteratee : Predicate<R>, context? : any ) : R[] {
-        const fun = toPredicateFunction( iteratee, context );
-
-        return this.map( ( x, i ) => fun( x, i ) ? x : void 0 );
-    }
-
-    find( iteratee : Predicate<R>, context? : any ) : R {
-        const fun = toPredicateFunction( iteratee, context ),
-        { models } = this;
-
-        for( let i = 0; i < models.length; i++ ){
-            if( fun( models[ i ], i ) ) return models[ i ];
-        }
-
-        return null;
-    }
-
-    some( iteratee : Predicate<R>, context? : any ) : boolean {
-        return Boolean( this.find( iteratee, context ) );
-    }
-
-    map< T >( iteratee : ( val : R, key : number ) => T, context? : any ) : T[]{
-        const fun = bindContext( iteratee, context ),
-            { models } = this,
-            mapped = Array( models.length );
-
-        let j = 0;
-
-        for( let i = 0; i < models.length; i++ ){
-            const x = fun( models[ i ], i );
-            x === void 0 || ( mapped[ j++ ] = x ); 
-        }
-
-        mapped.length = j;
-
-        return mapped;
+    // Loop through the members in the scope of transaction.
+    // Transactional version of each()
+    updateEach( iteratee : ( val : any, key : string | number ) => void, options? : TransactionOptions ){
+        const isRoot = transactionApi.begin( this );
+        this.models.forEach( iteratee );
+        isRoot && transactionApi.commit( this );
     }
 
     _validateNested( errors : {} ) : number {
@@ -312,7 +250,6 @@ export class Collection< R extends Record = Record> extends Transactional implem
 
     initialize(){}
 
-    get length() : number { return this.models.length; }
     first() : R { return this.models[ 0 ]; }
     last() : R { return this.models[ this.models.length - 1 ]; }
     at( a_index : number ) : R {
@@ -513,46 +450,12 @@ export class Collection< R extends Record = Record> extends Transactional implem
         return this;
     }
 
-    // Add a model to the end of the collection.
-    push(model : ElementsArg, options : CollectionOptions ) {
-      return this.add(model, assign({at: this.length}, options));
-    }
-
-    // Remove a model from the end of the collection.
-    pop( options : CollectionOptions ) : R {
-      var model = this.at(this.length - 1);
-      this.remove(model, { unset : true, ...options });
-      return model;
-    }
-
     // Remove and return given model.
     // TODO: do not dispose the model for aggregated collection.
     unset( modelOrId : R | string, options? ) : R {
         const value = this.get( modelOrId );
         this.remove( modelOrId, { unset : true, ...options } );
         return value;
-    }
-
-    // Add a model to the beginning of the collection.
-    unshift(model : ElementsArg, options : CollectionOptions ) {
-      return this.add(model, assign({at: 0}, options));
-    }
-
-    // Remove a model from the beginning of the collection.
-    shift( options? : CollectionOptions ) : R {
-      var model = this.at(0);
-      this.remove( model, { unset : true, ...options } );
-      return model;
-    }
-
-    // Slice out a sub-array of models from the collection.
-    slice() : R[] {
-      return slice.apply(this.models, arguments);
-    }
-
-    indexOf( modelOrId : any ) : number {
-        const record = this.get( modelOrId );
-        return this.models.indexOf( record );
     }
 
     modelId( attrs : {} ) : any {
@@ -586,6 +489,82 @@ export class Collection< R extends Record = Record> extends Transactional implem
     getClassName() : string {
         return super.getClassName() || 'Collection';
     }
+
+    /***********************************
+     * Proxied Array methods
+     */
+
+    get length() : number { return this.models.length; }
+
+    // Add a model to the end of the collection.
+    push(model : ElementsArg, options : CollectionOptions ) {
+        return this.add(model, assign({at: this.length}, options));
+    }
+
+    // Remove a model from the end of the collection.
+    pop( options : CollectionOptions ) : R {
+        var model = this.at(this.length - 1);
+        this.remove(model, { unset : true, ...options });
+        return model;
+    }
+
+    // Add a model to the beginning of the collection.
+    unshift(model : ElementsArg, options : CollectionOptions ) {
+        return this.add(model, assign({at: 0}, options));
+    }
+  
+    // Remove a model from the beginning of the collection.
+    shift( options? : CollectionOptions ) : R {
+        const model = this.at(0);
+        this.remove( model, { unset : true, ...options } );
+        return model;
+    }
+
+    // Slice out a sub-array of models from the collection.
+    slice( begin : number, end? : number ) : R[] {
+        return this.models.slice( begin, end );
+    }
+  
+    indexOf( modelOrId : string | Partial<R> ) : number {
+        return this.models.indexOf( this.get( modelOrId ) );
+    }
+
+    filter( iteratee : Predicate<R>, context? : any ) : R[] {
+        return this.models.filter( toPredicateFunction( iteratee ), context );
+    }
+
+    find( iteratee : Predicate<R>, context? : any ) : R {
+        return this.models.find( toPredicateFunction( iteratee ), context );
+    }
+
+    some( iteratee : Predicate<R>, context? : any ) : boolean {
+        return this.models.some( toPredicateFunction( iteratee ), context );
+    }
+
+    forEach( iteratee : ( val : R, key? : number ) => void, context? : any ) : void {
+        this.models.forEach( iteratee, context );
+    }
+    
+    [ Symbol.iterator ]() : IterableIterator<R> {
+        return this.models[ Symbol.iterator ]();
+    }
+
+    values() : IterableIterator<R> {
+        return this.models.values();
+    }
+
+    entries() : IterableIterator<[ number, R ]>{
+        return this.models.entries();
+    }
+
+    every( iteratee : Predicate<R>, context? : any ) : boolean {
+        return this.models.every( toPredicateFunction( iteratee ), context );
+    }
+
+    // Map members to an array
+    map<T>( iteratee : ( val : R, key : number ) => T, context? : any ) : T[]{
+        return this.models.map( iteratee, context );
+    }
 }
 
 export type LiveUpdatesOption = boolean | ( ( x : any ) => boolean );
@@ -606,18 +585,20 @@ function bindContext( fun : Function, context? : any ){
     return context !== void 0 ? ( v, k ) => fun.call( context, v, k ) : fun;
 }
 
-function toPredicateFunction<R>( iteratee : Predicate<R>, context : any ){
-    if( typeof iteratee === 'object' ){
-        // Wrap object to the predicate...
-        return x => {
-            for( let key in iteratee as any ){
-                if( iteratee[ key ] !== x[ key ] )
-                    return false;
-            }
+function toPredicateFunction<R>( iteratee : Predicate<R> ){
+    switch( typeof iteratee ){
+        case 'function' : return iteratee;
+        case 'object' :
+            const keys = Object.keys( iteratee );
+            
+            return x => {
+                for( let key of keys ){
+                    if( iteratee[ key ] !== x[ key ] )
+                        return false;
+                }
 
-            return true;
-        }
+                return true;
+            }
+        default : throw new Error( 'Invalid iteratee' );
     }
-    
-    return bindContext( iteratee, context );
 }

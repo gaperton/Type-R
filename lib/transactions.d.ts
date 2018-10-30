@@ -49,10 +49,9 @@ export declare abstract class Transactional implements Messenger, IONode, Valida
     constructor(cid: string | number);
     abstract clone(options?: CloneOptions): this;
     transaction(fun: (self: this) => void, options?: TransactionOptions): void;
-    updateEach(iteratee: (val: any, key: string | number) => void, options?: TransactionOptions): void;
-    set(values: any, options?: TransactionOptions): this;
     assignFrom(source: Transactional | Object): this;
     abstract _createTransaction(values: any, options?: TransactionOptions): Transaction | void;
+    abstract set(values: any, options?: TransactionOptions): this;
     parse(data: any, options?: TransactionOptions): any;
     abstract toJSON(options?: object): {};
     abstract get(key: string): any;
@@ -60,16 +59,11 @@ export declare abstract class Transactional implements Messenger, IONode, Valida
     getOwner(): Owner;
     _defaultStore: Transactional;
     getStore(): Transactional;
-    abstract each(iteratee: (val: any, key: string | number) => void, context?: any): any;
-    map<T>(iteratee: (val: any, key: string | number) => T, context?: any): T[];
     _endpoint: IOEndpoint;
     _ioPromise: IOPromise<this>;
     hasPendingIO(): IOPromise<this>;
     fetch(options?: object): IOPromise<this>;
     getEndpoint(): IOEndpoint;
-    mapObject<T>(iteratee: (val: any, key: string | number) => T, context?: any): {
-        [key: string]: T;
-    };
     _validationError: ValidationError;
     readonly validationError: ValidationError;
     abstract _validateNested(errors: ChildrenErrors): number;

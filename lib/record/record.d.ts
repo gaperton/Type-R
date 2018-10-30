@@ -50,22 +50,15 @@ export declare class Record extends Transactional implements IORecord, Attribute
     _attributesArray: AnyType[];
     Attributes: AttributesConstructor;
     AttributesCopy: AttributesCopyConstructor;
-    forEachAttr(attrs: {}, iteratee: (value: any, key?: string, spec?: AnyType) => void): void;
-    each(iteratee: (value?: any, key?: string) => void, context?: any): void;
-    [Symbol.iterator](): RecordEntriesIterator;
-    entries(): RecordEntriesIterator;
-    keys(): string[];
-    values(): any[];
     defaults(values?: {}): {};
     constructor(a_values?: {}, a_options?: ConstructorOptions);
     initialize(values?: any, options?: any): void;
     clone(options?: CloneOptions): this;
-    deepClone(): this;
     _validateNested(errors: ChildrenErrors): number;
     get(key: string): any;
+    set(values: any, options?: TransactionOptions): this;
     toJSON(options?: object): any;
     parse(data: any, options?: TransactionOptions): any;
-    _parse(data: any): any;
     deepSet(name: string, value: any, options?: any): this;
     readonly collection: any;
     dispose(): void;
@@ -74,6 +67,10 @@ export declare class Record extends Transactional implements IORecord, Attribute
     _createTransaction(values: object, options: TransactionOptions): Transaction;
     forceAttributeChange: (key: string, options: TransactionOptions) => void;
     _onChildrenChange: (child: Transactional, options: TransactionOptions) => void;
+    forEach(iteratee: (value?: any, key?: string) => void, context?: any): void;
+    [Symbol.iterator](): RecordEntriesIterator;
+    entries(): RecordEntriesIterator;
+    keys(): string[];
 }
 export declare class RecordEntriesIterator implements Iterator<[string, any]> {
     private readonly record;
