@@ -70,6 +70,23 @@ describe( 'Bugs from Volicon Observer', () =>{
 
     } );
 
+    describe( 'Collection bugs', () =>{
+        it( 'can define collection with comparator', () => {
+            const x = 1;
+
+            @define class TestCollection extends Collection {
+                static comparator = x => x.mtime
+            }
+            
+            @define class M extends Record {
+                static Collection = TestCollection as any
+                static attributes = {
+                    mtime: Date
+                }
+            }
+        });
+    });
+
     describe( 'Validation', () => {
         it( 'performs validation if collection item is changed', ()=>{
             var BitrateModel = Record.extend({
