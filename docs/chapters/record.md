@@ -41,7 +41,6 @@ import "reflect-metadata" // Required for @attr without arguments
 
     // In case of primitive types you can pass nun-null default values as an argument to attr.
     @attr( 'somestring' ) firstName : string,
-    @attr firstName : string = "125" // This will work as well, but is less efficient. You *cannot* omit type.
 
     // You have to pass type explicitly if reflect-metadata is not used.
     @attr( String ) email : string
@@ -263,7 +262,7 @@ import { define, attr, Record } from 'type-r'
 }
 ```
 
-### `decorator` @type( Ctor ).as
+### `decorator` @type( Ctor, defaultValue? ).as
 
 Attribute definition creates the TypeScript property decorator when appended with `.as` suffix. It's an alternative syntax to `@attr( attrDef )`.
 
@@ -300,6 +299,18 @@ If the value of the particular attribute is not compatible with its type, it's c
         title  : '',
         author : ''
     }
+}
+
+const book = new Book({
+  title: "One Thousand and One Nights",
+  author: "Scheherazade"
+});
+```
+
+```typescript
+@define class Book extends Record {
+    @attr( '' ) title : string
+    @attr( '' ) author : string
 }
 
 const book = new Book({
@@ -510,9 +521,16 @@ All changes in shared records or collections are detected and cause change event
 }
 ```
 
+```typescript
+@define class UsersListState extends Record {
+    @type( User.Collection ).as users : Collection<User>,
+    @shared( User ).as selected : User // Can be assigned with the user from this.users
+}
+```
+
 ### `attrDef` : Collection.Refs
 
-Non-aggregating collection. Collection of references to shared records which itself is _aggregated_ by the record, but _does not aggregate_ its elements. In contrast to the `shared( Collection )`, `Collection.Refs` creates an instance of collection which _is the part the parent record_.
+Non-aggregating collection. Collection of references to shared records which itself is _aggregated_ by the record, but _does not aggregate_ its elements. In contrast to the `shared( Collection )`, `Collection.Refs` is an actual constructor and creates an instance of collection which _is the part the parent record_.
 
 The collection itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, serialized, or disposed.
 
@@ -525,6 +543,17 @@ All changes in the collection and its elements are detected and cause change eve
         static attributes = {
             notCloned : shared( SomeCollection ), // Reference to the _shared collection_ object.
             cloned : SomeCollection.Refs // _Aggregated_ collection of references to the _shared records_.
+        }
+    }
+```
+
+```typescript
+    @define class MyRecord extends Record {
+        // Reference to the _shared collection_ object.
+        @shared( SomeCollection ).as notCloned : SomeCollection 
+
+        // _Aggregated_ collection of references to the _shared records_.
+        @type( SomeCollection.Refs ).as cloned : SomeCollection
     }
 ```
 

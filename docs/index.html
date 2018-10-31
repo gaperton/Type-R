@@ -347,7 +347,6 @@ users.updateEach( <span class="hljs-function"><span class="hljs-params">user</sp
 
     <span class="hljs-comment">// In case of primitive types you can pass nun-null default values as an argument to attr.</span>
     <span class="hljs-meta">@attr</span>( <span class="hljs-string">'somestring'</span> ) firstName : <span class="hljs-built_in">string</span>,
-    <span class="hljs-meta">@attr</span> firstName : <span class="hljs-built_in">string</span> = <span class="hljs-string">"125"</span> <span class="hljs-comment">// This will work as well, but is less efficient. You *cannot* omit type.</span>
 
     <span class="hljs-comment">// You have to pass type explicitly if reflect-metadata is not used.</span>
     <span class="hljs-meta">@attr</span>( <span class="hljs-built_in">String</span> ) email : <span class="hljs-built_in">string</span>
@@ -513,7 +512,7 @@ Doesn&#39;t require <code>reflect-metadata</code> package.</p>
     @attr( type( <span class="hljs-built_in">String</span> ).value( <span class="hljs-number">5</span> ) ) email : string
 }
 </code></pre>
-<h3 id="decorator-type-ctor-as"><code>decorator</code> @type( Ctor ).as</h3>
+<h3 id="decorator-type-ctor-defaultvalue-as"><code>decorator</code> @type( Ctor, defaultValue? ).as</h3>
 <p>Attribute definition creates the TypeScript property decorator when appended with <code>.as</code> suffix. It&#39;s an alternative syntax to <code>@attr( attrDef )</code>.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, type, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
@@ -541,6 +540,16 @@ Doesn&#39;t require <code>reflect-metadata</code> package.</p>
 <span class="hljs-keyword">const</span> book = <span class="hljs-keyword">new</span> Book({
   <span class="hljs-attr">title</span>: <span class="hljs-string">"One Thousand and One Nights"</span>,
   <span class="hljs-attr">author</span>: <span class="hljs-string">"Scheherazade"</span>
+});
+</code></pre>
+<pre><code class="highlight typescript"><span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> Book <span class="hljs-keyword">extends</span> Record {
+    <span class="hljs-meta">@attr</span>( <span class="hljs-string">''</span> ) title : <span class="hljs-built_in">string</span>
+    <span class="hljs-meta">@attr</span>( <span class="hljs-string">''</span> ) author : <span class="hljs-built_in">string</span>
+}
+
+<span class="hljs-keyword">const</span> book = <span class="hljs-keyword">new</span> Book({
+  title: <span class="hljs-string">"One Thousand and One Nights"</span>,
+  author: <span class="hljs-string">"Scheherazade"</span>
 });
 </code></pre>
 <h3 id="record-clone-">record.clone()</h3>
@@ -688,8 +697,13 @@ One object can have single owner. The record with its aggregated attributes form
     }
 }
 </code></pre>
+<pre><code class="highlight typescript"><span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> UsersListState <span class="hljs-keyword">extends</span> Record {
+    <span class="hljs-meta">@type</span>( User.Collection ).as users : Collection&lt;User&gt;,
+    <span class="hljs-meta">@shared</span>( User ).as selected : User <span class="hljs-comment">// Can be assigned with the user from this.users</span>
+}
+</code></pre>
 <h3 id="attrdef-collection-refs"><code>attrDef</code> : Collection.Refs</h3>
-<p>Non-aggregating collection. Collection of references to shared records which itself is <em>aggregated</em> by the record, but <em>does not aggregate</em> its elements. In contrast to the <code>shared( Collection )</code>, <code>Collection.Refs</code> creates an instance of collection which <em>is the part the parent record</em>.</p>
+<p>Non-aggregating collection. Collection of references to shared records which itself is <em>aggregated</em> by the record, but <em>does not aggregate</em> its elements. In contrast to the <code>shared( Collection )</code>, <code>Collection.Refs</code> is an actual constructor and creates an instance of collection which <em>is the part the parent record</em>.</p>
 <p>The collection itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, serialized, or disposed.</p>
 <p>All changes in the collection and its elements are detected and cause change events of the containing record.</p>
 <aside class="notice"><code>Collection.Refs</code> is the constructor and can be used to create non-aggregating collection with `new` operator.</aside>
@@ -698,6 +712,15 @@ One object can have single owner. The record with its aggregated attributes form
         <span class="hljs-keyword">static</span> attributes = {
             <span class="hljs-attr">notCloned</span> : shared( SomeCollection ), <span class="hljs-comment">// Reference to the _shared collection_ object.</span>
             cloned : SomeCollection.Refs <span class="hljs-comment">// _Aggregated_ collection of references to the _shared records_.</span>
+        }
+    }
+</code></pre>
+<pre><code class="highlight typescript">    <span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> MyRecord <span class="hljs-keyword">extends</span> Record {
+        <span class="hljs-comment">// Reference to the _shared collection_ object.</span>
+        <span class="hljs-meta">@shared</span>( SomeCollection ).as notCloned : SomeCollection 
+
+        <span class="hljs-comment">// _Aggregated_ collection of references to the _shared records_.</span>
+        <span class="hljs-meta">@type</span>( SomeCollection.Refs ).as cloned : SomeCollection
     }
 </code></pre>
 <h3 id="decorator-predefine"><code>decorator</code> @predefine</h3>
@@ -1564,15 +1587,22 @@ Initialized as <code>null</code> and serialized as <code>record.id</code>. Is no
 </li>
 </ul>
 <pre><code class="highlight javascript">    @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">State</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-        items : Item.Collection,
-        <span class="hljs-attr">selected</span> : <span class="hljs-keyword">from</span>( <span class="hljs-string">'items'</span> ) <span class="hljs-comment">// Will resolve to `this.items`</span>
+        <span class="hljs-keyword">static</span> attributes = {
+            <span class="hljs-attr">items</span> : Item.Collection,
+            <span class="hljs-attr">selected</span> : <span class="hljs-keyword">from</span>( <span class="hljs-string">'items'</span> ) <span class="hljs-comment">// Will resolve to `this.items`</span>
+        }
+    }
+</code></pre>
+<pre><code class="highlight typescript">    <span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> State <span class="hljs-keyword">extends</span> Record {
+        <span class="hljs-meta">@type</span>( Item.Collection ).as items : Collection&lt;Item&gt;;
+        <span class="hljs-meta">@from</span>( <span class="hljs-string">'items'</span> ).as selected : Item
     }
 </code></pre>
 <aside class="info">It's recommended to use ~paths and stores instead of ^paths.</aside>
 
 <h3 id="attrdef-subsetof-sourcecollection-collectionctor-"><code>attrDef</code> : subsetOf( <code>sourceCollection</code>, CollectionCtor? )</h3>
-<p>Serializable non-aggregating collection which is the subset of the particular collection. Serialized as an array of record ids. Used to model many-to-many relationships.</p>
-<p>The collection itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, or disposed.</p>
+<p>Serializable non-aggregating collection which is the subset of the existing collection. Serialized as an array of record ids. Used to model many-to-many relationships. <code>CollectionCtor</code> argument may be omitted unless you need it to be a sublass of the particular collection type.</p>
+<p>The collection object itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, or disposed.</p>
 <p><code>sourceCollection</code> is the same reference as used by <code>from( sourceCollection )</code>.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Role</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {

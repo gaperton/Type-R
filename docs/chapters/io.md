@@ -404,8 +404,17 @@ Changes in shared record are not detected.
 
 ```javascript
     @define class State extends Record {
-        items : Item.Collection,
-        selected : from( 'items' ) // Will resolve to `this.items`
+        static attributes = {
+            items : Item.Collection,
+            selected : from( 'items' ) // Will resolve to `this.items`
+        }
+    }
+```
+
+```typescript
+    @define class State extends Record {
+        @type( Item.Collection ).as items : Collection<Item>;
+        @from( 'items' ).as selected : Item
     }
 ```
 
@@ -413,9 +422,9 @@ Changes in shared record are not detected.
 
 ### `attrDef` : subsetOf( `sourceCollection`, CollectionCtor? )
 
-Serializable non-aggregating collection which is the subset of the particular collection. Serialized as an array of record ids. Used to model many-to-many relationships.
+Serializable non-aggregating collection which is the subset of the existing collection. Serialized as an array of record ids. Used to model many-to-many relationships. `CollectionCtor` argument may be omitted unless you need it to be a sublass of the particular collection type.
 
-The collection itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, or disposed.
+The collection object itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, or disposed.
 
 `sourceCollection` is the same reference as used by `from( sourceCollection )`.
 

@@ -162,10 +162,10 @@ export class ChainableAttributeSpec {
 
 function emptyFunction(){}
 
-export function type( this : void, type : ChainableAttributeSpec | Function ) : ChainableAttributeSpec {
+export function type( this : void, type : ChainableAttributeSpec | Function, value? : any ) : ChainableAttributeSpec {
     if( type instanceof ChainableAttributeSpec ) return type;
 
-    const { defaultValue } = getMetatype( type );
+    const defaultValue = value === void 0 ? getMetatype( type ).defaultValue : value;
     return new ChainableAttributeSpec( {
         type,
         value : defaultValue,
