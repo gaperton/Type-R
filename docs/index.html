@@ -88,7 +88,7 @@
 <p>Record attributes may have custom validation rules attached to them. Validation is being triggered transparently on demand and its result is cached across the record/collection aggregation tree, making subsequent calls to the validation API extremily cheap.</p>
 <p>All aspects of record behavior including serialization and validation can be controlled on attribute level with declarative definitions combining attribute types with metadata. Attribute definitions (&quot;metatypes&quot;) can be reused across different models forming the domain-specific language of model declarations. Some useful attribute metatypes (<code>Email</code>, <code>Url</code>, <code>MicrosoftDate</code>, etc) are provided by <code>type-r/ext-types</code> package.</p>
 <h2 id="how-type-r-compares-to-x-">How Type-R compares to X?</h2>
-<p>Type-R (former &quot;NestedTypes&quot;) project was started in 2014 in Volicon as a modern successor to BackboneJS models, which would match Ember Data in its capabilities to work with a complex state, while retaining the BackboneJS simplicity, modularity, and the some degree of backward API compatibility. It replaced BackboneJS in the model layer, and it was the key technology in Volicon&#39;s strategy to gradually move from BackboneJS Views to React in the view layer.</p>
+<p>Type-R (former &quot;NestedTypes&quot;) project was started in 2014 in Volicon as a modern successor to BackboneJS models, which would match Ember Data in its capabilities to work with a complex state, while retaining the BackboneJS simplicity, modularity, and the some degree of backward API compatibility. It replaced BackboneJS in the model layer of Volicon products, and it became the key technology in Volicon&#39;s strategy to gradually move from BackboneJS Views to React in the view layer.</p>
 <p><a href="https://guides.emberjs.com/v2.2.0/models/">Ember Data</a> is the closest thing to Type-R by its capabilities, with <a href="http://backbonejs.org/#Model">BackboneJS models and collections</a> being the closest thing by the API, and <a href="https://github.com/mobxjs/mobx">mobx</a> being pretty close in the way how the UI state is managed.</p>
 <p>Type-R, however, takes very different approach to all of them:</p>
 <ul>
@@ -171,7 +171,7 @@
 <li><code>PUT /api/users/:id</code> - update the user with a given id</li>
 <li><code>DELETE /api/users/:id</code> - delete the user with a given id</li>
 </ul>
-<p>Record and collection are seralizable to and can be parsed from JSON with no additional effort, and can be customized for collections, records, and individual attributes. The Record checks all updates and cast attribute values to declared attribute types, protecting the state strucure from the protocol incompatibilities and improper assignments.</p>
+<p>Record and collection are seralizable to and can be parsed from JSON with no additional effort. A mapping to JSON can be customized for collections, records, and individual attributes. The Record validates all updates casting attribute values to declared attribute types to protect the state strucure from the protocol incompatibilities and improper assignments.</p>
 <pre><code class="highlight javascript">@define User extends Record {
     <span class="hljs-keyword">static</span> endpoint = restfulIO( <span class="hljs-string">'/api/users'</span> );
     <span class="hljs-keyword">static</span> attributes = {
@@ -191,9 +191,9 @@ expect( <span class="hljs-keyword">typeof</span> users.toJSON()[ <span class="hl
     <span class="hljs-keyword">static</span> endpoint = restfulIO( <span class="hljs-string">'/api/users'</span> );
 
     <span class="hljs-comment">// Type-R can infer attribute types from TypeScript type annotations.</span>
-    <span class="hljs-meta">@attr</span> name : <span class="hljs-built_in">string</span>
-    <span class="hljs-meta">@attr</span> email : <span class="hljs-built_in">string</span>
-    <span class="hljs-meta">@attr</span> createdAt : <span class="hljs-built_in">Date</span>
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).as name : <span class="hljs-built_in">string</span>
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).as email : <span class="hljs-built_in">string</span>
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">Date</span> ).as createdAt : <span class="hljs-built_in">Date</span>
 }
 
 <span class="hljs-keyword">const</span> users : Collection&lt;User&gt; = <span class="hljs-keyword">new</span> User.Collection();
@@ -208,7 +208,7 @@ expect( <span class="hljs-keyword">typeof</span> users.toJSON()[ <span class="hl
 <pre><code class="highlight javascript">@define UIState extends Record {
     <span class="hljs-keyword">static</span> attributes = {
         <span class="hljs-attr">users</span> : User.Collection,
-        <span class="hljs-attr">selectedUser</span> : User.from( <span class="hljs-string">'users'</span> )
+        <span class="hljs-attr">selectedUser</span> : <span class="hljs-keyword">from</span>( <span class="hljs-string">'users'</span> )
     }
 }
 
@@ -223,11 +223,9 @@ uiState.users.fetch();
 </code></pre>
 <pre><code class="highlight typescript"><span class="hljs-meta">@define</span> UIState <span class="hljs-keyword">extends</span> Record {
     <span class="hljs-comment">// For collections and more complex types attribute type must be provided explicitly</span>
-    <span class="hljs-meta">@attr</span>( User.Collection )
-    users : Collection&lt;User&gt;
+    <span class="hljs-meta">@type</span>( User.Collection ).as users : Collection&lt;User&gt;
 
-    <span class="hljs-meta">@attr</span>( User.from( <span class="hljs-string">'users'</span> ) )
-    selectedUser : User
+    <span class="hljs-meta">@from</span>( <span class="hljs-string">'users'</span> ).as selectedUser : User
 }
 
 <span class="hljs-keyword">const</span> uiState = <span class="hljs-keyword">new</span> UIState();
@@ -271,14 +269,14 @@ expect( users.isValid() ).toBe( <span class="hljs-literal">true</span> );
     <span class="hljs-keyword">static</span> endpoint = restfulIO( <span class="hljs-string">'/api/users'</span> );
 
     <span class="hljs-comment">// @type(...).as converts Type-R attribute type definition to the TypeScript decorator.</span>
-    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).required
-    .as name : <span class="hljs-built_in">string</span>
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).required.as
+        name : <span class="hljs-built_in">string</span>
 
-    <span class="hljs-meta">@type</span>( Email ).required
-    .as email : <span class="hljs-built_in">string</span>
+    <span class="hljs-meta">@type</span>( Email ).required.as
+        email : <span class="hljs-built_in">string</span>
 
-    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">Date</span> ).check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x.getTime() &lt;= <span class="hljs-built_in">Date</span>.now() )
-    .as createdAt : <span class="hljs-built_in">Date</span>
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">Date</span> ).check( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x.getTime() &lt;= <span class="hljs-built_in">Date</span>.now() ).as
+        createdAt : <span class="hljs-built_in">Date</span>
 }
 
 <span class="hljs-keyword">const</span> users = <span class="hljs-keyword">new</span> User.Collection();
@@ -310,7 +308,9 @@ expect( users.isValid() ).toBe( <span class="hljs-literal">true</span> );
 <p><img src="images/3-layer-server.png" alt="server"></p>
 
 <h1 id="record">Record</h1>
-<p>Record is the serializable class with typed attributes, observable changes, and custom validation checks. It is the main building block for managing the application state; component local state, stores, and collection elements are all subclasses of the <code>Record</code>.</p>
+<p>Record is an optionally persistent class having the predefined set of attributes. Each attribute is the property of known type which is protected from improper assigments at run-time, is serializable to JSON by default, has deeply observable changes, and may have custom validation rules attached.</p>
+<p>Records may have other records and collections of records stored in its attributes describing an application state of an arbitrary complexity. These nested records and collections are considered to be an integral part of the parent record forming an <em>aggregation tree</em> which can be serialized to JSON, cloned, and disposed of as a whole.</p>
+<p>All aspects of an attribute behavior are controlled with attribute metadata, which (taken together with its type) is called <em>attribite metatype</em>. Metatypes can be declared separately and reused across multiple records definitions.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, type, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
 <span class="hljs-comment">// ⤹ required to make magic work  </span>
@@ -345,20 +345,18 @@ users.updateEach( <span class="hljs-function"><span class="hljs-params">user</sp
     <span class="hljs-meta">@attr</span> lastName  : <span class="hljs-built_in">string</span> <span class="hljs-comment">// ⟵ @attr decorator extracts type from the Reflect metadata</span>
     <span class="hljs-meta">@attr</span> createdAt : <span class="hljs-built_in">Date</span> <span class="hljs-comment">// ⟵ It works for any constructor.</span>
 
-    <span class="hljs-comment">// In case of primitive types you can pass nun-null default values as an argument to attr.</span>
-    <span class="hljs-meta">@attr</span>( <span class="hljs-string">'somestring'</span> ) firstName : <span class="hljs-built_in">string</span>,
-
     <span class="hljs-comment">// You have to pass type explicitly if reflect-metadata is not used.</span>
     <span class="hljs-meta">@attr</span>( <span class="hljs-built_in">String</span> ) email : <span class="hljs-built_in">string</span>
 
+    <span class="hljs-comment">// @attr accepts arbitrary metatype definition, and infer types from default values.</span>
+    <span class="hljs-meta">@attr</span>( <span class="hljs-string">'somestring'</span> ) firstName : <span class="hljs-built_in">string</span>,
+
     <span class="hljs-comment">// Type cannot be inferred for null default values, and needs to be specified explicitly</span>
-    <span class="hljs-meta">@attr</span>( <span class="hljs-keyword">type</span>( <span class="hljs-built_in">String</span> ).value( <span class="hljs-literal">null</span> ) ) email : <span class="hljs-built_in">string</span>
-    <span class="hljs-comment">// Or, as a shorter form...</span>
     <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).value( <span class="hljs-literal">null</span> ).as email2 : <span class="hljs-built_in">string</span> 
 
     <span class="hljs-comment">// You can attach ⤹ metadata to fine-tune attribute's behavior</span>
     <span class="hljs-meta">@type</span>( <span class="hljs-built_in">Date</span> ).value( <span class="hljs-literal">null</span> ).toJSON( <span class="hljs-literal">false</span> ).as
-    lastLogin : <span class="hljs-built_in">Date</span><span class="hljs-comment">// ⟵ not serializable</span>
+        lastLogin : <span class="hljs-built_in">Date</span><span class="hljs-comment">// ⟵ not serializable</span>
 }
 
 <span class="hljs-keyword">const</span> user = <span class="hljs-keyword">new</span> User();
@@ -371,7 +369,7 @@ users.set( json, { parse : <span class="hljs-literal">true</span> } ); <span cla
 users.updateEach( <span class="hljs-function"><span class="hljs-params">user</span> =&gt;</span> user.firstName = <span class="hljs-string">''</span> ); <span class="hljs-comment">// ⟵ bulk update triggering 'changes' once</span>
 </code></pre>
 <h2 id="definition">Definition</h2>
-<p>Record is defined as a regular ES6 class, except:</p>
+<p>Record is defined as a regular ES6 class with the following additional rules:</p>
 <ul>
 <li>it <em>must</em> extend the <code>Record</code> base class;</li>
 <li>it <em>must</em> be preceded with the <code>@define</code> decorator;</li>
@@ -502,7 +500,7 @@ a chain of calls after the <code>type( Ctor )</code> call. Attribute&#39;s defau
 }
 </code></pre>
 <h3 id="decorator-attr-attrdef-"><code>decorator</code> @attr( attrDef )</h3>
-<p>Turns class property to an attribute accipting arbitraty Type-R attribute definition as an argument. Should be used if metadata must be attached to an attribute.
+<p>Turns class property to an attribute accepting arbitraty Type-R attribute definition as an argument. Should be used if metadata must be attached to an attribute.
 Doesn&#39;t require <code>reflect-metadata</code> package.</p>
 <pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, attr, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
@@ -1911,6 +1909,41 @@ You&#39;re advised to use new syntax for any new work.</p>
 </ul>
 </li>
 </ul>
+<pre><code class="highlight typescript"><span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> User <span class="hljs-keyword">extends</span> Record {
+    <span class="hljs-comment">// There's an HTTP REST enpoint for users.</span>
+    <span class="hljs-keyword">static</span> endpoint = restfulIO( <span class="hljs-string">'/api/users'</span> );
+
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).as name : <span class="hljs-built_in">string</span>
+
+    <span class="hljs-comment">// Collection of Role records represented as an array of role.id in JSON.</span>
+    <span class="hljs-comment">// When the "roles" attribute will be accessed for the first time,</span>
+    <span class="hljs-comment">// User will look-up for a 'roles' attribute of the nearest store to resolve ids to actual Users.</span>
+    <span class="hljs-meta">@subsetOf</span>( <span class="hljs-string">'~roles'</span> ).as roles : Collection&lt;Role&gt;
+}
+
+<span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> Role <span class="hljs-keyword">extends</span> Record {
+    <span class="hljs-keyword">static</span> endpoint = restfulIO( <span class="hljs-string">'/api/roles'</span> );
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).as name : <span class="hljs-built_in">string</span>
+}
+
+<span class="hljs-comment">// Store is the regular Record, nothing special.</span>
+<span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> UsersDirectory <span class="hljs-keyword">extends</span> Store {
+    <span class="hljs-comment">// When this record is fetched, fetch all the attributes instead.</span>
+    <span class="hljs-keyword">static</span> endpoint = attributesIO();
+
+    <span class="hljs-comment">// '~roles' references from all aggregated collections</span>
+    <span class="hljs-comment">// will point to here, because this is the nearest store.</span>
+    <span class="hljs-meta">@type</span>( User.Collection ).as users : Collection&lt;User&gt;
+    <span class="hljs-meta">@type</span>( Role.Collection ).as roles : Collection&lt;Role&gt;
+}
+
+<span class="hljs-keyword">const</span> directory = <span class="hljs-keyword">new</span> UsersDirectory();
+<span class="hljs-keyword">await</span> directory.fetch();
+
+<span class="hljs-keyword">for</span>( <span class="hljs-keyword">let</span> user of directory.users ){
+    assert( user.roles.first().users.first() instanceOf User );
+}
+</code></pre>
 <h2 id="2-1-0">2.1.0</h2>
 <p>This release adds long-awaited HTTP REST endpoint.</p>
 <ul>

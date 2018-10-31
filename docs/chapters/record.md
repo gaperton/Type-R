@@ -1,6 +1,10 @@
 # Record
 
-Record is the serializable class with typed attributes, observable changes, and custom validation checks. It is the main building block for managing the application state; component local state, stores, and collection elements are all subclasses of the `Record`.
+Record is an optionally persistent class having the predefined set of attributes. Each attribute is the property of known type which is protected from improper assigments at run-time, is serializable to JSON by default, has deeply observable changes, and may have custom validation rules attached.
+
+Records may have other records and collections of records stored in its attributes describing an application state of an arbitrary complexity. These nested records and collections are considered to be an integral part of the parent record forming an *aggregation tree* which can be serialized to JSON, cloned, and disposed of as a whole.
+
+All aspects of an attribute behavior are controlled with attribute metadata, which (taken together with its type) is called *attribite metatype*. Metatypes can be declared separately and reused across multiple records definitions.
 
 ```javascript
 import { define, type, Record } from 'type-r'
@@ -39,20 +43,18 @@ import "reflect-metadata" // Required for @attr without arguments
     @attr lastName  : string // ⟵ @attr decorator extracts type from the Reflect metadata
     @attr createdAt : Date // ⟵ It works for any constructor.
 
-    // In case of primitive types you can pass nun-null default values as an argument to attr.
-    @attr( 'somestring' ) firstName : string,
-
     // You have to pass type explicitly if reflect-metadata is not used.
     @attr( String ) email : string
 
+    // @attr accepts arbitrary metatype definition, and infer types from default values.
+    @attr( 'somestring' ) firstName : string,
+
     // Type cannot be inferred for null default values, and needs to be specified explicitly
-    @attr( type( String ).value( null ) ) email : string
-    // Or, as a shorter form...
     @type( String ).value( null ).as email2 : string 
         
     // You can attach ⤹ metadata to fine-tune attribute's behavior
     @type( Date ).value( null ).toJSON( false ).as
-    lastLogin : Date// ⟵ not serializable
+        lastLogin : Date// ⟵ not serializable
 }
 
 const user = new User();
@@ -67,7 +69,7 @@ users.updateEach( user => user.firstName = '' ); // ⟵ bulk update triggering '
 
 ## Definition
 
-Record is defined as a regular ES6 class, except:
+Record is defined as a regular ES6 class with the following additional rules:
 
 - it *must* extend the `Record` base class;
 - it *must* be preceded with the `@define` decorator;
@@ -249,7 +251,7 @@ import { define, attr, Record } from 'type-r'
 
 ### `decorator` @attr( attrDef )
 
-Turns class property to an attribute accipting arbitraty Type-R attribute definition as an argument. Should be used if metadata must be attached to an attribute.
+Turns class property to an attribute accepting arbitraty Type-R attribute definition as an argument. Should be used if metadata must be attached to an attribute.
 Doesn't require `reflect-metadata` package.
 
 ```javascript

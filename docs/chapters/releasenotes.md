@@ -35,6 +35,43 @@ You're advised to use new syntax for any new work.
     - `User.from( '~users' )` -> `from( '~users', User )` (No real difference with the previous item, so don't bother)
     - `User.shared` -> `shared( User )`
 
+```typescript
+@define class User extends Record {
+    // There's an HTTP REST enpoint for users.
+    static endpoint = restfulIO( '/api/users' );
+
+    @type( String ).as name : string
+
+    // Collection of Role records represented as an array of role.id in JSON.
+    // When the "roles" attribute will be accessed for the first time,
+    // User will look-up for a 'roles' attribute of the nearest store to resolve ids to actual Users.
+    @subsetOf( '~roles' ).as roles : Collection<Role>
+}
+
+@define class Role extends Record {
+    static endpoint = restfulIO( '/api/roles' );
+    @type( String ).as name : string
+}
+
+// Store is the regular Record, nothing special.
+@define class UsersDirectory extends Store {
+    // When this record is fetched, fetch all the attributes instead.
+    static endpoint = attributesIO();
+
+    // '~roles' references from all aggregated collections
+    // will point to here, because this is the nearest store.
+    @type( User.Collection ).as users : Collection<User>
+    @type( Role.Collection ).as roles : Collection<Role>
+}
+
+const directory = new UsersDirectory();
+await directory.fetch();
+
+for( let user of directory.users ){
+    assert( user.roles.first().users.first() instanceOf User );
+}
+```
+
 ## 2.1.0
 
 This release adds long-awaited HTTP REST endpoint.

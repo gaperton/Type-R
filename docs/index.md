@@ -47,7 +47,7 @@ All aspects of record behavior including serialization and validation can be con
 
 ## How Type-R compares to X?
 
-Type-R (former "NestedTypes") project was started in 2014 in Volicon as a modern successor to BackboneJS models, which would match Ember Data in its capabilities to work with a complex state, while retaining the BackboneJS simplicity, modularity, and the some degree of backward API compatibility. It replaced BackboneJS in the model layer, and it was the key technology in Volicon's strategy to gradually move from BackboneJS Views to React in the view layer.
+Type-R (former "NestedTypes") project was started in 2014 in Volicon as a modern successor to BackboneJS models, which would match Ember Data in its capabilities to work with a complex state, while retaining the BackboneJS simplicity, modularity, and the some degree of backward API compatibility. It replaced BackboneJS in the model layer of Volicon products, and it became the key technology in Volicon's strategy to gradually move from BackboneJS Views to React in the view layer.
 
 [Ember Data](https://guides.emberjs.com/v2.2.0/models/) is the closest thing to Type-R by its capabilities, with [BackboneJS models and collections](http://backbonejs.org/#Model) being the closest thing by the API, and [mobx](https://github.com/mobxjs/mobx) being pretty close in the way how the UI state is managed.
 
@@ -83,7 +83,7 @@ The basic building block is the `Record` class. To fetch data from the server, a
 - `PUT /api/users/:id` - update the user with a given id
 - `DELETE /api/users/:id` - delete the user with a given id
 
-Record and collection are seralizable to and can be parsed from JSON with no additional effort, and can be customized for collections, records, and individual attributes. The Record checks all updates and cast attribute values to declared attribute types, protecting the state strucure from the protocol incompatibilities and improper assignments.
+Record and collection are seralizable to and can be parsed from JSON with no additional effort. A mapping to JSON can be customized for collections, records, and individual attributes. The Record validates all updates casting attribute values to declared attribute types to protect the state strucure from the protocol incompatibilities and improper assignments.
 
 ```javascript
 @define User extends Record {
@@ -107,9 +107,9 @@ expect( typeof users.toJSON()[ 0 ].createdAt ).toBe( "string" );
 	static endpoint = restfulIO( '/api/users' );
     
     // Type-R can infer attribute types from TypeScript type annotations.
-	@attr name : string
-	@attr email : string
-	@attr createdAt : Date
+	@type( String ).as name : string
+	@type( String ).as email : string
+	@type( Date ).as createdAt : Date
 }
 
 const users : Collection<User> = new User.Collection();
@@ -130,7 +130,7 @@ Records and collections forms an aggregation tree with deeply observable changes
 @define UIState extends Record {
 	static attributes = {
 		users : User.Collection,
-		selectedUser : User.from( 'users' )
+		selectedUser : from( 'users' )
 	}
 }
 
@@ -147,11 +147,9 @@ uiState.users.fetch();
 ```typescript
 @define UIState extends Record {
     // For collections and more complex types attribute type must be provided explicitly
-    @attr( User.Collection )
-    users : Collection<User>
+    @type( User.Collection ).as users : Collection<User>
 
-    @attr( User.from( 'users' ) )
-    selectedUser : User
+    @from( 'users' ).as selectedUser : User
 }
 
 const uiState = new UIState();
@@ -203,14 +201,14 @@ const Email = type( String )
 	static endpoint = restfulIO( '/api/users' );
     
     // @type(...).as converts Type-R attribute type definition to the TypeScript decorator.
-    @type( String ).required
-    .as name : string
+    @type( String ).required.as
+        name : string
 
-    @type( Email ).required
-    .as email : string
+    @type( Email ).required.as
+        email : string
 
-    @type( Date ).check( x => x.getTime() <= Date.now() )
-    .as createdAt : Date
+    @type( Date ).check( x => x.getTime() <= Date.now() ).as
+        createdAt : Date
 }
 
 const users = new User.Collection();
