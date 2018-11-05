@@ -223,19 +223,19 @@ describe( 'IO', function(){
             class Store extends Record {
                 static endpoint = restfulIO( './store' );
                 @attr name : string
-                @prop( User ) user : User
+                @attr user : User
             }
 
             @define
             class Root extends Record {
                 static endpoint = restfulIO( 'http://restful.relative/' );
-                @prop( User.Collection ) users : Collection<User>
-                @prop( Store ) store : Store
+                @type( User.Collection ).as users : Collection<User>
+                @attr store : Store
             }
 
             const root = new Root();
-            root.store.id = 99;
-            root.store.user.id = 1000;
+            root.store.id = "99";
+            root.store.user.id = "1000";
 
             nock( 'http://restful.relative' )
                 .get( '/users' )
