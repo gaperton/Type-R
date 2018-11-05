@@ -1,7 +1,7 @@
 import "isomorphic-fetch";
 import nock from 'nock';
 import "reflect-metadata";
-import { attr, Collection, define, prop, Record, Store, type } from 'type-r';
+import { attr, Collection, define, prop, Record, Store, type, CollectionConstructor } from 'type-r';
 import { attributesIO } from '../endpoints/attributes';
 import { localStorageIO } from '../endpoints/localStorage';
 import { memoryIO } from '../endpoints/memory';
@@ -15,6 +15,7 @@ describe( 'IO', function(){
         ];
     
         @define class User extends Record {
+            static Collection : CollectionConstructor<User>
             static endpoint = memoryIO( testData );
     
             @attr name : string
@@ -25,7 +26,7 @@ describe( 'IO', function(){
             users.fetch()
                 .then( () => {
                     expect( users.length ).toBe( 1 );
-                    expect( ( users.first() as any ).name ).toBe( 'John' );
+                    expect( users.first().name ).toBe( 'John' );
                     done();
                 });
         });
@@ -67,8 +68,8 @@ describe( 'IO', function(){
             users.fetch()
                 .then( () =>{
                     expect( users.length ).toBe( 2 );
-                    expect( ( users.first() as any ).name ).toBe( "John" );
-                    expect( ( users.last() as any ).name ).toBe( "Mike" );
+                    expect( ( users.first() ).name ).toBe( "John" );
+                    expect( ( users.last() ).name ).toBe( "Mike" );
                     done();
                 });
         });
@@ -77,7 +78,7 @@ describe( 'IO', function(){
             const x = new User({ id : "1" });
             x.destroy()
                 .then( () => {
-                    const users : Collection<User> = new User.Collection();
+                    const users = new User.Collection();
                     return users.fetch();
                 })
                 .then( users => {
@@ -305,6 +306,7 @@ function testEndpoint( endpoint ){
     return () =>{
 
         @define class User extends Record {
+            static Collection : CollectionConstructor<User>
             static endpoint = endpoint;
     
             @attr name : string
@@ -351,7 +353,7 @@ function testEndpoint( endpoint ){
             users.fetch()
                 .then( () =>{
                     expect( users.length ).toBe( 1 );
-                    expect( ( users.last() as any ).name ).toBe( "Mike" );
+                    expect( users.last().name ).toBe( "Mike" );
                     done();
                 });
         });

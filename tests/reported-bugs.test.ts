@@ -74,12 +74,13 @@ describe( 'Bugs from Volicon Observer', () =>{
         it( 'can define collection with comparator', () => {
             const x = 1;
 
-            @define class TestCollection extends Collection {
+            @define class TestCollection extends Collection<M> {
                 static comparator = x => x.mtime
             }
             
             @define class M extends Record {
-                static Collection = TestCollection as any
+                static Collection = TestCollection;
+
                 static attributes = {
                     mtime: Date
                 }

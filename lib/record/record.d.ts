@@ -1,4 +1,4 @@
-import { Collection } from '../collection';
+import { CollectionConstructor } from '../collection';
 import { IOEndpoint, IOPromise } from '../io-tools';
 import { Logger, LogLevel } from '../object-plus';
 import { CloneOptions, Owner, Transaction, Transactional, TransactionalDefinition, TransactionOptions } from '../transactions';
@@ -18,8 +18,8 @@ export interface RecordDefinition extends TransactionalDefinition {
 export declare class Record extends Transactional implements IORecord, AttributesContainer, Iterable<any> {
     static _metatype: typeof AggregatedType;
     static onDefine(definition: any, BaseClass: any): void;
-    static Collection: typeof Collection;
-    static DefaultCollection: typeof Collection;
+    static Collection: CollectionConstructor;
+    static DefaultCollection: CollectionConstructor;
     static from: (collectionReference: any) => any;
     static defaults(attrs: AttributesValues): typeof Record;
     static attributes: AttributesValues;

@@ -3,7 +3,7 @@
  * The root of all definitions. 
  */
 
-import { Collection } from '../collection';
+import { CollectionConstructor } from '../collection';
 import { IOEndpoint, IOPromise } from '../io-tools';
 import { define, definitions, isProduction, Logger, logger, LogLevel, mixinRules, tools } from '../object-plus';
 import { CloneOptions, Owner, Transaction, Transactional, TransactionalDefinition, TransactionOptions } from '../transactions';
@@ -59,8 +59,8 @@ export class Record extends Transactional implements IORecord, AttributesContain
     // Hack
     static onDefine( definition, BaseClass ){}
 
-    static Collection : typeof Collection;
-    static DefaultCollection : typeof Collection;
+    static Collection : CollectionConstructor;
+    static DefaultCollection : CollectionConstructor;
 
     static from : ( collectionReference : any ) => any;
     

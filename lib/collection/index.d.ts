@@ -1,6 +1,6 @@
 import { IOPromise } from '../io-tools';
-import { EventMap, EventsDefinition, LogLevel, Logger } from '../object-plus';
-import { AggregatedType, Record } from '../record';
+import { EventMap, EventsDefinition, Logger, LogLevel, MixableConstructor } from '../object-plus';
+import { AggregatedType, ChainableAttributeSpec, Record } from '../record';
 import { CloneOptions, Transactional, TransactionalDefinition, TransactionOptions } from '../transactions';
 import { AddOptions } from './add';
 import { CollectionCore, CollectionTransaction } from './commons';
@@ -15,13 +15,19 @@ export interface CollectionDefinition extends TransactionalDefinition {
     itemEvents?: EventsDefinition;
     _itemEvents?: EventMap;
 }
+export interface CollectionConstructor<R extends Record = Record> extends MixableConstructor {
+    new (records?: Partial<R> | Partial<R>[], options?: CollectionOptions): Collection<R>;
+    prototype: Collection<R>;
+    Refs: CollectionConstructor<R>;
+    subsetOf(C: Collection<R> | string | (() => Collection<R>)): ChainableAttributeSpec;
+}
 export declare class Collection<R extends Record = Record> extends Transactional implements CollectionCore, Iterable<R> {
     _shared: number;
     _aggregationError: R[];
     static Subset: typeof Collection;
     static Refs: typeof Collection;
     static _SubsetOf: typeof Collection;
-    createSubset(models: ElementsArg, options: any): any;
+    createSubset(models: ElementsArg<R>, options: any): Collection<R>;
     static onExtend(BaseClass: typeof Transactional): void;
     static onDefine(definition: CollectionDefinition, BaseClass: any): void;
     static subsetOf: (collectionReference: any) => any;
@@ -49,17 +55,17 @@ export declare class Collection<R extends Record = Record> extends Transactional
     at(a_index: number): R;
     clone(options?: CloneOptions): this;
     toJSON(options?: object): any;
-    set(elements?: ElementsArg, options?: TransactionOptions): this;
+    set(elements?: ElementsArg<R>, options?: TransactionOptions): this;
     liveUpdates(enabled: LiveUpdatesOption): IOPromise<this>;
     _liveUpdates: object;
     fetch(a_options?: {
         liveUpdates?: LiveUpdatesOption;
     } & TransactionOptions): IOPromise<this>;
     dispose(): void;
-    reset(a_elements?: ElementsArg, options?: TransactionOptions): R[];
-    add(a_elements: ElementsArg, options?: AddOptions): Record[];
+    reset(a_elements?: ElementsArg<R>, options?: TransactionOptions): R[];
+    add(a_elements: ElementsArg<R>, options?: AddOptions): any;
     remove(recordsOrIds: any, options?: CollectionOptions): R[] | R;
-    _createTransaction(a_elements: ElementsArg, options?: TransactionOptions): CollectionTransaction | void;
+    _createTransaction(a_elements: ElementsArg<R>, options?: TransactionOptions): CollectionTransaction | void;
     static _metatype: typeof AggregatedType;
     pluck(key: keyof R): any[];
     sort(options?: TransactionOptions): this;
@@ -69,9 +75,9 @@ export declare class Collection<R extends Record = Record> extends Transactional
     _log(level: LogLevel, topic: string, text: string, value: object, a_logger?: Logger): void;
     getClassName(): string;
     readonly length: number;
-    push(model: ElementsArg, options: CollectionOptions): Record[];
+    push(model: ElementsArg<R>, options: CollectionOptions): any;
     pop(options: CollectionOptions): R;
-    unshift(model: ElementsArg, options: CollectionOptions): Record[];
+    unshift(model: ElementsArg<R>, options: CollectionOptions): any;
     shift(options?: CollectionOptions): R;
     slice(begin: number, end?: number): R[];
     indexOf(modelOrId: string | Partial<R>): number;
@@ -88,4 +94,4 @@ export declare class Collection<R extends Record = Record> extends Transactional
     reduce<T>(iteratee: (previousValue: any, currentValue: R, currentIndex: number) => T, init?: any): T;
 }
 export declare type LiveUpdatesOption = boolean | ((x: any) => boolean);
-export declare type ElementsArg = Object | Record | Object[] | Record[];
+export declare type ElementsArg<R = Record> = Partial<R> | Partial<R>[];

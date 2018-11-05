@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { logger, Logger, attr, Collection, define, predefine, Record } from "type-r";
+import { logger, Logger, attr, Collection, define, predefine, Record, CollectionConstructor } from "type-r";
 import "type-r/globals";
 
 logger.off()
@@ -32,11 +32,11 @@ describe( 'Record', () =>{
     describe( "Attribute spec", () =>{
         describe( '...as constructors', () =>{
             @define class M extends Record {
-                @attr( String ) s
-                @attr( Number ) n
-                @attr( Boolean ) b
-                @attr( Object ) o
-                @attr( Array ) a
+                @attr( String ) s : string
+                @attr( Number ) n : number
+                @attr( Boolean ) b : boolean
+                @attr( Object ) o : object
+                @attr( Array ) a : any[]
                 @attr d : Date
             }
 
@@ -241,9 +241,10 @@ describe( 'Record', () =>{
                 }
             } )
             class M extends Record {
+                static Collection : CollectionConstructor<M>
             }
 
-            expect( ( M as any ).Collection.prototype.a ).toBe( 'a' );
+            expect( ( M.Collection.prototype as any).a ).toBe( 'a' );
         } );
 
         it( "can be defined separately", () =>{
@@ -256,11 +257,11 @@ describe( 'Record', () =>{
 
             @define
             class M extends Record {
-                static Collection = C as any; // Do something with it.
+                static Collection = C;
             }
 
             expect( M.Collection ).toBe( C );
-            const { prototype } = M.Collection as any;
+            const { prototype } = M.Collection;
             expect( prototype ).toBeInstanceOf( Record.Collection );
             expect( prototype.a ).toBe( 'a' );
             expect( prototype.model ).toBe( M );
@@ -333,12 +334,13 @@ describe( 'Record', () =>{
 
     describe( 'Iterables', () => {
         @define class Person extends Record {
+            static Collection : CollectionConstructor<Person>;
             @attr name : string
             @attr email : string
         }
 
         it( 'can iterate through collections', ()=>{
-            const persons = new Person.Collection<Person>([ { name : "1" } , { name : "2" }]);
+            const persons = new Person.Collection([ { name : "1" } , { name : "2" }]);
             let counter = 0;
 
             for( let rec of persons ){
@@ -347,7 +349,7 @@ describe( 'Record', () =>{
         });
 
         it( 'can iterate through collections.entries', ()=>{
-            const persons = new Person.Collection<Person>([ { name : "1" } , { name : "2" }]);
+            const persons = new Person.Collection([ { name : "1" } , { name : "2" }]);
 
             expect( persons.entries().next().value[ 1 ].name ).toBe( "1" );
         });

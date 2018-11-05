@@ -17,7 +17,7 @@ Record.onExtend = function( this : typeof Record, BaseClass : typeof Record ){
     // Create the default collection
     const Class = this;
 
-    @predefine class DefaultCollection extends BaseClass.Collection<any> {
+    @predefine class DefaultCollection extends BaseClass.Collection {
         static model = Class;
     }
 

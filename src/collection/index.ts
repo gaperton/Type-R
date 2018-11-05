@@ -1,6 +1,6 @@
 import { IOPromise, startIO } from '../io-tools';
-import { define, definitions, EventMap, eventsApi, EventsDefinition, LogLevel, Mixable, mixinRules, tools, Logger, logger } from '../object-plus';
-import { AggregatedType, createSharedTypeSpec, Record, SharedType } from '../record';
+import { define, definitions, EventMap, eventsApi, EventsDefinition, Logger, logger, LogLevel, Mixable, MixableConstructor, mixinRules, tools } from '../object-plus';
+import { AggregatedType, ChainableAttributeSpec, createSharedTypeSpec, Record, SharedType } from '../record';
 import { CloneOptions, ItemsBehavior, Transactional, TransactionalDefinition, transactionApi, TransactionOptions } from '../transactions';
 import { AddOptions, addTransaction } from './add';
 import { CollectionCore, CollectionTransaction, Elements, free, sortElements, updateIndex } from './commons';
@@ -35,6 +35,14 @@ class CollectionRefsType extends SharedType {
     static defaultValue = [];
 }
 
+export interface CollectionConstructor<R extends Record = Record > extends MixableConstructor {
+    new ( records? : Partial<R> | Partial<R>[], options?: CollectionOptions ) : Collection<R>
+    prototype : Collection<R>
+    Refs : CollectionConstructor<R>
+    subsetOf( C : Collection<R> | string | ( () => Collection<R> ) ) : ChainableAttributeSpec
+};
+
+
 @define({
     // Default client id prefix 
     cidPrefix : 'c',
@@ -55,11 +63,11 @@ export class Collection< R extends Record = Record> extends Transactional implem
     static Refs : typeof Collection
     static _SubsetOf : typeof Collection
     
-    createSubset( models : ElementsArg, options ){
-        const SubsetOf = (<any>this.constructor).subsetOf( this ).options.type,
+    createSubset( models : ElementsArg<R>, options ) : Collection<R>{
+        const SubsetOf = (this.constructor as CollectionConstructor<R>).subsetOf( this ).options.type as CollectionConstructor<R>,
             subset   = new SubsetOf( models, options );
             
-        subset.resolve( this );
+        ( subset as any ).resolve( this );
         return subset;
     }
 
@@ -272,7 +280,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
     }
 
     // Apply bulk in-place object update in scope of ad-hoc transaction 
-    set( elements : ElementsArg = [], options : TransactionOptions = {} ) : this {
+    set( elements : ElementsArg<R> = [], options : TransactionOptions = {} ) : this {
         if( (<any>options).add !== void 0 ){
             this._log( 'warn', "Type-R:InvalidOption", "Collection.set doesn't support 'add' option, behaving as if options.add === true.", options );
         }
@@ -359,7 +367,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
         super.dispose();
     }
 
-    reset( a_elements? : ElementsArg, options : TransactionOptions = {} ) : R[] {
+    reset( a_elements? : ElementsArg<R>, options : TransactionOptions = {} ) : R[] {
         const isRoot = begin( this ),
               previousModels = this.models;
 
@@ -388,7 +396,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
     }
 
     // Add elements to collection.
-    add( a_elements : ElementsArg , options : AddOptions = {} ){
+    add( a_elements : ElementsArg<R> , options : AddOptions = {} ){
         const elements = toElements( this, a_elements, options ),
               transaction = this.models.length ?
                     addTransaction( this, elements, options ) :
@@ -413,7 +421,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
 
     // Apply bulk object update without any notifications, and return open transaction.
     // Used internally to implement two-phase commit.   
-    _createTransaction( a_elements : ElementsArg, options : TransactionOptions = {} ) : CollectionTransaction | void {
+    _createTransaction( a_elements : ElementsArg<R>, options : TransactionOptions = {} ) : CollectionTransaction | void {
         const elements = toElements( this, a_elements, options );
 
         if( this.models.length ){
@@ -497,7 +505,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
     get length() : number { return this.models.length; }
 
     // Add a model to the end of the collection.
-    push(model : ElementsArg, options : CollectionOptions ) {
+    push(model : ElementsArg<R>, options : CollectionOptions ) {
         return this.add(model, assign({at: this.length}, options));
     }
 
@@ -509,7 +517,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
     }
 
     // Add a model to the beginning of the collection.
-    unshift(model : ElementsArg, options : CollectionOptions ) {
+    unshift(model : ElementsArg<R>, options : CollectionOptions ) {
         return this.add(model, assign({at: 0}, options));
     }
   
@@ -576,12 +584,15 @@ export class Collection< R extends Record = Record> extends Transactional implem
     }
 }
 
+const d : CollectionConstructor = Collection;
+
+
 export type LiveUpdatesOption = boolean | ( ( x : any ) => boolean );
 
-export type ElementsArg = Object | Record | Object[] | Record[];
+export type ElementsArg<R = Record> = Partial<R> | Partial<R>[]
 
 // TODO: make is safe for parse to return null (?)
-function toElements( collection : Collection, elements : ElementsArg, options : CollectionOptions ) : Elements {
+function toElements<R extends Record>( collection : Collection<R>, elements : ElementsArg<R>, options : CollectionOptions ) : Elements {
     const parsed = options.parse ? collection.parse( elements, options ) : elements; 
     return Array.isArray( parsed ) ? parsed : [ parsed ];
 }
