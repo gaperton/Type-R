@@ -199,8 +199,8 @@ export class Record extends Transactional implements IORecord, AttributesContain
     idAttribute : string;
 
     // Fixed 'id' property pointing to id attribute
-    get id() : string | number { return this.attributes[ this.idAttribute ]; }
-    set id( x : string | number ){ setAttribute( this, this.idAttribute, x ); }
+    get id() : string { return this.attributes[ this.idAttribute ]; }
+    set id( x : string ){ setAttribute( this, this.idAttribute, x ); }
 
     /***********************************
      * Dynamically compiled stuff
@@ -453,7 +453,7 @@ assign( Record.prototype, UpdateRecordMixin, IORecordMixin );
  */
 
 class BaseRecordAttributes {
-    id : string | number
+    id : string
 
     constructor( record : Record, x : AttributesValues, options : TransactionOptions ) {
         this.id = x.id;
@@ -463,7 +463,7 @@ class BaseRecordAttributes {
 Record.prototype.Attributes = BaseRecordAttributes;
 
 class BaseRecordAttributesCopy {
-    id : string | number
+    id : string
 
     constructor( x : AttributesValues ) {
         this.id = x.id;

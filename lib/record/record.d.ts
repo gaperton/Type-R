@@ -43,7 +43,7 @@ export declare class Record extends Transactional implements IORecord, Attribute
     clear(options?: any): this;
     getOwner(): Owner;
     idAttribute: string;
-    id: string | number;
+    id: string;
     _attributes: {
         [key: string]: AnyType;
     };
