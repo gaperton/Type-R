@@ -68,6 +68,7 @@ export declare class Record extends Transactional implements IORecord, Attribute
     forceAttributeChange: (key: string, options: TransactionOptions) => void;
     _onChildrenChange: (child: Transactional, options: TransactionOptions) => void;
     forEach(iteratee: (value?: any, key?: string) => void, context?: any): void;
+    mapObject(a_fun: (value: any, key: any) => any, context?: any): object;
     [Symbol.iterator](): RecordEntriesIterator;
     entries(): RecordEntriesIterator;
     keys(): string[];

@@ -94,7 +94,8 @@ export declare class Collection<R extends Record = Record> extends Transactional
     every(iteratee: Predicate<R>, context?: any): boolean;
     includes(idOrObj: string | Partial<R>): boolean;
     map<T>(iteratee: (val: R, key?: number) => T, context?: any): T[];
-    reduce<T>(iteratee: (previousValue: any, currentValue: R, currentIndex?: number) => T, init?: any): T;
+    reduce<T>(iteratee: (previousValue: R, currentValue: R, currentIndex?: number) => R): R;
+    reduce<T>(iteratee: (previousValue: T, currentValue: R, currentIndex?: number) => T, init?: any): T;
 }
 export declare type LiveUpdatesOption = boolean | ((x: any) => boolean);
 export declare type ElementsArg<R = Record> = Partial<R> | Partial<R>[];

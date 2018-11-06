@@ -579,9 +579,10 @@ export class Collection< R extends Record = Record> extends Transactional implem
         return this.models.map( iteratee, context );
     }
 
-    
-    reduce<T>( iteratee : (previousValue: any, currentValue: R, currentIndex?: number ) => T, init? : any ) : T {
-        return this.models.reduce( iteratee, init );
+    reduce<T>( iteratee : (previousValue: R, currentValue: R, currentIndex?: number ) => R ) : R
+    reduce<T>( iteratee : (previousValue: T, currentValue: R, currentIndex?: number ) => T, init? : any ) : T
+    reduce<T>( iteratee : (previousValue: any, currentValue: any, currentIndex?: number ) => any, init? : any ) : T | R {
+        return init === void 0 ? this.models.reduce( iteratee ) : this.models.reduce( iteratee, init );
     }
 }
 

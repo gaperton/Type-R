@@ -428,6 +428,11 @@ export class Record extends Transactional implements IORecord, AttributesContain
         }
     }
 
+    mapObject( a_fun : ( value, key ) => any, context? : any ) : object {
+        const fun = context === void 0 ? a_fun : a_fun.bind( context );
+        return tools.transform( {}, this.attributes, fun );
+    }
+
     [ Symbol.iterator ](){
         return new RecordEntriesIterator( this );
     }
@@ -440,7 +445,7 @@ export class Record extends Transactional implements IORecord, AttributesContain
     keys() : string[] {
         const keys : string[] = [];
 
-        this.forEach( ( value, key ) => value === void 0 || keys.push( key ) );
+        this.forEach( ( value, key ) => keys.push( key ) );
 
         return keys;
     }
