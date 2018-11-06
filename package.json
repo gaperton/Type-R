@@ -1,6 +1,6 @@
 {
   "name": "type-r",
-  "version": "3.0.0-a03",
+  "version": "3.0.0-a04",
   "description": "Reactive serializable data layer for modern JS applications",
   "main": "./dist/index.js",
   "jsnext:main": "./lib/index.js",
@@ -11,7 +11,8 @@
     "lib",
     "src",
     "endpoints",
-    "ext-types"
+    "ext-types",
+    "globals"
   ],
   "directories": {
     "test": "tests"
