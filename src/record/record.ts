@@ -11,6 +11,7 @@ import { ChildrenErrors } from '../validation';
 import { AggregatedType, AnyType } from './metatypes';
 import { IORecord, IORecordMixin } from './io-mixin';
 import { AttributesConstructor, AttributesContainer, AttributesCopyConstructor, AttributesValues, setAttribute, shouldBeAnObject, unknownAttrsWarning, UpdateRecordMixin } from './updates';
+import { type } from './attrDef';
 
 
 const { assign, isEmpty } = tools;
@@ -64,6 +65,18 @@ export class Record extends Transactional implements IORecord, AttributesContain
 
     static from : ( collectionReference : any ) => any;
     
+    // Attribute type for the record id.
+    static id = type( String ).value( null );
+    
+    // Lazy object reference, serializable as id.
+    static get ref(){
+        return type( this )
+            .toJSON( x => x ? x.id : null )
+            .parse( x => {
+                return { [ this.prototype.idAttribute ] : x };
+            });
+    }
+
     static defaults( attrs : AttributesValues ) : typeof Record {
         return <any>this.extend({ attributes : attrs });
     }
@@ -233,7 +246,7 @@ export class Record extends Transactional implements IORecord, AttributesContain
      * Record construction
      */
     // Create record, optionally setting an owner
-    constructor( a_values? : {}, a_options? : ConstructorOptions ){
+    constructor( a_values? : any, a_options? : ConstructorOptions ){
         super( _cidCounter++ );
         this.attributes = {};
         
@@ -250,7 +263,7 @@ export class Record extends Transactional implements IORecord, AttributesContain
     }
 
     // Initialization callback, to be overriden by the subclasses 
-    initialize( values?, options? ){}
+    initialize( values? : Partial<this>, options? ){}
 
     // Deeply clone record, optionally setting new owner.
     clone( options : CloneOptions = {} ) : this {

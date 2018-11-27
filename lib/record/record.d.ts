@@ -21,6 +21,8 @@ export declare class Record extends Transactional implements IORecord, Attribute
     static Collection: CollectionConstructor;
     static DefaultCollection: CollectionConstructor;
     static from: (collectionReference: any) => any;
+    static id: import("./attrDef").ChainableAttributeSpec;
+    static readonly ref: import("./attrDef").ChainableAttributeSpec;
     static defaults(attrs: AttributesValues): typeof Record;
     static attributes: AttributesValues;
     _endpoints: {
@@ -51,8 +53,8 @@ export declare class Record extends Transactional implements IORecord, Attribute
     Attributes: AttributesConstructor;
     AttributesCopy: AttributesCopyConstructor;
     defaults(values?: {}): {};
-    constructor(a_values?: {}, a_options?: ConstructorOptions);
-    initialize(values?: any, options?: any): void;
+    constructor(a_values?: any, a_options?: ConstructorOptions);
+    initialize(values?: Partial<this>, options?: any): void;
     clone(options?: CloneOptions): this;
     _validateNested(errors: ChildrenErrors): number;
     get(key: string): any;
