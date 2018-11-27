@@ -11,9 +11,11 @@ export declare class Logger extends Messenger {
     count(level: LogLevel, filter?: RegExp): this;
     trigger: (level: LogLevel, topic: string, message: string, props?: object) => this;
     off: (event?: LogLevel) => this;
-    on: (handlers: {
+    on(handlers: {
         [name in LogLevel]: LoggerEventHandler;
-    } | LogLevel, handler?: LoggerEventHandler) => this;
+    }): this;
+    on(handlers: LogLevel, handler: LoggerEventHandler): this;
+    on(handlers: 'all', handler: (level: LogLevel, topic: string, msg: string, props: object) => void): this;
 }
 export declare const logger: Logger;
 export declare const log: typeof logger.trigger;

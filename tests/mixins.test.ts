@@ -38,6 +38,8 @@ describe( "@define decorator", () =>{
         @define class X {}
 
         expect( (X as any).define ).toBeDefined();
+
+        const x = new X();
     });
 
     it( '@define calls onDefine hook', () =>{
@@ -82,6 +84,17 @@ describe( "@define decorator", () =>{
         expect( x.a ).toBe( 5 );
         expect( x ).toBeInstanceOf( Mixable );
     });
+/* FIXME!
+    it( 'can mix class and Mixable.extend', () =>{
+        @define class Base extends Mixable {}
+
+        const X = Base.extend({ a : 5 });
+        
+        const x = new X();
+
+        expect( x.a ).toBe( 5 );
+        expect( x ).toBeInstanceOf( Mixable );
+    });*/
 
     it( 'allows toString() and valueOf() override', () =>{
         @define class Base extends Mixable {

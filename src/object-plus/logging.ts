@@ -49,7 +49,14 @@ export class Logger extends Messenger {
     trigger : ( level : LogLevel, topic : string, message : string, props? : object ) => this;
     
     off : ( event? : LogLevel ) => this;
-    on : ( handlers : { [ name in LogLevel ] : LoggerEventHandler } | LogLevel, handler? : LoggerEventHandler ) => this
+
+
+    on( handlers : { [ name in LogLevel ] : LoggerEventHandler } ) : this;
+    on( handlers : LogLevel, handler : LoggerEventHandler ) : this;
+    on( handlers : 'all', handler : ( level : LogLevel, topic : string, msg : string, props : object )  => void ) : this;
+    on( a : any, b? : any ){
+        return super.on( a, b );
+    }
 }
 
 /**

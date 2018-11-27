@@ -58,10 +58,13 @@ export function convertAndAquire( collection : CollectionCore, attrs : {} | Reco
     else{
         record = attrs instanceof model ? ( options.merge ? attrs.clone() : attrs ) : <Record>model.create( attrs, options );
 
-        if( !_aquire( collection, record ) ){
+        if( record._owner ){
+            record = record.clone();
             const errors = collection._aggregationError || ( collection._aggregationError = [] );
             errors.push( record );
         }
+
+        _aquire( collection, record );
     }    
 
     // Subscribe for events...
@@ -216,6 +219,6 @@ export class CollectionTransaction implements Transaction {
 }
 
 export function logAggregationError( collection : CollectionCore, options : TransactionOptions ){
-    collection._log( 'error', 'Type-R:InvalidOwner', 'added records already have an owner', collection._aggregationError, options.logger );
+    collection._log( 'error', 'Type-R:InvalidOwner', 'added records already have an owner and were cloned. Use explicit record.clone() to dismiss this wearning.', collection._aggregationError, options.logger );
     collection._aggregationError = void 0;
 }

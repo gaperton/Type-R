@@ -425,14 +425,11 @@ export const transactionApi = {
 
     // Add reference to the record.
     /** @private */
-    aquire( owner : Owner, child : Transactional, key? : string ) : boolean {
-        if( !child._owner ){
-            child._owner = owner;
-            child._ownerKey = key;
-            return true;
-        }
+    aquire( owner : Owner, child : Transactional, key? : string ) : void {
+        if( child._owner ) throw new ReferenceError( 'Trying to aquire ownership for an object already having an owner' );
 
-        return child._owner === owner;
+        child._owner = owner;
+        child._ownerKey = key;
     },
 
     // Remove reference to the record.

@@ -105,6 +105,6 @@ export declare const transactionApi: {
     begin(object: Transactional): boolean;
     markAsDirty(object: Transactional, options: TransactionOptions): boolean;
     commit(object: Transactional, initiator?: Transactional): void;
-    aquire(owner: Owner, child: Transactional, key?: string): boolean;
+    aquire(owner: Owner, child: Transactional, key?: string): void;
     free(owner: Owner, child: Transactional): void;
 };

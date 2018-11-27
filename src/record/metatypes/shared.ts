@@ -88,7 +88,7 @@ export class SharedType extends AnyType {
     convert( next : any, prev : any, record : AttributesContainer, options : TransactionOptions ) : Transactional {
         if( next == null || next instanceof this.type ) return next;
 
-        // Convert type using implicitly created rtransactional object.
+        // Convert type using implicitly created transactional object.
         const implicitObject = new ( this.type as any )( next, options, shareAndListen );
 
         // To prevent a leak, we need to take an ownership on it.

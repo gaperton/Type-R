@@ -83,7 +83,14 @@ export class AggregatedType extends AnyType {
 
             // With explicit 'merge' option we need to clone an object if its previous value was 'null'.
             // This is an only case we could be here when merge === true.
-            return options.merge ? next.clone() : next;
+            if( options.merge ) return next.clone();
+
+            if( next._owner ){
+                this._log( 'warn', 'Type-R:InvalidOwner', 'object alreay has an owner and was cloned. Use explicit object.clone() to dismiss this warning.', next, record, options.logger );
+                return next.clone();
+            }
+
+            return next;
         }
 
         return <any>this.type.create( next, options );
@@ -114,8 +121,6 @@ export class AggregatedType extends AnyType {
             options.unset || prev.dispose();
         } 
         
-        if( next && !aquire( record, next, this.name ) ){
-            this._log( 'error', 'Type-R:InvalidOwner', 'aggregated attribute assigned with an object already having an owner', next, record, options.logger );
-        }
+        if( next ) aquire( record, next, this.name );
     }
 }
