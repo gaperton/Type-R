@@ -3,9 +3,9 @@ if( typeof Symbol === 'undefined' ){
     Object.defineProperty( window, 'Symbol', { value : { iterator : 'Symbol.iterator' }, configurable : true  });
 }
 
-import { define, Events, Mixable as Class } from './object-plus/';
+import { define, Events, Mixable as Class, MixableConstructor } from './object-plus/';
 // Define synonims for NestedTypes backward compatibility.
-import { ChainableAttributeSpec, Record as Model } from './record';
+import { ChainableAttributeSpec, Record as Model, type } from './record';
 
 /**
  * Export everything 
@@ -21,16 +21,21 @@ export { Model, Class };
 
 export const { on, off, trigger, once, listenTo, stopListening, listenToOnce } = <any>Events;
 
+export interface RecordConstructor<A> extends MixableConstructor {
+    new ( attrs? : Partial<A>, options? : object ) : Model & A
+    prototype : Model
+}
+
+export type AttrTypes<A> = { [key in keyof A]: A[key] extends ( ...args ) => any ? ReturnType<A[key]> : InstanceType<A[key] extends new ( ...args ) => any ? A[key] : A[key] extends ChainableAttributeSpec<any> ? A[key]['options']['type'] : new () => A[key] >};
 
 
-export function attributes( attrDefs ) : typeof Model {
+export function attributes<D>( attrDefs : D ) : RecordConstructor<AttrTypes<D>> {
     @define class DefaultRecord extends Model {
         static attributes = attrDefs;
     }
 
-    return DefaultRecord;
+    return DefaultRecord as any;
 }
-
 
 /** Typeless attribute declaration with default value. */ 
 export function value( x : any ) : ChainableAttributeSpec<any> {
