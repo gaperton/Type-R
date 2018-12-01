@@ -5,26 +5,28 @@ export interface AttributeCheck {
     (value: any, key: string): boolean;
     error?: any;
 }
-export declare class ChainableAttributeSpec {
-    options: AttributeOptions;
+export declare class ChainableAttributeSpec<F extends Function> {
+    options: AttributeOptions & {
+        type?: F;
+    };
     constructor(options: AttributeOptions);
-    check(check: AttributeCheck, error?: any): ChainableAttributeSpec;
+    check(check: AttributeCheck, error?: any): this;
     readonly asProp: (proto: object, name: string) => void;
     readonly as: (proto: object, name: string) => void;
-    readonly isRequired: ChainableAttributeSpec;
-    readonly required: ChainableAttributeSpec;
-    endpoint(endpoint: IOEndpoint): ChainableAttributeSpec;
-    watcher(ref: string | ((value: any, key: string) => void)): ChainableAttributeSpec;
-    parse(fun: Parse): ChainableAttributeSpec;
-    toJSON(fun: any): ChainableAttributeSpec;
-    get(fun: any): ChainableAttributeSpec;
-    set(fun: any): ChainableAttributeSpec;
-    changeEvents(events: boolean): ChainableAttributeSpec;
-    events(map: EventsDefinition): ChainableAttributeSpec;
-    readonly has: ChainableAttributeSpec;
-    metadata(options: AttributeOptions): ChainableAttributeSpec;
-    value(x: any): ChainableAttributeSpec;
-    static from(spec: any): ChainableAttributeSpec;
+    readonly isRequired: this;
+    readonly required: this;
+    endpoint(endpoint: IOEndpoint): this;
+    watcher(ref: string | ((value: any, key: string) => void)): this;
+    parse(fun: Parse): this;
+    toJSON(fun: any): this;
+    get(fun: any): this;
+    set(fun: any): this;
+    changeEvents(events: boolean): this;
+    events(map: EventsDefinition): this;
+    readonly has: this;
+    metadata(options: AttributeOptions): this;
+    value(x: any): this;
+    static from(spec: any): ChainableAttributeSpec<any>;
 }
-export declare function type(this: void, type: ChainableAttributeSpec | Function, value?: any): ChainableAttributeSpec;
+export declare function type<F extends Function>(this: void, type: ChainableAttributeSpec<F> | F, value?: any): ChainableAttributeSpec<F>;
 export declare function createSharedTypeSpec(Constructor: Function, Attribute: typeof AnyType): void;

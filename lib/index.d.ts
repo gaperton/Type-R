@@ -9,5 +9,5 @@ export * from './transactions';
 export { Model, Class };
 export declare const on: any, off: any, trigger: any, once: any, listenTo: any, stopListening: any, listenToOnce: any;
 export declare function attributes(attrDefs: any): typeof Model;
-export declare function value(x: any): ChainableAttributeSpec;
+export declare function value(x: any): ChainableAttributeSpec<any>;
 export declare function transaction<F extends Function>(method: F): F;

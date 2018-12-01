@@ -33,7 +33,7 @@ export function attributes( attrDefs ) : typeof Model {
 
 
 /** Typeless attribute declaration with default value. */ 
-export function value( x : any ) : ChainableAttributeSpec {
+export function value( x : any ) : ChainableAttributeSpec<any> {
     return new ChainableAttributeSpec({ value : x });
 }
 

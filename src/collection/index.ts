@@ -39,7 +39,7 @@ export interface CollectionConstructor<R extends Record = Record > extends Mixab
     new ( records? : Partial<R> | Partial<R>[], options?: CollectionOptions ) : Collection<R>
     prototype : Collection<R>
     Refs : CollectionConstructor<R>
-    subsetOf( C : Collection<R> | string | ( () => Collection<R> ) ) : ChainableAttributeSpec
+    subsetOf( C : Collection<R> | string | ( () => Collection<R> ) ) : ChainableAttributeSpec<this>
 };
 
 

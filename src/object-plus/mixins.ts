@@ -120,7 +120,7 @@ export function define( ClassOrDefinition : object | MixableConstructor ){
         return function( Ctor : MixableConstructor ){
             predefine( Ctor );
             Ctor.define( ClassOrDefinition );
-        }
+        } as any;
     }
 }
 

@@ -7,16 +7,16 @@ import { type, ChainableAttributeSpec } from "type-r";
 declare global {
     // Legacy has-notation
     interface Function{
-        value : ( x : any ) => ChainableAttributeSpec;
-        isRequired : ChainableAttributeSpec;
+        value : ( x : any ) => ChainableAttributeSpec<this>;
+        isRequired : ChainableAttributeSpec<this>;
         asProp : PropertyDecorator
-        has : ChainableAttributeSpec;
+        has : ChainableAttributeSpec<this>;
     }
 
     // Date type extensions
     interface DateConstructor {
-        microsoft : ChainableAttributeSpec
-        timestamp : ChainableAttributeSpec
+        microsoft : ChainableAttributeSpec<this>
+        timestamp : ChainableAttributeSpec<this>
     }
 
     // Integer type

@@ -6,10 +6,10 @@ import { CollectionReference, parseReference } from './commons';
 
 type RecordsIds = ( string | number )[];
 
-Collection.subsetOf = function subsetOf( masterCollection : CollectionReference ) : ChainableAttributeSpec {
+Collection.subsetOf = function subsetOf( masterCollection : CollectionReference ) : ChainableAttributeSpec<typeof Collection> {
     const SubsetOf = this._SubsetOf || ( this._SubsetOf = defineSubsetCollection( this ) ),
         getMasterCollection = parseReference( masterCollection ),
-        typeSpec = new ChainableAttributeSpec({
+        typeSpec = new ChainableAttributeSpec<typeof Collection>({
             type : SubsetOf
         });
 

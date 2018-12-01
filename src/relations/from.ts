@@ -42,10 +42,10 @@ export function from( path : string, T = Record ){
     return T.from( path );
 }
 
-Record.from = function from( masterCollection : CollectionReference ) : ChainableAttributeSpec {
+Record.from = function from( masterCollection : CollectionReference ) : ChainableAttributeSpec<typeof Record> {
     const getMasterCollection = parseReference( masterCollection );
 
-    const typeSpec = new ChainableAttributeSpec({
+    const typeSpec = new ChainableAttributeSpec<typeof Record>({
         value : null,
         _metatype : RecordRefType
     });

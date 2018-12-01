@@ -54,7 +54,7 @@
   },
   "homepage": "https://github.com/gaperton/TransactionalJS#readme",
   "devDependencies": {
-    "@types/jest": "^23.3.9",
+    "@types/jest": "^23.3.10",
     "handlebars": "^4.0.12",
     "highlight.js": "^9.13.1",
     "isomorphic-fetch": "^2.2.1",
@@ -70,9 +70,9 @@
     "rollup-plugin-sourcemaps": "*",
     "rollup-plugin-uglify": "^6.0.0",
     "sinon": "^6.3.5",
-    "sinon-chai": "^3.2.0",
-    "ts-jest": "^23.10.4",
-    "typescript": "^3.1.6",
+    "sinon-chai": "^3.3.0",
+    "ts-jest": "^23.10.5",
+    "typescript": "^3.2.1",
     "underscore": "*"
   },
   "dependencies": {

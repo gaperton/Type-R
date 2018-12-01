@@ -19,7 +19,7 @@ export interface CollectionConstructor<R extends Record = Record> extends Mixabl
     new (records?: Partial<R> | Partial<R>[], options?: CollectionOptions): Collection<R>;
     prototype: Collection<R>;
     Refs: CollectionConstructor<R>;
-    subsetOf(C: Collection<R> | string | (() => Collection<R>)): ChainableAttributeSpec;
+    subsetOf(C: Collection<R> | string | (() => Collection<R>)): ChainableAttributeSpec<this>;
 }
 export declare class Collection<R extends Record = Record> extends Transactional implements CollectionCore, Iterable<R> {
     _shared: number;

@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { logger, Logger, attr, Collection, define, predefine, Record, CollectionConstructor } from "type-r";
+import { logger, Logger, attr, type, Collection, define, predefine, Record, CollectionConstructor } from "type-r";
 import "type-r/globals";
 
 logger.off()
