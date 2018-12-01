@@ -7,10 +7,10 @@ import { type, ChainableAttributeSpec } from "type-r";
 declare global {
     // Legacy has-notation
     interface Function{
-        value : ( x : any ) => ChainableAttributeSpec<this>;
-        isRequired : ChainableAttributeSpec<this>;
+        value : ( x : any ) => ChainableAttributeSpec<any>;
+        isRequired : ChainableAttributeSpec<any>;
         asProp : PropertyDecorator
-        has : ChainableAttributeSpec<this>;
+        has : ChainableAttributeSpec<any>;
     }
 
     // Date type extensions

@@ -2,10 +2,10 @@ import { Integer } from "type-r/ext-types";
 import { ChainableAttributeSpec } from "type-r";
 declare global {
     interface Function {
-        value: (x: any) => ChainableAttributeSpec<this>;
-        isRequired: ChainableAttributeSpec<this>;
+        value: (x: any) => ChainableAttributeSpec<any>;
+        isRequired: ChainableAttributeSpec<any>;
         asProp: PropertyDecorator;
-        has: ChainableAttributeSpec<this>;
+        has: ChainableAttributeSpec<any>;
     }
     interface DateConstructor {
         microsoft: ChainableAttributeSpec<this>;
