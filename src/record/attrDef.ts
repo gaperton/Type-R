@@ -144,15 +144,15 @@ export class ChainableAttributeSpec {
         }
         else{
             // Infer type from value.
-            const type = inferType( spec );
+            const Type = inferType( spec );
     
             // Transactional types inferred from values must have shared type. 
-            if( type && type.prototype instanceof Transactional ){
-                attrSpec = type( ( type as typeof Transactional ).shared ).value( spec );
+            if( Type && Type.prototype instanceof Transactional ){
+                attrSpec = type( ( Type as typeof Transactional ).shared ).value( spec );
             }
             // All others will be created in regular way.
             else{
-                attrSpec = new ChainableAttributeSpec({ type : type, value : spec, hasCustomDefault : true });
+                attrSpec = new ChainableAttributeSpec({ type : Type, value : spec, hasCustomDefault : true });
             }
         }
     
