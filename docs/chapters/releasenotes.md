@@ -23,6 +23,11 @@ Function extensions used for attribute annotations are deprecated.
 There's `type-r/globals` package for old code compatibility, which must be imported once with `import 'type-r/globals'`.
 You're advised to use new syntax for any new work.
 
+Deprecated and removed:
+
+- `record._parse( data )` -> `data`
+- `record.forEachAttr( obj, iteratee )` -> `record.forEach( iteratee )`
+
 ### New features
 
 - Collection proxies Array methods
