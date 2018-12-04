@@ -409,9 +409,9 @@ export class Record extends Transactional implements IORecord, AttributesContain
     }
 
     _log( level : LogLevel, topic: string, text : string, props : object, a_logger? : Logger ) : void {
-        ( a_logger || logger ).trigger( level, topic, text, {
+        ( a_logger || logger ).trigger( level, topic, this.getClassName() + ' ' + text, {
             ...props,
-            [ this.getClassName() ] : this,
+            'Record' : this,
             'Attributes definition' : this._attributes
         });
     }
