@@ -1,6 +1,6 @@
 {
   "name": "type-r",
-  "version": "3.0.0-a09",
+  "version": "3.0.0-a10",
   "description": "Reactive serializable data layer for modern JS applications",
   "main": "./dist/index.js",
   "jsnext:main": "./lib/index.js",
