@@ -1,5 +1,5 @@
 import { IOEndpoint, Record } from 'type-r';
-export declare function proxyIO(record: typeof Record): ProxyEndpoint;
+export declare function proxyIO(record: typeof Record, options?: ProxyIOOptions): ProxyEndpoint;
 export interface ProxyIOOptions {
     createAttrs?: string;
     updateAttrs?: string;

@@ -6,8 +6,8 @@ logger.throwOn( 'error' ).throwOn( 'warn' );
 
 const parseOptions = { parse : true, logger };
 
-export function proxyIO( record : typeof Record ){
-    return new ProxyEndpoint( record );
+export function proxyIO( record : typeof Record, options : ProxyIOOptions = {} ){
+    return new ProxyEndpoint( record, options );
 }
 
 export interface ProxyIOOptions {

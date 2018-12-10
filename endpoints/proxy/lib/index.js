@@ -3,8 +3,9 @@ import { Logger } from 'type-r';
 var logger = new Logger();
 logger.throwOn('error').throwOn('warn');
 var parseOptions = { parse: true, logger: logger };
-export function proxyIO(record) {
-    return new ProxyEndpoint(record);
+export function proxyIO(record, options) {
+    if (options === void 0) { options = {}; }
+    return new ProxyEndpoint(record, options);
 }
 var ProxyEndpoint = (function () {
     function ProxyEndpoint(record, options) {
