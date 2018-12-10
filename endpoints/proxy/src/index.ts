@@ -1,18 +1,44 @@
-import { IOEndpoint, IOOptions, IOPromise, createIOPromise, Record } from 'type-r'
+import { IOEndpoint, Logger, Record } from 'type-r';
+
+// Type-R logger to throw exceptions on input format errors.
+const logger = new Logger();
+logger.throwOn( 'error' ).throwOn( 'warn' );
+
+const parseOptions = { parse : true, logger };
 
 export function proxyIO( record : typeof Record ){
     return new ProxyEndpoint( record );
 }
 
+export interface ProxyIOOptions {
+    createAttrs? : string
+    updateAttrs? : string
+}
+
+export interface ProxyIOInternalOptions {
+    createAttrs? : string[]
+    updateAttrs? : string[]
+}
+
+
 export class ProxyEndpoint implements IOEndpoint {
     Record : typeof Record
-    
     get endpoint(){
         return this.Record.prototype._endpoint;
     }
 
-    constructor( record : typeof Record ){
+    options : ProxyIOInternalOptions = {}
+
+    constructor( record : typeof Record, options : ProxyIOOptions = {} ){
         this.Record = record;
+
+        if( options.createAttrs ){
+            this.options.createAttrs = options.createAttrs.split( /\s+/ );
+        }
+
+        if( options.updateAttrs ){
+            this.options.updateAttrs = options.updateAttrs.split( /\s+/ );
+        }
 
         // Create proxy methods...
         const source = Object.getPrototypeOf( this.endpoint );
@@ -42,15 +68,23 @@ export class ProxyEndpoint implements IOEndpoint {
 
     async update( id, json, options ){
         json.id = id;
-        const doc : any = new this.Record( json, { parse : true });
+        const doc : any = new this.Record( json, parseOptions );
         await doc.save( options );
-        return { _cas : doc._cas };
+        const res = { _cas : doc._cas };
+
+        fillAttrs( res, doc, this.options.updateAttrs );
+        
+        return res;
     }
 
     async create( json, options ){
-        const doc : any = new this.Record( json, { parse : true });
+        const doc : any = new this.Record( json, parseOptions );
         await doc.save( options );
-        return { id : doc.id, _cas : doc._cas, _type : doc._type };
+        const res = { id : doc.id, _cas : doc._cas, _type : doc._type };
+        
+        fillAttrs( res, doc, this.options.createAttrs );
+        
+        return res;
     }
 
     async read( id, options : object ){
@@ -60,7 +94,15 @@ export class ProxyEndpoint implements IOEndpoint {
     }
 
     async destroy( id : string, options : object ){
-        await this.endpoint.destroy( id, options );
-        return {};
+        return this.endpoint.destroy( id, options )
+    }
+}
+
+function fillAttrs( res : object, doc : Record, attrs : string[] ){
+    if( attrs ){
+        const json = doc.toJSON();
+        for( let key of attrs ){
+            res[ key ] = json[ key ];
+        }
     }
 }
