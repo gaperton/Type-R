@@ -1875,44 +1875,120 @@ x.componentWillMount();
 <h1 id="release-notes">Release Notes</h1>
 <h2 id="3-0-0">3.0.0</h2>
 <h3 id="breaking-changes">Breaking changes</h3>
+<p>Strict incompatibilities which need to be refactored:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>2.x</th>
+<th>3.x</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Typeless attribute</td>
+<td><code>value(x)</code></td>
+<td><code>type(null).value(x)</code></td>
+</tr>
+<tr>
+<td>Infer type from the value</td>
+<td><code>x</code> (except functions)</td>
+<td><code>value(x)</code>, or <code>x</code> (except functions)</td>
+</tr>
+<tr>
+<td>record.parse() override</td>
+<td><code>record._parse(json)</code></td>
+<td>not needed</td>
+</tr>
+<tr>
+<td>record attributes iteration</td>
+<td><code>record.forEachAttr(obj, iteratee)</code></td>
+<td><code>record.forEach(iteratee)</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="new-attribute-definition-notation">New attribute definition notation</h3>
 <p>Starting from version 3.X, Type-R does not modify built-in global JS objects. New <code>type(T)</code> attribute definition notation is introduced to replace <code>T.has.</code></p>
-<p><code>type-r/globals</code> package provides 99% backward compatibility with a version 2.X <code>T.has</code> API, allowing a gradual migration to the <code>type(T)</code>.
-There&#39;s a single exception: <code>value( x )</code> now infers type from x, so you have to make the following refactoring:</p>
-<pre><code>value( x ) -&gt; type( <span class="hljs-literal">null</span>, x )
-
-
-</code></pre><p>Following attribute types moved to the <code>type-r/ext-types</code> package:</p>
+<p>There&#39;s <code>type-r/globals</code> package for compatibility with version 2.x which must be imported once with <code>import &#39;type-r/globals&#39;</code>.
+If this package is not used, the code must be refactored according to the rules below.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>2.x</th>
+<th>3.x</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UNIX Timestamp</td>
+<td><code>Date.timestamp</code></td>
+<td><code>import { Timestamp } from &#39;type-r/ext-types&#39;</code></td>
+</tr>
+<tr>
+<td>Microsoft date</td>
+<td><code>Date.microsoft</code></td>
+<td><code>import { MicrosoftDate } from &#39;type-r/ext-types&#39;</code></td>
+</tr>
+<tr>
+<td>Integer</td>
+<td><code>Integer</code> and <code>Number.integer</code></td>
+<td><code>import { Integer } from &#39;type-r/ext-types&#39;</code></td>
+</tr>
+<tr>
+<td>Create metatype from constructor</td>
+<td><code>Ctor.has</code></td>
+<td><code>type(Ctor)</code></td>
+</tr>
+<tr>
+<td>Typed attribute with default value</td>
+<td><code>Ctor.value(default)</code></td>
+<td><code>type(Ctor).value(default)</code></td>
+</tr>
+<tr>
+<td>Attribute &quot;Required&quot; check</td>
+<td><code>Ctor.isRequired</code></td>
+<td><code>type(Ctor).required</code></td>
+</tr>
+</tbody>
+</table>
+<p>New ownership annotation (old way still works):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>2.x</th>
+<th>3.x</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shared object</td>
+<td><code>User.shared</code></td>
+<td><code>shared( User )</code></td>
+</tr>
+<tr>
+<td>Collection of id refs</td>
+<td><code>Collection.subsetOf( &#39;~users&#39; )</code></td>
+<td><code>subsetOf( &#39;~users&#39; )</code></td>
+</tr>
+<tr>
+<td>Collection of id refs of specific type</td>
+<td><code>Users.Collection.subsetOf( &#39;~users&#39; )</code></td>
+<td><code>subsetOf( &#39;~users&#39;, Users.Collection )</code></td>
+</tr>
+<tr>
+<td>id reference</td>
+<td><code>Record.from( &#39;~users&#39; )</code></td>
+<td><code>from( &#39;~users&#39; )</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="other-improvements">Other improvements</h3>
 <ul>
-<li><code>Date.timestamp</code> -&gt; <code>import { Timestamp } from &#39;type-r/ext-types&#39;</code></li>
-<li><code>Date.microsoft</code> -&gt; <code>import { MicrosoftDate } from &#39;type-r/ext-types&#39;</code></li>
-<li>global <code>Integer</code> and <code>Number.integer</code> -&gt; <code>import { Integer } from &#39;type-r/ext-types&#39;</code></li>
-</ul>
-<p>Function extensions used for attribute annotations are deprecated.</p>
-<ul>
-<li><code>Constructor.has</code> -&gt; <code>type( Constructor )</code></li>
-<li><code>Constructor.value( default )</code> -&gt; <code>type( Constructor ).value( default )</code></li>
-<li><code>Constructor.isRequired</code> -&gt; <code>type( Constructor ).required</code></li>
-</ul>
-<p>There&#39;s <code>type-r/globals</code> package for old code compatibility, which must be imported once with <code>import &#39;type-r/globals&#39;</code>.
-You&#39;re advised to use new syntax for any new work.</p>
-<p>Deprecated and removed:</p>
-<ul>
-<li><code>record._parse( data )</code> -&gt; <code>data</code></li>
-<li><code>record.forEachAttr( obj, iteratee )</code> -&gt; <code>record.forEach( iteratee )</code></li>
-</ul>
-<h3 id="new-features">New features</h3>
-<ul>
-<li>Collection proxies Array methods</li>
-<li>New logger which easy to override or turn off.</li>
+<li><code>Collection</code> class now proxies ES6 Array methods</li>
+<li>New logger API which easy to override or turn off.</li>
 <li>Improved error messages.</li>
-<li>new ownership notation:<ul>
-<li><code>Collection.subsetOf( &#39;~users&#39; )</code> -&gt; <code>subsetOf( &#39;~users&#39; )</code></li>
-<li><code>Users.Collection.subsetOf( &#39;~users&#39; )</code> -&gt; <code>subsetOf( &#39;~users&#39;, Users.Collection )</code> (If you need to inherit custom Users.Collection methods)</li>
-<li><code>Record.from( &#39;~users&#39; )</code> -&gt; <code>from( &#39;~users&#39; )</code></li>
-<li><code>User.from( &#39;~users&#39; )</code> -&gt; <code>from( &#39;~users&#39;, User )</code> (No real difference with the previous item, so don&#39;t bother)</li>
-<li><code>User.shared</code> -&gt; <code>shared( User )</code></li>
-</ul>
-</li>
 </ul>
 <pre><code class="highlight typescript"><span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> User <span class="hljs-keyword">extends</span> Record {
     <span class="hljs-comment">// There's an HTTP REST enpoint for users.</span>

@@ -4,44 +4,45 @@
 
 ### Breaking changes
 
+Strict incompatibilities which need to be refactored:
+
+ | 2.x | 3.x
+ -|-|-
+Typeless attribute | `value(x)` | `type(null).value(x)`
+Infer type from the value | `x` (except functions) | `value(x)`, or `x` (except functions)
+record.parse() override | `record._parse(json)` | not needed
+record attributes iteration | `record.forEachAttr(obj, iteratee)` | `record.forEach(iteratee)`
+
+### New attribute definition notation
+
 Starting from version 3.X, Type-R does not modify built-in global JS objects. New `type(T)` attribute definition notation is introduced to replace `T.has.`
 
-`type-r/globals` package provides 99% backward compatibility with a version 2.X `T.has` API, allowing a gradual migration to the `type(T)`.
-There's a single exception: `value( x )` now infers type from x, so you have to make the following refactoring:
+There's `type-r/globals` package for compatibility with version 2.x which must be imported once with `import 'type-r/globals'`.
+If this package is not used, the code must be refactored according to the rules below.
 
-    value( x ) -> type( null, x )
+| 2.x | 3.x
+ -|-|-
+UNIX Timestamp | `Date.timestamp` | `import { Timestamp } from 'type-r/ext-types'`
+Microsoft date | `Date.microsoft` | `import { MicrosoftDate } from 'type-r/ext-types'`
+Integer | `Integer` and `Number.integer` | `import { Integer } from 'type-r/ext-types'`
+Create metatype from constructor | `Ctor.has` | `type(Ctor)`
+Typed attribute with default value | `Ctor.value(default)` | `type(Ctor).value(default)`
+Attribute "Required" check | `Ctor.isRequired` | `type(Ctor).required`
 
-Following attribute types moved to the `type-r/ext-types` package:
+New ownership annotation (old way still works):
 
-- `Date.timestamp` -> `import { Timestamp } from 'type-r/ext-types'`
-- `Date.microsoft` -> `import { MicrosoftDate } from 'type-r/ext-types'`
-- global `Integer` and `Number.integer` -> `import { Integer } from 'type-r/ext-types'`
+| 2.x | 3.x
+ -|-|-
+Shared object | `User.shared` | `shared( User )`
+Collection of id refs | `Collection.subsetOf( '~users' )` | `subsetOf( '~users' )`
+Collection of id refs of specific type | `Users.Collection.subsetOf( '~users' )` | `subsetOf( '~users', Users.Collection )`
+id reference | `Record.from( '~users' )` | `from( '~users' )`
 
-Function extensions used for attribute annotations are deprecated.
+### Other improvements
 
-- `Constructor.has` -> `type( Constructor )`
-- `Constructor.value( default )` -> `type( Constructor ).value( default )`
-- `Constructor.isRequired` -> `type( Constructor ).required`
-
-There's `type-r/globals` package for old code compatibility, which must be imported once with `import 'type-r/globals'`.
-You're advised to use new syntax for any new work.
-
-Deprecated and removed:
-
-- `record._parse( data )` -> `data`
-- `record.forEachAttr( obj, iteratee )` -> `record.forEach( iteratee )`
-
-### New features
-
-- Collection proxies Array methods
-- New logger which easy to override or turn off.
+- `Collection` class now proxies ES6 Array methods
+- New logger API which easy to override or turn off.
 - Improved error messages.
-- new ownership notation:
-    - `Collection.subsetOf( '~users' )` -> `subsetOf( '~users' )`
-    - `Users.Collection.subsetOf( '~users' )` -> `subsetOf( '~users', Users.Collection )` (If you need to inherit custom Users.Collection methods)
-    - `Record.from( '~users' )` -> `from( '~users' )`
-    - `User.from( '~users' )` -> `from( '~users', User )` (No real difference with the previous item, so don't bother)
-    - `User.shared` -> `shared( User )`
 
 ```typescript
 @define class User extends Record {
