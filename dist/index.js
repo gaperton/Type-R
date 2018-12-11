@@ -1895,15 +1895,10 @@
                 }) : validate
             });
         };
-        Object.defineProperty(ChainableAttributeSpec.prototype, "asProp", {
+        Object.defineProperty(ChainableAttributeSpec.prototype, "as", {
             get: function () {
                 return definitionDecorator('attributes', this);
             },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(ChainableAttributeSpec.prototype, "as", {
-            get: function () { return this.asProp; },
             enumerable: true,
             configurable: true
         });
@@ -1989,15 +1984,17 @@
         return ChainableAttributeSpec;
     }());
     function emptyFunction() { }
-    function type(type, value) {
-        if (type instanceof ChainableAttributeSpec)
-            return type;
-        var defaultValue = type && value === void 0 ? getMetatype(type).defaultValue : value;
-        return new ChainableAttributeSpec({
-            type: type,
-            value: defaultValue,
-            hasCustomDefault: defaultValue !== void 0
-        });
+    function type(Type, value) {
+        if (Type instanceof ChainableAttributeSpec)
+            return Type;
+        var attrDef = new ChainableAttributeSpec({ type: Type });
+        if (Type) {
+            var defaultValue = value === void 0 ? getMetatype(Type).defaultValue : value;
+            if (defaultValue !== void 0) {
+                return attrDef.value(defaultValue);
+            }
+        }
+        return attrDef;
     }
     function value(x) {
         var Type = inferType(x);
@@ -2471,20 +2468,12 @@
         return definition;
     }
     function attr(proto, attrName) {
-        if (attrName) {
-            if (typeof Reflect !== 'undefined' && Reflect.getMetadata) {
-                type(Reflect.getMetadata("design:type", proto, attrName)).asProp(proto, attrName);
-            }
-            else {
-                proto._log('error', 'Type-R:MissingImport', 'Add import "reflect-metadata"; as the first line of your app.');
-            }
+        if (typeof Reflect !== 'undefined' && Reflect.getMetadata) {
+            type(Reflect.getMetadata("design:type", proto, attrName)).as(proto, attrName);
         }
         else {
-            return ChainableAttributeSpec.from(proto).asProp;
+            proto._log('error', 'Type-R:MissingImport', 'Add import "reflect-metadata"; as the first line of your app.');
         }
-    }
-    function prop(spec) {
-        return spec.asProp;
     }
 
     var trigger2$2 = trigger2, trigger3$4 = trigger3, on$4 = on, off$4 = off, commit$1 = transactionApi.commit, _aquire = transactionApi.aquire, _free = transactionApi.free;
@@ -3535,7 +3524,6 @@
     exports.mixinRules = mixinRules;
     exports.Record = Record;
     exports.attr = attr;
-    exports.prop = prop;
     exports.ChainableAttributeSpec = ChainableAttributeSpec;
     exports.type = type;
     exports.value = value;

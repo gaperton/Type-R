@@ -43,11 +43,9 @@ export class ChainableAttributeSpec {
         });
     }
 
-    get asProp(){
+    get as(){
         return definitionDecorator( 'attributes', this );
     }
-
-    get as(){ return this.asProp; }
 
     get isRequired() : ChainableAttributeSpec {
         return this.required;
@@ -145,16 +143,20 @@ export class ChainableAttributeSpec {
 
 function emptyFunction(){}
 
-export function type( this : void, type : ChainableAttributeSpec | Function, value? : any ) : ChainableAttributeSpec {
-    if( type instanceof ChainableAttributeSpec ) return type;
+export function type( this : void, Type : ChainableAttributeSpec | Function, value? : any ) : ChainableAttributeSpec {
+    if( Type instanceof ChainableAttributeSpec ) return Type;
 
-    const defaultValue = type && value === void 0 ? getMetatype( type ).defaultValue : value;
+    const attrDef = new ChainableAttributeSpec({ type : Type });
 
-    return new ChainableAttributeSpec( {
-        type,
-        value : defaultValue,
-        hasCustomDefault : defaultValue !== void 0
-    } );
+    if( Type ){
+        const defaultValue = value === void 0 ? getMetatype( Type ).defaultValue : value;
+
+        if( defaultValue !== void 0 ){
+            return attrDef.value( defaultValue );
+        }
+    }
+
+    return attrDef;
 }
 
 // Create attribute metatype inferring the type from the value.

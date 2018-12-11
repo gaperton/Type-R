@@ -371,7 +371,7 @@
             it( 'can define untyped attribute', function(){
                 var A = Nested.Model.extend({
                     defaults : {
-                        a : Nested.type( null, 1 )
+                        a : Nested.type( null ).value( 1 )
                     }
                 });
 

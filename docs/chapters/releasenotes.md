@@ -29,7 +29,7 @@ Create metatype from constructor | `Ctor.has` | `type(Ctor)`
 Typed attribute with default value | `Ctor.value(default)` | `type(Ctor).value(default)`
 Attribute "Required" check | `Ctor.isRequired` | `type(Ctor).required`
 
-New ownership annotation (old way still works):
+New type annotations (old way still works):
 
 | 2.x | 3.x
  -|-|-
@@ -37,6 +37,16 @@ Shared object | `User.shared` | `shared( User )`
 Collection of id refs | `Collection.subsetOf( '~users' )` | `subsetOf( '~users' )`
 Collection of id refs of specific type | `Users.Collection.subsetOf( '~users' )` | `subsetOf( '~users', Users.Collection )`
 id reference | `Record.from( '~users' )` | `from( '~users' )`
+
+TypeScript attributes definitions:
+
+| 2.x | 3.x
+ -|-|-
+Extract Type-R type with Reflect.metadata | `@attr name : Type` | `@type name : Type`
+Explicitly specify the type  | `@attr(Type) name : Type` | `@type(Type).as name : Type`
+@prop decorator | `@prop(T) x : T` | `@type(T).as x : T`
+Infer Type-R type from default value | `@attr(default) name : Type` | `@value(default).as name : Type`
+Specify type and default value | `@attr(Type.value(default)) name : Type` | `@type(Type).value(default).as name : Type`
 
 ### Other improvements
 

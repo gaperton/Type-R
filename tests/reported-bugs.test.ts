@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { logger, attr, Collection, define, mixins, Record, type } from 'type-r';
+import { logger, Collection, attr, define, mixins, Record, type, value } from 'type-r';
 import { MinutesInterval } from './common';
 
 logger.off();
@@ -19,10 +19,10 @@ describe( 'Bugs from Volicon Observer', () =>{
     });
 
     describe( 'Attribute definitions', () => {
-        it( '@attr( value ) must work as expected', () => {
+        it( '@value( value ) must work as expected', () => {
             @define class Test extends Record {
-                @attr( 5 ) num : number;
-                @attr( "5" ) str : string;
+                @value( 5 ).as num : number;
+                @value( "5" ).as str : string;
             }
 
             const t = new Test();

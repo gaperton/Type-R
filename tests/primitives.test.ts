@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { logger, Logger, attr, Collection, define, predefine, Record, CollectionConstructor } from "type-r";
+import { logger, Logger, type, attr, Collection, define, predefine, Record, CollectionConstructor } from "type-r";
 import "type-r/globals";
 
 logger.off()
@@ -32,11 +32,11 @@ describe( 'Record', () =>{
     describe( "Attribute spec", () =>{
         describe( '...as constructors', () =>{
             @define class M extends Record {
-                @attr( String ) s : string
-                @attr( Number ) n : number
-                @attr( Boolean ) b : boolean
-                @attr( Object ) o : object
-                @attr( Array ) a : any[]
+                @type( String ).as s : string
+                @type( Number ).as n : number
+                @type( Boolean ).as b : boolean
+                @type( Object ).as o : object
+                @type( Array ).as a : any[]
                 @attr d : Date
             }
 
@@ -270,7 +270,7 @@ describe( 'Record', () =>{
 
     describe( 'Attribute types', () =>{
         @define class Test extends Record {
-            @attr( Function.value( null ) ) fun : Function
+            @type( Function ).value( null ).as fun : Function
         }
 
         it( 'Supports function type', ()=>{
