@@ -15,6 +15,19 @@ export interface AttributeCheck {
     error? : any
 }
 
+// Infer the proper TS type from a Type-R attribute spec.
+export type Infer<A> =
+    A extends ChainableAttributeSpec<infer F> ? TrueReturnType<F> :
+    A extends Function ? TrueReturnType<A> :
+    A;
+ 
+// Extract the proper TS return type for a function or constructor.
+type TrueReturnType<F extends Function> =
+    F extends DateConstructor ? Date :
+    F extends ( ...args : any[] ) => infer R ? R :
+    F extends new ( ...args : any[] ) => infer R ? R :
+    void;
+
 export class ChainableAttributeSpec<F extends Function>{
     options : AttributeOptions & { type? : F };
 

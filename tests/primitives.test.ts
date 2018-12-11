@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { logger, Logger, type, auto, Collection, define, predefine, Record, CollectionConstructor } from "type-r";
+import { logger, Logger, type, auto, Collection, attributes, define, predefine, Record, CollectionConstructor } from "type-r";
 import "type-r/globals";
 
 logger.off()
@@ -30,6 +30,32 @@ describe( 'Record', () =>{
     } );
 
     describe( "Attribute spec", () =>{
+        it( 'can be used with attributes()', ()=>{
+            const AdHoc = attributes({
+                a : 1,
+                b : false,
+                c : Number,
+                d : Function,
+                e : Date,
+                h : new Date(),
+                j : Record,
+                k : Record.Collection
+            });
+
+            const m = new AdHoc();
+
+            expect( m.e ).toBeInstanceOf( Date );
+            expect( m.k ).toBeInstanceOf( Record.Collection );
+
+            const Another = attributes({
+                coll : AdHoc.Collection
+            });
+
+            const another = new Another();
+
+            expect( another.coll ).toBeInstanceOf( AdHoc.Collection );
+        });
+
         describe( '...as constructors', () =>{
             @define class M extends Record {
                 @type( String ).as s : string

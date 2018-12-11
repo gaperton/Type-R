@@ -5,18 +5,15 @@ export interface AttributeCheck {
     (value: any, key: string): boolean;
     error?: any;
 }
+export declare type Infer<A> = A extends ChainableAttributeSpec<infer F> ? TrueReturnType<F> : A extends Function ? TrueReturnType<A> : A;
+declare type TrueReturnType<F extends Function> = F extends DateConstructor ? Date : F extends (...args: any[]) => infer R ? R : F extends new (...args: any[]) => infer R ? R : void;
 export declare class ChainableAttributeSpec<F extends Function> {
     options: AttributeOptions & {
         type?: F;
     };
     constructor(options: AttributeOptions);
-<<<<<<< HEAD
     check(check: AttributeCheck, error?: any): this;
-    readonly asProp: (proto: object, name: string) => void;
-=======
-    check(check: AttributeCheck, error?: any): ChainableAttributeSpec;
->>>>>>> develop
-    readonly as: (proto: object, name: string) => void;
+    readonly as: PropertyDecorator;
     readonly isRequired: this;
     readonly required: this;
     endpoint(endpoint: IOEndpoint): this;
@@ -32,10 +29,7 @@ export declare class ChainableAttributeSpec<F extends Function> {
     value(x: any): this;
     static from(spec: any): ChainableAttributeSpec<any>;
 }
-<<<<<<< HEAD
-export declare function type<F extends Function>(this: void, type: ChainableAttributeSpec<F> | F, value?: any): ChainableAttributeSpec<F>;
-=======
-export declare function type(this: void, Type: ChainableAttributeSpec | Function, value?: any): ChainableAttributeSpec;
-export declare function value(this: void, x: any): ChainableAttributeSpec;
->>>>>>> develop
+export declare function type<F extends Function>(this: void, Type: ChainableAttributeSpec<F> | F, value?: any): ChainableAttributeSpec<F>;
+export declare function value(this: void, x: any): ChainableAttributeSpec<any>;
 export declare function createSharedTypeSpec(Constructor: Function, Attribute: typeof AnyType): void;
+export {};
