@@ -28,8 +28,15 @@ class Comics extends Book {
 ```
 
 ```typescript
-// Implicitly defined collection.
-const books : Collection<Book> = new Book.Collection();
+@define class Book extends Record {
+    @auto title : string
+    @auto author : Author
+
+    // Tell TypeScript the proper type.
+    static Collection : CollectionConstructor<Book>
+}
+
+const books = new Book.Collection();
 
 @define
 class ComicsShelve extends Book.Collection {
@@ -46,7 +53,7 @@ class Comics extends Book {
     static Collection = ComicsShelve;
 
     // Extend record's attributes
-    @attr artist : Author
+    @auto artist : Author
 }
 ```
 

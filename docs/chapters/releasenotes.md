@@ -45,7 +45,6 @@ TypeScript attributes definitions:
 Extract Type-R type with Reflect.metadata | `@attr name : T` | `@auto name : T`
 Extract Type-R type & specify the default value | not possible | `@auto(default) name : T`
 Explicitly specify the type  | `@attr(T) name : T` | `@type(T).as name : T`
-@prop decorator | `@prop(T) name : T` | `@type(T).as name : T`
 Infer Type-R type from default value | `@attr(default) name : T` | `@value(default).as name : T`
 Specify type and default value | `@attr(T.value(default)) name : T` | `@type(T).value(default).as name : T`
 

@@ -34,26 +34,28 @@ users.updateEach( user => user.firstName = '' ); // ⟵ bulk update triggering '
 
 ```typescript
 import { define, attr, type, Record } from 'type-r'
-import "reflect-metadata" // Required for @attr without arguments
+import "reflect-metadata" // Required for @auto without arguments
 
 // ⤹ required to make the magic work  
 @define class User extends Record {
     // ⤹ attribute's declaration
-    // IMPORTANT: declared attributes will be instantiated with their default values.
-    @attr lastName  : string // ⟵ @attr decorator extracts type from the Reflect metadata
-    @attr createdAt : Date // ⟵ It works for any constructor.
+    // IMPORTANT: attributes will be initialized even if no default value is provided.
+    @auto lastName  : string // ⟵ @auto decorator extracts type from the Reflect metadata
+    @auto createdAt : Date // ⟵ It works for any constructor.
+    @auto( 'somestring' ) firstName : string //⟵ The custom default value must be passed to @auto decorator.
+    @auto( null ) updatedAt : Date 
 
-    // You have to pass type explicitly if reflect-metadata is not used.
-    @attr( String ) email : string
+    // You have to pass the type explicitly if reflect-metadata is not used.
+    @type( String ).as email : string
 
-    // @attr accepts arbitrary metatype definition, and infer types from default values.
-    @attr( 'somestring' ) firstName : string,
+    // Or, you can tell Type-R to infer type from the default value.
+    @value( '' ).as email2 : string
 
-    // Type cannot be inferred for null default values, and needs to be specified explicitly
-    @type( String ).value( null ).as email2 : string 
+    // Type cannot be inferred from null default values, and needs to be specified explicitly
+    @type( String ).value( null ).as email3 : string 
         
     // You can attach ⤹ metadata to fine-tune attribute's behavior
-    @type( Date ).value( null ).toJSON( false ).as
+    @type( Date ).toJSON( false ).as
         lastLogin : Date// ⟵ not serializable
 }
 
@@ -88,6 +90,12 @@ The minimal record definition looks like this:
 }
 ```
 
+```typescript
+@define class MyRecord extends Record {
+    @auto name : string
+}
+```
+
 <aside class="warning">
 Unlike in the majority of the JS state management framework, Record is <b>not the key-value hash</b>. It needs to be explicitly defined for every data structure of different shape, in a similar way as it's done in statically typed languages.
 </aside>
@@ -118,6 +126,24 @@ Record's attributes definition. Lists attribute names along with their types, de
 }
 ```
 
+```typescript
+// You should not use `static attributes` in TypeScript. Use decorators instead.
+@define class User extends Record {
+    // Complete form of an attribute definition.
+    @type( String ).value( 'John Dow' ).as name : string,
+
+    // Attribute type is inferred from the default value.
+    @value( 'john.dow@mail.com' ).as email : string , // Same as @type( String ).value( 'john.dow@mail.com' ).as
+
+    // Attribute type is inferred from the TypeScript type declaration.
+    @auto address : string, // Same as @type( String ).value( '' )
+
+    // Same as above, but with a custom default value.
+    @auto( 'john.dow@mail.com' ) email2 : string // Same as @value( 'john.dow@mail.com' ).as
+}
+
+```
+
 The Record guarantee that _every attribute will retain the value of the declared type_. Whenever an attribute is being assigned with the value which is not compatible with its declared type, the type is being converted with an invocation of the constructor: `new Type( value )` (primitive types are treated specially).
 
 ### `static` idAttribute = 'attrName'
@@ -139,6 +165,17 @@ Record's `id` property will still be linked to Record's id, no matter which valu
 const cake = new Meal({ _id: 1, name: "Cake" });
 alert("Cake id: " + cake.id);
 ```
+```typescript
+@define class Meal extends Record {
+  static idAttribute =  "_id";
+  
+  @auto _id : number
+  @auto name : string
+}
+
+const cake = new Meal({ _id: 1, name: "Cake" });
+alert("Cake id: " + cake.id);
+```
 
 ### `attrDef` : Constructor
 
@@ -147,10 +184,22 @@ Constructor function is the simplest form of attribute definition. Any construct
 ```javascript
 @define class Person extends Record {
     static attributes = {
-        name : String // String attribute which is "" by default.
-        createdAt : Date // Date attribute
+        name : String, // String attribute which is "" by default.
+        createdAt : Date, // Date attribute
         ...
     }
+}
+```
+
+```typescript
+// In typescript, @auto decorator will extract constructor function from the TypeScript type
+@define class Person extends Record {
+    @auto name : string // String attribute which is "" by default.
+    @auto createdAt : Date // Date attribute
+
+    // Or, it can be specified explicitly with @type decorator.
+    @type( Date ).as updatedAt : Date // Date attribute
+    ...
 }
 ```
 
@@ -159,15 +208,24 @@ Constructor function is the simplest form of attribute definition. Any construct
 Any non-function value used as attribute definition is treated as an attribute's default value. Attribute's type is being inferred from the value.
 
 Type cannot be properly inferred from the `null` values and functions.
-Use the general form of attribute definition in such cases: `type( Function ).value( theFunction )`, `type( Boolean ).value( null )`.
+Use the general form of attribute definition in such cases: `value( theFunction )`, `type( Boolean ).value( null )`.
 
 ```javascript
 @define class GridColumn extends Record {
     static attributes = {
         name : '', // String attribute which is '' by default.
-        render : type( Function ).value( x => x ),
+        render : value( x => x ), // Infer Function type from the default value.
         ...
     }
+}
+```
+
+```typescript
+// In typescript, @value decorator will extract constructor function from the default value.
+@define class GridColumn extends Record {
+    @value( '' ).as name : string // String attribute which is '' by default.
+    @value( x => x ).as render : Function
+    ...
 }
 ```
 
@@ -184,6 +242,16 @@ Declare an attribute with type T having the custom `defaultValue`.
 }
 ```
 
+```typescript
+@define class Person extends Record {
+    @type( String ).value( null ).as phone : string // String attribute which is null by default.
+
+    // There's an easy way of doing that in TypeScript.
+    @auto( null ).as phone : string
+    ...
+}
+```
+
 If record needs to reference itself in its attributes definition, `@predefine` decorator with subsequent `MyRecord.define()` needs to be used.
 
 ### `attrDef` : Date
@@ -194,6 +262,15 @@ There are other popular Date serialization options available in `type-r/ext-type
 
 * `MicrosoftDate` - Date serialized as Microsoft's `"/Date(msecs)/"` string.
 * `Timestamp` - Date serializaed as UNIX integer timestamp (`date.getTime()`).
+
+```typescript
+@define class Person extends Record {
+    @auto justDate : Date
+    // MicrosoftDate is an attribute metatype, not a real type, so you must pass it explictly.
+    @type( Timestamp ).as createdAt : Date
+    ...
+}
+```
 
 ### `static` Collection
 
@@ -215,6 +292,18 @@ May be explicitly assigned in record's definition with custom collection class.
 }
 ```
 
+```typescript
+// Declare the collection class.
+@define class Comments extends Collection<Comment> {}
+
+@define class Comment extends Record{
+    static Collection = Comments; // Make it the default Comment collection.
+
+    @auto text : String
+    @auto replies : Comments
+}
+```
+
 ### `attrDef` type( Type )
 
 Attribute definition can have different metadata attached which affects various aspects of attribute's behavior. Metadata is attached with
@@ -225,8 +314,16 @@ import { define, type, Record }
 
 @define class Dummy extends Record {
     static attributes = {
-        a : type( String ).value( "a" ), // Same as "a"
+        a : type( String ).value( "a" )
     }
+}
+```
+
+```typescript
+import { define, type, Record }
+
+@define class Dummy extends Record {
+    @type( String ).value( "a" ).as a : string
 }
 ```
 
@@ -234,45 +331,31 @@ import { define, type, Record }
 
 Type-R supports several options to define record attributes.
 
-### `decorator` @attr
+### `decorator` @auto
 
 Turns TypeScript class property definition to the record's attribute, automatically extracting attribute type from the TypeScript type annotation. Requires `reflect-metadata` npm package and `emitDecoratorMetadata` option set to true in the `tsconfig.json`.
 
-No attribute metadata can be attached.
+`@auto` may take a single parameter as an attribute default value. No other attribute metadata can be attached.
 
-```javascript
-import { define, attr, Record } from 'type-r'
+```typescript
+import { define, auto, Record } from 'type-r'
 
 @define class User extends Record {
-    @attr name : string
-    @attr email : string
+    @auto name : string
+    @auto( "john@verizon.com" ) email : string
+    @auto( null ) updatedAt : Date
 }
 ```
 
-### `decorator` @attr( attrDef )
+### `decorator` @`attrDef`.as
 
-Turns class property to an attribute accepting arbitraty Type-R attribute definition as an argument. Should be used if metadata must be attached to an attribute.
-Doesn't require `reflect-metadata` package.
+Attribute definition creates the TypeScript property decorator when being appended with `.as` suffix. It's an alternative syntax to `@auto`.
 
-```javascript
-import { define, attr, Record } from 'type-r'
-
-@define class User extends Record {
-    @attr( String ) name : string
-    @attr( "5" ) name : string // String type is infered from the default value.
-    @attr( type( String ).value( 5 ) ) email : string
-}
-```
-
-### `decorator` @type( Ctor, defaultValue? ).as
-
-Attribute definition creates the TypeScript property decorator when appended with `.as` suffix. It's an alternative syntax to `@attr( attrDef )`.
-
-```javascript
+```typescript
 import { define, type, Record } from 'type-r'
 
 @define class User extends Record {
-    @type( String ).value( 5 ).as name : string
+    @value( "5" ).as name : string
     @type( String ).toJSON( false ).as email : string
 }
 ```
@@ -311,8 +394,8 @@ const book = new Book({
 
 ```typescript
 @define class Book extends Record {
-    @attr( '' ) title : string
-    @attr( '' ) author : string
+    @auto title : string
+    @auto author : string
 }
 
 const book = new Book({
@@ -552,7 +635,7 @@ All changes in the collection and its elements are detected and cause change eve
 ```typescript
     @define class MyRecord extends Record {
         // Reference to the _shared collection_ object.
-        @shared( SomeCollection ).as notCloned : SomeCollection 
+        @shared( SomeCollection ).as notCloned : Collection<Some>
 
         // _Aggregated_ collection of references to the _shared records_.
         @type( SomeCollection.Refs ).as cloned : SomeCollection

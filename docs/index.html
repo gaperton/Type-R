@@ -35,6 +35,8 @@
       <script>
         $(function() {
           var langs = [];
+            langs.push("javascript");
+            langs.push("typescript");
           setupLanguages( langs );
         });
       </script>
@@ -57,6 +59,8 @@
         
       </div>
         <div class="lang-selector">
+              <a href="#" data-language-name="javascript">javascript</a>
+              <a href="#" data-language-name="typescript">typescript</a>
         </div>
         <div class="search">
           <input type="text" class="search" id="input-search" placeholder="Search">
@@ -75,7 +79,7 @@
         <div class="content">
           <h1 id="getting-started">Getting started</h1>
 <h2 id="overview">Overview</h2>
-<p>Type-R is the JS model framework helping to define and manage the complex application state as a combination of reusable parts. Type-R cover the needs of business logic and data layers in 3-tier application architecture, providing the presentation layer with the unified technique to handle the UI and domain state. Type-R data structures look and feel (and, in some aspects, behaves) more like classes in the statically typed languages.</p>
+<p>Type-R is the TypeScript and JavaScript model framework helping to define and manage the complex application state as a combination of reusable parts. Type-R cover the needs of business logic and data layers in 3-tier application architecture, providing the presentation layer with the unified technique to handle the UI and domain state. Type-R data structures look and feel (and, in some aspects, behaves) more like classes in the statically typed languages.</p>
 <p>Type-R in unopinionated on the way how an application state should be managed (&quot;single source of truth&quot; or &quot;distributed state&quot;). It can support all approaches equally well being not dependent on singletons and having powerful capabilities for state synchronization.</p>
 <p><img src="images/3-layer-client.png" alt="overview"></p>
 <p>State is defined as a superposition of typed records and collections. Record is a class with known set of attributes of predefined types possibly holding other records and collections in its attributes, describing the data structure of an arbitrary complexity. Record with its attributes forms an aggregation tree with deeply observable attributes changes. Attribute types are checked on assignments and invalid changes are being rejected, therefore it is guaranteed that the application state will preserve the valid shape.</p>
@@ -187,9 +191,9 @@ expect( <span class="hljs-keyword">typeof</span> users.toJSON()[ <span class="hl
     <span class="hljs-keyword">static</span> endpoint = restfulIO( <span class="hljs-string">'/api/users'</span> );
 
     <span class="hljs-comment">// Type-R can infer attribute types from TypeScript type annotations.</span>
-    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).as name : <span class="hljs-built_in">string</span>
-    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).as email : <span class="hljs-built_in">string</span>
-    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">Date</span> ).as createdAt : <span class="hljs-built_in">Date</span>
+    <span class="hljs-meta">@auto</span> name : <span class="hljs-built_in">string</span>
+    <span class="hljs-meta">@auto</span> email : <span class="hljs-built_in">string</span>
+    <span class="hljs-meta">@auto</span> createdAt : <span class="hljs-built_in">Date</span>
 }
 
 <span class="hljs-keyword">const</span> users : Collection&lt;User&gt; = <span class="hljs-keyword">new</span> User.Collection();
@@ -332,26 +336,28 @@ users.set( json, { <span class="hljs-attr">parse</span> : <span class="hljs-lite
 users.updateEach( <span class="hljs-function"><span class="hljs-params">user</span> =&gt;</span> user.firstName = <span class="hljs-string">''</span> ); <span class="hljs-comment">// ⟵ bulk update triggering 'changes' once</span>
 </code></pre>
 <pre><code class="highlight typescript"><span class="hljs-keyword">import</span> { define, attr, <span class="hljs-keyword">type</span>, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
-<span class="hljs-keyword">import</span> <span class="hljs-string">"reflect-metadata"</span> <span class="hljs-comment">// Required for @attr without arguments</span>
+<span class="hljs-keyword">import</span> <span class="hljs-string">"reflect-metadata"</span> <span class="hljs-comment">// Required for @auto without arguments</span>
 
 <span class="hljs-comment">// ⤹ required to make the magic work  </span>
 <span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> User <span class="hljs-keyword">extends</span> Record {
     <span class="hljs-comment">// ⤹ attribute's declaration</span>
-    <span class="hljs-comment">// IMPORTANT: declared attributes will be instantiated with their default values.</span>
-    <span class="hljs-meta">@attr</span> lastName  : <span class="hljs-built_in">string</span> <span class="hljs-comment">// ⟵ @attr decorator extracts type from the Reflect metadata</span>
-    <span class="hljs-meta">@attr</span> createdAt : <span class="hljs-built_in">Date</span> <span class="hljs-comment">// ⟵ It works for any constructor.</span>
+    <span class="hljs-comment">// IMPORTANT: attributes will be initialized even if no default value is provided.</span>
+    <span class="hljs-meta">@auto</span> lastName  : <span class="hljs-built_in">string</span> <span class="hljs-comment">// ⟵ @auto decorator extracts type from the Reflect metadata</span>
+    <span class="hljs-meta">@auto</span> createdAt : <span class="hljs-built_in">Date</span> <span class="hljs-comment">// ⟵ It works for any constructor.</span>
+    <span class="hljs-meta">@auto</span>( <span class="hljs-string">'somestring'</span> ) firstName : <span class="hljs-built_in">string</span> <span class="hljs-comment">//⟵ The custom default value must be passed to @auto decorator.</span>
+    <span class="hljs-meta">@auto</span>( <span class="hljs-literal">null</span> ) updatedAt : <span class="hljs-built_in">Date</span> 
 
-    <span class="hljs-comment">// You have to pass type explicitly if reflect-metadata is not used.</span>
-    <span class="hljs-meta">@attr</span>( <span class="hljs-built_in">String</span> ) email : <span class="hljs-built_in">string</span>
+    <span class="hljs-comment">// You have to pass the type explicitly if reflect-metadata is not used.</span>
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).as email : <span class="hljs-built_in">string</span>
 
-    <span class="hljs-comment">// @attr accepts arbitrary metatype definition, and infer types from default values.</span>
-    <span class="hljs-meta">@attr</span>( <span class="hljs-string">'somestring'</span> ) firstName : <span class="hljs-built_in">string</span>,
+    <span class="hljs-comment">// Or, you can tell Type-R to infer type from the default value.</span>
+    <span class="hljs-meta">@value</span>( <span class="hljs-string">''</span> ).as email2 : <span class="hljs-built_in">string</span>
 
-    <span class="hljs-comment">// Type cannot be inferred for null default values, and needs to be specified explicitly</span>
-    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).value( <span class="hljs-literal">null</span> ).as email2 : <span class="hljs-built_in">string</span> 
+    <span class="hljs-comment">// Type cannot be inferred from null default values, and needs to be specified explicitly</span>
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).value( <span class="hljs-literal">null</span> ).as email3 : <span class="hljs-built_in">string</span> 
 
     <span class="hljs-comment">// You can attach ⤹ metadata to fine-tune attribute's behavior</span>
-    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">Date</span> ).value( <span class="hljs-literal">null</span> ).toJSON( <span class="hljs-literal">false</span> ).as
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">Date</span> ).toJSON( <span class="hljs-literal">false</span> ).as
         lastLogin : <span class="hljs-built_in">Date</span><span class="hljs-comment">// ⟵ not serializable</span>
 }
 
@@ -380,6 +386,10 @@ Once defined, attributes can be accessed as regular class members.</p>
     }
 }
 </code></pre>
+<pre><code class="highlight typescript"><span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> MyRecord <span class="hljs-keyword">extends</span> Record {
+    <span class="hljs-meta">@auto</span> name : <span class="hljs-built_in">string</span>
+}
+</code></pre>
 <aside class="warning">
 Unlike in the majority of the JS state management framework, Record is <b>not the key-value hash</b>. It needs to be explicitly defined for every data structure of different shape, in a similar way as it's done in statically typed languages.
 </aside>
@@ -402,6 +412,22 @@ Unlike in the majority of the JS state management framework, Record is <b>not th
     }
 }
 </code></pre>
+<pre><code class="highlight typescript"><span class="hljs-comment">// You should not use `static attributes` in TypeScript. Use decorators instead.</span>
+<span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> User <span class="hljs-keyword">extends</span> Record {
+    <span class="hljs-comment">// Complete form of an attribute definition.</span>
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).value( <span class="hljs-string">'John Dow'</span> ).as name : <span class="hljs-built_in">string</span>,
+
+    <span class="hljs-comment">// Attribute type is inferred from the default value.</span>
+    <span class="hljs-meta">@value</span>( <span class="hljs-string">'john.dow@mail.com'</span> ).as email : <span class="hljs-built_in">string</span> , <span class="hljs-comment">// Same as @type( String ).value( 'john.dow@mail.com' ).as</span>
+
+    <span class="hljs-comment">// Attribute type is inferred from the TypeScript type declaration.</span>
+    <span class="hljs-meta">@auto</span> address : <span class="hljs-built_in">string</span>, <span class="hljs-comment">// Same as @type( String ).value( '' )</span>
+
+    <span class="hljs-comment">// Same as above, but with a custom default value.</span>
+    <span class="hljs-meta">@auto</span>( <span class="hljs-string">'john.dow@mail.com'</span> ) email2 : <span class="hljs-built_in">string</span> <span class="hljs-comment">// Same as @value( 'john.dow@mail.com' ).as</span>
+}
+
+</code></pre>
 <p>The Record guarantee that <em>every attribute will retain the value of the declared type</em>. Whenever an attribute is being assigned with the value which is not compatible with its declared type, the type is being converted with an invocation of the constructor: <code>new Type( value )</code> (primitive types are treated specially).</p>
 <h3 id="static-idattribute-attrname-"><code>static</code> idAttribute = &#39;attrName&#39;</h3>
 <p>A record&#39;s unique identifier is stored under the pre-defined <code>id</code> attribute.
@@ -418,26 +444,53 @@ If you&#39;re directly communicating with a backend (CouchDB, MongoDB) that uses
 <span class="hljs-keyword">const</span> cake = <span class="hljs-keyword">new</span> Meal({ <span class="hljs-attr">_id</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">name</span>: <span class="hljs-string">"Cake"</span> });
 alert(<span class="hljs-string">"Cake id: "</span> + cake.id);
 </code></pre>
+<pre><code class="highlight typescript"><span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> Meal <span class="hljs-keyword">extends</span> Record {
+  <span class="hljs-keyword">static</span> idAttribute =  <span class="hljs-string">"_id"</span>;
+
+  <span class="hljs-meta">@auto</span> _id : <span class="hljs-built_in">number</span>
+  <span class="hljs-meta">@auto</span> name : <span class="hljs-built_in">string</span>
+}
+
+<span class="hljs-keyword">const</span> cake = <span class="hljs-keyword">new</span> Meal({ _id: <span class="hljs-number">1</span>, name: <span class="hljs-string">"Cake"</span> });
+alert(<span class="hljs-string">"Cake id: "</span> + cake.id);
+</code></pre>
 <h3 id="attrdef-constructor"><code>attrDef</code> : Constructor</h3>
 <p>Constructor function is the simplest form of attribute definition. Any constructor function which behaves as <em>converting constructor</em> (like <code>new Date( msecs )</code>) may be used as an attribute type.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span> <span class="hljs-comment">// String attribute which is "" by default.</span>
-        createdAt : <span class="hljs-built_in">Date</span> <span class="hljs-comment">// Date attribute</span>
+        <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span>, <span class="hljs-comment">// String attribute which is "" by default.</span>
+        createdAt : <span class="hljs-built_in">Date</span>, <span class="hljs-comment">// Date attribute</span>
         ...
     }
+}
+</code></pre>
+<pre><code class="highlight typescript"><span class="hljs-comment">// In typescript, @auto decorator will extract constructor function from the TypeScript type</span>
+<span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> Person <span class="hljs-keyword">extends</span> Record {
+    <span class="hljs-meta">@auto</span> name : <span class="hljs-built_in">string</span> <span class="hljs-comment">// String attribute which is "" by default.</span>
+    <span class="hljs-meta">@auto</span> createdAt : <span class="hljs-built_in">Date</span> <span class="hljs-comment">// Date attribute</span>
+
+    <span class="hljs-comment">// Or, it can be specified explicitly with @type decorator.</span>
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">Date</span> ).as updatedAt : <span class="hljs-built_in">Date</span> <span class="hljs-comment">// Date attribute</span>
+    ...
 }
 </code></pre>
 <h3 id="attrdef-defaultvalue"><code>attrDef</code> : defaultValue</h3>
 <p>Any non-function value used as attribute definition is treated as an attribute&#39;s default value. Attribute&#39;s type is being inferred from the value.</p>
 <p>Type cannot be properly inferred from the <code>null</code> values and functions.
-Use the general form of attribute definition in such cases: <code>type( Function ).value( theFunction )</code>, <code>type( Boolean ).value( null )</code>.</p>
+Use the general form of attribute definition in such cases: <code>value( theFunction )</code>, <code>type( Boolean ).value( null )</code>.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">GridColumn</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
         <span class="hljs-attr">name</span> : <span class="hljs-string">''</span>, <span class="hljs-comment">// String attribute which is '' by default.</span>
-        render : type( <span class="hljs-built_in">Function</span> ).value( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x ),
+        render : value( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x ), <span class="hljs-comment">// Infer Function type from the default value.</span>
         ...
     }
+}
+</code></pre>
+<pre><code class="highlight typescript"><span class="hljs-comment">// In typescript, @value decorator will extract constructor function from the default value.</span>
+<span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> GridColumn <span class="hljs-keyword">extends</span> Record {
+    <span class="hljs-meta">@value</span>( <span class="hljs-string">''</span> ).as name : <span class="hljs-built_in">string</span> <span class="hljs-comment">// String attribute which is '' by default.</span>
+    <span class="hljs-meta">@value</span>( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x ).as render : <span class="hljs-built_in">Function</span>
+    ...
 }
 </code></pre>
 <h3 id="attrdef-type-constructor-value-defaultvalue-"><code>attrDef</code> : type( Constructor ).value( defaultValue )</h3>
@@ -449,6 +502,14 @@ Use the general form of attribute definition in such cases: <code>type( Function
     }
 }
 </code></pre>
+<pre><code class="highlight typescript"><span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> Person <span class="hljs-keyword">extends</span> Record {
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).value( <span class="hljs-literal">null</span> ).as phone : <span class="hljs-built_in">string</span> <span class="hljs-comment">// String attribute which is null by default.</span>
+
+    <span class="hljs-comment">// There's an easy way of doing that in TypeScript.</span>
+    <span class="hljs-meta">@auto</span>( <span class="hljs-literal">null</span> ).as phone : <span class="hljs-built_in">string</span>
+    ...
+}
+</code></pre>
 <p>If record needs to reference itself in its attributes definition, <code>@predefine</code> decorator with subsequent <code>MyRecord.define()</code> needs to be used.</p>
 <h3 id="attrdef-date"><code>attrDef</code> : Date</h3>
 <p>Date attribute initialized as <code>new Date()</code>, and represented in JSON as UTC ISO string.</p>
@@ -457,6 +518,13 @@ Use the general form of attribute definition in such cases: <code>type( Function
 <li><code>MicrosoftDate</code> - Date serialized as Microsoft&#39;s <code>&quot;/Date(msecs)/&quot;</code> string.</li>
 <li><code>Timestamp</code> - Date serializaed as UNIX integer timestamp (<code>date.getTime()</code>).</li>
 </ul>
+<pre><code class="highlight typescript"><span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> Person <span class="hljs-keyword">extends</span> Record {
+    <span class="hljs-meta">@auto</span> justDate : <span class="hljs-built_in">Date</span>
+    <span class="hljs-comment">// MicrosoftDate is an attribute metatype, not a real type, so you must pass it explictly.</span>
+    <span class="hljs-meta">@type</span>( Timestamp ).as createdAt : <span class="hljs-built_in">Date</span>
+    ...
+}
+</code></pre>
 <h3 id="static-collection"><code>static</code> Collection</h3>
 <p>The default record&#39;s collection class automatically defined for every Record subclass. Can be referenced as <code>Record.Collection</code>.</p>
 <p>May be explicitly assigned in record&#39;s definition with custom collection class.</p>
@@ -472,6 +540,16 @@ Use the general form of attribute definition in such cases: <code>type( Function
     }
 }
 </code></pre>
+<pre><code class="highlight typescript"><span class="hljs-comment">// Declare the collection class.</span>
+<span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> Comments <span class="hljs-keyword">extends</span> Collection&lt;Comment&gt; {}
+
+<span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> Comment <span class="hljs-keyword">extends</span> Record{
+    <span class="hljs-keyword">static</span> Collection = Comments; <span class="hljs-comment">// Make it the default Comment collection.</span>
+
+    <span class="hljs-meta">@auto</span> text : <span class="hljs-built_in">String</span>
+    <span class="hljs-meta">@auto</span> replies : Comments
+}
+</code></pre>
 <h3 id="attrdef-type-type-"><code>attrDef</code> type( Type )</h3>
 <p>Attribute definition can have different metadata attached which affects various aspects of attribute&#39;s behavior. Metadata is attached with
 a chain of calls after the <code>type( Ctor )</code> call. Attribute&#39;s default value is the most common example of such a metadata and is the single option which can be applied to the constructor function directly.</p>
@@ -479,40 +557,36 @@ a chain of calls after the <code>type( Ctor )</code> call. Attribute&#39;s defau
 
 @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Dummy</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
-        <span class="hljs-attr">a</span> : type( <span class="hljs-built_in">String</span> ).value( <span class="hljs-string">"a"</span> ), <span class="hljs-comment">// Same as "a"</span>
+        <span class="hljs-attr">a</span> : type( <span class="hljs-built_in">String</span> ).value( <span class="hljs-string">"a"</span> )
     }
+}
+</code></pre>
+<pre><code class="highlight typescript"><span class="hljs-keyword">import</span> { define, <span class="hljs-keyword">type</span>, Record }
+
+<span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> Dummy <span class="hljs-keyword">extends</span> Record {
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).value( <span class="hljs-string">"a"</span> ).as a : <span class="hljs-built_in">string</span>
 }
 </code></pre>
 <h2 id="definitions-in-typescript">Definitions in TypeScript</h2>
 <p>Type-R supports several options to define record attributes.</p>
-<h3 id="decorator-attr"><code>decorator</code> @attr</h3>
+<h3 id="decorator-auto"><code>decorator</code> @auto</h3>
 <p>Turns TypeScript class property definition to the record&#39;s attribute, automatically extracting attribute type from the TypeScript type annotation. Requires <code>reflect-metadata</code> npm package and <code>emitDecoratorMetadata</code> option set to true in the <code>tsconfig.json</code>.</p>
-<p>No attribute metadata can be attached.</p>
-<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, attr, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
+<p><code>@auto</code> may take a single parameter as an attribute default value. No other attribute metadata can be attached.</p>
+<pre><code class="highlight typescript"><span class="hljs-keyword">import</span> { define, auto, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
-@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    @attr name : string
-    @attr email : string
+<span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> User <span class="hljs-keyword">extends</span> Record {
+    <span class="hljs-meta">@auto</span> name : <span class="hljs-built_in">string</span>
+    <span class="hljs-meta">@auto</span>( <span class="hljs-string">"john@verizon.com"</span> ) email : <span class="hljs-built_in">string</span>
+    <span class="hljs-meta">@auto</span>( <span class="hljs-literal">null</span> ) updatedAt : <span class="hljs-built_in">Date</span>
 }
 </code></pre>
-<h3 id="decorator-attr-attrdef-"><code>decorator</code> @attr( attrDef )</h3>
-<p>Turns class property to an attribute accepting arbitraty Type-R attribute definition as an argument. Should be used if metadata must be attached to an attribute.
-Doesn&#39;t require <code>reflect-metadata</code> package.</p>
-<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, attr, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
+<h3 id="decorator-attrdef-as"><code>decorator</code> @<code>attrDef</code>.as</h3>
+<p>Attribute definition creates the TypeScript property decorator when being appended with <code>.as</code> suffix. It&#39;s an alternative syntax to <code>@auto</code>.</p>
+<pre><code class="highlight typescript"><span class="hljs-keyword">import</span> { define, <span class="hljs-keyword">type</span>, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
 
-@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    @attr( <span class="hljs-built_in">String</span> ) name : string
-    @attr( <span class="hljs-string">"5"</span> ) name : string <span class="hljs-comment">// String type is infered from the default value.</span>
-    @attr( type( <span class="hljs-built_in">String</span> ).value( <span class="hljs-number">5</span> ) ) email : string
-}
-</code></pre>
-<h3 id="decorator-type-ctor-defaultvalue-as"><code>decorator</code> @type( Ctor, defaultValue? ).as</h3>
-<p>Attribute definition creates the TypeScript property decorator when appended with <code>.as</code> suffix. It&#39;s an alternative syntax to <code>@attr( attrDef )</code>.</p>
-<pre><code class="highlight javascript"><span class="hljs-keyword">import</span> { define, type, Record } <span class="hljs-keyword">from</span> <span class="hljs-string">'type-r'</span>
-
-@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
-    @type( <span class="hljs-built_in">String</span> ).value( <span class="hljs-number">5</span> ).as name : string
-    @type( <span class="hljs-built_in">String</span> ).toJSON( <span class="hljs-literal">false</span> ).as email : string
+<span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> User <span class="hljs-keyword">extends</span> Record {
+    <span class="hljs-meta">@value</span>( <span class="hljs-string">"5"</span> ).as name : <span class="hljs-built_in">string</span>
+    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).toJSON( <span class="hljs-literal">false</span> ).as email : <span class="hljs-built_in">string</span>
 }
 </code></pre>
 <h2 id="create-and-dispose">Create and dispose</h2>
@@ -537,8 +611,8 @@ Doesn&#39;t require <code>reflect-metadata</code> package.</p>
 });
 </code></pre>
 <pre><code class="highlight typescript"><span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> Book <span class="hljs-keyword">extends</span> Record {
-    <span class="hljs-meta">@attr</span>( <span class="hljs-string">''</span> ) title : <span class="hljs-built_in">string</span>
-    <span class="hljs-meta">@attr</span>( <span class="hljs-string">''</span> ) author : <span class="hljs-built_in">string</span>
+    <span class="hljs-meta">@auto</span> title : <span class="hljs-built_in">string</span>
+    <span class="hljs-meta">@auto</span> author : <span class="hljs-built_in">string</span>
 }
 
 <span class="hljs-keyword">const</span> book = <span class="hljs-keyword">new</span> Book({
@@ -711,7 +785,7 @@ One object can have single owner. The record with its aggregated attributes form
 </code></pre>
 <pre><code class="highlight typescript">    <span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> MyRecord <span class="hljs-keyword">extends</span> Record {
         <span class="hljs-comment">// Reference to the _shared collection_ object.</span>
-        <span class="hljs-meta">@shared</span>( SomeCollection ).as notCloned : SomeCollection 
+        <span class="hljs-meta">@shared</span>( SomeCollection ).as notCloned : Collection&lt;Some&gt;
 
         <span class="hljs-comment">// _Aggregated_ collection of references to the _shared records_.</span>
         <span class="hljs-meta">@type</span>( SomeCollection.Refs ).as cloned : SomeCollection
@@ -756,8 +830,15 @@ Comment.define({
     }
 }
 </code></pre>
-<pre><code class="highlight typescript"><span class="hljs-comment">// Implicitly defined collection.</span>
-<span class="hljs-keyword">const</span> books : Collection&lt;Book&gt; = <span class="hljs-keyword">new</span> Book.Collection();
+<pre><code class="highlight typescript"><span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> Book <span class="hljs-keyword">extends</span> Record {
+    <span class="hljs-meta">@auto</span> title : <span class="hljs-built_in">string</span>
+    <span class="hljs-meta">@auto</span> author : Author
+
+    <span class="hljs-comment">// Tell TypeScript the proper type.</span>
+    <span class="hljs-keyword">static</span> Collection : CollectionConstructor&lt;Book&gt;
+}
+
+<span class="hljs-keyword">const</span> books = <span class="hljs-keyword">new</span> Book.Collection();
 
 <span class="hljs-meta">@define</span>
 <span class="hljs-keyword">class</span> ComicsShelve <span class="hljs-keyword">extends</span> Book.Collection {
@@ -774,7 +855,7 @@ Comment.define({
     <span class="hljs-keyword">static</span> Collection = ComicsShelve;
 
     <span class="hljs-comment">// Extend record's attributes</span>
-    <span class="hljs-meta">@attr</span> artist : Author
+    <span class="hljs-meta">@auto</span> artist : Author
 }
 </code></pre>
 <h2 id="definition">Definition</h2>
@@ -2007,11 +2088,6 @@ If this package is not used, the code must be refactored according to the rules 
 <tr>
 <td>Explicitly specify the type</td>
 <td><code>@attr(T) name : T</code></td>
-<td><code>@type(T).as name : T</code></td>
-</tr>
-<tr>
-<td>@prop decorator</td>
-<td><code>@prop(T) name : T</code></td>
 <td><code>@type(T).as name : T</code></td>
 </tr>
 <tr>
