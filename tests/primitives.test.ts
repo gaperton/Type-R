@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { logger, Logger, type, attr, Collection, define, predefine, Record, CollectionConstructor } from "type-r";
+import { logger, Logger, type, auto, Collection, define, predefine, Record, CollectionConstructor } from "type-r";
 import "type-r/globals";
 
 logger.off()
@@ -37,7 +37,7 @@ describe( 'Record', () =>{
                 @type( Boolean ).as b : boolean
                 @type( Object ).as o : object
                 @type( Array ).as a : any[]
-                @attr d : Date
+                @auto d : Date
             }
 
             it( "invokes constructor to create defaults", () =>{
@@ -118,12 +118,12 @@ describe( 'Record', () =>{
         } );
         describe( '...as default values', () =>{
             @define class M extends Record {
-                @attr s : string = 'b'
-                @attr n : number = 1
-                @attr b : boolean = true
-                @attr o : object = {}
-                @attr a : string[] = []
-                @attr d : Date
+                @auto s : string = 'b'
+                @auto n : number = 1
+                @auto b : boolean = true
+                @auto o : object = {}
+                @auto a : string[] = []
+                @auto d : Date
             }
 
             it( "accepts values as type spec", () =>{
@@ -270,7 +270,7 @@ describe( 'Record', () =>{
 
     describe( 'Attribute types', () =>{
         @define class Test extends Record {
-            @type( Function ).value( null ).as fun : Function
+            @auto( null ) fun : Function
         }
 
         it( 'Supports function type', ()=>{
@@ -335,8 +335,8 @@ describe( 'Record', () =>{
     describe( 'Iterables', () => {
         @define class Person extends Record {
             static Collection : CollectionConstructor<Person>;
-            @attr name : string
-            @attr email : string
+            @auto name : string
+            @auto email : string
         }
 
         it( 'can iterate through collections', ()=>{

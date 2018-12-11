@@ -1952,7 +1952,7 @@ If this package is not used, the code must be refactored according to the rules 
 </tr>
 </tbody>
 </table>
-<p>New ownership annotation (old way still works):</p>
+<p>New type annotations (old way still works):</p>
 <table>
 <thead>
 <tr>
@@ -1984,6 +1984,48 @@ If this package is not used, the code must be refactored according to the rules 
 </tr>
 </tbody>
 </table>
+<p>TypeScript attributes definitions:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>2.x</th>
+<th>3.x</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Extract Type-R type with Reflect.metadata</td>
+<td><code>@attr name : T</code></td>
+<td><code>@auto name : T</code></td>
+</tr>
+<tr>
+<td>Extract Type-R type &amp; specify the default value</td>
+<td>not possible</td>
+<td><code>@auto(default) name : T</code></td>
+</tr>
+<tr>
+<td>Explicitly specify the type</td>
+<td><code>@attr(T) name : T</code></td>
+<td><code>@type(T).as name : T</code></td>
+</tr>
+<tr>
+<td>@prop decorator</td>
+<td><code>@prop(T) name : T</code></td>
+<td><code>@type(T).as name : T</code></td>
+</tr>
+<tr>
+<td>Infer Type-R type from default value</td>
+<td><code>@attr(default) name : T</code></td>
+<td><code>@value(default).as name : T</code></td>
+</tr>
+<tr>
+<td>Specify type and default value</td>
+<td><code>@attr(T.value(default)) name : T</code></td>
+<td><code>@type(T).value(default).as name : T</code></td>
+</tr>
+</tbody>
+</table>
 <h3 id="other-improvements">Other improvements</h3>
 <ul>
 <li><code>Collection</code> class now proxies ES6 Array methods</li>
@@ -1994,7 +2036,7 @@ If this package is not used, the code must be refactored according to the rules 
     <span class="hljs-comment">// There's an HTTP REST enpoint for users.</span>
     <span class="hljs-keyword">static</span> endpoint = restfulIO( <span class="hljs-string">'/api/users'</span> );
 
-    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).as name : <span class="hljs-built_in">string</span>
+    <span class="hljs-meta">@auto</span> name : <span class="hljs-built_in">string</span>
 
     <span class="hljs-comment">// Collection of Role records represented as an array of role.id in JSON.</span>
     <span class="hljs-comment">// When the "roles" attribute will be accessed for the first time,</span>
@@ -2004,7 +2046,7 @@ If this package is not used, the code must be refactored according to the rules 
 
 <span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> Role <span class="hljs-keyword">extends</span> Record {
     <span class="hljs-keyword">static</span> endpoint = restfulIO( <span class="hljs-string">'/api/roles'</span> );
-    <span class="hljs-meta">@type</span>( <span class="hljs-built_in">String</span> ).as name : <span class="hljs-built_in">string</span>
+    <span class="hljs-meta">@auto</span> name : <span class="hljs-built_in">string</span>
 }
 
 <span class="hljs-comment">// Store is the regular Record, nothing special.</span>

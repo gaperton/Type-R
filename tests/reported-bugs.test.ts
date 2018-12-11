@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { logger, Collection, attr, define, mixins, Record, type, value } from 'type-r';
+import { logger, Collection, auto, define, mixins, Record, type, value } from 'type-r';
 import { MinutesInterval } from './common';
 
 logger.off();
@@ -206,11 +206,11 @@ describe( 'Bugs from Volicon Observer', () =>{
     describe( 'assignFrom', ()=>{
         it( 'copy the value if the target is null', () =>{
             @define class Inner extends Record {
-                @attr name : string
+                @auto name : string
             }
     
             @define class Test extends Record {
-                @type( Inner ).value( null ).as inner : Inner;
+                @auto( null ) inner : Inner;
             }
     
             const target = new Test(),
@@ -225,11 +225,11 @@ describe( 'Bugs from Volicon Observer', () =>{
 
         it( 'assign object of similar shape', () =>{
             @define class A extends Record {
-                @attr a : string
+                @auto a : string
             }
 
             @define class B extends A {
-                @attr b : string
+                @auto b : string
             }
 
             const b = new B({ b : "b" }), a = new A({ a : "a" });
@@ -240,7 +240,7 @@ describe( 'Bugs from Volicon Observer', () =>{
     describe( 'Mixins', () => {
         it( 'can work with overriden atribute', ()=>{
             @define class Source extends Record {
-                @attr name : string
+                @auto name : string
 
                 get hi(){
                     return 'hi';
@@ -250,7 +250,7 @@ describe( 'Bugs from Volicon Observer', () =>{
             @define
             @mixins( Source )
             class Target extends Record {
-                @attr name : number
+                @auto name : number
                 hi : string
             }
 

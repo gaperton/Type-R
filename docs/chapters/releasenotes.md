@@ -42,11 +42,12 @@ TypeScript attributes definitions:
 
 | 2.x | 3.x
  -|-|-
-Extract Type-R type with Reflect.metadata | `@attr name : Type` | `@type name : Type`
-Explicitly specify the type  | `@attr(Type) name : Type` | `@type(Type).as name : Type`
-@prop decorator | `@prop(T) x : T` | `@type(T).as x : T`
-Infer Type-R type from default value | `@attr(default) name : Type` | `@value(default).as name : Type`
-Specify type and default value | `@attr(Type.value(default)) name : Type` | `@type(Type).value(default).as name : Type`
+Extract Type-R type with Reflect.metadata | `@attr name : T` | `@auto name : T`
+Extract Type-R type & specify the default value | not possible | `@auto(default) name : T`
+Explicitly specify the type  | `@attr(T) name : T` | `@type(T).as name : T`
+@prop decorator | `@prop(T) name : T` | `@type(T).as name : T`
+Infer Type-R type from default value | `@attr(default) name : T` | `@value(default).as name : T`
+Specify type and default value | `@attr(T.value(default)) name : T` | `@type(T).value(default).as name : T`
 
 ### Other improvements
 
@@ -59,7 +60,7 @@ Specify type and default value | `@attr(Type.value(default)) name : Type` | `@ty
     // There's an HTTP REST enpoint for users.
     static endpoint = restfulIO( '/api/users' );
 
-    @type( String ).as name : string
+    @auto name : string
 
     // Collection of Role records represented as an array of role.id in JSON.
     // When the "roles" attribute will be accessed for the first time,
@@ -69,7 +70,7 @@ Specify type and default value | `@attr(Type.value(default)) name : Type` | `@ty
 
 @define class Role extends Record {
     static endpoint = restfulIO( '/api/roles' );
-    @type( String ).as name : string
+    @auto name : string
 }
 
 // Store is the regular Record, nothing special.

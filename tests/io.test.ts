@@ -1,7 +1,7 @@
 import "isomorphic-fetch";
 import nock from 'nock';
 import "reflect-metadata";
-import { attr, Collection, define, Record, Store, type, CollectionConstructor } from 'type-r';
+import { auto, Collection, define, Record, Store, type, CollectionConstructor } from 'type-r';
 import { attributesIO } from '../endpoints/attributes';
 import { localStorageIO } from '../endpoints/localStorage';
 import { memoryIO } from '../endpoints/memory';
@@ -18,7 +18,7 @@ describe( 'IO', function(){
             static Collection : CollectionConstructor<User>
             static endpoint = memoryIO( testData );
     
-            @attr name : string
+            @auto name : string
         }
     
         it( 'loads the test data', done => {
@@ -216,21 +216,21 @@ describe( 'IO', function(){
             @define
             class User extends Record {
                 static endpoint = restfulIO( './users' );
-                @attr name : string
+                @auto name : string
             }
 
             @define
             class Store extends Record {
                 static endpoint = restfulIO( './store' );
-                @attr name : string
-                @attr user : User
+                @auto name : string
+                @auto user : User
             }
 
             @define
             class Root extends Record {
                 static endpoint = restfulIO( 'http://restful.relative/' );
                 @type( User.Collection ).as users : Collection<User>
-                @attr store : Store
+                @auto store : Store
             }
 
             const root = new Root();
@@ -309,7 +309,7 @@ function testEndpoint( endpoint ){
             static Collection : CollectionConstructor<User>
             static endpoint = endpoint;
     
-            @attr name : string
+            @auto name : string
         }
 
         let generatedId;

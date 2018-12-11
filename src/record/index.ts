@@ -70,12 +70,23 @@ function getAttributes({ defaults, attributes, idAttribute } : RecordDefinition 
 
 declare var Reflect;
 
-export function attr( proto, attrName : string ) : any {
-    // Called without the spec. Extract the type.
+export function auto( value : any ) : PropertyDecorator;
+export function auto( proto : object, attrName : string ) : void;
+export function auto( proto, attrName? : string ) : any {
     if( typeof Reflect !== 'undefined' && Reflect.getMetadata ){
-        type( Reflect.getMetadata( "design:type", proto, attrName ) ).as( proto, attrName );
+        if( attrName ){
+            type( Reflect.getMetadata( "design:type", proto, attrName ) ).as( proto, attrName );
+        }
+        else{
+            const value = proto;
+            return ( proto : object, attrName : string ) : void => {
+                type( Reflect.getMetadata( "design:type", proto, attrName ) ).value( value ).as( proto, attrName );
+            }
+        }        
     }
     else{
         proto._log( 'error', 'Type-R:MissingImport', 'Add import "reflect-metadata"; as the first line of your app.' );
-    }
+    }    
 }
+
+export const attr = auto;

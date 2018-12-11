@@ -2467,14 +2467,23 @@
         }
         return definition;
     }
-    function attr(proto, attrName) {
+    function auto(proto, attrName) {
         if (typeof Reflect !== 'undefined' && Reflect.getMetadata) {
-            type(Reflect.getMetadata("design:type", proto, attrName)).as(proto, attrName);
+            if (attrName) {
+                type(Reflect.getMetadata("design:type", proto, attrName)).as(proto, attrName);
+            }
+            else {
+                var value_1 = proto;
+                return function (proto, attrName) {
+                    type(Reflect.getMetadata("design:type", proto, attrName)).value(value_1).as(proto, attrName);
+                };
+            }
         }
         else {
             proto._log('error', 'Type-R:MissingImport', 'Add import "reflect-metadata"; as the first line of your app.');
         }
     }
+    var attr = auto;
 
     var trigger2$2 = trigger2, trigger3$4 = trigger3, on$4 = on, off$4 = off, commit$1 = transactionApi.commit, _aquire = transactionApi.aquire, _free = transactionApi.free;
     function convertAndAquire(collection, attrs, options) {
@@ -3523,6 +3532,7 @@
     exports.mixins = mixins;
     exports.mixinRules = mixinRules;
     exports.Record = Record;
+    exports.auto = auto;
     exports.attr = attr;
     exports.ChainableAttributeSpec = ChainableAttributeSpec;
     exports.type = type;

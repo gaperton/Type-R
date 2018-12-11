@@ -2,4 +2,6 @@ import { Record } from './record';
 export * from './attrDef';
 export * from './metatypes';
 export { Record };
-export declare function attr(proto: any, attrName: string): any;
+export declare function auto(value: any): PropertyDecorator;
+export declare function auto(proto: object, attrName: string): void;
+export declare const attr: typeof auto;
