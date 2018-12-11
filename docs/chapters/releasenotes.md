@@ -6,7 +6,10 @@
 
 Starting from version 3.X, Type-R does not modify built-in global JS objects. New `type(T)` attribute definition notation is introduced to replace `T.has.`
 
-`type-r/globals` package provides 100% backward compatibility with a version 2.X `T.has` API, allowing a gradual migration to the `type(T)`.
+`type-r/globals` package provides 99% backward compatibility with a version 2.X `T.has` API, allowing a gradual migration to the `type(T)`.
+There's a single exception: `value( x )` now infers type from x, so you have to make the following refactoring:
+
+    value( x ) -> type( null, x )
 
 Following attribute types moved to the `type-r/ext-types` package:
 

@@ -2,8 +2,8 @@
 title: Type-R 3.0 API Reference
 
 language_tabs:
-  - javascript
-  - typescript
+    - javascript
+    - typescript
 
 logoTitle: Type-R 3.0
 
