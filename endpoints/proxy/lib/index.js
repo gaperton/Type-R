@@ -1,11 +1,24 @@
 import * as tslib_1 from "tslib";
-export function proxyIO(record) {
-    return new ProxyEndpoint(record);
+import { Logger } from 'type-r';
+var logger = new Logger();
+logger.throwOn('error').throwOn('warn');
+var parseOptions = { parse: true, logger: logger };
+export function proxyIO(record, options) {
+    if (options === void 0) { options = {}; }
+    return new ProxyEndpoint(record, options);
 }
 var ProxyEndpoint = (function () {
-    function ProxyEndpoint(record) {
+    function ProxyEndpoint(record, options) {
+        if (options === void 0) { options = {}; }
         var _this = this;
+        this.options = {};
         this.Record = record;
+        if (options.createAttrs) {
+            this.options.createAttrs = options.createAttrs.split(/\s+/);
+        }
+        if (options.updateAttrs) {
+            this.options.updateAttrs = options.updateAttrs.split(/\s+/);
+        }
         var source = Object.getPrototypeOf(this.endpoint);
         Object.keys(source).forEach(function (key) {
             if (!_this[key] && typeof source[key] === 'function') {
@@ -49,31 +62,35 @@ var ProxyEndpoint = (function () {
     };
     ProxyEndpoint.prototype.update = function (id, json, options) {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var doc;
+            var doc, res;
             return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         json.id = id;
-                        doc = new this.Record(json, { parse: true });
+                        doc = new this.Record(json, parseOptions);
                         return [4, doc.save(options)];
                     case 1:
                         _a.sent();
-                        return [2, { _cas: doc._cas }];
+                        res = { _cas: doc._cas };
+                        fillAttrs(res, doc, this.options.updateAttrs);
+                        return [2, res];
                 }
             });
         });
     };
     ProxyEndpoint.prototype.create = function (json, options) {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var doc;
+            var doc, res;
             return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        doc = new this.Record(json, { parse: true });
+                        doc = new this.Record(json, parseOptions);
                         return [4, doc.save(options)];
                     case 1:
                         _a.sent();
-                        return [2, { id: doc.id, _cas: doc._cas, _type: doc._type }];
+                        res = { id: doc.id, _cas: doc._cas, _type: doc._type };
+                        fillAttrs(res, doc, this.options.createAttrs);
+                        return [2, res];
                 }
             });
         });
@@ -96,16 +113,20 @@ var ProxyEndpoint = (function () {
     ProxyEndpoint.prototype.destroy = function (id, options) {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
             return tslib_1.__generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4, this.endpoint.destroy(id, options)];
-                    case 1:
-                        _a.sent();
-                        return [2, {}];
-                }
+                return [2, this.endpoint.destroy(id, options)];
             });
         });
     };
     return ProxyEndpoint;
 }());
 export { ProxyEndpoint };
+function fillAttrs(res, doc, attrs) {
+    if (attrs) {
+        var json = doc.toJSON();
+        for (var _i = 0, attrs_1 = attrs; _i < attrs_1.length; _i++) {
+            var key = attrs_1[_i];
+            res[key] = json[key];
+        }
+    }
+}
 //# sourceMappingURL=index.js.map

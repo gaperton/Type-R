@@ -1,9 +1,18 @@
 import { IOEndpoint, Record } from 'type-r';
-export declare function proxyIO(record: typeof Record): ProxyEndpoint;
+export declare function proxyIO(record: typeof Record, options?: ProxyIOOptions): ProxyEndpoint;
+export interface ProxyIOOptions {
+    createAttrs?: string;
+    updateAttrs?: string;
+}
+export interface ProxyIOInternalOptions {
+    createAttrs?: string[];
+    updateAttrs?: string[];
+}
 export declare class ProxyEndpoint implements IOEndpoint {
     Record: typeof Record;
     readonly endpoint: IOEndpoint;
-    constructor(record: typeof Record);
+    options: ProxyIOInternalOptions;
+    constructor(record: typeof Record, options?: ProxyIOOptions);
     subscribe(events: any, target: any): Promise<any>;
     unsubscribe(events: any, target: any): void;
     list(options: any): Promise<any>;
@@ -16,5 +25,5 @@ export declare class ProxyEndpoint implements IOEndpoint {
         _type: any;
     }>;
     read(id: any, options: object): Promise<any>;
-    destroy(id: string, options: object): Promise<{}>;
+    destroy(id: string, options: object): Promise<any>;
 }

@@ -37,11 +37,14 @@ export function attributes<D>( attrDefs : D ) : RecordConstructor<AttrTypes<D>> 
     return DefaultRecord as any;
 }
 
+<<<<<<< HEAD
 /** Typeless attribute declaration with default value. */ 
 export function value( x : any ) : ChainableAttributeSpec<any> {
     return new ChainableAttributeSpec({ value : x });
 }
 
+=======
+>>>>>>> develop
 /** Wrap model or collection method in transaction. */
 export function transaction< F extends Function >( method : F ) : F {
     return <any>function( ...args ){

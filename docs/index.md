@@ -29,7 +29,7 @@ search: true
 
 ## Overview
 
-Type-R is the JS model framework helping to define and manage the complex application state as a combination of reusable parts. Type-R cover the needs of business logic and data layers in 3-tier application architecture, providing the presentation layer with the unified technique to handle the UI and domain state. Type-R data structures look and feel (and, in some aspects, behaves) more like classes in the statically typed languages.
+Type-R is the TypeScript and JavaScript model framework helping to define and manage the complex application state as a combination of reusable parts. Type-R cover the needs of business logic and data layers in 3-tier application architecture, providing the presentation layer with the unified technique to handle the UI and domain state. Type-R data structures look and feel (and, in some aspects, behaves) more like classes in the statically typed languages.
 
 Type-R in unopinionated on the way how an application state should be managed ("single source of truth" or "distributed state"). It can support all approaches equally well being not dependent on singletons and having powerful capabilities for state synchronization.
 
@@ -107,9 +107,9 @@ expect( typeof users.toJSON()[ 0 ].createdAt ).toBe( "string" );
 	static endpoint = restfulIO( '/api/users' );
     
     // Type-R can infer attribute types from TypeScript type annotations.
-	@type( String ).as name : string
-	@type( String ).as email : string
-	@type( Date ).as createdAt : Date
+	@auto name : string
+	@auto email : string
+	@auto createdAt : Date
 }
 
 const users : Collection<User> = new User.Collection();

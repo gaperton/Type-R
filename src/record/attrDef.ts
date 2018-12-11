@@ -43,11 +43,9 @@ export class ChainableAttributeSpec<F extends Function>{
         });
     }
 
-    get asProp(){
+    get as() : PropertyDecorator {
         return definitionDecorator( 'attributes', this );
     }
-
-    get as(){ return this.asProp; }
 
     get isRequired() : this {
         return this.required;
@@ -57,7 +55,7 @@ export class ChainableAttributeSpec<F extends Function>{
         return this.metadata({ isRequired : true }); 
     }
 
-    endpoint( endpoint : IOEndpoint ){
+    endpoint( endpoint : IOEndpoint ) : this {
         return this.metadata({ endpoint });
     }
 
@@ -134,43 +132,36 @@ export class ChainableAttributeSpec<F extends Function>{
     }
 
     static from( spec : any ) : ChainableAttributeSpec<any> {
-        let attrSpec : ChainableAttributeSpec<any>;
+        // Pass metatype through untouched...
+        if( spec && spec instanceof ChainableAttributeSpec ) {
+            return spec;
+        }
 
-        if( typeof spec === 'function' ) {
-            attrSpec = type( spec );
-        }
-        else if( spec && spec instanceof ChainableAttributeSpec ) {
-            attrSpec = spec;
-        }
-        else{
-            // Infer type from value.
-            const type = inferType( spec );
-    
-            // Transactional types inferred from values must have shared type. 
-            if( type && type.prototype instanceof Transactional ){
-                attrSpec = type( ( type as typeof Transactional ).shared ).value( spec );
-            }
-            // All others will be created in regular way.
-            else{
-                attrSpec = new ChainableAttributeSpec({ type : type, value : spec, hasCustomDefault : true });
-            }
-        }
-    
-        return attrSpec;
+        return typeof spec === 'function' ? type( spec ) : value( spec );
     }
 }
 
 function emptyFunction(){}
 
-export function type<F extends Function>( this : void, type : ChainableAttributeSpec<F> | F, value? : any ) : ChainableAttributeSpec<F> {
-    if( type instanceof ChainableAttributeSpec ) return type;
+export function type<F extends Function>( this : void, Type : ChainableAttributeSpec<F> | F, value? : any ) : ChainableAttributeSpec<F> {
+    if( Type instanceof ChainableAttributeSpec ) return Type;
 
-    const defaultValue = value === void 0 ? getMetatype( type ).defaultValue : value;
-    return new ChainableAttributeSpec( {
-        type,
-        value : defaultValue,
-        hasCustomDefault : defaultValue !== void 0
-    } );
+    const attrDef = new ChainableAttributeSpec<F>({ type : Type }),
+          defaultValue = Type && value === void 0 ? getMetatype( Type ).defaultValue : value;
+
+    return defaultValue === void 0 ? attrDef : attrDef.value( defaultValue );
+}
+
+// Create attribute metatype inferring the type from the value.
+export function value( this : void, x : any ) : ChainableAttributeSpec<any> {
+    let Type = inferType( x );
+
+    // Transactional types inferred from values must have shared type. 
+    if( Type && Type.prototype instanceof Transactional ){
+        Type = ( Type as typeof Transactional ).shared;
+    }
+
+    return type( Type ).value( x );
 }
 
 function inferType( value : any ) : Function {
@@ -181,6 +172,8 @@ function inferType( value : any ) : Function {
             return String;
         case 'boolean' :
             return Boolean;
+        case 'function' :
+            return Function;
         case 'undefined' :
             return void 0;
         case 'object' :
