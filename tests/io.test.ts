@@ -1,7 +1,7 @@
 import "isomorphic-fetch";
 import nock from 'nock';
 import "reflect-metadata";
-import { attr, Collection, define, prop, Record, Store, type, CollectionConstructor } from 'type-r';
+import { auto, Collection, define, Record, Store, type, CollectionConstructor } from 'type-r';
 import { attributesIO } from '../endpoints/attributes';
 import { localStorageIO } from '../endpoints/localStorage';
 import { memoryIO } from '../endpoints/memory';
@@ -18,7 +18,7 @@ describe( 'IO', function(){
             static Collection : CollectionConstructor<User>
             static endpoint = memoryIO( testData );
     
-            @attr name : string
+            @auto name : string
         }
     
         it( 'loads the test data', done => {
@@ -106,15 +106,17 @@ describe( 'IO', function(){
 
         @define class TestStore extends Store {
             static endpoint = attributesIO();
-            static attributes = {
-                a : type( NoEndpoint.Collection ).endpoint( memoryIO([{ id : "777" }]) ),
-                b : HasEndpoint.Collection,
-                c : type( HasEndpoint.Collection ).endpoint( memoryIO([{ id : "555" }]) )
-            }
 
-            a;
-            b;
-            c;
+            @type( NoEndpoint.Collection )
+            .endpoint( memoryIO([{ id : "777" }]) )
+            .as a : Collection<NoEndpoint>;
+
+            @type( HasEndpoint.Collection )
+            .as b : Collection<HasEndpoint>;
+            
+            @type( HasEndpoint.Collection )
+            .endpoint( memoryIO([{ id : "555" }]) )
+            .as c : Collection<HasEndpoint>;
         }
 
         const s = new TestStore();
@@ -215,22 +217,26 @@ describe( 'IO', function(){
         describe( 'Relative urls', () => {
             @define
             class User extends Record {
+                static Collection : CollectionConstructor<User>
                 static endpoint = restfulIO( './users' );
-                @attr name : string
+                @auto name : string
             }
 
             @define
             class Store extends Record {
                 static endpoint = restfulIO( './store' );
-                @attr name : string
-                @attr user : User
+                @auto name : string
+                @auto user : User
             }
 
             @define
             class Root extends Record {
                 static endpoint = restfulIO( 'http://restful.relative/' );
-                @type( User.Collection ).as users : Collection<User>
-                @attr store : Store
+                
+                @type( User.Collection )
+                .as users : Collection<User>
+
+                @auto store : Store
             }
 
             const root = new Root();
@@ -309,7 +315,7 @@ function testEndpoint( endpoint ){
             static Collection : CollectionConstructor<User>
             static endpoint = endpoint;
     
-            @attr name : string
+            @auto name : string
         }
 
         let generatedId;

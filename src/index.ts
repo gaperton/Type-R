@@ -31,12 +31,6 @@ export function attributes( attrDefs ) : typeof Model {
     return DefaultRecord;
 }
 
-
-/** Typeless attribute declaration with default value. */ 
-export function value( x : any ) : ChainableAttributeSpec {
-    return new ChainableAttributeSpec({ value : x });
-}
-
 /** Wrap model or collection method in transaction. */
 export function transaction< F extends Function >( method : F ) : F {
     return <any>function( ...args ){

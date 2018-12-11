@@ -43,11 +43,9 @@ export class ChainableAttributeSpec {
         });
     }
 
-    get asProp(){
+    get as(){
         return definitionDecorator( 'attributes', this );
     }
-
-    get as(){ return this.asProp; }
 
     get isRequired() : ChainableAttributeSpec {
         return this.required;
@@ -134,43 +132,36 @@ export class ChainableAttributeSpec {
     }
 
     static from( spec : any ) : ChainableAttributeSpec {
-        let attrSpec : ChainableAttributeSpec;
+        // Pass metatype through untouched...
+        if( spec && spec instanceof ChainableAttributeSpec ) {
+            return spec;
+        }
 
-        if( typeof spec === 'function' ) {
-            attrSpec = type( spec );
-        }
-        else if( spec && spec instanceof ChainableAttributeSpec ) {
-            attrSpec = spec;
-        }
-        else{
-            // Infer type from value.
-            const Type = inferType( spec );
-    
-            // Transactional types inferred from values must have shared type. 
-            if( Type && Type.prototype instanceof Transactional ){
-                attrSpec = type( ( Type as typeof Transactional ).shared ).value( spec );
-            }
-            // All others will be created in regular way.
-            else{
-                attrSpec = new ChainableAttributeSpec({ type : Type, value : spec, hasCustomDefault : true });
-            }
-        }
-    
-        return attrSpec;
+        return typeof spec === 'function' ? type( spec ) : value( spec );
     }
 }
 
 function emptyFunction(){}
 
-export function type( this : void, type : ChainableAttributeSpec | Function, value? : any ) : ChainableAttributeSpec {
-    if( type instanceof ChainableAttributeSpec ) return type;
+export function type( this : void, Type : ChainableAttributeSpec | Function, value? : any ) : ChainableAttributeSpec {
+    if( Type instanceof ChainableAttributeSpec ) return Type;
 
-    const defaultValue = value === void 0 ? getMetatype( type ).defaultValue : value;
-    return new ChainableAttributeSpec( {
-        type,
-        value : defaultValue,
-        hasCustomDefault : defaultValue !== void 0
-    } );
+    const attrDef = new ChainableAttributeSpec({ type : Type }),
+          defaultValue = Type && value === void 0 ? getMetatype( Type ).defaultValue : value;
+
+    return defaultValue === void 0 ? attrDef : attrDef.value( defaultValue );
+}
+
+// Create attribute metatype inferring the type from the value.
+export function value( this : void, x : any ) : ChainableAttributeSpec {
+    let Type = inferType( x );
+
+    // Transactional types inferred from values must have shared type. 
+    if( Type && Type.prototype instanceof Transactional ){
+        Type = ( Type as typeof Transactional ).shared;
+    }
+
+    return type( Type ).value( x );
 }
 
 function inferType( value : {} ) : Function {
@@ -181,6 +172,8 @@ function inferType( value : {} ) : Function {
             return String;
         case 'boolean' :
             return Boolean;
+        case 'function' :
+            return Function;
         case 'undefined' :
             return void 0;
         case 'object' :

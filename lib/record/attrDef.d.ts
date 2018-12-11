@@ -9,7 +9,6 @@ export declare class ChainableAttributeSpec {
     options: AttributeOptions;
     constructor(options: AttributeOptions);
     check(check: AttributeCheck, error?: any): ChainableAttributeSpec;
-    readonly asProp: (proto: object, name: string) => void;
     readonly as: (proto: object, name: string) => void;
     readonly isRequired: ChainableAttributeSpec;
     readonly required: ChainableAttributeSpec;
@@ -26,5 +25,6 @@ export declare class ChainableAttributeSpec {
     value(x: any): ChainableAttributeSpec;
     static from(spec: any): ChainableAttributeSpec;
 }
-export declare function type(this: void, type: ChainableAttributeSpec | Function, value?: any): ChainableAttributeSpec;
+export declare function type(this: void, Type: ChainableAttributeSpec | Function, value?: any): ChainableAttributeSpec;
+export declare function value(this: void, x: any): ChainableAttributeSpec;
 export declare function createSharedTypeSpec(Constructor: Function, Attribute: typeof AnyType): void;
