@@ -1987,14 +1987,8 @@
     function type(Type, value) {
         if (Type instanceof ChainableAttributeSpec)
             return Type;
-        var attrDef = new ChainableAttributeSpec({ type: Type });
-        if (Type) {
-            var defaultValue = value === void 0 ? getMetatype(Type).defaultValue : value;
-            if (defaultValue !== void 0) {
-                return attrDef.value(defaultValue);
-            }
-        }
-        return attrDef;
+        var attrDef = new ChainableAttributeSpec({ type: Type }), defaultValue = Type && value === void 0 ? getMetatype(Type).defaultValue : value;
+        return defaultValue === void 0 ? attrDef : attrDef.value(defaultValue);
     }
     function value(x) {
         var Type = inferType(x);
@@ -2483,7 +2477,6 @@
             proto._log('error', 'Type-R:MissingImport', 'Add import "reflect-metadata"; as the first line of your app.');
         }
     }
-    var attr = auto;
 
     var trigger2$2 = trigger2, trigger3$4 = trigger3, on$4 = on, off$4 = off, commit$1 = transactionApi.commit, _aquire = transactionApi.aquire, _free = transactionApi.free;
     function convertAndAquire(collection, attrs, options) {
@@ -3533,7 +3526,6 @@
     exports.mixinRules = mixinRules;
     exports.Record = Record;
     exports.auto = auto;
-    exports.attr = attr;
     exports.ChainableAttributeSpec = ChainableAttributeSpec;
     exports.type = type;
     exports.value = value;

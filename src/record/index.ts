@@ -88,5 +88,3 @@ export function auto( proto, attrName? : string ) : any {
         proto._log( 'error', 'Type-R:MissingImport', 'Add import "reflect-metadata"; as the first line of your app.' );
     }    
 }
-
-export const attr = auto;
