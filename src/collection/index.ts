@@ -33,11 +33,11 @@ class CollectionRefsType extends SharedType {
     static defaultValue = [];
 }
 
-export interface CollectionConstructor<R extends Record = Record > extends TheType<typeof Transactional> {
-    new ( records? : Partial<R> | Partial<R>[], options?: CollectionOptions ) : Collection<R>
+export interface CollectionConstructor<R extends Record = Record > extends TheType<typeof Collection> {
+    new ( records? : ElementsArg<R>, options?: CollectionOptions ) : Collection<R>
     prototype : Collection<R>
     Refs : CollectionConstructor<R>
-    subsetOf( C : Collection<R> | string | ( () => Collection<R> ) ) : ChainableAttributeSpec<any>
+    subsetOf( C : Collection<R> | string | ( () => Collection<R> ) ) : ChainableAttributeSpec<CollectionConstructor<R>>
 };
 
 @define({
@@ -57,7 +57,7 @@ export class Collection< R extends Record = Record> extends Transactional implem
     _aggregationError : R[]
 
     static Subset : typeof Collection
-    static Refs : typeof Collection
+    static Refs : CollectionConstructor
     static _SubsetOf : typeof Collection
     
     createSubset( models : ElementsArg<R>, options ) : Collection<R>{

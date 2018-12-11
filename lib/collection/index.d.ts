@@ -15,17 +15,17 @@ export interface CollectionDefinition extends TransactionalDefinition {
     itemEvents?: EventsDefinition;
     _itemEvents?: EventMap;
 }
-export interface CollectionConstructor<R extends Record = Record> extends TheType<typeof Transactional> {
-    new (records?: Partial<R> | Partial<R>[], options?: CollectionOptions): Collection<R>;
+export interface CollectionConstructor<R extends Record = Record> extends TheType<typeof Collection> {
+    new (records?: ElementsArg<R>, options?: CollectionOptions): Collection<R>;
     prototype: Collection<R>;
     Refs: CollectionConstructor<R>;
-    subsetOf(C: Collection<R> | string | (() => Collection<R>)): ChainableAttributeSpec<any>;
+    subsetOf(C: Collection<R> | string | (() => Collection<R>)): ChainableAttributeSpec<CollectionConstructor<R>>;
 }
 export declare class Collection<R extends Record = Record> extends Transactional implements CollectionCore, Iterable<R> {
     _shared: number;
     _aggregationError: R[];
     static Subset: typeof Collection;
-    static Refs: typeof Collection;
+    static Refs: CollectionConstructor;
     static _SubsetOf: typeof Collection;
     createSubset(models: ElementsArg<R>, options: any): Collection<R>;
     static onExtend(BaseClass: typeof Transactional): void;

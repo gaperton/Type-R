@@ -16,7 +16,7 @@ export type InferAttrs<A extends object> = {
     [K in keyof A]: Infer<A[K]>
 };
 
-export interface RecordConstructor<A> extends TheType<typeof Transactional> {
+export interface RecordConstructor<A> extends TheType<typeof Record> {
     new ( attrs? : Partial<A>, options? : object ) : Record & A
     prototype : Record
     Collection : CollectionConstructor<Record & A>
