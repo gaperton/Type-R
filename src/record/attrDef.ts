@@ -15,8 +15,21 @@ export interface AttributeCheck {
     error? : any
 }
 
-export class ChainableAttributeSpec {
-    options : AttributeOptions;
+// Infer the proper TS type from a Type-R attribute spec.
+export type Infer<A> =
+    A extends ChainableAttributeSpec<infer F> ? TrueReturnType<F> :
+    A extends Function ? TrueReturnType<A> :
+    A;
+ 
+// Extract the proper TS return type for a function or constructor.
+type TrueReturnType<F extends Function> =
+    F extends DateConstructor ? Date :
+    F extends ( ...args : any[] ) => infer R ? R :
+    F extends new ( ...args : any[] ) => infer R ? R :
+    void;
+
+export class ChainableAttributeSpec<F extends Function>{
+    options : AttributeOptions & { type? : F };
 
     constructor( options : AttributeOptions ) {
         // Shallow copy options, fill it with defaults.
@@ -24,7 +37,7 @@ export class ChainableAttributeSpec {
         if( options ) assign( this.options, options );
     }
 
-    check( check : AttributeCheck, error? : any ) : ChainableAttributeSpec {
+    check( check : AttributeCheck, error? : any ) : this {
         function validate( model, value, name ){
             if( !check.call( model, value, name ) ){
                 const msg = error || check.error || name + ' is not valid';
@@ -43,46 +56,46 @@ export class ChainableAttributeSpec {
         });
     }
 
-    get as(){
+    get as() : PropertyDecorator {
         return definitionDecorator( 'attributes', this );
     }
 
-    get isRequired() : ChainableAttributeSpec {
+    get isRequired() : this {
         return this.required;
     }
 
-    get required() : ChainableAttributeSpec {
+    get required() : this {
         return this.metadata({ isRequired : true }); 
     }
 
-    endpoint( endpoint : IOEndpoint ){
+    endpoint( endpoint : IOEndpoint ) : this {
         return this.metadata({ endpoint });
     }
 
-    watcher( ref : string | ( ( value : any, key : string ) => void ) ) : ChainableAttributeSpec {
+    watcher( ref : string | ( ( value : any, key : string ) => void ) ) : this {
         return this.metadata({ _onChange : ref });
     }
 
     // Attribute-specific parse transform
-    parse( fun : Parse ) : ChainableAttributeSpec {
+    parse( fun : Parse ) : this {
         return this.metadata({ parse : fun });
     }
 
-    toJSON( fun ) : ChainableAttributeSpec {
+    toJSON( fun ) : this {
         return this.metadata({
             toJSON : typeof fun === 'function' ? fun : ( fun ? ( x, k, o ) => x && x.toJSON( o ) : emptyFunction ) 
         });
     }
 
     // Attribute get hook.
-    get( fun ) : ChainableAttributeSpec {
+    get( fun ) : this {
         return this.metadata({
             getHooks : this.options.getHooks.concat( fun )
         });
     }
 
     // Attribute set hook.
-    set( fun ) : ChainableAttributeSpec {
+    set( fun ) : this {
         function handleSetHook( next, prev, record : AttributesContainer, options ) {
             if( this.isChanged( next, prev ) ) {
                 const changed = fun.call( record, next, this.name );
@@ -97,12 +110,12 @@ export class ChainableAttributeSpec {
         });
     }
 
-    changeEvents( events : boolean ) : ChainableAttributeSpec {
+    changeEvents( events : boolean ) : this {
         return this.metadata({ changeEvents : events });
     }
 
     // Subsribe to events from an attribute.
-    events( map : EventsDefinition ) : ChainableAttributeSpec {
+    events( map : EventsDefinition ) : this {
         const eventMap = new EventMap( map );
 
         function handleEventsSubscribtion( next, prev, record : AttributesContainer ){
@@ -117,21 +130,21 @@ export class ChainableAttributeSpec {
     }
 
     // Creates a copy of the spec.
-    get has() : ChainableAttributeSpec {
+    get has() : this {
         return this;
     }
 
-    metadata( options : AttributeOptions ) : ChainableAttributeSpec {
+    metadata( options : AttributeOptions ) : this {
         const cloned = new ChainableAttributeSpec( this.options );
         assign( cloned.options, options );
-        return cloned;
+        return cloned as any;
     }
 
-    value( x ) : ChainableAttributeSpec {
+    value( x ) : this {
         return this.metadata({ value : x, hasCustomDefault : true });
     }
 
-    static from( spec : any ) : ChainableAttributeSpec {
+    static from( spec : any ) : ChainableAttributeSpec<any> {
         // Pass metatype through untouched...
         if( spec && spec instanceof ChainableAttributeSpec ) {
             return spec;
@@ -143,17 +156,17 @@ export class ChainableAttributeSpec {
 
 function emptyFunction(){}
 
-export function type( this : void, Type : ChainableAttributeSpec | Function, value? : any ) : ChainableAttributeSpec {
+export function type<F extends Function>( this : void, Type : ChainableAttributeSpec<F> | F, value? : any ) : ChainableAttributeSpec<F> {
     if( Type instanceof ChainableAttributeSpec ) return Type;
 
-    const attrDef = new ChainableAttributeSpec({ type : Type }),
+    const attrDef = new ChainableAttributeSpec<F>({ type : Type }),
           defaultValue = Type && value === void 0 ? getMetatype( Type ).defaultValue : value;
 
     return defaultValue === void 0 ? attrDef : attrDef.value( defaultValue );
 }
 
 // Create attribute metatype inferring the type from the value.
-export function value( this : void, x : any ) : ChainableAttributeSpec {
+export function value( this : void, x : any ) : ChainableAttributeSpec<any> {
     let Type = inferType( x );
 
     // Transactional types inferred from values must have shared type. 
@@ -164,7 +177,7 @@ export function value( this : void, x : any ) : ChainableAttributeSpec {
     return type( Type ).value( x );
 }
 
-function inferType( value : {} ) : Function {
+function inferType( value : any ) : Function {
     switch( typeof value ) {
         case 'number' :
             return Number;

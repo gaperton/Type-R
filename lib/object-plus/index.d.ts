@@ -5,3 +5,6 @@ export * from './logging';
 export * from './mixins';
 export { tools };
 export { eventsApi };
+export declare type TheType<X> = {
+    [K in keyof X]: X[K];
+};

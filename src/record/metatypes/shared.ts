@@ -2,6 +2,7 @@ import { eventsApi } from '../../object-plus';
 import { ItemsBehavior, Transactional, transactionApi, TransactionOptions } from '../../transactions';
 import { AnyType } from './any';
 import { AttributesContainer, ConstructorOptions } from '../updates';
+import { ChainableAttributeSpec } from '../attrDef';
 
 const { on, off } = eventsApi,
     { free, aquire } = transactionApi;
@@ -147,6 +148,6 @@ export class SharedType extends AnyType {
 
 function ignore(){}
 
-export function shared( T : typeof Transactional ){
-    return T.shared;
+export function shared<T extends typeof Transactional>( Ctor : T ) : ChainableAttributeSpec<T> {
+    return Ctor.shared;
 }

@@ -1,6 +1,7 @@
-import { predefine, tools } from '../object-plus';
+import { CollectionConstructor } from '../collection';
+import { define, predefine, TheType, tools } from '../object-plus';
 import { Transactional } from '../transactions';
-import { ChainableAttributeSpec, createSharedTypeSpec, type } from './attrDef';
+import { createSharedTypeSpec, Infer, type } from './attrDef';
 import { SharedType } from './metatypes';
 import { createAttributesMixin } from './mixin';
 import { Record, RecordDefinition } from './record';
@@ -10,6 +11,24 @@ export * from './metatypes';
 export { Record };
 
 const { assign, defaults } = tools;
+
+export type InferAttrs<A extends object> = {
+    [K in keyof A]: Infer<A[K]>
+};
+
+export interface RecordConstructor<A> extends TheType<typeof Transactional> {
+    new ( attrs? : Partial<A>, options? : object ) : Record & A
+    prototype : Record
+    Collection : CollectionConstructor<Record & A>
+}
+
+export function attributes<D extends object>( attrDefs : D ) : RecordConstructor<InferAttrs<D>> {
+    @define class DefaultRecord extends Record {
+        static attributes = attrDefs;
+    }
+
+    return DefaultRecord as any;
+}
 
 Record.onExtend = function( this : typeof Record, BaseClass : typeof Record ){
     Transactional.onExtend.call( this, BaseClass );

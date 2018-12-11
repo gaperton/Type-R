@@ -3,9 +3,9 @@ if( typeof Symbol === 'undefined' ){
     Object.defineProperty( window, 'Symbol', { value : { iterator : 'Symbol.iterator' }, configurable : true  });
 }
 
-import { define, Events, Mixable as Class } from './object-plus/';
+import { Events, Mixable as Class } from './object-plus/';
 // Define synonims for NestedTypes backward compatibility.
-import { ChainableAttributeSpec, Record as Model } from './record';
+import { Record as Model } from './record';
 
 /**
  * Export everything 
@@ -20,16 +20,6 @@ export { Model, Class };
 
 
 export const { on, off, trigger, once, listenTo, stopListening, listenToOnce } = <any>Events;
-
-
-
-export function attributes( attrDefs ) : typeof Model {
-    @define class DefaultRecord extends Model {
-        static attributes = attrDefs;
-    }
-
-    return DefaultRecord;
-}
 
 /** Wrap model or collection method in transaction. */
 export function transaction< F extends Function >( method : F ) : F {

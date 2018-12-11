@@ -21,8 +21,8 @@ export declare class Record extends Transactional implements IORecord, Attribute
     static Collection: CollectionConstructor;
     static DefaultCollection: CollectionConstructor;
     static from: (collectionReference: any) => any;
-    static id: import("./attrDef").ChainableAttributeSpec;
-    static readonly ref: import("./attrDef").ChainableAttributeSpec;
+    static id: import("./attrDef").ChainableAttributeSpec<StringConstructor>;
+    static readonly ref: import("./attrDef").ChainableAttributeSpec<typeof Record>;
     static defaults(attrs: AttributesValues): typeof Record;
     static attributes: AttributesValues;
     _endpoints: {
