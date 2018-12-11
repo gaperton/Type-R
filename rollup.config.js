@@ -13,7 +13,7 @@ export default {
     },
     plugins: [
         resolve(), //for support of `import X from "directory"` rather than verbose `import X from "directory/index"`
-        uglify(),
+        //uglify(),
         sourcemaps()
     ]
 };
