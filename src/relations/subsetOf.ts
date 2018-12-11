@@ -1,4 +1,4 @@
-import { Collection } from '../collection';
+import { Collection, CollectionConstructor } from '../collection';
 import { define, tools } from '../object-plus';
 import { AggregatedType, ChainableAttributeSpec, Record } from '../record';
 import { ItemsBehavior, transactionApi } from '../transactions';
@@ -21,8 +21,8 @@ Collection.subsetOf = function subsetOf( masterCollection : CollectionReference 
     );
 };
 
-export function subsetOf( path : string, T = Collection ){
-    return T.subsetOf( path );
+export function subsetOf<X extends CollectionConstructor<R>, R extends Record>( path : string, T? : X ) : ChainableAttributeSpec<X>{
+    return ( T || Collection ).subsetOf( path );
 }
 
 const subsetOfBehavior = ItemsBehavior.share | ItemsBehavior.persistent;

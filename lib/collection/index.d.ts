@@ -1,5 +1,5 @@
 import { IOPromise } from '../io-tools';
-import { EventMap, EventsDefinition, Logger, LogLevel, MixableConstructor } from '../object-plus';
+import { EventMap, EventsDefinition, Logger, LogLevel, TheType } from '../object-plus';
 import { AggregatedType, ChainableAttributeSpec, Record } from '../record';
 import { CloneOptions, Transactional, TransactionalDefinition, TransactionOptions } from '../transactions';
 import { AddOptions } from './add';
@@ -15,7 +15,7 @@ export interface CollectionDefinition extends TransactionalDefinition {
     itemEvents?: EventsDefinition;
     _itemEvents?: EventMap;
 }
-export interface CollectionConstructor<R extends Record = Record> extends MixableConstructor {
+export interface CollectionConstructor<R extends Record = Record> extends TheType<typeof Transactional> {
     new (records?: Partial<R> | Partial<R>[], options?: CollectionOptions): Collection<R>;
     prototype: Collection<R>;
     Refs: CollectionConstructor<R>;

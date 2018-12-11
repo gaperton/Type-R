@@ -3,9 +3,9 @@ if( typeof Symbol === 'undefined' ){
     Object.defineProperty( window, 'Symbol', { value : { iterator : 'Symbol.iterator' }, configurable : true  });
 }
 
-import { define, Events, Mixable as Class, MixableConstructor } from './object-plus/';
+import { Events, Mixable as Class } from './object-plus/';
 // Define synonims for NestedTypes backward compatibility.
-import { ChainableAttributeSpec, Record as Model, type, InferAttrs } from './record';
+import { Record as Model } from './record';
 
 /**
  * Export everything 

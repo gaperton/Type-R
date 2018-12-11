@@ -38,8 +38,8 @@ class RecordRefType extends AnyType {
     validate( model, value, name ){}
 }
 
-export function from( path : string, T = Record ){
-    return T.from( path );
+export function from<R extends typeof Record>( path : string, T? : R ){
+    return ( T || Record ).from( path );
 }
 
 Record.from = function from( masterCollection : CollectionReference ) : ChainableAttributeSpec<typeof Record> {

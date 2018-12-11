@@ -38,6 +38,12 @@ Collection of id refs | `Collection.subsetOf( '~users' )` | `subsetOf( '~users' 
 Collection of id refs of specific type | `Users.Collection.subsetOf( '~users' )` | `subsetOf( '~users', Users.Collection )`
 id reference | `Record.from( '~users' )` | `from( '~users' )`
 
+### First-class TypeScript support
+
+- `Infer<typeof Metatype>` infers TypeScript type from the Type-R attribute metatype.
+- `InferAttrs<typeof attributes>` infers TypeScript type for the Type-R attributes definitions.
+- `attributes({ attrDefs })` returns the properly typed TypeScript Record class.
+
 TypeScript attributes definitions:
 
 | 2.x | 3.x

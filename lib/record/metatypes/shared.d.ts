@@ -1,6 +1,7 @@
 import { Transactional, TransactionOptions } from '../../transactions';
 import { AnyType } from './any';
 import { AttributesContainer, ConstructorOptions } from '../updates';
+import { ChainableAttributeSpec } from '../attrDef';
 export declare class SharedType extends AnyType {
     type: typeof Transactional;
     doInit(value: any, record: AttributesContainer, options: ConstructorOptions): any;
@@ -16,4 +17,4 @@ export declare class SharedType extends AnyType {
     _onChange: (child: Transactional, options: TransactionOptions, initiator: Transactional) => void;
     initialize(options: any): void;
 }
-export declare function shared(T: typeof Transactional): any;
+export declare function shared<T extends typeof Transactional>(Ctor: T): ChainableAttributeSpec<T>;

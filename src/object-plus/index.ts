@@ -9,3 +9,4 @@ export * from './mixins';
 export { tools };
 export { eventsApi };
 
+export type TheType<X> = { [K in keyof X] : X[K] };

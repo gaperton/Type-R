@@ -1,2 +1,3 @@
-import { Collection } from '../collection';
-export declare function subsetOf(path: string, T?: typeof Collection): any;
+import { CollectionConstructor } from '../collection';
+import { ChainableAttributeSpec, Record } from '../record';
+export declare function subsetOf<X extends CollectionConstructor<R>, R extends Record>(path: string, T?: X): ChainableAttributeSpec<X>;

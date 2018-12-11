@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { logger, Logger, type, auto, Collection, attributes, define, predefine, Record, CollectionConstructor } from "type-r";
+import { logger, Logger, type, auto, Collection, attributes, define, predefine, Record, CollectionConstructor, shared } from "type-r";
 import "type-r/globals";
 
 logger.off()
@@ -48,12 +48,12 @@ describe( 'Record', () =>{
             expect( m.k ).toBeInstanceOf( Record.Collection );
 
             const Another = attributes({
-                coll : AdHoc.Collection
+                coll : shared( AdHoc.Collection )
             });
 
             const another = new Another();
 
-            expect( another.coll ).toBeInstanceOf( AdHoc.Collection );
+            expect( another.coll ).toBe( null );
         });
 
         describe( '...as constructors', () =>{

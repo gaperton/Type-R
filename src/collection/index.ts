@@ -1,5 +1,5 @@
 import { IOPromise, startIO } from '../io-tools';
-import { define, definitions, EventMap, eventsApi, EventsDefinition, Logger, logger, LogLevel, Mixable, MixableConstructor, mixinRules, tools } from '../object-plus';
+import { define, definitions, EventMap, eventsApi, EventsDefinition, Logger, logger, LogLevel, Mixable, mixinRules, tools, TheType } from '../object-plus';
 import { AggregatedType, ChainableAttributeSpec, createSharedTypeSpec, Record, SharedType } from '../record';
 import { CloneOptions, ItemsBehavior, Transactional, TransactionalDefinition, transactionApi, TransactionOptions } from '../transactions';
 import { AddOptions, addTransaction } from './add';
@@ -29,19 +29,16 @@ export interface CollectionDefinition extends TransactionalDefinition {
     _itemEvents? : EventMap
 }
 
-const slice = Array.prototype.slice;
-
 class CollectionRefsType extends SharedType {
     static defaultValue = [];
 }
 
-export interface CollectionConstructor<R extends Record = Record > extends MixableConstructor {
+export interface CollectionConstructor<R extends Record = Record > extends TheType<typeof Transactional> {
     new ( records? : Partial<R> | Partial<R>[], options?: CollectionOptions ) : Collection<R>
     prototype : Collection<R>
     Refs : CollectionConstructor<R>
     subsetOf( C : Collection<R> | string | ( () => Collection<R> ) ) : ChainableAttributeSpec<any>
 };
-
 
 @define({
     // Default client id prefix 
@@ -585,9 +582,6 @@ export class Collection< R extends Record = Record> extends Transactional implem
         return init === void 0 ? this.models.reduce( iteratee ) : this.models.reduce( iteratee, init );
     }
 }
-
-const d : CollectionConstructor = Collection;
-
 
 export type LiveUpdatesOption = boolean | ( ( x : any ) => boolean );
 

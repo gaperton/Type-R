@@ -2065,6 +2065,12 @@ If this package is not used, the code must be refactored according to the rules 
 </tr>
 </tbody>
 </table>
+<h3 id="first-class-typescript-support">First-class TypeScript support</h3>
+<ul>
+<li><code>Infer&lt;typeof Metatype&gt;</code> infers TypeScript type from the Type-R attribute metatype.</li>
+<li><code>InferAttrs&lt;typeof attributes&gt;</code> infers TypeScript type for the Type-R attributes definitions.</li>
+<li><code>attributes({ attrDefs })</code> returns the properly typed TypeScript Record class.</li>
+</ul>
 <p>TypeScript attributes definitions:</p>
 <table>
 <thead>
