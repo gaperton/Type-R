@@ -1,5 +1,5 @@
 import { abortIO, IOEndpoint, IONode, IOPromise } from './io-tools';
-import { CallbacksByEvents, define, definitions, eventsApi, Messenger, MessengerDefinition, MessengersByCid, mixinRules, mixins, MixinsState, log, LogLevel, Logger, MixableConstructor } from './object-plus';
+import { CallbacksByEvents, define, definitions, eventsApi, Logger, LogLevel, Messenger, MessengerDefinition, MessengersByCid, mixinRules, mixins, MixinsState, throwingLogger } from './object-plus';
 import { resolveReference, Traversable } from './traversable';
 import { ChildrenErrors, Validatable, ValidationError } from './validation';
 
@@ -51,6 +51,17 @@ export abstract class Transactional implements Messenger, IONode, Validatable, T
     // Define extendable mixin static properties.
     static create( a : any, b? : any ) : Transactional {
         return new (this as any)( a, b );
+    }
+
+    // Create object from JSON. Throw if validation fail.
+    static fromJSON<T extends new ( a?, b? ) => Transactional >( this : T, json : any ) : InstanceType<T> {
+        const obj : Transactional = new ( this as any )( json, { parse : true, logger : throwingLogger } );
+
+        obj.isValid() || obj.eachValidationError( ( error, key, obj ) => {
+            throw new Error( `${ obj.getClassName() }.${ key }: ${ error }` );
+        });
+
+        return obj as any;
     }
 
     /** Generic class factory. May be overridden for abstract classes. Not inherited. */
@@ -262,7 +273,7 @@ export abstract class Transactional implements Messenger, IONode, Validatable, T
     validate( obj? : Transactional ) : any {}
 
     // Return validation error (or undefined) for nested object with the given key. 
-    getValidationError( key : string ) : any {
+    getValidationError( key? : string ) : any {
         var error = this.validationError;
         return ( key ? error && error.nested[ key ] : error ) || null;
     }
@@ -279,7 +290,7 @@ export abstract class Transactional implements Messenger, IONode, Validatable, T
     }
 
     // Check whenever member with a given key is valid. 
-    isValid( key : string ) : boolean {
+    isValid( key? : string ) : boolean {
         return !this.getValidationError( key );
     }
 

@@ -1,5 +1,5 @@
 import { IOEndpoint, IONode, IOPromise } from './io-tools';
-import { CallbacksByEvents, eventsApi, Messenger, MessengerDefinition, MessengersByCid, MixinsState, LogLevel, Logger } from './object-plus';
+import { CallbacksByEvents, eventsApi, Logger, LogLevel, Messenger, MessengerDefinition, MessengersByCid, MixinsState } from './object-plus';
 import { Traversable } from './traversable';
 import { ChildrenErrors, Validatable, ValidationError } from './validation';
 export interface TransactionalDefinition extends MessengerDefinition {
@@ -19,6 +19,7 @@ export declare abstract class Transactional implements Messenger, IONode, Valida
     static onDefine(definitions: TransactionalDefinition, BaseClass: typeof Transactional): void;
     static onExtend(BaseClass: typeof Transactional): void;
     static create(a: any, b?: any): Transactional;
+    static fromJSON<T extends new (a?: any, b?: any) => Transactional>(this: T, json: any): InstanceType<T>;
     on: (events: string | CallbacksByEvents, callback: any, context?: any) => this;
     once: (events: string | CallbacksByEvents, callback: any, context?: any) => this;
     off: (events?: string | CallbacksByEvents, callback?: any, context?: any) => this;
@@ -68,10 +69,10 @@ export declare abstract class Transactional implements Messenger, IONode, Valida
     readonly validationError: ValidationError;
     abstract _validateNested(errors: ChildrenErrors): number;
     validate(obj?: Transactional): any;
-    getValidationError(key: string): any;
+    getValidationError(key?: string): any;
     deepValidationError(reference: string): any;
     eachValidationError(iteratee: (error: any, key: string, object: Transactional) => void): void;
-    isValid(key: string): boolean;
+    isValid(key?: string): boolean;
     valueOf(): Object;
     toString(): string;
     getClassName(): string;

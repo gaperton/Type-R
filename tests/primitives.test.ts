@@ -11,6 +11,21 @@ function createLogger(){
     return logger.count( 'error' ).count( 'warn' );
 }
 
+describe( 'Serialization', () =>{
+    @define class X extends Record {
+        @auto num : number
+        @auto date : Date
+        @type( Number ).required.as rq : number
+    } 
+
+    it( 'Restore Record from JSON', () =>{
+        expect( () => X.fromJSON( [] ) ).toThrow();
+        expect( () => X.fromJSON( {} ) ).toThrow();
+
+        expect( X.fromJSON({ rq : 1 }).rq ).toBe( 1 );
+    } );
+});
+
 describe( 'Record', () =>{
     it( "can be instantiated", ()=>{
         new Record();

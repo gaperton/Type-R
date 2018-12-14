@@ -18,4 +18,5 @@ export declare class Logger extends Messenger {
     on(handlers: 'all', handler: (level: LogLevel, topic: string, msg: string, props: object) => void): this;
 }
 export declare const logger: Logger;
+export declare const throwingLogger: Logger;
 export declare const log: typeof logger.trigger;

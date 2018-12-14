@@ -87,4 +87,7 @@ if( typeof console !== 'undefined' ) {
     }
 }
 
+export const throwingLogger = new Logger();
+throwingLogger.throwOn( 'error' ).throwOn( 'warn' );
+
 export const log : typeof logger.trigger = logger.trigger.bind( logger );
