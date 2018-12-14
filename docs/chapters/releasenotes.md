@@ -36,7 +36,7 @@ New type annotations (old way still works):
 Shared object | `User.shared` | `shared( User )`
 Collection of id refs | `Collection.subsetOf( '~users' )` | `subsetOf( '~users' )`
 Collection of id refs of specific type | `Users.Collection.subsetOf( '~users' )` | `subsetOf( '~users', Users.Collection )`
-id reference | `Record.from( '~users' )` | `from( '~users' )`
+id reference | `Record.from( '~users' )` | `memberOf( '~users' )`
 
 ### First-class TypeScript support
 
@@ -59,6 +59,7 @@ Specify type and default value | `@attr(T.value(default)) name : T` | `@type(T).
 - `Collection` class now proxies ES6 Array methods
 - New logger API which easy to override or turn off.
 - Improved error messages.
+- `Type.fromJSON( json )` method to restore object from JSON with a strict type check and validation.
 
 ```typescript
 @define class User extends Record {

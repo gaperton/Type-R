@@ -1647,7 +1647,7 @@ Parsing can be controlled on per-attribute level with <b>type( Type ).parse()</b
 <h2 id="normalized-data">Normalized data</h2>
 <p>Type-R has first-class support for working with normalized data represented as a set of collections with cross-references by record id. References are represented as record ids in JSON, and being transparently resolved to record instances on the first access.</p>
 <p><code>Store</code> class is the special record class which serves as a placeholder for the set of interlinked collections of normalized records. Id-references are defined as record attributes of the special type representing the serializable reference to the records from the specified master collection.</p>
-<h3 id="attrdef-from-sourcecollection-"><code>attrDef</code> : from( <code>sourceCollection</code> )</h3>
+<h3 id="attrdef-memberof-sourcecollection-"><code>attrDef</code> : memberOf( <code>sourceCollection</code> )</h3>
 <p>Serializable reference to the record from the particular collection.
 Initialized as <code>null</code> and serialized as <code>record.id</code>. Is not recursively cloned, validated, or disposed. Used to model one-to-many relationships.</p>
 <p>Changes in shared record are not detected.</p>
@@ -1664,7 +1664,7 @@ Initialized as <code>null</code> and serialized as <code>record.id</code>. Is no
 <pre><code class="highlight javascript">    @define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">State</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
         <span class="hljs-keyword">static</span> attributes = {
             <span class="hljs-attr">items</span> : Item.Collection,
-            <span class="hljs-attr">selected</span> : <span class="hljs-keyword">from</span>( <span class="hljs-string">'items'</span> ) <span class="hljs-comment">// Will resolve to `this.items`</span>
+            <span class="hljs-attr">selected</span> : memberOf( <span class="hljs-string">'items'</span> ) <span class="hljs-comment">// Will resolve to `this.items`</span>
         }
     }
 </code></pre>
@@ -2061,7 +2061,7 @@ If this package is not used, the code must be refactored according to the rules 
 <tr>
 <td>id reference</td>
 <td><code>Record.from( &#39;~users&#39; )</code></td>
-<td><code>from( &#39;~users&#39; )</code></td>
+<td><code>memberOf( &#39;~users&#39; )</code></td>
 </tr>
 </tbody>
 </table>
@@ -2113,6 +2113,7 @@ If this package is not used, the code must be refactored according to the rules 
 <li><code>Collection</code> class now proxies ES6 Array methods</li>
 <li>New logger API which easy to override or turn off.</li>
 <li>Improved error messages.</li>
+<li><code>Type.fromJSON( json )</code> method to restore object from JSON with a strict type check and validation.</li>
 </ul>
 <pre><code class="highlight typescript"><span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> User <span class="hljs-keyword">extends</span> Record {
     <span class="hljs-comment">// There's an HTTP REST enpoint for users.</span>

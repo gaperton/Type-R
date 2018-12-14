@@ -388,7 +388,7 @@ Type-R has first-class support for working with normalized data represented as a
 
 `Store` class is the special record class which serves as a placeholder for the set of interlinked collections of normalized records. Id-references are defined as record attributes of the special type representing the serializable reference to the records from the specified master collection.
 
-### `attrDef` : from( `sourceCollection` )
+### `attrDef` : memberOf( `sourceCollection` )
 
 Serializable reference to the record from the particular collection.
 Initialized as `null` and serialized as `record.id`. Is not recursively cloned, validated, or disposed. Used to model one-to-many relationships.
@@ -406,7 +406,7 @@ Changes in shared record are not detected.
     @define class State extends Record {
         static attributes = {
             items : Item.Collection,
-            selected : from( 'items' ) // Will resolve to `this.items`
+            selected : memberOf( 'items' ) // Will resolve to `this.items`
         }
     }
 ```

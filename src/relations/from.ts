@@ -38,7 +38,7 @@ class RecordRefType extends AnyType {
     validate( model, value, name ){}
 }
 
-export function from<R extends typeof Record>( path : string, T? : R ){
+export function memberOf<R extends typeof Record>( path : string, T? : R ){
     return ( T || Record ).from( path );
 }
 
