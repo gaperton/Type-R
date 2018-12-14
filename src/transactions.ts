@@ -49,13 +49,13 @@ export abstract class Transactional implements Messenger, IONode, Validatable, T
     }
 
     // Define extendable mixin static properties.
-    static create( a : any, b? : any ) : Transactional {
+    static create<T extends new ( a?, b? ) => Transactional>( this : T, a : any, b? : any ) : InstanceType<T> {
         return new (this as any)( a, b );
     }
 
     // Create object from JSON. Throw if validation fail.
-    static fromJSON<T extends new ( a?, b? ) => Transactional >( this : T, json : any ) : InstanceType<T> {
-        const obj : Transactional = new ( this as any )( json, { parse : true, logger : throwingLogger } );
+    static fromJSON<T extends new ( a?, b? ) => Transactional >( this : T, json : any ) :  InstanceType<T>{
+        const obj : Transactional = ( this as any ).create( json, { parse : true, logger : throwingLogger } );
 
         obj.isValid() || obj.eachValidationError( ( error, key, obj ) => {
             throw new Error( `${ obj.getClassName() }.${ key }: ${ error }` );

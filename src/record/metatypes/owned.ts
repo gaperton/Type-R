@@ -93,7 +93,7 @@ export class AggregatedType extends AnyType {
             return next;
         }
 
-        return <any>this.type.create( next, options );
+        return ( this.type as any).create( next, options );
     }
 
     dispose ( record : AttributesContainer, value : Transactional ){
