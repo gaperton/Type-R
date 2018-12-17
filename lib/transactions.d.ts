@@ -18,7 +18,7 @@ export declare abstract class Transactional implements Messenger, IONode, Valida
     static extend: <T extends TransactionalDefinition>(definition?: T, statics?: object) => any;
     static onDefine(definitions: TransactionalDefinition, BaseClass: typeof Transactional): void;
     static onExtend(BaseClass: typeof Transactional): void;
-    static create<T extends new (a?: any, b?: any) => Transactional>(this: T, a: any, b?: any): InstanceType<T>;
+    static create(a: any, b?: any): Transactional;
     on: (events: string | CallbacksByEvents, callback: any, context?: any) => this;
     once: (events: string | CallbacksByEvents, callback: any, context?: any) => this;
     off: (events?: string | CallbacksByEvents, callback?: any, context?: any) => this;

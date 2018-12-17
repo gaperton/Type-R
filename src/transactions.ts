@@ -49,7 +49,7 @@ export abstract class Transactional implements Messenger, IONode, Validatable, T
     }
 
     // Define extendable mixin static properties.
-    static create<T extends new ( a?, b? ) => Transactional>( this : T, a : any, b? : any ) : InstanceType<T> {
+    static create( a : any, b? : any ) : Transactional {
         return new (this as any)( a, b );
     }
 
