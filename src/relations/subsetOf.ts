@@ -1,28 +1,32 @@
-import { Collection, CollectionConstructor } from '../collection';
+import { Collection } from '../collection';
 import { define, tools } from '../object-plus';
-import { AggregatedType, ChainableAttributeSpec, Record } from '../record';
+import { AggregatedType, ChainableAttributeSpec, Record, type } from '../record';
 import { ItemsBehavior, transactionApi } from '../transactions';
 import { CollectionReference, parseReference } from './commons';
 
+
 type RecordsIds = ( string | number )[];
 
-Collection.subsetOf = function subsetOf( masterCollection : CollectionReference ) : ChainableAttributeSpec<typeof Collection> {
-    const SubsetOf = this._SubsetOf || ( this._SubsetOf = defineSubsetCollection( this ) ),
-        getMasterCollection = parseReference( masterCollection ),
-        typeSpec = new ChainableAttributeSpec<typeof Collection>({
-            type : SubsetOf
-        });
+export function subsetOf<X extends typeof Collection>( this : void, masterCollection : CollectionReference, T? : X ) : ChainableAttributeSpec<X>{
+    const CollectionClass = T || Collection,
+        // Lazily define class for subset collection, if it's not defined already...
+        SubsetOf = CollectionClass._SubsetOf || ( CollectionClass._SubsetOf = defineSubsetCollection( CollectionClass ) as any ),
+        getMasterCollection = parseReference( masterCollection );
 
-    return typeSpec.get(
+    return type( SubsetOf ).get(
         function( refs ){
             !refs || refs.resolvedWith || refs.resolve( getMasterCollection( this ) );
             return refs;
         }
     );
-};
+}
 
-export function subsetOf<X extends CollectionConstructor<R>, R extends Record>( path : string, T? : X ) : ChainableAttributeSpec<X>{
-    return ( T || Collection ).subsetOf( path );
+Collection.prototype.createSubset = function( models : any, options ) : Collection {
+    const SubsetOf = subsetOf( this, this.constructor ).options.type,
+          subset   = new SubsetOf( models, options );
+        
+    subset.resolve( this );
+    return subset;
 }
 
 const subsetOfBehavior = ItemsBehavior.share | ItemsBehavior.persistent;

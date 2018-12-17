@@ -1,10 +1,5 @@
 /**
- * Some sketches for reference resolution.
- *
- * 
- * a : Model.from( '~collection' )
- * 
- * We need two functions. One for get, and one for compile. 
+ * Traversable objects and symbolic references
  */
 export interface Traversable {
     getStore() : Traversable

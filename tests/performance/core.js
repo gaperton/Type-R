@@ -100,7 +100,7 @@ export const Group = Model.extend( {
         executedAt : Date.value( null ),
         name     : String,
         tests    : Test.Collection,
-        selected : Test.from( 'tests' ),
+        selected : memberOf( 'tests' ),
         iterations : Integer
     },
 

@@ -547,8 +547,8 @@ define( function( require, exports, module ){
                 user_type  : Number,
                 user_types : Array,
                 permissions: {},
-                selectedEncoders : Nested.Collection.subsetOf( '~encoders' ),
-                roles : Nested.Collection.subsetOf( '~roles' ),
+                selectedEncoders : subsetOf( '~encoders' ),
+                roles : subsetOf( '~roles' ),
                 settings: Model.defaults({
                     TZ: '',
                     DefaultMetadataState: 'off',

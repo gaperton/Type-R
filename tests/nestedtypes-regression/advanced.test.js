@@ -1,6 +1,8 @@
 var Nested = require( 'type-r' );
 require("type-r/globals");
 
+const { shared } = Nested;
+
 var Model = Nested.Model, Collection = Nested.Collection;
 
 describe( 'Advanced functionality', function(){
@@ -10,10 +12,10 @@ describe( 'Advanced functionality', function(){
         }
     });
 
-    describe( 'Model.shared attribute', function(){
+    describe( 'shared( Model ) attribute', function(){
         var A = Model.extend({
             attributes : {
-                shared : M.shared,
+                shared : shared( M ),
                 owned : M
             }
         });
@@ -71,10 +73,10 @@ describe( 'Advanced functionality', function(){
         });
     });
 
-    describe( 'Collection.shared attribute', function(){
+    describe( 'shared( Collection ) attribute', function(){
         var A = Model.extend({
             attributes : {
-                sharedC : M.Collection.shared,
+                sharedC : shared( M.Collection ),
                 ownedC : M.Collection
             }
         });
@@ -225,7 +227,7 @@ describe( 'Advanced functionality', function(){
                         x : 1
                     }).has.changeEvents( false ),
 
-                    b : Model.shared.changeEvents( false )
+                    b : shared( Model ).changeEvents( false )
                 },
 
                 initialize(){

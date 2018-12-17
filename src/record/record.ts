@@ -62,8 +62,6 @@ export class Record extends Transactional implements IORecord, AttributesContain
 
     static Collection : CollectionConstructor;
     static DefaultCollection : CollectionConstructor;
-
-    static from : ( collectionReference : any ) => any;
     
     // Attribute type for the record id.
     static id = type( String ).value( null );

@@ -19,10 +19,10 @@ describe( 'Serialization', () =>{
     } 
 
     it( 'Restore Record from JSON', () =>{
-        expect( () => X.fromJSON( [] ) ).toThrow();
-        expect( () => X.fromJSON( {} ) ).toThrow();
+        expect( () => X.from( [], { strict : true } ) ).toThrow();
+        expect( () => X.from( {}, { strict : true } ) ).toThrow();
 
-        expect( X.fromJSON({ rq : 1 }).rq ).toBe( 1 );
+        expect( X.from({ rq : 1 }, { strict : true }).rq ).toBe( 1 );
     } );
 });
 

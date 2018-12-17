@@ -1,6 +1,6 @@
 import { IOEndpoint } from '../io-tools';
 import { EventsDefinition } from '../object-plus';
-import { AttributeOptions, Parse, AnyType } from './metatypes';
+import { AttributeOptions, Parse } from './metatypes';
 export interface AttributeCheck {
     (value: any, key: string): boolean;
     error?: any;
@@ -30,6 +30,6 @@ export declare class ChainableAttributeSpec<F extends Function> {
     static from(spec: any): ChainableAttributeSpec<any>;
 }
 export declare function type<F extends Function>(this: void, Type: ChainableAttributeSpec<F> | F, value?: any): ChainableAttributeSpec<F>;
+export declare function shared<C extends Function>(this: void, Constructor: C): ChainableAttributeSpec<C>;
 export declare function value(this: void, x: any): ChainableAttributeSpec<any>;
-export declare function createSharedTypeSpec(Constructor: Function, Attribute: typeof AnyType): void;
 export {};

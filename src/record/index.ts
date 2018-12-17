@@ -1,8 +1,7 @@
 import { CollectionConstructor } from '../collection';
 import { define, predefine, TheType, tools } from '../object-plus';
 import { Transactional } from '../transactions';
-import { createSharedTypeSpec, Infer, type } from './attrDef';
-import { SharedType } from './metatypes';
+import { Infer, type } from './attrDef';
 import { createAttributesMixin } from './mixin';
 import { Record, RecordDefinition } from './record';
 
@@ -47,9 +46,6 @@ Record.onExtend = function( this : typeof Record, BaseClass : typeof Record ){
     if( Class.Collection === BaseClass.Collection ){
         this.Collection = DefaultCollection;
     }
-
-    // Create Class.shared modifier
-    createSharedTypeSpec( this, SharedType );
 }
 
 Record.onDefine = function( definition : RecordDefinition, BaseClass : typeof Record ){
@@ -73,8 +69,6 @@ Record.onDefine = function( definition : RecordDefinition, BaseClass : typeof Re
 
     if( definition.endpoint ) this.Collection.prototype._endpoint = definition.endpoint;    
 }
-
-createSharedTypeSpec( Record, SharedType );
 
 function getAttributes({ defaults, attributes, idAttribute } : RecordDefinition ) {
     const definition = attributes || defaults || {};

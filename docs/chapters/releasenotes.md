@@ -10,8 +10,12 @@ Strict incompatibilities which need to be refactored:
  -|-|-
 Typeless attribute | `value(x)` | `type(null).value(x)`
 Infer type from the value | `x` (except functions) | `value(x)`, or `x` (except functions)
-record.parse() override | `record._parse(json)` | not needed
+record.parse() override | `record._parse(json)` | no such a method, remove it
 record attributes iteration | `record.forEachAttr(obj, iteratee)` | `record.forEach(iteratee)`
+Shared object | `User.shared` | `shared( User )`
+one-to-many relationship | `RecordClass.from( ref )` | `memberOf( ref )`
+many-to-many relationship | `CollectionClass.from( ref )` | `subsetOf( ref, CollectionClass? )`
+construct from object/array | - | `RecordOrCollectionClass.from( json, options? )`
 
 ### New attribute definition notation
 
@@ -28,15 +32,6 @@ Integer | `Integer` and `Number.integer` | `import { Integer } from 'type-r/ext-
 Create metatype from constructor | `Ctor.has` | `type(Ctor)`
 Typed attribute with default value | `Ctor.value(default)` | `type(Ctor).value(default)`
 Attribute "Required" check | `Ctor.isRequired` | `type(Ctor).required`
-
-New type annotations (old way still works):
-
-| 2.x | 3.x
- -|-|-
-Shared object | `User.shared` | `shared( User )`
-Collection of id refs | `Collection.subsetOf( '~users' )` | `subsetOf( '~users' )`
-Collection of id refs of specific type | `Users.Collection.subsetOf( '~users' )` | `subsetOf( '~users', Users.Collection )`
-id reference | `Record.from( '~users' )` | `memberOf( '~users' )`
 
 ### First-class TypeScript support
 
@@ -59,7 +54,7 @@ Specify type and default value | `@attr(T.value(default)) name : T` | `@type(T).
 - `Collection` class now proxies ES6 Array methods
 - New logger API which easy to override or turn off.
 - Improved error messages.
-- `Type.fromJSON( json )` method to restore object from JSON with a strict type check and validation.
+- `Type.from( json, options? )` method to restore object from JSON with a strict type check and validation.
 
 ```typescript
 @define class User extends Record {

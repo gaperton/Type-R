@@ -5,7 +5,7 @@
 import { IOEndpoint } from '../io-tools';
 import { definitionDecorator, EventMap, EventsDefinition, tools } from '../object-plus';
 import { Transactional } from '../transactions';
-import { AttributeOptions, Parse, AnyType, getMetatype } from './metatypes';
+import { AttributeOptions, Parse, AnyType, getMetatype, SharedType } from './metatypes';
 import { AttributesContainer } from './updates';
 
 const { assign } = tools;
@@ -165,16 +165,22 @@ export function type<F extends Function>( this : void, Type : ChainableAttribute
     return defaultValue === void 0 ? attrDef : attrDef.value( defaultValue );
 }
 
+export function shared<C extends Function>( this : void, Constructor : C ) : ChainableAttributeSpec<C> {
+    return new ChainableAttributeSpec<C>({
+        value : null,
+        type : Constructor,
+        _metatype : SharedType
+    });
+}
+
 // Create attribute metatype inferring the type from the value.
 export function value( this : void, x : any ) : ChainableAttributeSpec<any> {
-    let Type = inferType( x );
+    const Type = inferType( x ),
+        // Transactional types inferred from values must have shared type. 
+        AttrDef = Type && Type.prototype instanceof Transactional ? shared( Type ) :
+                  type( Type );
 
-    // Transactional types inferred from values must have shared type. 
-    if( Type && Type.prototype instanceof Transactional ){
-        Type = ( Type as typeof Transactional ).shared;
-    }
-
-    return type( Type ).value( x );
+    return AttrDef.value( x );
 }
 
 function inferType( value : any ) : Function {
@@ -191,19 +197,5 @@ function inferType( value : any ) : Function {
             return void 0;
         case 'object' :
             return value ? <any> value.constructor : void 0;
-    }
-}
-
-export function createSharedTypeSpec( Constructor : Function, Attribute : typeof AnyType ){
-    if( !Constructor.hasOwnProperty( 'shared' ) ){
-        Object.defineProperty( Constructor, 'shared', {
-            get(){
-                return new ChainableAttributeSpec({
-                    value : null,
-                    type : Constructor,
-                    _metatype : Attribute
-                });
-            }
-        });
     }
 }

@@ -1,5 +1,7 @@
-    var Nested = require( 'type-r' ),
-        chai = require( 'chai');
+var Nested = require( 'type-r' ),
+    chai = require( 'chai');
+
+var { memberOf, subsetOf } = Nested;
         
 require( 'type-r/globals' );
 
@@ -21,10 +23,10 @@ require( 'type-r/globals' );
             { id: 3, name : 3 }
         ]);
 
-        describe( 'Model.from reference', function(){
+        describe( 'memberOf reference', function(){
             var A = Nested.Model.extend({
                 attributes : {
-                    ref : Something.from( collection )
+                    ref : memberOf( collection )
                 }
             });
 
@@ -63,7 +65,7 @@ require( 'type-r/globals' );
             it( 'can use lazy reference to collection', function(){
                 var A = Nested.Model.extend({
                     attributes : {
-                        ref : Something.from( function(){ return collection; } )
+                        ref : memberOf( function(){ return collection; } )
                     }
                 });
 
@@ -75,7 +77,7 @@ require( 'type-r/globals' );
             it( 'must return null when not resolved', function(){
                 var A = Nested.Model.extend({
                     attributes : {
-                        ref : Something.from( function(){ return this.__collection; } )
+                        ref : memberOf( function(){ return this.__collection; } )
                     }
                 });
 
@@ -91,7 +93,7 @@ require( 'type-r/globals' );
         describe( 'Collection.subsetOf', function(){
             var A = Nested.Model.extend({
                 attributes : {
-                    refs : Something.Collection.subsetOf( collection )
+                    refs : subsetOf( collection, Something.Collection )
                 }
             });
 
@@ -127,7 +129,7 @@ require( 'type-r/globals' );
             it( 'can use lazy reference to collection', function(){
                 var A = Nested.Model.extend({
                     attributes : {
-                        refs : Something.Collection.subsetOf( function(){ return collection; } )
+                        refs : subsetOf( function(){ return collection; }, Something.Collection )
                     }
                 });
 
@@ -142,7 +144,7 @@ require( 'type-r/globals' );
         var User = Nested.Model.extend({
             defaults : {
                 name : '',
-                roles : Nested.Collection.subsetOf( '~roles' )
+                roles : subsetOf( '~roles' )
             },
 
             collection : {
@@ -169,7 +171,7 @@ require( 'type-r/globals' );
         var Role = Nested.Model.extend({
             defaults : {
                 name : '',
-                users : Nested.Collection.subsetOf( '~users' )
+                users : subsetOf( '~users' )
             },
 
             collection : {
@@ -221,7 +223,7 @@ require( 'type-r/globals' );
 
             var Test = Record.extend({
                 attributes : {
-                    items : Item.Collection.subsetOf( '~items' )
+                    items : subsetOf( '~items', Item.Collection )
                 }
             });
 

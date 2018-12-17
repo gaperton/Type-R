@@ -1,6 +1,6 @@
 import { IOPromise } from '../io-tools';
 import { EventMap, EventsDefinition, Logger, LogLevel, TheType } from '../object-plus';
-import { AggregatedType, ChainableAttributeSpec, Record } from '../record';
+import { AggregatedType, Record } from '../record';
 import { CloneOptions, Transactional, TransactionalDefinition, TransactionOptions } from '../transactions';
 import { AddOptions } from './add';
 import { CollectionCore, CollectionTransaction } from './commons';
@@ -19,7 +19,6 @@ export interface CollectionConstructor<R extends Record = Record> extends TheTyp
     new (records?: ElementsArg<R>, options?: CollectionOptions): Collection<R>;
     prototype: Collection<R>;
     Refs: CollectionConstructor<R>;
-    subsetOf(C: Collection<R> | string | (() => Collection<R>)): ChainableAttributeSpec<CollectionConstructor<R>>;
 }
 export declare class Collection<R extends Record = Record> extends Transactional implements CollectionCore, Iterable<R> {
     _shared: number;
@@ -27,10 +26,9 @@ export declare class Collection<R extends Record = Record> extends Transactional
     static Subset: typeof Collection;
     static Refs: CollectionConstructor;
     static _SubsetOf: typeof Collection;
-    createSubset(models: ElementsArg<R>, options: any): Collection<R>;
+    createSubset(models: ElementsArg<R>, options?: CollectionOptions): Collection<R>;
     static onExtend(BaseClass: typeof Transactional): void;
     static onDefine(definition: CollectionDefinition, BaseClass: any): void;
-    static subsetOf: (collectionReference: any) => any;
     _itemEvents: EventMap;
     models: R[];
     readonly __inner_state__: R[];

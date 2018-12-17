@@ -1,3 +1,4 @@
-import { CollectionConstructor } from '../collection';
-import { ChainableAttributeSpec, Record } from '../record';
-export declare function subsetOf<X extends CollectionConstructor<R>, R extends Record>(path: string, T?: X): ChainableAttributeSpec<X>;
+import { Collection } from '../collection';
+import { ChainableAttributeSpec } from '../record';
+import { CollectionReference } from './commons';
+export declare function subsetOf<X extends typeof Collection>(this: void, masterCollection: CollectionReference, T?: X): ChainableAttributeSpec<X>;

@@ -1,6 +1,6 @@
 import { IOPromise, startIO } from '../io-tools';
-import { define, definitions, EventMap, eventsApi, EventsDefinition, Logger, logger, LogLevel, Mixable, mixinRules, tools, TheType } from '../object-plus';
-import { AggregatedType, ChainableAttributeSpec, createSharedTypeSpec, Record, SharedType } from '../record';
+import { define, definitions, EventMap, eventsApi, EventsDefinition, Logger, logger, LogLevel, Mixable, mixinRules, TheType, tools } from '../object-plus';
+import { AggregatedType, Record, SharedType } from '../record';
 import { CloneOptions, ItemsBehavior, Transactional, TransactionalDefinition, transactionApi, TransactionOptions } from '../transactions';
 import { AddOptions, addTransaction } from './add';
 import { CollectionCore, CollectionTransaction, Elements, free, sortElements, updateIndex } from './commons';
@@ -37,7 +37,6 @@ export interface CollectionConstructor<R extends Record = Record > extends TheTy
     new ( records? : ElementsArg<R>, options?: CollectionOptions ) : Collection<R>
     prototype : Collection<R>
     Refs : CollectionConstructor<R>
-    subsetOf( C : Collection<R> | string | ( () => Collection<R> ) ) : ChainableAttributeSpec<CollectionConstructor<R>>
 };
 
 @define({
@@ -60,12 +59,8 @@ export class Collection< R extends Record = Record> extends Transactional implem
     static Refs : CollectionConstructor
     static _SubsetOf : typeof Collection
     
-    createSubset( models : ElementsArg<R>, options ) : Collection<R>{
-        const SubsetOf = (this.constructor as CollectionConstructor<R>).subsetOf( this ).options.type as CollectionConstructor<R>,
-            subset   = new SubsetOf( models, options );
-            
-        ( subset as any ).resolve( this );
-        return subset;
+    createSubset( models : ElementsArg<R>, options? : CollectionOptions) : Collection<R>{
+        throw new ReferenceError( 'Failed dependency injection' )
     }
 
     static onExtend( BaseClass : typeof Transactional ){
@@ -85,7 +80,6 @@ export class Collection< R extends Record = Record> extends Transactional implem
         this.Refs = this.Subset = <any>RefsCollection;
 
         Transactional.onExtend.call( this, BaseClass );
-        createSharedTypeSpec( this, SharedType );
     }
     
     static onDefine( definition : CollectionDefinition, BaseClass : any ){
@@ -99,8 +93,6 @@ export class Collection< R extends Record = Record> extends Transactional implem
 
         Transactional.onDefine.call( this, definition );
     }
-
-    static subsetOf : ( collectionReference : any ) => any;
     
     _itemEvents : EventMap
 
@@ -592,8 +584,6 @@ function toElements<R extends Record>( collection : Collection<R>, elements : El
     const parsed = options.parse ? collection.parse( elements, options ) : elements; 
     return Array.isArray( parsed ) ? parsed : [ parsed ];
 }
-
-createSharedTypeSpec( Collection, SharedType );
 
 Record.Collection = Collection;
 

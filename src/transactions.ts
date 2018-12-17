@@ -53,17 +53,6 @@ export abstract class Transactional implements Messenger, IONode, Validatable, T
         return new (this as any)( a, b );
     }
 
-    // Create object from JSON. Throw if validation fail.
-    static fromJSON<T extends new ( a?, b? ) => Transactional >( this : T, json : any ) :  InstanceType<T>{
-        const obj : Transactional = ( this as any ).create( json, { parse : true, logger : throwingLogger } );
-
-        obj.isValid() || obj.eachValidationError( ( error, key, obj ) => {
-            throw new Error( `${ obj.getClassName() }.${ key }: ${ error }` );
-        });
-
-        return obj as any;
-    }
-
     /** Generic class factory. May be overridden for abstract classes. Not inherited. */
     on : ( events : string | CallbacksByEvents, callback, context? ) => this
     once : ( events : string | CallbacksByEvents, callback, context? ) => this
@@ -107,8 +96,6 @@ export abstract class Transactional implements Messenger, IONode, Validatable, T
 
     cid : string
     cidPrefix : string
-
-    static shared : any;
 
     // Unique version token replaced on change
     /** @private */
@@ -186,6 +173,19 @@ export abstract class Transactional implements Messenger, IONode, Validatable, T
         });
 
         return this;
+    }
+
+    // Create object from JSON. Throw if validation fail.
+    static from<T extends new ( a?, b? ) => Transactional >( this : T, json : any, { strict, ...options }  : { strict? : boolean } & TransactionOptions = {} ) :  InstanceType<T>{
+        const obj : Transactional = ( this as any ).create( json, { ...options, logger : strict ? throwingLogger : void 0 } );
+
+        if( strict && obj.validationError ){
+            obj.eachValidationError( ( error, key, obj ) => {
+                throw new Error( `${ obj.getClassName() }.${ key }: ${ error }` );
+            });
+        }
+
+        return obj as any;
     }
 
     // Apply bulk object update without any notifications, and return open transaction.

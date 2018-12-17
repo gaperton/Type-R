@@ -19,7 +19,6 @@ export declare abstract class Transactional implements Messenger, IONode, Valida
     static onDefine(definitions: TransactionalDefinition, BaseClass: typeof Transactional): void;
     static onExtend(BaseClass: typeof Transactional): void;
     static create<T extends new (a?: any, b?: any) => Transactional>(this: T, a: any, b?: any): InstanceType<T>;
-    static fromJSON<T extends new (a?: any, b?: any) => Transactional>(this: T, json: any): InstanceType<T>;
     on: (events: string | CallbacksByEvents, callback: any, context?: any) => this;
     once: (events: string | CallbacksByEvents, callback: any, context?: any) => this;
     off: (events?: string | CallbacksByEvents, callback?: any, context?: any) => this;
@@ -37,7 +36,6 @@ export declare abstract class Transactional implements Messenger, IONode, Valida
     _localEvents: eventsApi.EventMap;
     cid: string;
     cidPrefix: string;
-    static shared: any;
     _changeToken: {};
     _transaction: boolean;
     _isDirty: TransactionOptions;
@@ -51,6 +49,9 @@ export declare abstract class Transactional implements Messenger, IONode, Valida
     abstract clone(options?: CloneOptions): this;
     transaction(fun: (self: this) => void, options?: TransactionOptions): void;
     assignFrom(source: Transactional | Object): this;
+    static from<T extends new (a?: any, b?: any) => Transactional>(this: T, json: any, { strict, ...options }?: {
+        strict?: boolean;
+    } & TransactionOptions): InstanceType<T>;
     abstract _createTransaction(values: any, options?: TransactionOptions): Transaction | void;
     abstract set(values: any, options?: TransactionOptions): this;
     parse(data: any, options?: TransactionOptions): any;

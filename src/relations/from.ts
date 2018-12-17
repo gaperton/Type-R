@@ -38,11 +38,7 @@ class RecordRefType extends AnyType {
     validate( model, value, name ){}
 }
 
-export function memberOf<R extends typeof Record>( path : string, T? : R ){
-    return ( T || Record ).from( path );
-}
-
-Record.from = function from( masterCollection : CollectionReference ) : ChainableAttributeSpec<typeof Record> {
+export function memberOf<R extends typeof Record>( this : void, masterCollection : CollectionReference, T? : R ) : ChainableAttributeSpec<typeof Record> {
     const getMasterCollection = parseReference( masterCollection );
 
     const typeSpec = new ChainableAttributeSpec<typeof Record>({
@@ -70,4 +66,4 @@ Record.from = function from( masterCollection : CollectionReference ) : Chainabl
 
             return record;
         });
-};
+}

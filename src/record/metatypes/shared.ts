@@ -147,7 +147,3 @@ export class SharedType extends AnyType {
 }
 
 function ignore(){}
-
-export function shared<T extends typeof Transactional>( Ctor : T ) : ChainableAttributeSpec<T> {
-    return Ctor.shared;
-}
