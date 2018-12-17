@@ -1,4 +1,4 @@
-import { Collection } from '../collection';
+import { Collection, CollectionConstructor } from '../collection';
 import { define, tools } from '../object-plus';
 import { AggregatedType, ChainableAttributeSpec, Record, type } from '../record';
 import { ItemsBehavior, transactionApi } from '../transactions';
@@ -7,10 +7,10 @@ import { CollectionReference, parseReference } from './commons';
 
 type RecordsIds = ( string | number )[];
 
-export function subsetOf<X extends typeof Collection>( this : void, masterCollection : CollectionReference, T? : X ) : ChainableAttributeSpec<X>{
+export function subsetOf<X extends CollectionConstructor<R>, R extends Record>( this : void, masterCollection : CollectionReference, T? : X ) : ChainableAttributeSpec<X>{
     const CollectionClass = T || Collection,
         // Lazily define class for subset collection, if it's not defined already...
-        SubsetOf = CollectionClass._SubsetOf || ( CollectionClass._SubsetOf = defineSubsetCollection( CollectionClass ) as any ),
+        SubsetOf = CollectionClass._SubsetOf || ( CollectionClass._SubsetOf = defineSubsetCollection( CollectionClass as any ) as any ),
         getMasterCollection = parseReference( masterCollection );
 
     return type( SubsetOf ).get(
@@ -31,8 +31,8 @@ Collection.prototype.createSubset = function( models : any, options ) : Collecti
 
 const subsetOfBehavior = ItemsBehavior.share | ItemsBehavior.persistent;
 
-function defineSubsetCollection( CollectionConstructor : typeof Collection ) {
-    @define class SubsetOfCollection extends CollectionConstructor {
+function defineSubsetCollection( CollectionClass : typeof Collection ) {
+    @define class SubsetOfCollection extends CollectionClass {
         refs : any[];
         resolvedWith : Collection = null;
 
