@@ -25,7 +25,7 @@ export declare class ChainableAttributeSpec<F extends Function> {
     changeEvents(events: boolean): this;
     events(map: EventsDefinition): this;
     readonly has: this;
-    metadata(options: AttributeOptions): this;
+    metadata(options: object): this;
     value(x: any): this;
     static from(spec: any): ChainableAttributeSpec<any>;
 }

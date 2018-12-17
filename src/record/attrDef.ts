@@ -134,7 +134,7 @@ export class ChainableAttributeSpec<F extends Function>{
         return this;
     }
 
-    metadata( options : AttributeOptions ) : this {
+    metadata( options : object ) : this {
         const cloned = new ChainableAttributeSpec( this.options );
         assign( cloned.options, options );
         return cloned as any;
