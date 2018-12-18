@@ -9,7 +9,8 @@ export default {
 
     output : {
         file   : 'dist/index.js',
-        format : 'cjs',
+        format : 'umd',
+        name : 'NestedExtTypes',
         sourcemap: true,
         globals : {
             "type-r":"Nested"

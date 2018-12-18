@@ -1,10 +1,6 @@
-import { IOEndpoint, Logger, Record } from 'type-r';
+import { IOEndpoint, Record } from 'type-r';
 
-// Type-R logger to throw exceptions on input format errors.
-const logger = new Logger();
-logger.throwOn( 'error' ).throwOn( 'warn' );
-
-const parseOptions = { parse : true, logger };
+const parseOptions = { parse : true, strict : true };
 
 export function proxyIO( record : typeof Record, options : ProxyIOOptions = {} ){
     return new ProxyEndpoint( record, options );
@@ -68,7 +64,7 @@ export class ProxyEndpoint implements IOEndpoint {
 
     async update( id, json, options ){
         json.id = id;
-        const doc : any = new this.Record( json, parseOptions );
+        const doc : any = this.Record.from( json, parseOptions );
         await doc.save( options );
         const res = { _cas : doc._cas };
 
@@ -78,7 +74,7 @@ export class ProxyEndpoint implements IOEndpoint {
     }
 
     async create( json, options ){
-        const doc : any = new this.Record( json, parseOptions );
+        const doc : any = this.Record.from( json, parseOptions );
         await doc.save( options );
         const res = { id : doc.id, _cas : doc._cas, _type : doc._type };
         

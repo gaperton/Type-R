@@ -1,8 +1,5 @@
 import * as tslib_1 from "tslib";
-import { Logger } from 'type-r';
-var logger = new Logger();
-logger.throwOn('error').throwOn('warn');
-var parseOptions = { parse: true, logger: logger };
+var parseOptions = { parse: true, strict: true };
 export function proxyIO(record, options) {
     if (options === void 0) { options = {}; }
     return new ProxyEndpoint(record, options);
@@ -67,7 +64,7 @@ var ProxyEndpoint = (function () {
                 switch (_a.label) {
                     case 0:
                         json.id = id;
-                        doc = new this.Record(json, parseOptions);
+                        doc = this.Record.from(json, parseOptions);
                         return [4, doc.save(options)];
                     case 1:
                         _a.sent();
@@ -84,7 +81,7 @@ var ProxyEndpoint = (function () {
             return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        doc = new this.Record(json, parseOptions);
+                        doc = this.Record.from(json, parseOptions);
                         return [4, doc.save(options)];
                     case 1:
                         _a.sent();

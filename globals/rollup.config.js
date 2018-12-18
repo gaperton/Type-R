@@ -10,11 +10,10 @@ export default {
     output : {
         file   : 'dist/index.js',
         format : 'umd',
-        name   : 'globals',
         sourcemap: true,
         globals : {
             "type-r":"Nested",
-            "type-r/ext-types": "ExtTypes"
+            "type-r/ext-types": "NestedExtTypes"
         }
     },
     plugins: [
