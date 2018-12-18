@@ -219,6 +219,6 @@ export class CollectionTransaction implements Transaction {
 }
 
 export function logAggregationError( collection : CollectionCore, options : TransactionOptions ){
-    collection._log( 'error', 'Type-R:InvalidOwner', 'added records already have an owner and were cloned. Use explicit record.clone() to dismiss this wearning.', collection._aggregationError, options.logger );
+    collection._log( 'warn', 'Type-R:InvalidOwner', 'added records already have an owner and were cloned. Use explicit record.clone() to dismiss this warning.', collection._aggregationError, options.logger );
     collection._aggregationError = void 0;
 }
