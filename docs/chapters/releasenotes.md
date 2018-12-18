@@ -4,7 +4,7 @@
 
 ### Breaking changes
 
-Strict incompatibilities which need to be refactored:
+Changed semantic which needs to be refactored:
 
  | 2.x | 3.x
  -|-|-

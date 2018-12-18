@@ -1956,7 +1956,7 @@ x.componentWillMount();
 <h1 id="release-notes">Release Notes</h1>
 <h2 id="3-0-0">3.0.0</h2>
 <h3 id="breaking-changes">Breaking changes</h3>
-<p>Strict incompatibilities which need to be refactored:</p>
+<p>Changed semantic which needs to be refactored:</p>
 <table>
 <thead>
 <tr>
@@ -1979,12 +1979,32 @@ x.componentWillMount();
 <tr>
 <td>record.parse() override</td>
 <td><code>record._parse(json)</code></td>
-<td>not needed</td>
+<td>no such a method, remove it</td>
 </tr>
 <tr>
 <td>record attributes iteration</td>
 <td><code>record.forEachAttr(obj, iteratee)</code></td>
 <td><code>record.forEach(iteratee)</code></td>
+</tr>
+<tr>
+<td>Shared object</td>
+<td><code>User.shared</code></td>
+<td><code>shared( User )</code></td>
+</tr>
+<tr>
+<td>one-to-many relationship</td>
+<td><code>RecordClass.from( ref )</code></td>
+<td><code>memberOf( ref )</code></td>
+</tr>
+<tr>
+<td>many-to-many relationship</td>
+<td><code>CollectionClass.from( ref )</code></td>
+<td><code>subsetOf( ref, CollectionClass? )</code></td>
+</tr>
+<tr>
+<td>construct from object/array</td>
+<td>-</td>
+<td><code>RecordOrCollectionClass.from( json, options? )</code></td>
 </tr>
 </tbody>
 </table>
@@ -2030,38 +2050,6 @@ If this package is not used, the code must be refactored according to the rules 
 <td>Attribute &quot;Required&quot; check</td>
 <td><code>Ctor.isRequired</code></td>
 <td><code>type(Ctor).required</code></td>
-</tr>
-</tbody>
-</table>
-<p>New type annotations (old way still works):</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>2.x</th>
-<th>3.x</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Shared object</td>
-<td><code>User.shared</code></td>
-<td><code>shared( User )</code></td>
-</tr>
-<tr>
-<td>Collection of id refs</td>
-<td><code>Collection.subsetOf( &#39;~users&#39; )</code></td>
-<td><code>subsetOf( &#39;~users&#39; )</code></td>
-</tr>
-<tr>
-<td>Collection of id refs of specific type</td>
-<td><code>Users.Collection.subsetOf( &#39;~users&#39; )</code></td>
-<td><code>subsetOf( &#39;~users&#39;, Users.Collection )</code></td>
-</tr>
-<tr>
-<td>id reference</td>
-<td><code>Record.from( &#39;~users&#39; )</code></td>
-<td><code>memberOf( &#39;~users&#39; )</code></td>
 </tr>
 </tbody>
 </table>
@@ -2113,7 +2101,7 @@ If this package is not used, the code must be refactored according to the rules 
 <li><code>Collection</code> class now proxies ES6 Array methods</li>
 <li>New logger API which easy to override or turn off.</li>
 <li>Improved error messages.</li>
-<li><code>Type.fromJSON( json )</code> method to restore object from JSON with a strict type check and validation.</li>
+<li><code>Type.from( json, options? )</code> method to restore object from JSON with a strict type check and validation.</li>
 </ul>
 <pre><code class="highlight typescript"><span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> User <span class="hljs-keyword">extends</span> Record {
     <span class="hljs-comment">// There's an HTTP REST enpoint for users.</span>
