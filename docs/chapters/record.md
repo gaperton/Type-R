@@ -15,10 +15,10 @@ import { define, type, Record } from 'type-r'
     static attributes = {
         firstName : '', // ⟵ String type is inferred from the default value
         lastName  : String, // ⟵ Or you can just mention its constructor
-        email     : type( String ).value( null ), //⟵ Or you can provide both
+        email     : type(String).value(null), //⟵ Or you can provide both
         createdAt : Date, // ⟵ And it works for any constructor.
         // And you can attach ⤹ metadata to fine-tune attribute's behavior
-        lastLogin : type( Date ).value( null ).toJSON( false ) // ⟵ not serializable
+        lastLogin : type(Date).value(null).toJSON(false) // ⟵ not serializable
     }
 }
 
@@ -42,43 +42,38 @@ import "reflect-metadata" // Required for @auto without arguments
     // IMPORTANT: attributes will be initialized even if no default value is provided.
     @auto lastName  : string // ⟵ @auto decorator extracts type from the Reflect metadata
     @auto createdAt : Date // ⟵ It works for any constructor.
-    @auto( 'somestring' ) firstName : string //⟵ The custom default value must be passed to @auto decorator.
-    @auto( null ) updatedAt : Date 
+    @auto('somestring') firstName : string //⟵ The custom default value must be passed to @auto decorator.
+    @auto(null) updatedAt : Date 
 
     // You have to pass the type explicitly if reflect-metadata is not used.
-    @type( String ).as email : string
+    @type(String).as email : string
 
     // Or, you can tell Type-R to infer type from the default value.
-    @value( '' ).as email2 : string
+    @value('').as email2 : string
 
     // Type cannot be inferred from null default values, and needs to be specified explicitly
-    @type( String ).value( null ).as email3 : string 
+    @type(String).value(null).as email3 : string 
         
     // You can attach ⤹ metadata to fine-tune attribute's behavior
-    @type( Date ).toJSON( false ).as
+    @type(Date).toJSON(false).as
         lastLogin : Date// ⟵ not serializable
 }
 
 const user = new User();
-console.log( user.createdAt ); // ⟵ this is an instance of Date created for you.
+console.log(user.createdAt); // ⟵ this is an instance of Date created for you.
 
 const users : Collection<User> = new User.Collection(); // ⟵ Collections are defined automatically.
-users.on( 'changes', () => updateUI( users ) ); // ⟵ listen to the changes.
+users.on('changes', () => updateUI(users)); // ⟵ listen to the changes.
 
-users.set( json, { parse : true } ); // ⟵ parse raw JSON from the server.
+users.set(json, { parse : true }); // ⟵ parse raw JSON from the server.
 users.updateEach( user => user.firstName = '' ); // ⟵ bulk update triggering 'changes' once
 ```
 
 ## Definition
 
-Record is defined as a regular ES6 class with the following additional rules:
+Record definition is ES6 class extending `Record` preceeded by `@define` class decorator. 
 
-- it *must* extend the `Record` base class;
-- it *must* be preceded with the `@define` decorator;
-- it *should* use `static attributes` to declare attributes.
-
-Attributes declaration is an object with attribute names mapped to their type annotation and/or default value.
-Once defined, attributes can be accessed as regular class members.
+Unlike in the majority of the JS state management framework, Record is <b>not the key-value hash</b>. Record has typed attributes with metadata controlling different aspects of attribute beavior. Therefore, developer needs to create the Record subclass to describe the data structure of specific shape, in a similar way as it's done in statically typed languages. The combination of an attribute type and metadata is called *metatype* and can be reused across record definitions.
 
 The minimal record definition looks like this:
 
@@ -93,22 +88,6 @@ The minimal record definition looks like this:
 ```typescript
 @define class MyRecord extends Record {
     @auto name : string
-}
-```
-
-<aside class="warning">
-Unlike in the majority of the JS state management framework, Record is <b>not the key-value hash</b>. It needs to be explicitly defined for every data structure of different shape, in a similar way as it's done in statically typed languages.
-</aside>
-
-### `decorator` @define
-
-_Must_ be placed before the class definition.
-
-```javascript
-import { define, Record } from 'type-r'
-
-@define class X extends Record {
-    ...    
 }
 ```
 
@@ -229,7 +208,7 @@ Use the general form of attribute definition in such cases: `value( theFunction 
 }
 ```
 
-### `attrDef` : type( Constructor ).value( defaultValue )
+### `attrDef` : type(Constructor).value(defaultValue)
 
 Declare an attribute with type T having the custom `defaultValue`.
 
@@ -304,7 +283,7 @@ May be explicitly assigned in record's definition with custom collection class.
 }
 ```
 
-### `attrDef` type( Type )
+### `attrDef` type(Type)
 
 Attribute definition can have different metadata attached which affects various aspects of attribute's behavior. Metadata is attached with
 a chain of calls after the `type( Ctor )` call. Attribute's default value is the most common example of such a metadata and is the single option which can be applied to the constructor function directly.
@@ -370,7 +349,7 @@ Create an instance of the record with default attribute values taken from the at
 
 When no default value is explicitly provided for an attribute, it's initialized as `new Type()` (just `Type()` for primitives). When the default value is provided and it's not compatible with the attribute type, it's converted with `new Type( defaultValue )` call.
 
-### new Record({ attrName : value, ... }, options? )
+### new Record({ attrName : value, ... }, options?)
 
 When creating an instance of a record, you can pass in the initial attribute values to override the defaults.
 
@@ -408,7 +387,7 @@ const book = new Book({
 
 Create the deep copy of the aggregation tree, recursively cloning all aggregated records and collections. References to shared members will be copied, but not shared members themselves.
 
-### `callback` record.initialize( attrs?, options? )
+### `callback` record.initialize(attrs?, options?)
 
 Called at the end of the `Record` constructor when all attributes are assigned and the record's inner state is properly initialized. Takes the same arguments as
 a constructor.
@@ -485,7 +464,7 @@ myBook.publishedAt = '1678-10-15 12:00'; // new Date( '1678-10-15 12:00' )
 myBook.available = some && weird || condition; // Will always be Boolean. Or null.
 ```
 
-### record.set( { attrName : value, ... }, options? : `options` )
+### record.set({ attrName : value, ... }, options? : `options`)
 
 Bulk assign record's attributes, possibly taking options.
 
@@ -501,7 +480,7 @@ Record triggers events after all changes are applied:
 2. `change` *(record, options)*, if there were changed attributes.
 
 
-### RecordClass.from( attrs, options? )
+### RecordClass.from(attrs, options?)
 
 Create `RecordClass` from attributes. Similar to direct record creation, but supports additional option for strict data validation.
 If `{ strict : true }` option is passed the validation will be performed and an exception will be thrown in case of an error.
@@ -527,7 +506,7 @@ const book = await Book.from({ id : 5 }).fetch();
 const body = MyRequestBody.from( ctx.request.body, { parse : true, strict : true });
 ```
 
-### record.assignFrom( otherRecord )
+### record.assignFrom(otherRecord)
 
 Makes an existing `record` to be the full clone of `otherRecord`, recursively assigning all attributes.
 In contracts to `record.clone()`, the record is updated in place.
@@ -535,10 +514,10 @@ In contracts to `record.clone()`, the record is updated in place.
 ```javascript
 // Another way of doing the bestSeller.clone()
 const book = new Book();
-book.assignFrom( bestSeller );
+book.assignFrom(bestSeller);
 ```
 
-### record.transaction( fun )
+### record.transaction(fun)
 
 Execute the all changes made to the record in `fun` as single transaction triggering the single `change` event.
 
@@ -556,11 +535,11 @@ some.record.transaction( record => {
 
 Manual transactions with attribute assignments are superior to `record.set()` in terms of both performance and flexibility.
 
-### `attrDef` : type( Type ).get( `hook` )
+### `attrDef` : type(Type).get(`hook`)
 
 Attach get hook to the record's attribute. `hook` is the function of signature `( value, attr ) => value` which is used to transform the attribute's value _before it will be read_. Hook is executed in the context of the record.
 
-### `attrDef` : type( Type ).set( `hook` )
+### `attrDef` : type(Type).set(`hook`)
 
 Attach the set hook to the record's attribute. `hook` is the function of signature `( value, attr ) => value` which is used to transform the attribute's value _before it will be assigned_. Hook is executed in the context of the record.
 
@@ -616,7 +595,7 @@ Due to the nature of _aggregation_, an object may have one and only one owner.
 
 Return the collection which aggregates the record, or `null` if there are no one.
 
-### `attrDef` : shared( RecordOrCollection )
+### `attrDef` : shared(RecordOrCollection)
 
 Non-serializable reference to the record or collection possibly from the different aggregation tree. Initialized with `null`. Is not recursively cloned, serialized, validated, or disposed.
 
@@ -675,7 +654,7 @@ Make forward declaration for the record to define its attributes later with `Rec
 
 Creates the default `RecordClass.Collection` type which can be referenced in attribute definitions.
 
-### `static` define({ attributes : { name : `attrDef`, ... } })
+### `static` define({ attributes : { name : `attrDef`, ... }})
 
 May be called to define attributes in conjunction with `@predefine` decorator to make recursive record definitions.
 
