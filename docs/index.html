@@ -894,16 +894,15 @@ The collection must know the type of its records to restore its elements from JS
 
 <h2 id="collection-types">Collection types</h2>
 <h3 id="constructor-collectionclass-records-options-"><code>constructor</code> CollectionClass( records?, options? )</h3>
-<p>The most common collection type is an <strong>aggregating serializable collection</strong>. By default, collection aggregates its elements which are treated as an integral part of the collection (serialized, cloned, disposed, and validated recursively). An aggregation means the <em>single owner</em>, as the single object cannot be an integral part of two distinct things.</p>
-<p>Create an aggregating serializable collection of records. The collection will take ownership on its records and will put an error in the console if it can&#39;t.</p>
-<p>When creating a Collection, you may choose to pass in the initial array of records. The collection&#39;s comparator may be included as an option. Passing <code>false</code> as the comparator option will prevent sorting. If you define an <code>initialize()</code> function, it will be invoked when the collection is created.</p>
-<pre><code class="highlight typescript"><span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> Role <span class="hljs-keyword">extends</span> Record {
+<p>The most common collection type is an <strong>aggregating serializable collection</strong>. By default, collection aggregates its elements which are treated as an integral part of the collection (serialized, cloned, disposed, and validated recursively). An aggregation means the <em>single owner</em>, as the single object cannot be an integral part of two distinct things. The collection will take ownership on its records and will put an error in the console if it can&#39;t.</p>
+<p>When creating a Collection, you may choose to pass in the initial array of records.</p>
+<pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Role</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
-        name : <span class="hljs-built_in">String</span>
+        <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span>
     }
 }
 
-<span class="hljs-keyword">const</span> roles = <span class="hljs-keyword">new</span> Role.Collection( json, { parse : <span class="hljs-literal">true</span> } );
+<span class="hljs-keyword">const</span> roles = <span class="hljs-keyword">new</span> Role.Collection( json, { <span class="hljs-attr">parse</span> : <span class="hljs-literal">true</span> } );
 </code></pre>
 <pre><code class="highlight typescript"><span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> Role <span class="hljs-keyword">extends</span> Record {
     <span class="hljs-comment">// In typescript, you have to specify record's Collection type expicitly.</span>
@@ -920,10 +919,10 @@ The collection must know the type of its records to restore its elements from JS
     <span class="hljs-meta">@type</span>( Role.Collection ).as roles : Collection&lt;User&gt;
 }
 </code></pre>
-<h3 id="constructor-collectionclass-refs"><code>constructor</code> CollectionClass.Refs</h3>
+<h3 id="constructor-collectionclass-refs-records-options-"><code>constructor</code> CollectionClass.Refs( records?, options? )</h3>
 <p>Collection of record references is a <strong>non-aggregating non-serializable collection</strong>. <code>Collection.Refs</code> doesn&#39;t aggregate its elements, which means that containing records are not considered as an integral part of the enclosing collection and not being validated, cloned, disposed, and serialized recursively.</p>
 <p>It is useful for a local non-persistent application state.</p>
-<h3 id="metatype-subsetof-collectionref-collectionclass-"><code>metatype</code> subsetOf(collectionRef, CollectionClass?)</h3>
+<h3 id="attrdef-subsetof-masterref-collectionclass-"><code>attrDef</code> subsetOf(masterRef, CollectionClass?)</h3>
 <p>The subset of other collections are <strong>non-aggregating serializable collection</strong>. Subset-of collection is serialized as an array of record ids and used to model many-to-many relationships. The collection object itself is recursively created and cloned, however, its records are not aggregated by the collection thus they are not recursively cloned, validated, or disposed. <code>CollectionClass</code> argument may be omitted unless you need the record&#39;s attribute to be an instance of the particular collection class.</p>
 <aside class="notice">
 <b>subsetOf</b> collections are not deeply observable.
@@ -933,7 +932,7 @@ The collection must know the type of its records to restore its elements from JS
 Since its an attribute <i>metatype</i> (combination of type and attribute metadata), it's not a real constructor and cannot be used with <b>new</b>. Use <b>collection.createSubset()</b> method to create subset-of collection instances.
 </aside>
 
-<p>Must have a reference to the master collection which is used to resolve record ids to records. <code>collectionRef</code> may be:</p>
+<p>Must have a reference to the master collection which is used to resolve record ids to records. <code>masterRef</code> may be:</p>
 <ul>
 <li>direct reference to a singleton collection.</li>
 <li>function, returning the reference to the collection.</li>
@@ -983,51 +982,8 @@ Since its an attribute <i>metatype</i> (combination of type and attribute metada
     <span class="hljs-meta">@type</span>(User.Collection).as users : Collection&lt;User&gt; <span class="hljs-comment">// &lt;- `store.roles` references will be resolved against this.roles</span>
 }
 </code></pre>
-<h2 id="create-and-dispose">Create and dispose</h2>
-<h3 id="new-collection-records-options-">new Collection(records?, options?)</h3>
-<p>Create an aggregating serializable collection of records. The collection will take ownership on its records and will put an error in the console if it can&#39;t.</p>
-<p>When creating a Collection, you may choose to pass in the initial array of records. The collection&#39;s comparator may be included as an option. Passing <code>false</code> as the comparator option will prevent sorting. If you define an <code>initialize()</code> function, it will be invoked when the collection is created.</p>
-<pre><code class="highlight javascript"><span class="hljs-keyword">var</span> tabs = <span class="hljs-keyword">new</span> TabSet([tab1, tab2, tab3]);
-</code></pre>
-<h3 id="new-collection-refs-records-options-">new Collection.Refs( records?, options? )</h3>
-<p>Create a non-aggregating non-serializable collection. The collection does not take ownership of its records. In all other aspects, it behaves like the regular collection.</p>
-<h3 id="collection-createsubset-records-options-">collection.createSubset( records?, options? )</h3>
-<p>Create the collection which is a subset of a source collection serializable as an array of record ids. Takes the same arguments as the collection&#39;s constructor.</p>
-<p>The created collection is an instance of <code>subsetOf( sourceCollection, CollectionCtor )</code> attribute type (non-aggregating serializable collection). </p>
-<aside class="notice">
-Records in the collection must have an `id` attribute populated to work properly with subsets.
-</aside>
-
-<h3 id="collectionclass-from-models-options-">CollectionClass.from( models, options? )</h3>
-<p>Create <code>CollectionClass</code> from the array of models. Similar to direct collection creation, but supports additional option for strict data validation.
-If <code>{ strict : true }</code> option is passed the validation will be performed and an exception will be thrown in case of an error.</p>
-<p>Please note, that Type-R always performs type checks on assignments, convert types, and reject improper updates reporting it as an error. It won&#39;t, however, execute custom validation
-rules on every update as they are evaluated lazily. <code>strict</code> option will invoke custom validators and will throw on every error or warning instead of reporting them and continue.</p>
-<pre><code class="highlight javascript"><span class="hljs-comment">// Validate the body of an incoming HTTP request.</span>
-<span class="hljs-comment">// Throw an exception if validation fails.</span>
-<span class="hljs-keyword">const</span> body = MyRequestBody.from( ctx.request.body, { <span class="hljs-attr">parse</span> : <span class="hljs-literal">true</span>, <span class="hljs-attr">strict</span> : <span class="hljs-literal">true</span> });
-</code></pre>
-<pre><code class="highlight typescript"><span class="hljs-comment">// Validate the body of an incoming HTTP request.</span>
-<span class="hljs-comment">// Throw an exception if validation fails.</span>
-<span class="hljs-keyword">const</span> body = MyRequestBody.from( ctx.request.body, { parse : <span class="hljs-literal">true</span>, strict : <span class="hljs-literal">true</span> });
-</code></pre>
-<h3 id="callback-collection-initialize-records-options-"><code>callback</code> collection.initialize( records?, options? )</h3>
-<p>Initialization function which is called at the end of the constructor.</p>
-<h3 id="collection-clone-">collection.clone()</h3>
-<p>Clone the collection. An aggregating collection will be recursively cloned, non-aggregated collections will be shallow cloned.</p>
-<h3 id="collection-dispose-">collection.dispose()</h3>
-<p>Dispose of the collection. An aggregating collection will recursively dispose of its records.</p>
-<h2 id="read-and-iterate">Read and iterate</h2>
-<h3 id="collection-get-id-">collection.get( id )</h3>
-<p>Get a record from a collection, specified by an <code>id</code>, a <code>cid</code>, or by passing in a record.</p>
-<pre><code class="highlight javascript"><span class="hljs-keyword">const</span> book = library.get(<span class="hljs-number">110</span>);
-</code></pre>
-<h3 id="collection-at-index-">collection.at( index )</h3>
-<p>Get a record from a collection, specified by index. Useful if your collection is sorted, and if your collection isn&#39;t sorted, at will still retrieve records in insertion order. When passed a negative index, it will retrieve the record from the back of the collection.</p>
-<h2 id="array-methods">Array methods</h2>
+<h2 id="array-api">Array API</h2>
 <p>A collection class is an array-like object implementing ES6 Array methods and properties.</p>
-<h3 id="collection-models">collection.models</h3>
-<p>Raw access to the JavaScript array of records inside of the collection. Usually, you&#39;ll want to use <code>get</code>, <code>at</code>, or the other methods to access record objects, but occasionally a direct reference to the array is desired.</p>
 <h3 id="collection-length">collection.length</h3>
 <p>Like an array, a Collection maintains a length property, counting the number of records it contains.</p>
 <h3 id="collection-slice-begin-end-">collection.slice( begin, end )</h3>
@@ -1056,12 +1012,22 @@ rules on every update as they are evaluated lazily. <code>strict</code> option w
 <p>Add a record at the beginning of a collection. Takes the same options as <code>add()</code>.</p>
 <h3 id="collection-shift-options-">collection.shift( options? )</h3>
 <p>Remove and return the first record from a collection. Takes the same options as <code>remove()</code>.</p>
-<h2 id="update">Update</h2>
-<p>Methods to update the collection. They accept common options:</p>
+<h2 id="backbone-api">Backbone API</h2>
+<p>Common options used by Backbone API methods:</p>
 <ul>
 <li><code>{ sort : false }</code> - do not sort the collection.</li>
 <li><code>{ parse : true }</code> - parse raw JSON (used to set collection with data from the server).</li>
 </ul>
+<h3 id="callback-collection-initialize-records-options-"><code>callback</code> collection.initialize( records?, options? )</h3>
+<p>Initialization function which is called at the end of the constructor.</p>
+<h3 id="collection-models">collection.models</h3>
+<p>Raw access to the JavaScript array of records inside of the collection. Usually, you&#39;ll want to use <code>get</code>, <code>at</code>, or the other methods to access record objects, but occasionally a direct reference to the array is desired.</p>
+<h3 id="collection-get-id-">collection.get( id )</h3>
+<p>Get a record from a collection, specified by an <code>id</code>, a <code>cid</code>, or by passing in a record.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">const</span> book = library.get(<span class="hljs-number">110</span>);
+</code></pre>
+<h3 id="collection-at-index-">collection.at( index )</h3>
+<p>Get a record from a collection, specified by index. Useful if your collection is sorted, and if your collection isn&#39;t sorted, at will still retrieve records in insertion order. When passed a negative index, it will retrieve the record from the back of the collection.</p>
 <h3 id="collection-add-records-options-">collection.add( records, options? )</h3>
 <p>Add a record (or an array of records) to the collection. If this is the <code>Record.Collection</code>, you may also pass raw attributes objects, and have them be vivified as instances of the <code>Record</code>. Returns the added (or preexisting, if duplicate) records.</p>
 <p>Pass <code>{at: index}</code> to splice the record into the collection at the specified index. If you&#39;re adding records to the collection that are already in the collection, they&#39;ll be ignored, unless you pass <code>{merge: true}</code>, in which case their attributes will be merged into the corresponding records.</p>
@@ -1113,17 +1079,28 @@ vanHalen.set([ eddie, alex, stone, hagar ]);
 <span class="hljs-comment">// Updates any of stone, alex, and eddie's attributes that may have</span>
 <span class="hljs-comment">// changed over the years.</span>
 </code></pre>
-<h3 id="collection-assignfrom-othercollection-">collection.assignFrom( otherCollection )</h3>
-<p>Synchronize the state of the collection and its aggregation tree with other collection of the same type. Updates existing objects in place. Record in the collection is considered to be &quot;existing&quot; if it has the same <code>id</code>.</p>
-<p>Equivalent to <code>collection.set( otherCollection.models, { merge : true } )</code> and triggers similar events on change.</p>
-<h3 id="collection-reset-records-options-">collection.reset( records, options? )</h3>
+<h3 id="collection-reset-records-options-">collection.reset(records, options?)</h3>
 <p>Replace the collection&#39;s content with the new records. More efficient than <code>collection.set</code>, but does not send record-level events.</p>
 <p>Calling <code>collection.reset()</code> without passing any records as arguments will empty the entire collection.</p>
 <ol>
-<li>Trigger event <code>reset</code>( collection, options ).</li>
-<li>Trigger event <code>changes</code>( collection, options ).</li>
+<li>Trigger event <code>reset</code>(collection, options).</li>
+<li>Trigger event <code>changes</code>(collection, options).</li>
 </ol>
-<h3 id="collection-sort-options-">collection.sort( options? )</h3>
+<h3 id="collection-pluck-attribute-">collection.pluck(attribute)</h3>
+<p>Pluck an attribute from each model in the collection. Equivalent to calling map and returning a single attribute from the iterator.</p>
+<pre><code class="highlight javascript"><span class="hljs-keyword">const</span> users = <span class="hljs-keyword">new</span> UserCollection([
+  {<span class="hljs-attr">name</span>: <span class="hljs-string">"Curly"</span>},
+  {<span class="hljs-attr">name</span>: <span class="hljs-string">"Larry"</span>},
+  {<span class="hljs-attr">name</span>: <span class="hljs-string">"Moe"</span>}
+]);
+
+<span class="hljs-keyword">const</span> names = users.pluck(<span class="hljs-string">"name"</span>);
+
+alert(<span class="hljs-built_in">JSON</span>.stringify(names));
+</code></pre>
+<h2 id="sorting">Sorting</h2>
+<p>Type-R implements BackboneJS Collection sorting API with some extensions.</p>
+<h3 id="collection-sort-options-">collection.sort(options?)</h3>
 <p>Force a collection to re-sort itself. You don&#39;t need to call this under normal circumstances, as a collection with a comparator will sort itself whenever a record is added. To disable sorting when adding a record, pass <code>{sort: false}</code> to add. Calling sort triggers a &quot;sort&quot; event on the collection.</p>
 <p>By default, there is no comparator for a collection. If you define a comparator, it will be used to maintain the collection in sorted order. This means that as records are added, they are inserted at the correct index in <code>collection.models</code>.</p>
 <p>Note that Type-R depends on the arity of your comparator function to determine between the two styles, so be careful if your comparator function is bound.</p>
@@ -1133,7 +1110,7 @@ vanHalen.set([ eddie, alex, stone, hagar ]);
 <h3 id="static-comparator-x-number-string"><code>static</code> comparator = x =&gt; number | string</h3>
 <p>Maintain the collection in sorted order according to the &quot;sortBy&quot; comparator function.</p>
 <p>&quot;sortBy&quot; comparator functions take a record and return a numeric or string value by which the record should be ordered relative to others.</p>
-<h3 id="static-comparator-x-y-1-0-1"><code>static</code> comparator = ( x, y ) =&gt; -1 | 0 | 1</h3>
+<h3 id="static-comparator-x-y-1-0-1"><code>static</code> comparator = (x, y) =&gt; -1 | 0 | 1</h3>
 <p>Maintain the collection in sorted order according to the &quot;sort&quot; comparator function.</p>
 <p>&quot;sort&quot; comparator functions take two records and return -1 if the first record should come before the second, 0 if they are of the same rank and 1 if the first record should come after.</p>
 <p>Note how even though all of the chapters in this example are added backward, they come out in the proper order:</p>
@@ -1154,6 +1131,34 @@ chapters.add({<span class="hljs-attr">page</span>: <span class="hljs-number">1</
 
 alert(chapters.map( <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x.title ));
 </code></pre>
+<h2 id="other-methods">Other methods</h2>
+<h3 id="collection-clone-">collection.clone()</h3>
+<p>Clone the collection. An aggregating collection will be recursively cloned, non-aggregated collections will be shallow cloned.</p>
+<h3 id="collectionclass-from-models-options-">CollectionClass.from( models, options? )</h3>
+<p>Create <code>CollectionClass</code> from the array of models. Similar to direct collection creation, but supports additional option for strict data validation.
+If <code>{ strict : true }</code> option is passed the validation will be performed and an exception will be thrown in case of an error.</p>
+<p>Please note, that Type-R always performs type checks on assignments, convert types, and reject improper updates reporting it as an error. It won&#39;t, however, execute custom validation
+rules on every update as they are evaluated lazily. <code>strict</code> option will invoke custom validators and will throw on every error or warning instead of reporting them and continue.</p>
+<pre><code class="highlight javascript"><span class="hljs-comment">// Validate the body of an incoming HTTP request.</span>
+<span class="hljs-comment">// Throw an exception if validation fails.</span>
+<span class="hljs-keyword">const</span> body = MyRequestBody.from( ctx.request.body, { <span class="hljs-attr">parse</span> : <span class="hljs-literal">true</span>, <span class="hljs-attr">strict</span> : <span class="hljs-literal">true</span> });
+</code></pre>
+<pre><code class="highlight typescript"><span class="hljs-comment">// Validate the body of an incoming HTTP request.</span>
+<span class="hljs-comment">// Throw an exception if validation fails.</span>
+<span class="hljs-keyword">const</span> body = MyRequestBody.from( ctx.request.body, { parse : <span class="hljs-literal">true</span>, strict : <span class="hljs-literal">true</span> });
+</code></pre>
+<h3 id="collection-createsubset-records-options-">collection.createSubset( records?, options? )</h3>
+<p>Create the collection which is a subset of a source collection serializable as an array of record ids. Takes the same arguments as the collection&#39;s constructor.</p>
+<p>The created collection is an instance of <code>subsetOf( sourceCollection, CollectionCtor )</code> attribute type (non-aggregating serializable collection). </p>
+<aside class="notice">
+Records in the collection must have an `id` attribute populated to work properly with subsets.
+</aside>
+
+<h3 id="collection-assignfrom-othercollection-">collection.assignFrom( otherCollection )</h3>
+<p>Synchronize the state of the collection and its aggregation tree with other collection of the same type. Updates existing objects in place. Record in the collection is considered to be &quot;existing&quot; if it has the same <code>id</code>.</p>
+<p>Equivalent to <code>collection.set( otherCollection.models, { merge : true } )</code> and triggers similar events on change.</p>
+<h3 id="collection-dispose-">collection.dispose()</h3>
+<p>Dispose of the collection. An aggregating collection will recursively dispose of its records.</p>
 <h1 id="observable-changes">Observable Changes</h1>
 <h2 id="overview">Overview</h2>
 <p>Type-R implements <em>deeply observable changes</em> on the object graph constructed of records and collection.</p>

@@ -81,13 +81,11 @@ The collection must know the type of its records to restore its elements from JS
 
 ### `constructor` CollectionClass( records?, options? )
 
-The most common collection type is an **aggregating serializable collection**. By default, collection aggregates its elements which are treated as an integral part of the collection (serialized, cloned, disposed, and validated recursively). An aggregation means the _single owner_, as the single object cannot be an integral part of two distinct things.
+The most common collection type is an **aggregating serializable collection**. By default, collection aggregates its elements which are treated as an integral part of the collection (serialized, cloned, disposed, and validated recursively). An aggregation means the _single owner_, as the single object cannot be an integral part of two distinct things. The collection will take ownership on its records and will put an error in the console if it can't.
 
-Create an aggregating serializable collection of records. The collection will take ownership on its records and will put an error in the console if it can't.
+When creating a Collection, you may choose to pass in the initial array of records.
 
-When creating a Collection, you may choose to pass in the initial array of records. The collection's comparator may be included as an option. Passing `false` as the comparator option will prevent sorting. If you define an `initialize() ` function, it will be invoked when the collection is created.
-
-```typescript
+```javascript
 @define class Role extends Record {
     static attributes = {
         name : String
@@ -96,6 +94,7 @@ When creating a Collection, you may choose to pass in the initial array of recor
 
 const roles = new Role.Collection( json, { parse : true } );
 ```
+
 ```typescript
 @define class Role extends Record {
     // In typescript, you have to specify record's Collection type expicitly.
@@ -113,13 +112,13 @@ const roles = new Role.Collection( json, { parse : true } );
 }
 ```
 
-### `constructor` CollectionClass.Refs
+### `constructor` CollectionClass.Refs( records?, options? )
 
 Collection of record references is a **non-aggregating non-serializable collection**. `Collection.Refs` doesn't aggregate its elements, which means that containing records are not considered as an integral part of the enclosing collection and not being validated, cloned, disposed, and serialized recursively.
 
 It is useful for a local non-persistent application state.
 
-### `metatype` subsetOf(collectionRef, CollectionClass?)
+### `attrDef` subsetOf(masterRef, CollectionClass?)
 
 The subset of other collections are **non-aggregating serializable collection**. Subset-of collection is serialized as an array of record ids and used to model many-to-many relationships. The collection object itself is recursively created and cloned, however, its records are not aggregated by the collection thus they are not recursively cloned, validated, or disposed. `CollectionClass` argument may be omitted unless you need the record's attribute to be an instance of the particular collection class.
 
@@ -131,7 +130,7 @@ The subset of other collections are **non-aggregating serializable collection**.
 Since its an attribute <i>metatype</i> (combination of type and attribute metadata), it's not a real constructor and cannot be used with <b>new</b>. Use <b>collection.createSubset()</b> method to create subset-of collection instances.
 </aside>
 
-Must have a reference to the master collection which is used to resolve record ids to records. `collectionRef` may be:
+Must have a reference to the master collection which is used to resolve record ids to records. `masterRef` may be:
 
 - direct reference to a singleton collection.
 - function, returning the reference to the collection.
@@ -182,84 +181,9 @@ Must have a reference to the master collection which is used to resolve record i
 }
 ```
 
-## Create and dispose
-
-### new Collection(records?, options?)
-
-Create an aggregating serializable collection of records. The collection will take ownership on its records and will put an error in the console if it can't.
-
-When creating a Collection, you may choose to pass in the initial array of records. The collection's comparator may be included as an option. Passing `false` as the comparator option will prevent sorting. If you define an `initialize() ` function, it will be invoked when the collection is created.
-
-```javascript
-var tabs = new TabSet([tab1, tab2, tab3]);
-```
-
-### new Collection.Refs( records?, options? )
-
-Create a non-aggregating non-serializable collection. The collection does not take ownership of its records. In all other aspects, it behaves like the regular collection.
-
-### collection.createSubset( records?, options? )
-
-Create the collection which is a subset of a source collection serializable as an array of record ids. Takes the same arguments as the collection's constructor.
-
-The created collection is an instance of `subsetOf( sourceCollection, CollectionCtor )` attribute type (non-aggregating serializable collection). 
-
-<aside class="notice">
-Records in the collection must have an `id` attribute populated to work properly with subsets.
-</aside>
-
-### CollectionClass.from( models, options? )
-
-Create `CollectionClass` from the array of models. Similar to direct collection creation, but supports additional option for strict data validation.
-If `{ strict : true }` option is passed the validation will be performed and an exception will be thrown in case of an error.
-
-Please note, that Type-R always performs type checks on assignments, convert types, and reject improper updates reporting it as an error. It won't, however, execute custom validation
-rules on every update as they are evaluated lazily. `strict` option will invoke custom validators and will throw on every error or warning instead of reporting them and continue.
-
-```javascript
-// Validate the body of an incoming HTTP request.
-// Throw an exception if validation fails.
-const body = MyRequestBody.from( ctx.request.body, { parse : true, strict : true });
-```
-
-```typescript
-// Validate the body of an incoming HTTP request.
-// Throw an exception if validation fails.
-const body = MyRequestBody.from( ctx.request.body, { parse : true, strict : true });
-```
-
-### `callback` collection.initialize( records?, options? )
-
-Initialization function which is called at the end of the constructor.
-
-### collection.clone()
-
-Clone the collection. An aggregating collection will be recursively cloned, non-aggregated collections will be shallow cloned.
-
-### collection.dispose()
-
-Dispose of the collection. An aggregating collection will recursively dispose of its records.
-
-## Read and iterate
-
-### collection.get( id )
-Get a record from a collection, specified by an `id`, a `cid`, or by passing in a record.
-
-```javascript
-const book = library.get(110);
-```
-
-### collection.at( index )
-
-Get a record from a collection, specified by index. Useful if your collection is sorted, and if your collection isn't sorted, at will still retrieve records in insertion order. When passed a negative index, it will retrieve the record from the back of the collection.
-
-## Array methods
+## Array API
 
 A collection class is an array-like object implementing ES6 Array methods and properties.
-
-### collection.models
-
-Raw access to the JavaScript array of records inside of the collection. Usually, you'll want to use `get`, `at`, or the other methods to access record objects, but occasionally a direct reference to the array is desired.
 
 ### collection.length
 
@@ -313,12 +237,35 @@ Add a record at the beginning of a collection. Takes the same options as `add()`
 ### collection.shift( options? )
 Remove and return the first record from a collection. Takes the same options as `remove()`.
 
-## Update
+## Backbone API
 
-Methods to update the collection. They accept common options:
+Common options used by Backbone API methods:
 
 - `{ sort : false }` - do not sort the collection.
 - `{ parse : true }` - parse raw JSON (used to set collection with data from the server).
+
+### `callback` collection.initialize( records?, options? )
+
+Initialization function which is called at the end of the constructor.
+
+### collection.clone()
+
+Clone the collection. An aggregating collection will be recursively cloned, non-aggregated collections will be shallow cloned.
+
+### collection.models
+
+Raw access to the JavaScript array of records inside of the collection. Usually, you'll want to use `get`, `at`, or the other methods to access record objects, but occasionally a direct reference to the array is desired.
+
+### collection.get( id )
+Get a record from a collection, specified by an `id`, a `cid`, or by passing in a record.
+
+```javascript
+const book = library.get(110);
+```
+
+### collection.at( index )
+
+Get a record from a collection, specified by index. Useful if your collection is sorted, and if your collection isn't sorted, at will still retrieve records in insertion order. When passed a negative index, it will retrieve the record from the back of the collection.
 
 ### collection.add( records, options? )
 
@@ -367,22 +314,36 @@ vanHalen.set([ eddie, alex, stone, hagar ]);
 // changed over the years.
 ```
 
-### collection.assignFrom( otherCollection )
-
-Synchronize the state of the collection and its aggregation tree with other collection of the same type. Updates existing objects in place. Record in the collection is considered to be "existing" if it has the same `id`.
-
-Equivalent to `collection.set( otherCollection.models, { merge : true } )` and triggers similar events on change.
-
-### collection.reset( records, options? )
+### collection.reset(records, options?)
 
 Replace the collection's content with the new records. More efficient than `collection.set`, but does not send record-level events.
 
 Calling `collection.reset()` without passing any records as arguments will empty the entire collection.
 
-1. Trigger event `reset`( collection, options ).
-2. Trigger event `changes`( collection, options ).
+1. Trigger event `reset`(collection, options).
+2. Trigger event `changes`(collection, options).
 
-### collection.sort( options? )
+### collection.pluck(attribute) 
+
+Pluck an attribute from each model in the collection. Equivalent to calling map and returning a single attribute from the iterator.
+
+```javascript
+const users = new UserCollection([
+  {name: "Curly"},
+  {name: "Larry"},
+  {name: "Moe"}
+]);
+
+const names = users.pluck("name");
+
+alert(JSON.stringify(names));
+```
+
+## Sorting
+
+Type-R implements BackboneJS Collection sorting API with some extensions.
+
+### collection.sort(options?)
 
 Force a collection to re-sort itself. You don't need to call this under normal circumstances, as a collection with a comparator will sort itself whenever a record is added. To disable sorting when adding a record, pass `{sort: false}` to add. Calling sort triggers a "sort" event on the collection.
 
@@ -402,7 +363,7 @@ Maintain the collection in sorted order according to the "sortBy" comparator fun
 
 "sortBy" comparator functions take a record and return a numeric or string value by which the record should be ordered relative to others.
 
-### `static` comparator = ( x, y ) => -1 | 0 | 1
+### `static` comparator = (x, y) => -1 | 0 | 1
 
 Maintain the collection in sorted order according to the "sort" comparator function.
 
@@ -428,3 +389,45 @@ chapters.add({page: 1, title: "The Beginning"});
 
 alert(chapters.map( x => x.title ));
 ```
+
+## Other methods
+
+### CollectionClass.from( models, options? )
+
+Create `CollectionClass` from the array of models. Similar to direct collection creation, but supports additional option for strict data validation.
+If `{ strict : true }` option is passed the validation will be performed and an exception will be thrown in case of an error.
+
+Please note, that Type-R always performs type checks on assignments, convert types, and reject improper updates reporting it as an error. It won't, however, execute custom validation
+rules on every update as they are evaluated lazily. `strict` option will invoke custom validators and will throw on every error or warning instead of reporting them and continue.
+
+```javascript
+// Validate the body of an incoming HTTP request.
+// Throw an exception if validation fails.
+const body = MyRequestBody.from( ctx.request.body, { parse : true, strict : true });
+```
+
+```typescript
+// Validate the body of an incoming HTTP request.
+// Throw an exception if validation fails.
+const body = MyRequestBody.from( ctx.request.body, { parse : true, strict : true });
+```
+
+### collection.createSubset( records?, options? )
+
+Create the collection which is a subset of a source collection serializable as an array of record ids. Takes the same arguments as the collection's constructor.
+
+The created collection is an instance of `subsetOf( sourceCollection, CollectionCtor )` attribute type (non-aggregating serializable collection). 
+
+<aside class="notice">
+Records in the collection must have an `id` attribute populated to work properly with subsets.
+</aside>
+
+### collection.assignFrom( otherCollection )
+
+Synchronize the state of the collection and its aggregation tree with other collection of the same type. Updates existing objects in place. Record in the collection is considered to be "existing" if it has the same `id`.
+
+Equivalent to `collection.set( otherCollection.models, { merge : true } )` and triggers similar events on change.
+
+### collection.dispose()
+
+Dispose of the collection. An aggregating collection will recursively dispose of its records.
