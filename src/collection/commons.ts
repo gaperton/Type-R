@@ -59,12 +59,15 @@ export function convertAndAquire( collection : CollectionCore, attrs : {} | Reco
         record = attrs instanceof model ? ( options.merge ? attrs.clone() : attrs ) : <Record>model.create( attrs, options );
 
         if( record._owner ){
-            record = record.clone();
-            const errors = collection._aggregationError || ( collection._aggregationError = [] );
-            errors.push( record );
+            if( record._owner !== collection ){
+                _aquire( collection, record.clone() );
+                const errors = collection._aggregationError || ( collection._aggregationError = [] );
+                errors.push( record );
+            }
         }
-
-        _aquire( collection, record );
+        else{
+            _aquire( collection, record );   
+        }
     }    
 
     // Subscribe for events...
