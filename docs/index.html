@@ -693,6 +693,25 @@ myBook.available = some &amp;&amp; weird || condition; <span class="hljs-comment
 <li><code>change:attrName</code> <em>( record, val, options )</em> for any changed attribute.</li>
 <li><code>change</code> <em>(record, options)</em>, if there were changed attributes.</li>
 </ol>
+<h3 id="recordclass-from-attrs-options-">RecordClass.from( attrs, options? )</h3>
+<p>Create <code>RecordClass</code> from attributes. Similar to direct record creation, but supports additional option for strict data validation.
+If <code>{ strict : true }</code> option is passed the validation will be performed and an exception will be thrown in case of an error.</p>
+<p>Please note, that Type-R always perform type checks on assignments, convert types, and reject improper updates reporting it as error. It won&#39;t, however, execute custom validation
+rules on every updates as they are evaluated lazily. <code>strict</code> option will invoke custom validators and will throw on every error or warning instead of reporting them and continue.</p>
+<pre><code class="highlight javascript"><span class="hljs-comment">// Fetch record with a given id.</span>
+<span class="hljs-keyword">const</span> book = <span class="hljs-keyword">await</span> Book.from({ <span class="hljs-attr">id</span> : <span class="hljs-number">5</span> }).fetch();
+
+<span class="hljs-comment">// Validate the body of an incoming HTTP request.</span>
+<span class="hljs-comment">// Throw an exception if validation fails.</span>
+<span class="hljs-keyword">const</span> body = MyRequestBody.from( ctx.request.body, { <span class="hljs-attr">parse</span> : <span class="hljs-literal">true</span>, <span class="hljs-attr">strict</span> : <span class="hljs-literal">true</span> });
+</code></pre>
+<pre><code class="highlight typescript"><span class="hljs-comment">// Fetch record with a given id.</span>
+<span class="hljs-keyword">const</span> book = <span class="hljs-keyword">await</span> Book.from({ id : <span class="hljs-number">5</span> }).fetch();
+
+<span class="hljs-comment">// Validate the body of an incoming HTTP request.</span>
+<span class="hljs-comment">// Throw an exception if validation fails.</span>
+<span class="hljs-keyword">const</span> body = MyRequestBody.from( ctx.request.body, { parse : <span class="hljs-literal">true</span>, strict : <span class="hljs-literal">true</span> });
+</code></pre>
 <h3 id="record-assignfrom-otherrecord-">record.assignFrom( otherRecord )</h3>
 <p>Makes an existing <code>record</code> to be the full clone of <code>otherRecord</code>, recursively assigning all attributes.
 In contracts to <code>record.clone()</code>, the record is updated in place.</p>
@@ -1008,6 +1027,19 @@ vanHalen.set([ eddie, alex, stone, hagar ]);
 <span class="hljs-comment">// Fires a "remove" event for roth, and an "add" event for hagar.</span>
 <span class="hljs-comment">// Updates any of stone, alex, and eddie's attributes that may have</span>
 <span class="hljs-comment">// changed over the years.</span>
+</code></pre>
+<h3 id="collectionclass-from-models-options-">CollectionClass.from( models, options? )</h3>
+<p>Create <code>CollectionClass</code> from models. Similar to direct collection creation, but supports additional option for strict data validation.
+If <code>{ strict : true }</code> option is passed the validation will be performed and an exception will be thrown in case of an error.</p>
+<p>Please note, that Type-R always perform type checks on assignments, convert types, and reject improper updates reporting it as error. It won&#39;t, however, execute custom validation
+rules on every updates as they are evaluated lazily. <code>strict</code> option will invoke custom validators and will throw on every error or warning instead of reporting them and continue.</p>
+<pre><code class="highlight javascript"><span class="hljs-comment">// Validate the body of an incoming HTTP request.</span>
+<span class="hljs-comment">// Throw an exception if validation fails.</span>
+<span class="hljs-keyword">const</span> body = MyRequestBody.from( ctx.request.body, { <span class="hljs-attr">parse</span> : <span class="hljs-literal">true</span>, <span class="hljs-attr">strict</span> : <span class="hljs-literal">true</span> });
+</code></pre>
+<pre><code class="highlight typescript"><span class="hljs-comment">// Validate the body of an incoming HTTP request.</span>
+<span class="hljs-comment">// Throw an exception if validation fails.</span>
+<span class="hljs-keyword">const</span> body = MyRequestBody.from( ctx.request.body, { parse : <span class="hljs-literal">true</span>, strict : <span class="hljs-literal">true</span> });
 </code></pre>
 <h3 id="collection-assignfrom-othercollection-">collection.assignFrom( otherCollection )</h3>
 <p>Synchronize the state of the collection and its aggregation tree with other collection of the same type. Updates existing objects in place. Record in the collection is considered to be &quot;existing&quot; if it has the same <code>id</code>.</p>
@@ -1670,7 +1702,7 @@ Initialized as <code>null</code> and serialized as <code>record.id</code>. Is no
 </code></pre>
 <pre><code class="highlight typescript">    <span class="hljs-meta">@define</span> <span class="hljs-keyword">class</span> State <span class="hljs-keyword">extends</span> Record {
         <span class="hljs-meta">@type</span>( Item.Collection ).as items : Collection&lt;Item&gt;;
-        <span class="hljs-meta">@from</span>( <span class="hljs-string">'items'</span> ).as selected : Item
+        <span class="hljs-meta">@memberOf</span>( <span class="hljs-string">'items'</span> ).as selected : Item
     }
 </code></pre>
 <aside class="info">It's recommended to use ~paths and stores instead of ^paths.</aside>
@@ -1678,7 +1710,7 @@ Initialized as <code>null</code> and serialized as <code>record.id</code>. Is no
 <h3 id="attrdef-subsetof-sourcecollection-collectionctor-"><code>attrDef</code> : subsetOf( <code>sourceCollection</code>, CollectionCtor? )</h3>
 <p>Serializable non-aggregating collection which is the subset of the existing collection. Serialized as an array of record ids. Used to model many-to-many relationships. <code>CollectionCtor</code> argument may be omitted unless you need it to be a sublass of the particular collection type.</p>
 <p>The collection object itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, or disposed.</p>
-<p><code>sourceCollection</code> is the same reference as used by <code>from( sourceCollection )</code>.</p>
+<p><code>sourceCollection</code> is the same reference as used by <code>memberOf( sourceCollection )</code>.</p>
 <pre><code class="highlight javascript">@define <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Role</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Record</span> </span>{
     <span class="hljs-keyword">static</span> attributes = {
         <span class="hljs-attr">name</span> : <span class="hljs-built_in">String</span>,

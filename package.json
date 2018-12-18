@@ -38,11 +38,18 @@
   },
   "keywords": [
     "model",
-    "backbone",
+    "collection",
+    "backbonejs",
     "data",
     "nestedtypes",
     "schema",
-    "serialization"
+    "serialization",
+    "validation",
+    "observable",
+    "reactive",
+    "orm",
+    "odm",
+    "typescript"
   ],
   "author": "Vlad Balin",
   "contributors": [

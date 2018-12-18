@@ -414,7 +414,7 @@ Changes in shared record are not detected.
 ```typescript
     @define class State extends Record {
         @type( Item.Collection ).as items : Collection<Item>;
-        @from( 'items' ).as selected : Item
+        @memberOf( 'items' ).as selected : Item
     }
 ```
 
@@ -426,7 +426,7 @@ Serializable non-aggregating collection which is the subset of the existing coll
 
 The collection object itself is recursively created and cloned. However, its records are not aggregated by the collection thus they are not recursively cloned, validated, or disposed.
 
-`sourceCollection` is the same reference as used by `from( sourceCollection )`.
+`sourceCollection` is the same reference as used by `memberOf( sourceCollection )`.
 
 ```javascript
 @define class Role extends Record {

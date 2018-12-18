@@ -274,6 +274,26 @@ vanHalen.set([ eddie, alex, stone, hagar ]);
 // changed over the years.
 ```
 
+### CollectionClass.from( models, options? )
+
+Create `CollectionClass` from models. Similar to direct collection creation, but supports additional option for strict data validation.
+If `{ strict : true }` option is passed the validation will be performed and an exception will be thrown in case of an error.
+
+Please note, that Type-R always perform type checks on assignments, convert types, and reject improper updates reporting it as error. It won't, however, execute custom validation
+rules on every updates as they are evaluated lazily. `strict` option will invoke custom validators and will throw on every error or warning instead of reporting them and continue.
+
+```javascript
+// Validate the body of an incoming HTTP request.
+// Throw an exception if validation fails.
+const body = MyRequestBody.from( ctx.request.body, { parse : true, strict : true });
+```
+
+```typescript
+// Validate the body of an incoming HTTP request.
+// Throw an exception if validation fails.
+const body = MyRequestBody.from( ctx.request.body, { parse : true, strict : true });
+```
+
 ### collection.assignFrom( otherCollection )
 
 Synchronize the state of the collection and its aggregation tree with other collection of the same type. Updates existing objects in place. Record in the collection is considered to be "existing" if it has the same `id`.

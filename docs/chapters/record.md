@@ -500,6 +500,33 @@ Record triggers events after all changes are applied:
 1. `change:attrName` *( record, val, options )* for any changed attribute.
 2. `change` *(record, options)*, if there were changed attributes.
 
+
+### RecordClass.from( attrs, options? )
+
+Create `RecordClass` from attributes. Similar to direct record creation, but supports additional option for strict data validation.
+If `{ strict : true }` option is passed the validation will be performed and an exception will be thrown in case of an error.
+
+Please note, that Type-R always perform type checks on assignments, convert types, and reject improper updates reporting it as error. It won't, however, execute custom validation
+rules on every updates as they are evaluated lazily. `strict` option will invoke custom validators and will throw on every error or warning instead of reporting them and continue.
+
+```javascript
+// Fetch record with a given id.
+const book = await Book.from({ id : 5 }).fetch();
+
+// Validate the body of an incoming HTTP request.
+// Throw an exception if validation fails.
+const body = MyRequestBody.from( ctx.request.body, { parse : true, strict : true });
+```
+
+```typescript
+// Fetch record with a given id.
+const book = await Book.from({ id : 5 }).fetch();
+
+// Validate the body of an incoming HTTP request.
+// Throw an exception if validation fails.
+const body = MyRequestBody.from( ctx.request.body, { parse : true, strict : true });
+```
+
 ### record.assignFrom( otherRecord )
 
 Makes an existing `record` to be the full clone of `otherRecord`, recursively assigning all attributes.
